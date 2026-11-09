@@ -150,5 +150,5 @@ assert(!shopTemplate.includes(' Tokens'),'Use TT, not old Tokens, in visible wal
 assert(!shopTemplate.includes('TastyTT'),'Do not corrupt full currency name when shortening the label');
 assert(shopTemplate.includes("goEarnTokens('quiz')")&&shopTemplate.includes("goEarnTokens('boss')"),
  'Daily TT shortcuts must still call the real Angular method');
-assert(js.includes('25 TastyTokens (TT)')&&js.includes('250 TT'),'Chemverse must use TT in practice descriptions');
+assert(js.includes('25 TastyTokens (TT)')&&js.includes('250 zusätzliche TT'),'Chemverse must use TT in practice descriptions');
 console.log('Shop reward honesty and TastyTokens wording verified.');
