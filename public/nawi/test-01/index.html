@@ -112,6 +112,14 @@ body[data-atm="nodes"]::after{
 body[data-frame="pixel"] :is(.panel,.hero){border:3px solid #b78aff!important;border-radius:0!important;box-shadow:5px 5px 0 #5deeea,9px 9px 0 #261e50!important;outline:2px dashed #ff9ff0;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){body[data-atm="atom_orbit"]::after,body[data-atm="nodes"]::after{animation:none!important}}
 
+
+/* Same account entry on all verses: avatar and readable My Profile label. */
+.studyverse-profile-link{display:inline-flex;align-items:center;gap:9px;min-height:43px;padding:5px 13px 5px 5px;background:var(--surface);border:1px solid var(--border);border-radius:14px;color:var(--ink);text-decoration:none;font-size:12px;font-weight:850;white-space:nowrap;transition:.18s}
+.studyverse-profile-link:hover{color:var(--accent);border-color:var(--accent);background:var(--surface2);transform:translateY(-1px)}
+.studyverse-profile-link #levelAvatar{display:grid;place-items:center;width:33px;height:33px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);font-size:22px}
+@media(max-width:720px){.studyverse-profile-link{padding:4px 9px 4px 4px;min-height:39px;gap:6px;font-size:11px}.studyverse-profile-link #levelAvatar{width:30px;height:30px;font-size:19px}}
+@media(max-width:430px){.studyverse-return{font-size:10px;padding:6px}.studyverse-profile-link{font-size:10px}}
+
 </style>
 </head>
 <body data-theme="base">
@@ -119,7 +127,7 @@ body[data-frame="pixel"] :is(.panel,.hero){border:3px solid #b78aff!important;bo
 <div class="brand"><div class="brand-symbol" id="brandAvatar">⚗</div><div><strong>Chemverse</strong><small>1. TEST · NAWI</small></div></div>
 <nav class="nav" id="nav" aria-label="Lernmodi"></nav>
 <div class="side-bottom"><div class="tiny">🧪 Deine Unterrichtsunterlagen · Fortschritt lokal und im Studyverse-Onlinekonto gespeichert</div></div>
-</aside><div class="main"><header class="topbar"><div class="topbar-left"><button class="btn secondary small burger" id="menuBtn" aria-label="Menü öffnen">☰</button><div class="crumb">Chemverse 1. Test <span style="opacity:.45">/</span> <b id="crumbText">Kommandozentrale</b></div></div><div class="topstats"><a id="returnStudyverse" class="studyverse-return" href="../../" title="Zur STUDYVERSE-Homepage zurückkehren"><span id="levelAvatar" aria-hidden="true">🧪</span><span>↩ STUDYVERSE</span></a></div></header><main id="pages"></main><footer class="footer">Chemverse · Lernhilfe mit lokalem Fortschritt und optionaler Studyverse-Cloud-Synchronisierung · Quellen: deine Unterrichtsunterlagen.</footer></div></div>
+</aside><div class="main"><header class="topbar"><div class="topbar-left"><button class="btn secondary small burger" id="menuBtn" aria-label="Menü öffnen">☰</button><div class="crumb">Chemverse 1. Test <span style="opacity:.45">/</span> <b id="crumbText">Kommandozentrale</b></div></div><div class="topstats"><a id="returnStudyverse" class="studyverse-return" href="../../" title="Zur Studyverse-Homepage zurückkehren"><span>↩ STUDYVERSE</span></a><a class="studyverse-profile-link" href="../../#profile" title="Mein Profil in Studyverse öffnen"><span id="levelAvatar" aria-hidden="true">🧪</span><span>Mein Profil</span></a></div></header><main id="pages"></main><footer class="footer">Chemverse · Lernhilfe mit lokalem Fortschritt und optionaler Studyverse-Cloud-Synchronisierung · Quellen: deine Unterrichtsunterlagen.</footer></div></div>
 <div id="toastWrap" class="toast-wrap" aria-live="polite"></div>
 <script src="../../shared/daily-rewards.js"></script>
 <script src="../../shared/cloud-progress.js"></script>
