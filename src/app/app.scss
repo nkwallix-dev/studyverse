@@ -11,6 +11,7 @@
 .universe[data-theme="matrix"]{--bg:#070e0a;--sidebar:#0b160e;--card:#11251a;--card2:#0a1a10;--border:#2b5836;--accent:#77ef93;--accent2:#c3ff96;--glow:#4aaf63}
 .universe[data-theme="arcade"]{--bg:#190c24;--sidebar:#230d32;--card:#321944;--card2:#251333;--border:#6c3779;--accent:#ff7ddd;--accent2:#81eff9;--glow:#cf42c9}
 .universe[data-theme="sunset"]{--bg:#1b0e24;--sidebar:#2a1831;--card:#38253d;--card2:#2b1b36;--border:#774967;--accent:#ffb982;--accent2:#ff91c7;--glow:#d17898}
+.universe[data-theme="blueprint"]{--bg:#071e34;--sidebar:#0b2b46;--card:#123c58;--card2:#092f48;--border:#397a9c;--text:#e8faff;--muted:#a5d5e7;--accent:#6ee3fd;--accent2:#b5fcff;--glow:#2997de}
 .universe[data-theme="paper"]{--bg:#e8ddc5;--sidebar:#e1d2b4;--card:#faf2df;--card2:#efe3c9;--border:#bba77f;--text:#332b28;--muted:#655a4b;--accent:#9c522b;--accent2:#267d75;--glow:#a98a55}
 .universe[data-theme="hologram"]{--bg:#041b2b;--sidebar:#082231;--card:#103447;--card2:#0b2938;--border:#276a7b;--accent:#5af4e3;--accent2:#8ac8ff;--glow:#28a5b6}
 .ambient{position:fixed;z-index:-1;pointer-events:none;filter:blur(10px);opacity:.6}.ambient.a{width:580px;height:560px;top:-280px;right:-110px;background:radial-gradient(circle,var(--glow),transparent 68%)}.ambient.b{width:600px;height:600px;bottom:-300px;left:12%;background:radial-gradient(circle,#27315c55,transparent 67%)}

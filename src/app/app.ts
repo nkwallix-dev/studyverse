@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { SHOP_ITEMS, ShopItem } from './shop-items';
+import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
 
 type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements';
@@ -12,13 +12,13 @@ interface Profile {
   equipped:Record<string,string>; legacyImportedAt?:string;
   chemverseSave?:Record<string,unknown>; claimedLevels:Record<string,boolean>;
   activity:Activity[]; customSubjects?:{id:string;name:string;emoji:string}[];
-  trainerSaves?:Record<string,Record<string,unknown>>;
+  trainerSaves?:Record<string,Record<string,unknown>>; shopDropMigrationV1?:boolean; achievementTokenClaims?:Record<string,boolean>;
   [key:string]:unknown;
 }
 const KEY='studyverse_profile_v1', INTRO='studyverse_import_prompt_seen_v1';
 const CHEM='chemverse_niklas_v1', BRIDGE='studyverse_trainer_launch_v2';
 const defaultEquip=()=>({theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'});
-const initial=():Profile=>({xp:0,tokens:0,nickname:'Explorer',inventory:[],equipped:defaultEquip(),claimedLevels:{},activity:[],customSubjects:[]});
+const initial=():Profile=>({xp:0,tokens:0,nickname:'Explorer',inventory:[],equipped:defaultEquip(),claimedLevels:{},activity:[],customSubjects:[],shopDropMigrationV1:true});
 const safe=(n:unknown):number=>typeof n==='number'&&Number.isFinite(n)?Math.max(0,Math.floor(n)):0;
 const isObj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v);
 const validChem=(v:unknown):v is Record<string,unknown>=>isObj(v)&&typeof v['xp']==='number'&&typeof v['coins']==='number'&&['learned','solved','earned','purchased'].every(k=>isObj(v[k]));
@@ -45,21 +45,36 @@ export class App implements OnInit,OnDestroy {
  readonly subjects=SUBJECTS;
  readonly items=SHOP_ITEMS;
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
+ shopDrop='nawi-test-01'; previewed:ShopItem|null=null;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  achievementSubject='Alle';achievementTest='Alle';
  profile:Profile=this.load(); public today=new Date();
- private onReturn=()=>this.syncChemverse();
- ngOnInit(){this.nicknameEdit=this.profile.nickname;this.syncChemverse();window.addEventListener('pageshow',this.onReturn);}
+ private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();};
+ ngOnInit(){
+   this.nicknameEdit=this.profile.nickname;this.syncChemverse();
+   const bonus=this.grantAchievementTokens();
+   if(bonus)this.alert('🏆 Deine bereits erreichten Achievements bringen dir rückwirkend +'+bonus+' Tokens!');
+   window.addEventListener('pageshow',this.onReturn);
+ }
  ngOnDestroy(){window.removeEventListener('pageshow',this.onReturn);}
  private load():Profile {
    const raw=parse(read(KEY));const fresh=initial();
    if(!isObj(raw))return fresh;
-   return {...fresh,...raw,xp:safe(raw['xp']),tokens:safe(raw['tokens']),
+   const restored:Profile={...fresh,...raw,xp:safe(raw['xp']),tokens:safe(raw['tokens']),
     nickname:typeof raw['nickname']==='string'?raw['nickname']:'Explorer',
     inventory:Array.isArray(raw['inventory'])?raw['inventory'].filter(v=>typeof v==='string') as string[]:[],
     claimedLevels:isObj(raw['claimedLevels'])?raw['claimedLevels'] as Record<string,boolean>:{},
     equipped:{...defaultEquip(),...(isObj(raw['equipped'])?raw['equipped']:{} as Record<string,string>)},
     activity:Array.isArray(raw['activity'])?raw['activity'] as Activity[]:[]};
+   // Respect items users already earned in the pre-drop economy (including formerly free rewards).
+   if(raw['shopDropMigrationV1']!==true){
+     const oldLevel=levelFor(restored.xp);
+     const previousRewards=[{id:'avatar_atom',level:2},{id:'ionstorm',level:3},{id:'title_chaos',level:4},{id:'blueprint',level:4},{id:'legend',level:5}];
+     restored.inventory=[...new Set([...restored.inventory,...previousRewards.filter(x=>oldLevel>=x.level).map(x=>x.id)])];
+     restored.shopDropMigrationV1=true;
+     write(KEY,JSON.stringify(restored));
+   }
+   return restored;
  }
  private save(){write(KEY,JSON.stringify(this.profile));}
  private alert(message:string){this.info=message;}
@@ -73,9 +88,77 @@ export class App implements OnInit,OnDestroy {
  get selectedSubject(){return this.subjectsAll.find(s=>s.id===this.selected);}
  get filteredSubjects(){return this.subjectsAll.filter(s=>(this.group==='Alle'||s.group===this.group)&&
  (s.name+' '+s.short+' '+s.desc).toLowerCase().includes(this.search.toLowerCase().trim()));}
- get filteredItems(){return this.items.filter(i=>(this.shopGroup==='Alle'||i.group===this.shopGroup)).slice().sort((a,b)=>a.level===b.level?a.cost-b.cost:(a.level||1)-(b.level||1));}
+ get drops(){return SHOP_DROPS;}
+ get selectedDrop(){return this.drops.find(d=>d.id===this.shopDrop)||this.drops[0];}
+ get dropItems(){return this.items.filter(i=>i.drop===this.shopDrop);}
+ get dropOwned(){return this.dropItems.filter(i=>this.owns(i)).length;}
+ dropItemCount(id:string){return this.items.filter(i=>i.drop===id).length;}
+ dropOwnedCount(id:string){return this.items.filter(i=>i.drop===id&&this.owns(i)).length;}
+ itemProgressPercent(item:ShopItem):number{
+   if(this.owns(item)||this.isUnlocked(item))return 100;
+   if(item.drop==='global')return Math.min(100,Math.floor(100*this.level/(item.level||1)));
+   if(!item.requirement)return 0;
+   const study=Math.min(100,Math.floor(100*this.metricProgress(item.drop,item.requirement.metric)/item.requirement.value));
+   const lev=Math.min(100,Math.floor(100*this.level/(item.level||1)));
+   return Math.min(study,lev);
+ }
+ groupLabel(group:string):string{
+   const labels:Record<string,string>={theme:'Themes',atm:'Hintergründe',avatar:'Avatare',frame:'Rahmen',font:'Schriften',banner:'Banner',title:'Titel',fx:'Effekte'};
+   return labels[group]||group;
+ }
+
+ get dropUnlocked(){return this.dropItems.filter(i=>this.owns(i)||this.isUnlocked(i)).length;}
+ get filteredItems(){return this.dropItems.filter(i=>(this.shopGroup==='Alle'||i.group===this.shopGroup)).slice()
+   .sort((a,b)=>this.owns(a)===this.owns(b)?this.sortRequirement(a)-this.sortRequirement(b):this.owns(a)?-1:1);}
+ private sortRequirement(item:ShopItem){return item.drop==='global'?(item.level||1)*10:(item.requirement?.value||0);}
+ get shopCategories(){return ['Alle',...new Set(this.dropItems.map(i=>i.group))];}
+ chooseDrop(id:string){this.shopDrop=id;this.shopGroup='Alle';this.previewed=null;}
+ get chemMilestones(){return {academy:this.metricProgress('nawi-test-01','academy'),quiz:this.metricProgress('nawi-test-01','quiz'),draw:this.metricProgress('nawi-test-01','draw'),reaction:this.metricProgress('nawi-test-01','reaction'),boss:this.metricProgress('nawi-test-01','boss')};}
+ metricProgress(drop:string,metric:ShopRequirement['metric']):number{
+   const trainer=TRAINERS.find(t=>t.id===drop);if(!trainer)return 0;
+   const save=this.snapshot(trainer),solved=isObj(save['solved'])?save['solved']:{};
+   if(metric==='academy')return Object.values(isObj(save['courseDone'])?save['courseDone']:{}).filter(Boolean).length;
+   if(metric==='boss')return safe(save['bestBoss']);
+   const prefix=metric==='quiz'?'q':metric==='draw'?'d':'r';
+   return Object.keys(solved).filter(k=>k.startsWith(prefix)&&!!solved[k]).length;
+ }
+ isUnlocked(item:ShopItem):boolean{
+   if(this.owns(item))return true;
+   if(this.level<(item.level||1))return false;
+   if(item.drop==='global')return true;
+   if(!item.requirement)return false;
+   return this.metricProgress(item.drop,item.requirement.metric)>=item.requirement.value;
+ }
+ requirementLabel(item:ShopItem):string{
+   if(item.drop==='global')return 'Ab Profil-Level '+(item.level||1);
+   const r=item.requirement;if(!r)return 'Drop noch nicht verfügbar';
+   const value=this.metricProgress(item.drop,r.metric);
+   const captions={academy:'Lernlektionen',quiz:'Quizfragen',draw:'Zeichenaufgaben',reaction:'Reaktionsaufgaben',boss:'Boss-Ergebnis'};
+   const proof=r.metric==='boss'?'Boss: '+value+'% / '+r.value+'%':value+'/'+r.value+' '+captions[r.metric];
+   return (item.level?'Level '+item.level+' + ':'')+proof;
+ }
+ get dropDescription(){return this.shopDrop==='global'?'Freischaltungen durchs globale Profil-Level':'Freischaltungen durch echten Fortschritt im jeweiligen Test';}
+ get achievementRewardTotal(){return TRAINERS.reduce((n,t)=>n+t.achievements.reduce((sum,a)=>sum+a.reward,0),0);}
+ get dailyChem(){
+   const snapshot=this.snapshot(TRAINERS[0]);
+   const daily=isObj(snapshot['dailyCoin'])?snapshot['dailyCoin']:{};
+   const now=new Date();
+   const date=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+   const valid=daily['date']===date;
+   const ids=valid&&Array.isArray(daily['quizIds'])?daily['quizIds']:[];
+   return {questions:Math.min(20,ids.length),boss:valid&&daily['bossPaid']===true,
+     quizRemaining:Math.max(0,20-ids.length)*25, bossRemaining:valid&&daily['bossPaid']===true?0:250};
+ }
+ get shopCollectionCost(){return this.dropItems.filter(i=>!this.owns(i)).reduce((n,i)=>n+i.cost,0);}
+ get shopTokenGap(){return Math.max(0,this.shopCollectionCost-this.profile.tokens);}
+ goEarnTokens(mode:'quiz'|'boss'|'academy'){
+   if(mode==='academy'){this.openTrainer('nawi-test-01');return;}
+   this.openTrainer('nawi-test-01',mode);
+ }
+ preview(item:ShopItem){this.previewed=item;}
+ closePreview(){this.previewed=null;}
+
  get categories(){return ['Alle','Informatik','Naturwissenschaften','Wirtschaft','Gesellschaft','Andere'];}
- get shopCategories(){return ['Alle','theme','atm','avatar','frame','font','banner','title','fx'];}
  get claimed(){return this.profile.inventory.length;}
  get trainers(){return TRAINERS;}
  get achievementSubjects(){return ['Alle',...new Set(TRAINERS.map(t=>t.subjectId))];}
@@ -85,10 +168,31 @@ export class App implements OnInit,OnDestroy {
  getTrainerForSubject(id:string){return TRAINERS.filter(t=>t.subjectId===id);}
  private snapshot(t:TrainerDef):Record<string,unknown>{const local=parse(read(t.saveKey));if(isObj(local))return local;const saved=this.profile.trainerSaves?.[t.id];if(isObj(saved))return saved;if(t.id==='nawi-test-01'&&isObj(this.profile.chemverseSave))return this.profile.chemverseSave;return {};}
  setAchievementSubject(id:string){this.achievementSubject=id;this.achievementTest='Alle';}
+ private grantAchievementTokens():number{
+   const ledger:Record<string,boolean>=this.profile.achievementTokenClaims || {};
+   let paid=0;
+   for(const trainer of TRAINERS){
+     const state=this.snapshot(trainer);
+     for(const badge of trainer.achievements){
+       const key=trainer.id+':'+badge.id;
+       if(ledger[key]||achievementValue(badge,state)<badge.target)continue;
+       ledger[key]=true;paid+=badge.reward;
+       this.profile.activity=[{label:'🏆 '+badge.title+' · '+trainer.title,date:new Date().toISOString(),amount:badge.reward},...this.profile.activity].slice(0,30);
+     }
+   }
+   if(paid){
+     this.profile.tokens+=paid;
+     this.profile.achievementTokenClaims=ledger;
+     this.save();
+   }
+   return paid;
+ }
  get title(){return this.items.find(i=>i.id===this.profile.equipped['title'])?.name || 'Weltenentdecker';}
  get currentTheme(){return this.profile.equipped['theme'] || 'base';}
+ get previewTheme(){return this.previewed?.group==='theme'?this.previewed.id:this.currentTheme;}
+ previewSlot(k:string){return this.previewed?.group===k?(this.previewed.equip||this.previewed.id):this.profile.equipped[k];}
  get currentAvatar(){return this.profile.equipped['avatar'] || '🧪';}
- go(page:View){if(page==='achievements')this.syncTrainer();this.view=page;this.selected=null;window.scrollTo({top:0,behavior:'smooth'});}
+ go(page:View){if(page==='achievements'||page==='shop')this.syncTrainer();this.view=page;this.selected=null;this.previewed=null;window.scrollTo({top:0,behavior:'smooth'});}
  choose(id:string){this.selected=id;this.view='subjects';window.scrollTo({top:0,behavior:'smooth'});}
  startImport(){this.intro=false;this.importOpen=true;write(INTRO,'1');}
  skipIntro(){this.intro=false;write(INTRO,'1');}
@@ -105,7 +209,10 @@ export class App implements OnInit,OnDestroy {
    if(!validChem(data)){this.alert('Ungültiger CHEMVERSE-Export: XP, Coins oder Fortschrittsdaten fehlen.');return;}
    const purchased=data['purchased'] as Record<string,unknown>;
    this.profile.xp+=safe(data['xp']);this.profile.tokens+=safe(data['coins']);
-   this.profile.inventory=[...new Set([...this.profile.inventory,...Object.keys(purchased).filter(k=>!!purchased[k])])];
+   const importedLevel=levelFor(safe(data['xp']));
+   const legacyFree=[{id:'avatar_atom',level:2},{id:'ionstorm',level:3},{id:'title_chaos',level:4},{id:'blueprint',level:4},{id:'legend',level:5}];
+   this.profile.inventory=[...new Set([...this.profile.inventory,...Object.keys(purchased).filter(k=>!!purchased[k]),
+     ...legacyFree.filter(i=>importedLevel>=i.level).map(i=>i.id)])];
    if(isObj(data['claimedLevels']))this.profile.claimedLevels={...this.profile.claimedLevels,...data['claimedLevels'] as Record<string,boolean>};
    const loadout=isObj(data['loadout'])?data['loadout']:{};
    this.profile.equipped={...this.profile.equipped,...loadout as Record<string,string>};
@@ -115,8 +222,9 @@ export class App implements OnInit,OnDestroy {
    this.profile.trainerSaves={...(this.profile.trainerSaves||{}),'nawi-test-01':data};
    this.profile.activity=[{label:'CHEMVERSE importiert',date:new Date().toISOString(),amount:safe(data['xp'])},...this.profile.activity].slice(0,30);
    this.awardGlobalLevelRewards();this.awardLevelFreebies();this.save();write(CHEM,JSON.stringify(data));
+   const achievedBonus=this.grantAchievementTokens();
    this.importOpen=false;this.intro=false;write(INTRO,'1');
-   this.alert('CHEMVERSE übertragen! XP, Tokens und Items sind angekommen. 🎉');
+   this.alert('CHEMVERSE übertragen! '+(achievedBonus?'+ '+achievedBonus+' Achievement-Tokens rückwirkend! 🎉':'XP, Tokens und Items sind angekommen. 🎉'));
  }
  private awardGlobalLevelRewards():number {
    let total=0;
@@ -141,22 +249,23 @@ export class App implements OnInit,OnDestroy {
    return this.profile.equipped[key]===value;
  }
  priceLabel(item:ShopItem){
-   if(this.owns(item))return this.active(item)?'Aktiv ✓':'Ausrüsten';
-   if(this.level<(item.level||1))return 'Ab Level '+item.level;
-   return item.cost===0?'Abholen':item.cost+' Tokens';
+   if(this.owns(item))return this.active(item)?'✓ Ausgerüstet':'Ausrüsten';
+   if(!this.isUnlocked(item))return '🔒 Noch gesperrt';
+   return item.cost===0?'Kostenlos abholen':'◉ '+item.cost+' Tokens';
  }
  buyOrEquip(item:ShopItem){
    if(!this.owns(item)){
-     if(this.level<(item.level||1)){this.alert('Freischaltung erst ab Level '+item.level+'.');return;}
+     if(!this.isUnlocked(item)){this.alert('Erst freischalten: '+this.requirementLabel(item));return;}
      if(this.profile.tokens<item.cost){this.alert('Nicht genug Tokens, Bruder. 💀');return;}
      this.profile.tokens-=item.cost;this.profile.inventory=[...this.profile.inventory,item.id];
-     this.profile.activity=[{label:item.name+' gekauft',date:new Date().toISOString(),amount:-item.cost},...this.profile.activity].slice(0,30);
-     this.alert(item.icon+' '+item.name+' gekauft! Jetzt kannst du es ausrüsten.');
+     this.profile.activity=[{label:item.name+' gekauft · '+this.selectedDrop.title,date:new Date().toISOString(),amount:-item.cost},...this.profile.activity].slice(0,30);
+     this.alert(item.icon+' '+item.name+' gehört dir! Überall in STUDYVERSE ausrüstbar.');
    }else{
      const key=item.group,value=key==='avatar'?item.icon:(item.equip||item.id);
      this.profile.equipped[key]=this.active(item)?this.equipDefault(key):value;
      this.alert(item.name+' – Ausrüstung geändert.');
    }
+   this.previewed=null;
    this.save();
  }
  private equipDefault(k:string){return defaultEquip()[k as keyof ReturnType<typeof defaultEquip>] || 'none';}
@@ -182,7 +291,7 @@ export class App implements OnInit,OnDestroy {
    URL.revokeObjectURL(url);
  }
  openChemverse(){this.openTrainer('nawi-test-01');}
- openTrainer(id:string){
+ openTrainer(id:string,mode?:'quiz'|'boss'){
    const trainer=TRAINERS.find(t=>t.id===id);if(!trainer){this.alert('Diese Lernwelt ist noch nicht verfügbar.');return;}
    const oldRaw=parse(read(trainer.saveKey));
    const old:Record<string,unknown>=isObj(oldRaw)?{...oldRaw}:isObj(this.profile.trainerSaves?.[id])?{...this.profile.trainerSaves![id]}:id==='nawi-test-01'&&validChem(this.profile.chemverseSave)?{...this.profile.chemverseSave}:{xp:0,coins:0,purchased:{},earned:{},solved:{},learned:{}};
@@ -192,7 +301,8 @@ export class App implements OnInit,OnDestroy {
    old['loadout']={...(isObj(old['loadout'])?old['loadout']:{}),...this.profile.equipped};
    write(trainer.saveKey,JSON.stringify(old));
    write(BRIDGE,JSON.stringify({id:trainer.id,saveKey:trainer.saveKey,xp:safe(old['xp'])}));
-   window.location.assign(new URL(trainer.path,document.baseURI).href);
+   const link=new URL(trainer.path,document.baseURI);if(mode)link.hash=mode;
+   window.location.assign(link.href);
  }
  private syncChemverse(){this.syncTrainer();}
  private syncTrainer(){
@@ -210,6 +320,7 @@ export class App implements OnInit,OnDestroy {
    this.awardLevelFreebies();
    if(gained)this.profile.activity=[{label:trainer.title+' · Lernrunde',date:new Date().toISOString(),amount:gained},...this.profile.activity].slice(0,30);
    this.save();try{localStorage.removeItem(BRIDGE)}catch{}
-   if(gained||levelBonus)this.alert('Willkommen zurück! '+(gained?'+'+gained+' XP ':'')+(levelBonus?'· +'+levelBonus+' Level-Tokens':'')+' synchronisiert.');
+   const achievementBonus=this.grantAchievementTokens();
+   if(gained||levelBonus||achievementBonus)this.alert('Willkommen zurück! '+(gained?'+'+gained+' XP ':'')+(levelBonus?'· +'+levelBonus+' Level-Tokens':'')+(achievementBonus?' · 🏆 +'+achievementBonus+' Achievement-Tokens':'')+' synchronisiert.');
  }
 }

@@ -1,4 +1,4 @@
-<div class="universe" [attr.data-theme]="currentTheme" [attr.data-atm]="profile.equipped['atm']" [attr.data-frame]="profile.equipped['frame']" [attr.data-font]="profile.equipped['font']" [attr.data-banner]="profile.equipped['banner']" [attr.data-fx]="profile.equipped['fx']">
+<div class="universe" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
   <div class="ambient a"></div><div class="ambient b"></div>
   <aside class="sidebar">
     <button class="brand" (click)="go('dashboard')">
@@ -10,7 +10,7 @@
       <button [class.active]="view==='dashboard'" (click)="go('dashboard')"><span>◈</span> Dashboard <b>↗</b></button>
       <button [class.active]="view==='subjects'" (click)="go('subjects')"><span>▦</span> Lernwelten <em>{{subjectsAll.length}}</em></button>
       <button [class.active]="view==='achievements'" (click)="go('achievements')"><span>🏆</span> Achievements <em>{{achievementTotals.done}}/{{achievementTotals.total}}</em></button>
-      <button [class.active]="view==='shop'" (click)="go('shop')"><span>◇</span> Item-Shop <em>{{items.length}}</em></button>
+      <button [class.active]="view==='shop'" (click)="go('shop')"><span>◇</span> Drop-Shop <em>{{items.length}}</em></button>
       <button [class.active]="view==='profile'" (click)="go('profile')"><span>☻</span> Mein Profil</button>
     </nav>
     <div class="menu-label sublabel">SPEED TRAVEL</div>
@@ -30,7 +30,7 @@
   <div class="workspace">
     <header class="topbar">
       <div class="breadcrumbs"><span>✧</span> STUDYVERSE <span class="slash">/</span>
-        <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?'Item-Shop':view==='achievements'?'Achievements':'Mein Profil'}}</strong>
+        <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?'Drop-Shop':view==='achievements'?'Achievements':'Mein Profil'}}</strong>
       </div>
       <div class="top-pills">
         <div class="top-pill lev"><span>⚡</span> Level {{level}} <div class="tiny-track"><i [style.width.%]="levelProgress"></i></div></div>
@@ -126,7 +126,7 @@
             <div class="section-heading"><div><div class="eyebrow">{{group.trainer.subjectId.toUpperCase()}} · {{group.trainer.id}}</div><h2>{{group.trainer.title}} <span>✦</span></h2></div><span class="pill">{{group.items.length}} mögliche Erfolge</span></div>
             <div class="achievement-grid"><article class="achievement-card" *ngFor="let a of group.items" [class.achievement-unlocked]="a.done">
               <div class="achievement-symbol">{{a.done?a.icon:'🔒'}}</div><div class="achievement-content"><div class="achievement-status">{{a.done?'✓ FREIGESCHALTET':'NOCH GESPERRT'}}</div>
-              <h3>{{a.title}}</h3><p>{{a.description}}</p><div class="achievement-foot"><span>{{a.value}} / {{a.target}}</span><span>{{a.percent}}%</span></div>
+              <h3>{{a.title}}</h3><p>{{a.description}}</p><div class="achievement-reward">🪙 +{{a.reward | number}} Tokens {{a.done?'· verdient':'· bei Abschluss'}}</div><div class="achievement-foot"><span>{{a.value}} / {{a.target}}</span><span>{{a.percent}}%</span></div>
               <div class="progress-track"><i [style.width.%]="a.percent"></i></div></div>
             </article></div>
           </section>
@@ -134,16 +134,104 @@
         </ng-container>
 
         <ng-container *ngSwitchCase="'shop'">
-          <div class="eyebrow">UPGRADE YOUR UNIVERSE</div><h1 class="page-title">Der <span>Item-Shop.</span></h1>
-          <p class="page-subtitle">Kosmetische Upgrades, Avatare und kranke Themes. Freischalten, kaufen, ausrüsten – alles mit deinen Tokens.</p>
-          <div class="shop-banner"><div><small>✦ YOUR WALLET</small><h2>◉ {{profile.tokens | number}} Tokens</h2><span>Level {{level}} · {{claimed}} Items im Inventar</span></div><span class="shop-planet">🪐</span></div>
-          <div class="chips"><button *ngFor="let g of shopCategories" (click)="shopGroup=g" [class.selected]="shopGroup===g">{{g==='Alle'?'Alle Items':g==='atm'?'Hintergründe':g==='theme'?'Themes':g==='frame'?'Rahmen':g==='fx'?'Effekte':g==='font'?'Schriften':g==='avatar'?'Avatare':g==='title'?'Titel':'Banner'}}</button></div>
-          <div class="item-grid"><article class="item" *ngFor="let item of filteredItems" [class.locked]="!owns(item) && level<(item.level||1)">
-            <div class="item-art" [style.background]="themeStyle(item)"><span>{{item.icon}}</span></div>
-            <div class="item-meta"><span class="item-kind">{{item.group}} · Level {{item.level||1}}</span><span class="owned" *ngIf="owns(item)">✓ IM BESITZ</span></div>
-            <h3>{{item.name}}</h3><p>{{item.desc}}</p>
-            <button class="buy-btn" (click)="buyOrEquip(item)" [disabled]="!owns(item) && level<(item.level||1)">{{priceLabel(item)}}</button>
-          </article></div>
+          <div class="eyebrow">THE STUDYVERSE ITEM ECONOMY</div>
+          <h1 class="page-title">Der <span>Drop-Shop.</span></h1>
+          <p class="page-subtitle">Jede Lernwelt hat ihren eigenen Drop. <strong>Erst lernen, dann kaufen.</strong> Einmal erworbene Cosmetics gehören dir aber im gesamten STUDYVERSE.</p>
+
+          <div class="shop-banner drop-hero">
+            <div class="drop-hero-copy">
+              <span class="eyebrow">✦ GLOBAL INVENTORY · ALL VERSES</span>
+              <h2><span class="wallet-icon">◉</span> {{profile.tokens | number}} <small>Tokens</small></h2>
+              <p>Level {{level}} · {{claimed}} Cosmetics im Inventar · Ein gemeinsamer Geldbeutel für alle Lernwelten.</p>
+            </div>
+            <div class="drop-floating-art"><span class="drop-planet">🪐</span><span class="drop-spark">✦</span></div>
+          </div>
+
+          <div class="section-heading drop-section-title"><div><div class="eyebrow">WÄHLE DEINEN DROP</div><h2>Shop-Kollektionen <span>✦</span></h2></div></div>
+          <div class="shop-drop-grid">
+            <button type="button" class="shop-drop-card" *ngFor="let drop of drops"
+              [class.selected]="shopDrop===drop.id" [class.upcoming]="drop.status==='upcoming'"
+              (click)="chooseDrop(drop.id)">
+              <div class="drop-card-top"><span class="drop-icon">{{drop.icon}}</span><span class="drop-card-status" [class.live]="drop.status==='live'">{{drop.status==='live'?'● LIVE':'✧ COMING SOON'}}</span></div>
+              <strong>{{drop.title}}</strong>
+              <p>{{drop.description}}</p>
+              <div class="drop-card-bottom">
+                <span>{{drop.subtitle}}</span>
+                <b>{{drop.status==='live'?dropOwnedCount(drop.id)+' / '+dropItemCount(drop.id)+' Items':'Bald verfügbar'}}</b>
+              </div>
+            </button>
+          </div>
+
+          <div class="drop-stage" *ngIf="selectedDrop as d">
+            <div class="drop-stage-head">
+              <div class="drop-stage-icon">{{d.icon}}</div>
+              <div class="drop-stage-text"><div class="eyebrow">{{d.subtitle}} · {{d.status==='live'?'ACTIVE DROP':'UPCOMING DROP'}}</div>
+                <h2>{{d.title}}</h2><p>{{d.description}}</p></div>
+              <div class="drop-stage-numbers" *ngIf="d.status==='live'"><b>{{dropUnlocked}} / {{dropItems.length}}</b><small>FREIGESCHALTET ODER BESITZ</small></div>
+            </div>
+            <div *ngIf="shopDrop==='nawi-test-01'" class="learning-milestones">
+              <div class="milestone"><span>🎓</span><b>{{chemMilestones.academy}} / 17</b><small>Lernlektionen</small></div>
+              <div class="milestone"><span>⚡</span><b>{{chemMilestones.quiz}} / 64</b><small>Quizfragen</small></div>
+              <div class="milestone"><span>✍️</span><b>{{chemMilestones.draw}}</b><small>Zeichenaufgaben</small></div>
+              <div class="milestone"><span>💥</span><b>{{chemMilestones.reaction}}</b><small>Reaktionen</small></div>
+              <div class="milestone"><span>👹</span><b>{{chemMilestones.boss}}%</b><small>Boss-Bestwert</small></div>
+              <button class="btn primary go-learn" (click)="openTrainer('nawi-test-01')">Chemverse spielen ↗</button>
+            </div>
+            <div *ngIf="shopDrop==='global'" class="drop-guide">⚡ Globale Items werden über das STUDYVERSE-Profil-Level freigeschaltet. Neue Level, neue Basics – deine Käufe funktionieren in allen Lernwelten.</div>
+            <div *ngIf="d.status==='upcoming'" class="drop-guide">🤖 Der DSAI-Drop wird erst mit dem DSAI-Trainer veröffentlicht. Dann gibt's neue Items, Level-Freischaltungen und eigene Lernfortschritt-Sperren.</div>
+          </div>
+
+          <section class="coin-earning-station">
+            <div class="coin-station-head">
+              <span class="coin-station-emoji">🪙</span>
+              <div><div class="eyebrow">TOKEN EARNING STATION</div><h2>EY DU, DA GIBT'S NOCH COINS ZU HOLEN!</h2>
+                <p>Schon alle Achievements? Kein Problem. Wiederhole echte Aufgaben und verdiene täglich weitere Tokens.</p></div>
+              <div class="coin-station-value"><small>NOCH IN DIESEM DROP ZU KAUFEN</small><strong>{{shopCollectionCost | number}} ◉</strong>
+                <span *ngIf="shopTokenGap>0">Dir fehlen noch {{shopTokenGap | number}} Tokens fürs komplette Set.</span>
+                <span *ngIf="shopTokenGap===0">Dein Guthaben reicht theoretisch für den Rest der Kollektion!</span></div>
+            </div>
+            <div class="coin-earning-grid">
+              <div class="earning-tile"><span class="earn-icon">🏆</span><div class="earn-type">ACHIEVEMENTS</div><strong>Bis zu {{achievementRewardTotal | number}} ◉</strong>
+                <p>Alle 11 Chemverse-Erfolge bringen einmalige Token-Boni. Alte Erfolge werden rückwirkend gutgeschrieben.</p>
+                <button (click)="go('achievements')">Achievements ansehen ↗</button></div>
+              <div class="earning-tile"><span class="earn-icon">⚡</span><div class="earn-type">TÄGLICHES QUIZ</div><strong>{{dailyChem.questions}} / 20 <span>Fragen</span></strong>
+                <p>Je 25 Tokens für 20 verschiedene richtige Fragen pro Tag – auch bereits gelöste Fragen zählen. Noch {{dailyChem.quizRemaining}} ◉ möglich.</p>
+                <button (click)="goEarnTokens('quiz')">Quiz wiederholen ↗</button></div>
+              <div class="earning-tile"><span class="earn-icon">👹</span><div class="earn-type">TÄGLICHER BOSSKAMPF</div><strong>{{dailyChem.boss?'✓ Erledigt':'+250 ◉'}}</strong>
+                <p>Einmal täglich 250 Tokens bei mindestens 70 % richtigen Antworten. Antwortpositionen werden neu gemischt.</p>
+                <button (click)="goEarnTokens('boss')">Boss herausfordern ↗</button></div>
+            </div>
+            <div class="coin-earning-foot">💡 Neue Tests geben dir zusätzliche erstmalige XP und Tokens. Für jeden weiteren Trainer kommen neue Achievements und neue Drops hinzu. Wiederholungsboni werden pro Browser-Tag zurückgesetzt.</div>
+          </section>
+
+          <ng-container *ngIf="selectedDrop.status==='live'">
+            <div class="section-heading lower"><div><div class="eyebrow">COLLECTION · {{selectedDrop.title}}</div><h2>Alle Items <span>✦</span></h2></div><span class="pill">{{dropOwned}} / {{dropItems.length}} gekauft oder erhalten</span></div>
+            <div class="chips shop-category-chips">
+              <button type="button" *ngFor="let g of shopCategories" [class.selected]="shopGroup===g" (click)="shopGroup=g">
+                {{g==='Alle'?'Alle':groupLabel(g)}} <small *ngIf="g==='Alle'">({{dropItems.length}})</small>
+              </button>
+            </div>
+
+            <div class="item-grid drop-item-grid">
+              <article class="item drop-item" *ngFor="let item of filteredItems" [class.locked]="!isUnlocked(item)" [class.owned]="owns(item)">
+                <div class="item-art drop-item-art" [style.background]="themeStyle(item)">
+                  <span class="item-spark one">✦</span><span class="big-item-icon">{{item.icon}}</span><span class="item-spark two">✧</span>
+                  <span class="item-top-badge">{{owns(item)?'✓ OWNED':isUnlocked(item)?'🔓 UNLOCKED':'🔒 LOCKED'}}</span>
+                </div>
+                <div class="item-meta"><span class="item-kind">{{groupLabel(item.group)}}</span><span class="owned" *ngIf="owns(item)">IM INVENTAR</span></div>
+                <h3>{{item.name}}</h3><p>{{item.desc}}</p>
+                <div class="item-unlock" [class.ready]="isUnlocked(item)">
+                  <div class="unlock-caption"><span>{{requirementLabel(item)}}</span><b>{{itemProgressPercent(item)}}%</b></div>
+                  <div class="progress-track"><i [style.width.%]="itemProgressPercent(item)"></i></div>
+                </div>
+                <div class="drop-price"><span>PREIS</span><strong>{{item.cost===0?'GRATIS':(item.cost | number)+' ◉'}}</strong></div>
+                <div class="drop-actions">
+                  <button type="button" class="drop-preview-btn" (click)="preview(item)">👁 Vorschau</button>
+                  <button type="button" class="drop-buy-btn" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
+                </div>
+              </article>
+            </div>
+          </ng-container>
         </ng-container>
 
         <ng-container *ngSwitchCase="'profile'">
@@ -173,6 +261,20 @@
       <button class="btn secondary full" *ngIf="canImport" (click)="importBrowser()">Im Browser gespeicherten CHEMVERSE-Stand versuchen</button>
       <button class="btn plain full" (click)="importOpen=false">Später machen</button>
       <small>Der Import erfolgt einmalig pro lokalem Profil und kann nicht doppelt Tokens vergeben.</small>
+    </div>
+  </div>
+  <div class="veil shop-preview-veil" *ngIf="previewed as item" role="dialog" aria-modal="true">
+    <div class="modal shop-preview-modal">
+      <div class="preview-visual" [style.background]="themeStyle(item)"><span>{{item.icon}}</span><i>✦</i></div>
+      <div class="eyebrow">LIVE-VORSCHAU · {{item.drop==='global'?'STUDYVERSE GLOBAL':'CHEMVERSE DROP'}}</div>
+      <h2>{{item.name}}</h2><p>{{item.desc}}</p>
+      <div class="preview-requirement" [class.ready]="isUnlocked(item)">
+        {{isUnlocked(item)?'✓ Freigeschaltet':'🔒 Gesperrt'}} · {{requirementLabel(item)}}
+      </div>
+      <p class="preview-cost">{{item.cost===0?'Gratis':(item.cost | number)+' Tokens'}} <span *ngIf="owns(item)">· Bereits im Inventar</span></p>
+      <button class="btn primary full" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
+      <button class="btn secondary full" (click)="closePreview()">Vorschau schließen</button>
+      <small *ngIf="item.group==='theme'||item.group==='atm'||item.group==='font'||item.group==='frame'||item.group==='banner'">Die Vorschau zeigt den Stil auf der Homepage. Es wurden keine Tokens abgezogen.</small>
     </div>
   </div>
   <div class="notice" *ngIf="info"><span>{{info}}</span><button (click)="info=''">✕</button></div>
