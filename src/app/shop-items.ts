@@ -49,7 +49,7 @@ export const SHOP_ITEMS:ShopItem[]=[
 {id:'avatar_atom',kind:'avatar',icon:'⚛️',name:'Atom-Champion',cost:115,desc:'Das Atom-Abzeichen aus deiner Chemie-Lernwelt. Freischaltung durch Lernlektionen.',group:'avatar',drop:'nawi-test-01',requirement:{metric:'academy',value:3}},
 {id:'avatar_crown',kind:'avatar',icon:'👑',name:'Goldkrone',cost:220,desc:'Goldene Krone für deinen STUDYVERSE-Charakter.',group:'avatar',drop:'global',level:6},
 {id:'title',kind:'title',icon:'🏅',name:'CHEMIE BOSS',cost:140,desc:'Zeig allen deinen Chemie-Boss-Status.',group:'title',drop:'nawi-test-01',requirement:{metric:'quiz',value:20}},
-{id:'title_chaos',kind:'title',icon:'☠️',name:'Professor Fischer',cost:210,desc:'Unterschätz niemals jemals jemand... Unterschätz den Mann. Nur perfekte 100 % im Chemie-Boss bringen dir diesen Titel.',group:'title',drop:'nawi-test-01',requirement:{metric:'boss',value:100}},
+{id:'title_chaos',kind:'title',icon:'☠️',name:'Professor Fischer',cost:210,desc:'Unterschätz niemals jemals jemand... Unterschätz den Mann.',group:'title',drop:'nawi-test-01',requirement:{metric:'boss',value:100}},
 {id:'title_pizza',kind:'title',icon:'🍕',name:'Mozzarella-Magister',cost:100,desc:'Pizzastudium mit Abschluss.',group:'title',drop:'nawi-test-01',requirement:{metric:'academy',value:6}},
 {id:'title_orbit',kind:'title',icon:'🪐',name:'Orbit-Gott',cost:140,desc:'Der Weltraum ist dein Klassenzimmer.',group:'title',drop:'global',level:6},
 {id:'title_legend',kind:'title',icon:'🧪',name:'Labor-Legende',cost:180,desc:'Sieht teurer aus als eine Matura.',group:'title',drop:'nawi-test-01',requirement:{metric:'boss',value:80}},
