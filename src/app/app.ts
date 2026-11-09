@@ -61,7 +61,7 @@ export class App implements OnInit,OnDestroy {
  cloudMode:'register'|'login'='register'; cloudUsername=''; cloudPin=''; cloudMessage=''; cloudStage='';
  cloudStatus='Lokal'; private cloudTimer:ReturnType<typeof setTimeout>|null=null;
  private cloudWrites:Promise<void>=Promise.resolve();
- achievementSubject='Alle';achievementTest='Alle';
+ achievementSubject='Alle';achievementTest='Alle';achievementSort:'open'|'done'|'progress'|'reward'|'title'='open';
  profile:Profile=this.load(); public today=new Date();
  private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.queueCloudSave();};
  ngOnInit(){
@@ -268,7 +268,18 @@ export class App implements OnInit,OnDestroy {
    return [...SUBJECTS,...(this.profile.customSubjects||[]).map(s=>({id:s.id,name:s.name,short:s.name.slice(0,4).toUpperCase(),icon:s.emoji,group:'Andere',color:'#c6a7ff',desc:'Deine eigene Lernwelt.'}))];
  }
  get selectedSubject(){return this.subjectsAll.find(s=>s.id===this.selected);}
- get filteredSubjects(){return this.subjectsAll.filter(s=>(this.group==='Alle'||s.group===this.group)&&
+ // Playable worlds always lead. Chemverse, Dsaiverse and the next-up C# world
+ // retain their intended positions; newly registered trainers become visible automatically.
+ get orderedSubjects():Subject[]{
+   const all=this.subjectsAll;
+   const pinned:Record<string,number>={nawi:0,dsai:1,pos:2};
+   const position=(s:Subject)=>pinned[s.id]??(100+all.indexOf(s));
+   return [...all].sort((a,b)=>
+     Number(this.subjectHasTrainer(b.id))-Number(this.subjectHasTrainer(a.id))
+     ||position(a)-position(b));
+ }
+ get activeSubjects(){return this.orderedSubjects.filter(s=>this.subjectHasTrainer(s.id));}
+ get filteredSubjects(){return this.orderedSubjects.filter(s=>(this.group==='Alle'||s.group===this.group)&&
  (s.name+' '+s.short+' '+s.desc).toLowerCase().includes(this.search.toLowerCase().trim()));}
  get drops(){return SHOP_DROPS;}
  get selectedDrop(){return this.drops.find(d=>d.id===this.shopDrop)||this.drops[0];}
@@ -402,7 +413,24 @@ export class App implements OnInit,OnDestroy {
  get trainers(){return TRAINERS;}
  get achievementSubjects(){return ['Alle',...new Set(TRAINERS.map(t=>t.subjectId))];}
  get achievementTests(){return TRAINERS.filter(t=>this.achievementSubject==='Alle'||t.subjectId===this.achievementSubject);}
- get achievementGroups(){return this.achievementTests.filter(t=>this.achievementTest==='Alle'||t.id===this.achievementTest).map(t=>({trainer:t,items:t.achievements.map(a=>{const snapshot=this.snapshot(t);const value=achievementValue(a,snapshot);return {...a,value,done:value>=a.target,percent:Math.min(100,Math.round(value/a.target*100))};})}));}
+ get achievementGroups(){
+   return this.achievementTests.filter(t=>this.achievementTest==='Alle'||t.id===this.achievementTest).map(trainer=>{
+     const snapshot=this.snapshot(trainer);
+     const items=trainer.achievements.map(a=>{
+       const value=achievementValue(a,snapshot);
+       return {...a,value,done:value>=a.target,percent:Math.min(100,Math.round(value/a.target*100))};
+     }).sort((a,b)=>{
+       switch(this.achievementSort){
+         case 'done':return Number(b.done)-Number(a.done)||b.percent-a.percent;
+         case 'progress':return b.percent-a.percent||Number(a.done)-Number(b.done);
+         case 'reward':return b.reward-a.reward||b.percent-a.percent;
+         case 'title':return a.title.localeCompare(b.title,'de');
+         default:return Number(a.done)-Number(b.done)||b.percent-a.percent;
+       }
+     });
+     return {trainer,items};
+   });
+ }
  get achievementTotals(){const gs=this.achievementGroups;return {total:gs.reduce((n,g)=>n+g.items.length,0),done:gs.reduce((n,g)=>n+g.items.filter(a=>a.done).length,0)};}
  getTrainerForSubject(id:string){return TRAINERS.filter(t=>t.subjectId===id);}
  subjectHasTrainer(id:string):boolean{return TRAINERS.some(t=>t.subjectId===id && !!t.path);}
