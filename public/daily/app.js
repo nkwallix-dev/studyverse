@@ -5,7 +5,7 @@ if(!DATA.length||!DAILY){ROOT.textContent="Der tägliche Fragenpool konnte nicht
 const bySubject={chem:DATA.filter(q=>q.subject==="chem"),dsai:DATA.filter(q=>q.subject==="dsai")};
 const safe=x=>String(x).replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[s]));
 function read(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch{return null}}
-function write(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function write(k,v){localStorage.setItem(k,JSON.stringify(v));window.studyverseCloudTouch?.()}
 function shuffle(list){const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function selectPool(){
  const chem=shuffle(bySubject.chem).slice(0,10);
