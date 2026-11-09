@@ -75,3 +75,30 @@ assert(weber.includes("requirement:{metric:'boss',value:100}"),'Professorin Webe
 assert(fischer.includes("requirement:{metric:'boss',value:100}"),'Professor Fischer requires a perfect Chemistry boss');
 assert(radical.includes("requirement:{metric:'academy',value:12}"),'Former prestige Radikal-Master swapped to academy');
 console.log('Full-scene banner previews, prestige teachers, hidden owned prices and top-left courses verified.');
+
+
+// Dashboard and learning-world ordering regression checks.
+assert(t.includes("get activeSubjects(){return this.orderedSubjects.filter(s=>this.subjectHasTrainer(s.id));}"),
+ 'Dashboard must derive playable worlds dynamically from registered trainers');
+assert(t.includes("const pinned:Record<string,number>={nawi:0,dsai:1,pos:2};"),
+ 'Pinned world priority: Chemverse, Dsaiverse, and next-up C#');
+assert(t.includes('Number(this.subjectHasTrainer(b.id))-Number(this.subjectHasTrainer(a.id))'),
+ 'Playable worlds must appear ahead of all locked worlds');
+assert(h.includes('*ngFor="let s of activeSubjects"'),
+ 'Dashboard must show only playable subjects');
+assert(h.includes('*ngFor="let s of filteredSubjects"'),
+ 'Full Lernwelten page must preserve locked subjects');
+assert(!h.includes('Dein nächster Boss'),
+ 'Fixed next boss teaser should not appear in the dashboard');
+assert(h.includes('[(ngModel)]="achievementSort"') &&
+ t.includes("achievementSort:'open'|'done'|'progress'|'reward'|'title'='open'"),
+ 'Achievements need working configurable sorting');
+const chemversePage=fs.readFileSync('public/nawi/test-01/index.html','utf8');
+assert(chemversePage.includes('<strong>Chemverse</strong>'),'Chemverse header should use standard casing');
+assert(!chemversePage.includes("toast('Achievement:"),'Chemverse should never spam achievement notifications');
+for(const path of ['src/app/app.html','src/app/trainer-registry.ts','src/app/shop-items.ts',
+ 'public/dsai/test-01/index.html','public/dsai/test-01/app.js','public/daily/index.html','public/daily/app.js']){
+ assert(!fs.readFileSync(path,'utf8').includes('DSAIVERSE'),
+  path+' must display Dsaiverse in consistent title case');
+}
+console.log('PASS: active dashboard worlds, C# third, achievements sorting, verse names and quiet Chemverse.');
