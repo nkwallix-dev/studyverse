@@ -1,4 +1,4 @@
-<div class="universe" [attr.data-theme]="currentTheme">
+<div class="universe" [attr.data-theme]="currentTheme" [attr.data-atm]="profile.equipped['atm']" [attr.data-frame]="profile.equipped['frame']" [attr.data-font]="profile.equipped['font']" [attr.data-banner]="profile.equipped['banner']" [attr.data-fx]="profile.equipped['fx']">
   <div class="ambient a"></div><div class="ambient b"></div>
   <aside class="sidebar">
     <button class="brand" (click)="go('dashboard')">
@@ -9,6 +9,7 @@
     <nav class="navigation">
       <button [class.active]="view==='dashboard'" (click)="go('dashboard')"><span>◈</span> Dashboard <b>↗</b></button>
       <button [class.active]="view==='subjects'" (click)="go('subjects')"><span>▦</span> Lernwelten <em>{{subjectsAll.length}}</em></button>
+      <button [class.active]="view==='achievements'" (click)="go('achievements')"><span>🏆</span> Achievements <em>{{achievementTotals.done}}/{{achievementTotals.total}}</em></button>
       <button [class.active]="view==='shop'" (click)="go('shop')"><span>◇</span> Item-Shop <em>{{items.length}}</em></button>
       <button [class.active]="view==='profile'" (click)="go('profile')"><span>☻</span> Mein Profil</button>
     </nav>
@@ -16,8 +17,8 @@
     <div class="fast-links">
       <button (click)="choose('nawi')"><span class="bubble mint"></span> Naturwissenschaften <span>↗</span></button>
       <button (click)="choose('dsai')"><span class="bubble violet"></span> Data Science & AI <span>↗</span></button>
-      <button (click)="choose('syp')"><span class="bubble cyan"></span> Systemplanung <span>↗</span></button>
-      <button (click)="choose('math')"><span class="bubble orange"></span> Mathematik <span>↗</span></button>
+      <button (click)="choose('dbi')"><span class="bubble cyan"></span> Datenbanken <span>↗</span></button>
+      <button (click)="choose('pos')"><span class="bubble orange"></span> C# Programmieren <span>↗</span></button>
     </div>
     <div class="sidebar-bottom">
       <div class="avatar">{{currentAvatar}}</div>
@@ -29,7 +30,7 @@
   <div class="workspace">
     <header class="topbar">
       <div class="breadcrumbs"><span>✧</span> STUDYVERSE <span class="slash">/</span>
-        <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?'Item-Shop':'Mein Profil'}}</strong>
+        <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?'Item-Shop':view==='achievements'?'Achievements':'Mein Profil'}}</strong>
       </div>
       <div class="top-pills">
         <div class="top-pill lev"><span>⚡</span> Level {{level}} <div class="tiny-track"><i [style.width.%]="levelProgress"></i></div></div>
@@ -63,13 +64,13 @@
             <section>
               <div class="section-heading"><div><div class="eyebrow">EXPLORE THE UNIVERSE</div><h2>Deine Lernwelten <span>✦</span></h2></div><button class="text-link" (click)="go('subjects')">Alle Fächer ansehen →</button></div>
               <div class="tiles">
-                <button class="subject-card" *ngFor="let s of subjectsAll.slice(0,6)" (click)="choose(s.id)" [style.--tilecolor]="s.color">
-                  <span class="subject-icon">{{s.icon}}</span><span class="card-arrow">↗</span><small>{{s.short}}</small><strong>{{s.name}}</strong><span class="tile-bottom">{{s.id==='nawi'?'1 Lernwelt spielbereit':'Tests hinzufügen'}} <span>→</span></span>
+                <button class="subject-card" *ngFor="let s of subjectsAll.slice(0,8)" (click)="choose(s.id)" [style.--tilecolor]="s.color">
+                  <span class="subject-icon">{{s.icon}}</span><span class="card-arrow">↗</span><small>{{s.short}}</small><strong>{{s.name}}</strong><span class="tile-bottom">{{s.id==='nawi'?'1 Test spielbereit':s.id==='dsai'?'Nächste Lernwelt':'Tests hinzufügen'}} <span>→</span></span>
                 </button>
               </div>
               <div class="section-heading lower"><div><div class="eyebrow">NEXT UP</div><h2>Dein nächster Boss <span>↗</span></h2></div></div>
               <div class="next-boss">
-                <div class="boss-symbol">⚗️</div><div class="boss-info"><small>NAWI · CHEMIE</small><h3>1. Chemie-Test</h3><p>Lernakademie, Molekül-Werkstatt, Quiz und Bosskampf.</p><div class="badges"><span class="pill ready">● SPIELBEREIT</span><span class="pill">10. November 2026</span></div></div>
+                <div class="boss-symbol">⚗️</div><div class="boss-info"><small>NAWI · CHEMIE</small><h3>Chemverse 1. Test</h3><p>Lernakademie, Molekül-Werkstatt, Quiz und Bosskampf.</p><div class="badges"><span class="pill ready">● SPIELBEREIT</span><span class="pill">10. November 2026</span></div></div>
                 <button class="btn primary" (click)="openChemverse()">Jetzt starten ↗</button>
               </div>
             </section>
@@ -82,6 +83,7 @@
                 <button class="rail-button" (click)="go('profile')">Deinen Fortschritt ansehen ↗</button>
               </div>
               <div class="loot-card"><span>🎁</span><div class="eyebrow">DEIN INVENTAR</div><h3>Loot collected!</h3><p>Du besitzt {{claimed}} kosmetische Items. Zeit für einen frischen Style?</p><button (click)="go('shop')">Zum Item-Shop ↗</button></div>
+              <div class="activity-card achievements-preview"><div class="eyebrow">🏆 ACHIEVEMENTS</div><h3>{{achievementTotals.done}} / {{achievementTotals.total}} gemeistert</h3><p>Deine Erfolge aus allen Tests an einem Ort.</p><button class="rail-button" (click)="go('achievements')">Alle Achievements ↗</button></div>
               <div class="activity-card"><div class="eyebrow">LETZTE AKTIVITÄTEN</div><div class="activity" *ngFor="let a of profile.activity.slice(0,3)"><span>✦</span>{{a.label}} <b>{{a.amount&&a.amount>0?'+':''}}{{a.amount||''}}</b></div><p *ngIf="!profile.activity.length">Noch keine Aktivität. Erkunde deine erste Lernwelt!</p></div>
             </aside>
           </div>
@@ -93,15 +95,42 @@
           <ng-container *ngIf="!selectedSubject;else chosenSubjectTemplate">
             <div class="filterbar"><input [(ngModel)]="search" placeholder="🔎  Fach suchen ..."><button class="btn secondary" (click)="addSubject()">+ Eigenes Fach</button></div>
             <div class="chips"><button *ngFor="let g of categories" (click)="group=g" [class.selected]="group===g">{{g}}</button></div>
-            <div class="all-subjects"><button class="subject-card detailed" *ngFor="let s of filteredSubjects" (click)="choose(s.id)" [style.--tilecolor]="s.color"><span class="subject-icon">{{s.icon}}</span><span class="card-arrow">↗</span><small>{{s.short}} · {{s.group}}</small><strong>{{s.name}}</strong><p>{{s.desc}}</p><span class="tile-bottom">{{s.id==='nawi'?'1 Test verfügbar':'Lernwelt vorbereiten'}} →</span></button></div>
+            <div class="all-subjects"><button class="subject-card detailed" *ngFor="let s of filteredSubjects" (click)="choose(s.id)" [style.--tilecolor]="s.color"><span class="subject-icon">{{s.icon}}</span><span class="card-arrow">↗</span><small>{{s.short}} · {{s.group}}</small><strong>{{s.name}}</strong><p>{{s.desc}}</p><span class="tile-bottom">{{s.id==='nawi'?'1 Test verfügbar':s.id==='dsai'?'Als Nächstes geplant':'Lernwelt vorbereiten'}} →</span></button></div>
           </ng-container>
           <ng-template #chosenSubjectTemplate>
             <button class="back" (click)="selected=null">← Alle Fächer</button>
             <div class="subject-heading" *ngIf="selectedSubject as s" [style.--tilecolor]="s.color"><div class="subject-icon">{{s.icon}}</div><div><span class="eyebrow">{{s.short}} / LERNWELT</span><h2>{{s.name}}</h2><p>{{s.desc}}</p></div></div>
             <div class="section-heading lower"><h2>Deine Tests</h2></div>
-            <article class="test-row" *ngIf="selected==='nawi'"><div class="test-ico">🧪</div><div><small>TEST 01 · CHEMIE</small><h3>Chemie – 1. Test</h3><p>14 Stoffbereiche · Lernakademie · Quiz-Arena · Bosskampf</p><span class="pill ready">● SPIELBEREIT</span></div><button class="btn primary" (click)="openChemverse()">Spielen ↗</button></article>
-            <div class="empty-tests" *ngIf="selected!=='nawi'"><span>🪐</span><h3>Diese Lernwelt wartet auf ihren ersten Test.</h3><p>Hier können wir später für jeden Test einen eigenen Angular- oder HTML-Trainer hinzufügen.</p><span class="pill">IN VORBEREITUNG</span></div>
+            <article class="test-row" *ngFor="let trainer of getTrainerForSubject(selected || '')"><div class="test-ico">🧪</div><div><small>TEST 01 · CHEMIE</small><h3>{{trainer.title}}</h3><p>{{trainer.subtitle}}</p><span class="pill ready">● SPIELBEREIT</span></div><button class="btn primary" (click)="openTrainer(trainer.id)">Spielen ↗</button></article>
+            <div class="empty-tests" *ngIf="getTrainerForSubject(selected || '').length===0"><span>🪐</span><h3>Diese Lernwelt wartet auf ihren ersten Test.</h3><p>Hier können wir später für jeden Test einen eigenen Angular- oder HTML-Trainer hinzufügen.</p><span class="pill">IN VORBEREITUNG</span></div>
           </ng-template>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'achievements'">
+          <div class="eyebrow">LEGENDS OF THE LEARNING UNIVERSE</div><h1 class="page-title">Deine <span>Achievements.</span></h1>
+          <p class="page-subtitle">Alle freigeschalteten Erfolge – nach Fach und Test sortiert. Die Erfolge werden aus deinem tatsächlichen Lernfortschritt berechnet, nicht bloß als Deko angezeigt.</p>
+          <div class="achievements-overview">
+            <div class="achievement-overview-icon">🏆</div><div><small>GLOBALER ERFOLGSFORTSCHRITT</small><h2>{{achievementTotals.done}} <span>/ {{achievementTotals.total}} Achievements</span></h2>
+            <div class="progress-track"><i [style.width.%]="achievementTotals.total?100*achievementTotals.done/achievementTotals.total:0"></i></div></div>
+          </div>
+          <div class="achievement-filters">
+            <label>Fach<select [ngModel]="achievementSubject" (ngModelChange)="setAchievementSubject($event)">
+              <option *ngFor="let id of achievementSubjects" [value]="id">{{id==='Alle'?'Alle Fächer':(id==='nawi'?'NAWI · Naturwissenschaften':id.toUpperCase())}}</option>
+            </select></label>
+            <label>Test<select [(ngModel)]="achievementTest">
+              <option value="Alle">Alle Tests</option>
+              <option *ngFor="let trainer of achievementTests" [value]="trainer.id">{{trainer.title}}</option>
+            </select></label>
+          </div>
+          <section *ngFor="let group of achievementGroups" class="achievements-section">
+            <div class="section-heading"><div><div class="eyebrow">{{group.trainer.subjectId.toUpperCase()}} · {{group.trainer.id}}</div><h2>{{group.trainer.title}} <span>✦</span></h2></div><span class="pill">{{group.items.length}} mögliche Erfolge</span></div>
+            <div class="achievement-grid"><article class="achievement-card" *ngFor="let a of group.items" [class.achievement-unlocked]="a.done">
+              <div class="achievement-symbol">{{a.done?a.icon:'🔒'}}</div><div class="achievement-content"><div class="achievement-status">{{a.done?'✓ FREIGESCHALTET':'NOCH GESPERRT'}}</div>
+              <h3>{{a.title}}</h3><p>{{a.description}}</p><div class="achievement-foot"><span>{{a.value}} / {{a.target}}</span><span>{{a.percent}}%</span></div>
+              <div class="progress-track"><i [style.width.%]="a.percent"></i></div></div>
+            </article></div>
+          </section>
+          <div class="empty-tests" *ngIf="achievementGroups.length===0"><span>🪐</span><h3>Hier wartet noch ein Universum voller Erfolge.</h3><p>Beim Hinzufügen neuer Tests erscheinen hier automatisch deren Achievements.</p></div>
         </ng-container>
 
         <ng-container *ngSwitchCase="'shop'">
