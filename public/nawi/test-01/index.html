@@ -116,10 +116,10 @@ body[data-frame="pixel"] :is(.panel,.hero){border:3px solid #b78aff!important;bo
 </head>
 <body data-theme="base">
 <div class="app"><aside class="sidebar" id="sidebar">
-<div class="brand"><div class="brand-symbol" id="brandAvatar">⚗</div><div><strong>CHEMVERSE</strong><small>1. TEST · NAWI</small></div></div>
+<div class="brand"><div class="brand-symbol" id="brandAvatar">⚗</div><div><strong>Chemverse</strong><small>1. TEST · NAWI</small></div></div>
 <nav class="nav" id="nav" aria-label="Lernmodi"></nav>
-<div class="side-bottom"><div class="tiny">🧪 Nur aus deinen hochgeladenen Unterlagen · Offline · Fortschritt lokal im Browser</div></div>
-</aside><div class="main"><header class="topbar"><div class="topbar-left"><button class="btn secondary small burger" id="menuBtn" aria-label="Menü öffnen">☰</button><div class="crumb">CHEMVERSE 1. TEST <span style="opacity:.45">/</span> <b id="crumbText">Kommandozentrale</b></div></div><div class="topstats"><a id="returnStudyverse" class="studyverse-return" href="../../" title="Zur STUDYVERSE-Homepage zurückkehren"><span id="levelAvatar" aria-hidden="true">🧪</span><span>↩ STUDYVERSE</span></a></div></header><main id="pages"></main><footer class="footer">CHEMVERSE · Private lokale Lernhilfe · Kein Internet benötigt · Die Quellenangaben beziehen sich auf deine hochgeladenen Unterrichtsunterlagen. Mit dieser App werden keine Daten versendet.</footer></div></div>
+<div class="side-bottom"><div class="tiny">🧪 Deine Unterrichtsunterlagen · Fortschritt lokal und im Studyverse-Onlinekonto gespeichert</div></div>
+</aside><div class="main"><header class="topbar"><div class="topbar-left"><button class="btn secondary small burger" id="menuBtn" aria-label="Menü öffnen">☰</button><div class="crumb">Chemverse 1. Test <span style="opacity:.45">/</span> <b id="crumbText">Kommandozentrale</b></div></div><div class="topstats"><a id="returnStudyverse" class="studyverse-return" href="../../" title="Zur STUDYVERSE-Homepage zurückkehren"><span id="levelAvatar" aria-hidden="true">🧪</span><span>↩ STUDYVERSE</span></a></div></header><main id="pages"></main><footer class="footer">Chemverse · Lernhilfe mit lokalem Fortschritt und optionaler Studyverse-Cloud-Synchronisierung · Quellen: deine Unterrichtsunterlagen.</footer></div></div>
 <div id="toastWrap" class="toast-wrap" aria-live="polite"></div>
 <script src="../../shared/daily-rewards.js"></script>
 <script src="../../shared/cloud-progress.js"></script>
@@ -423,7 +423,8 @@ function reward(id,amount,what){if(state.earned[id]){return false}state.earned[i
 function solved(id,type){if(!state.solved[id]){state.solved[id]=1;state.totals[type]=(state.totals[type]||0)+1;save();checkAchievements()}}
 function numDone(prefix){return Object.keys(state.solved).filter(x=>x.startsWith(prefix)).length}
 function unlocked(id){switch(id){case'first':return numDone('q')>=1;case'quiz10':return numDone('q')>=10;case'quiz30':return numDone('q')>=30;case'combo5':return state.maxCombo>=5;case'draw1':return numDone('d')>=1;case'draw5':return numDone('d')>=5;case'react5':return numDone('r')>=5;case'flash10':return Object.values(state.cards).filter(n=>n>=1).length>=10;case'learn7':return Object.keys(state.learned).length>=7;case'learn14':return TOPICS.filter(t=>t.id!=='orb'&&state.learned[t.id]).length>=13;case'firstBuy':return Object.keys(state.purchased).length>=1;case'boss':return state.bestBoss>=80;default:return false}}
-let prevUnlocks={};function checkAchievements(){ACHIEVEMENTS.forEach(([id,ic,title])=>{if(unlocked(id)&&!prevUnlocks[id]){if(Object.keys(prevUnlocks).length)toast('Achievement: '+title,ic);prevUnlocks[id]=true}})}
+// Achievements are displayed in Studyverse; never interrupt a Chemverse learning session with badge popups.
+let prevUnlocks={};function checkAchievements(){ACHIEVEMENTS.forEach(([id])=>{if(unlocked(id))prevUnlocks[id]=true})}
 function activatePage(id){if(id==='shop'){location.href=new URL('../../',location.href).href;return}if(id!=='shop'&&shopPreview){shopPreview=null;updateTop()}active=id;renderNav();renderPage();$('#crumbText').textContent=MENUS.flatMap(g=>g.items).find(x=>x[0]===id)?.[2]||'CHEMVERSE';$('#sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'instant'})}
 function renderNav(){const root=$('#nav');root.innerHTML=MENUS.map(g=>`<div class="nav-label">${g.group}</div>${g.items.map(([id,ic,title])=>`<button type="button" data-nav="${id}" class="${id===active?'active':''}"><span class="ico">${ic}</span>${title}${id==='shop'?'<span class="nav-tag">★</span>':''}</button>`).join('')}`).join('');root.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>activatePage(b.dataset.nav))}
 function view(html){$('#pages').innerHTML=`<section class="page active">${html}</section>`;}
