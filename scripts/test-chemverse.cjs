@@ -105,7 +105,8 @@ const shopCatalog=fs.readFileSync('src/app/shop-items.ts','utf8');
 const professor=shopCatalog.split('\n').find(x=>x.startsWith("{id:'title_chaos',"));
 assert(professor,'Existing cosmetic ID must be preserved for save compatibility');
 assert(professor.includes("name:'Professor Fischer'"),'Professor title must match the requested new name');
-assert(professor.includes("desc:'Unterschätz niemals jemals jemand... Unterschätz den Mann.'"),'Professor description must match exactly');
+assert(professor.includes("Unterschätz niemals jemals jemand... Unterschätz den Mann.") &&
+ professor.includes("100 %"),'Professor Fischer keeps his quote and shows the 100% Boss requirement');
 assert(js.includes("title_chaos:'☠️ PROFESSOR FISCHER'"),'Trainer profile must use same title');
 const studyTemplate=fs.readFileSync('src/app/app.html','utf8');
 assert(!studyTemplate.includes('Drop-Shop'),'Navigation and heading must say Item-Shop');
