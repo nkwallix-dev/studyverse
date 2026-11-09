@@ -10,7 +10,7 @@ export interface ShopItem {
 export const SHOP_DROPS:ShopDrop[]=[
  {id:'global',icon:'🌐',title:'STUDYVERSE Essentials',subtitle:'Profil-Level',description:'Zeitlose Basics, Fonts, Effekte und Profilstyles. Höhere Profil-Level öffnen weitere Angebote.',status:'live'},
  {id:'nawi-test-01',icon:'🧪',title:'Chemverse 1. Test',subtitle:'Lernfortschritt',description:'Exklusiver Chemie-Loot. Werde in der Lernakademie und den Übungsmodi besser, um Items freizuschalten.',status:'live'},
- {id:'dsai-test-01',icon:'🤖',title:'DSAIVERSE · 1. Test',subtitle:'Lernfortschritt',description:'Exklusiver Data-Science-Loot aus NumPy, Pandas, KI, Statistik und den Prozess-Minispielen.',status:'live'}
+ {id:'dsai-test-01',icon:'🤖',title:'Dsaiverse · 1. Test',subtitle:'Lernfortschritt',description:'Exklusiver Data-Science-Loot aus NumPy, Pandas, KI, Statistik und den Prozess-Minispielen.',status:'live'}
 ];
 export const SHOP_ITEMS:ShopItem[]=[
 {id:'neon',kind:'theme',icon:'🟢',name:'Toxic Neon',cost:160,desc:'Grün-violette Labornacht. Leuchtet schon beim Anschauen.',group:'theme',bg:'linear-gradient(125deg,#2f104d,#85ff50)',drop:'nawi-test-01',requirement:{metric:'academy',value:3}},
