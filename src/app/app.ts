@@ -199,6 +199,11 @@ export class App implements OnInit,OnDestroy {
  get achievementGroups(){return this.achievementTests.filter(t=>this.achievementTest==='Alle'||t.id===this.achievementTest).map(t=>({trainer:t,items:t.achievements.map(a=>{const snapshot=this.snapshot(t);const value=achievementValue(a,snapshot);return {...a,value,done:value>=a.target,percent:Math.min(100,Math.round(value/a.target*100))};})}));}
  get achievementTotals(){const gs=this.achievementGroups;return {total:gs.reduce((n,g)=>n+g.items.length,0),done:gs.reduce((n,g)=>n+g.items.filter(a=>a.done).length,0)};}
  getTrainerForSubject(id:string){return TRAINERS.filter(t=>t.subjectId===id);}
+ subjectHasTrainer(id:string):boolean{return TRAINERS.some(t=>t.subjectId===id && !!t.path);}
+ subjectCountLabel(id:string):string{
+   const count=this.getTrainerForSubject(id).length;
+   return count===1?'1 Test spielbereit':count>1?count+' Tests spielbereit':'Noch nicht verfügbar';
+ }
  private snapshot(t:TrainerDef):Record<string,unknown>{const local=parse(read(t.saveKey));if(isObj(local))return local;const saved=this.profile.trainerSaves?.[t.id];if(isObj(saved))return saved;if(t.id==='nawi-test-01'&&isObj(this.profile.chemverseSave))return this.profile.chemverseSave;return {};}
  setAchievementSubject(id:string){this.achievementSubject=id;this.achievementTest='Alle';}
  private grantAchievementTokens():number{
@@ -222,8 +227,19 @@ export class App implements OnInit,OnDestroy {
  }
  get title(){return this.items.find(i=>i.id===this.profile.equipped['title'])?.name || 'Weltenentdecker';}
  get currentTheme(){return this.profile.equipped['theme'] || 'base';}
- get previewTheme(){return this.previewed?.group==='theme'?this.previewed.id:this.currentTheme;}
- previewSlot(k:string){return this.previewed?.group===k?(this.previewed.equip||this.previewed.id):this.profile.equipped[k];}
+ // Keep the equipped design on the real homepage; only the modal showcases a candidate item.
+ get previewTheme(){return this.currentTheme;}
+ previewSlot(k:string){return this.profile.equipped[k] || (k==='font'?'standard':'none');}
+ previewValue(slot:string,item:ShopItem):string{
+   return item.group===slot?(item.equip||item.id):(slot==='theme'?'base':slot==='font'?'standard':'none');
+ }
+ previewParticle(item:ShopItem):string{
+   if(item.id==='effect_coinrain')return '🪙';
+   if(item.id==='effect_discoin')return '🪩';
+   if(item.id==='dsai_fx')return '✧';
+   return '🎊';
+ }
+ get previewParticleSlots(){return [0,1,2,3,4,5,6,7,8,9,10,11];}
  get currentAvatar(){return this.profile.equipped['avatar'] || '🧪';}
  get unlockedAvatars(){return SHOP_ITEMS.filter(item=>item.group==='avatar'&&this.owns(item));}
  get unlockedTitles(){return SHOP_ITEMS.filter(item=>item.group==='title'&&this.owns(item));}
@@ -250,7 +266,7 @@ export class App implements OnInit,OnDestroy {
    this.avatarPickerOpen=false;this.save();this.alert('🖌️ Avatar aktualisiert!');
  }
  go(page:View){if(page==='achievements'||page==='shop')this.syncTrainer();this.view=page;this.selected=null;this.previewed=null;if(page==='shop')this.shopTab='catalog';window.scrollTo({top:0,behavior:'smooth'});}
- choose(id:string){this.selected=id;this.view='subjects';window.scrollTo({top:0,behavior:'smooth'});}
+ choose(id:string){if(!this.subjectHasTrainer(id))return;this.selected=id;this.view='subjects';window.scrollTo({top:0,behavior:'smooth'});}
  startImport(){this.intro=false;this.importOpen=true;write(INTRO,'1');}
  skipIntro(){this.intro=false;write(INTRO,'1');}
  get canImport(){return !this.profile.legacyImportedAt;}

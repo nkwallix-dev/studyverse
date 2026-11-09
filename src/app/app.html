@@ -18,8 +18,8 @@
     <div class="fast-links">
       <button (click)="choose('nawi')"><span class="bubble mint"></span> Naturwissenschaften <span>↗</span></button>
       <button (click)="choose('dsai')"><span class="bubble violet"></span> Data Science & AI <span>↗</span></button>
-      <button (click)="choose('dbi')"><span class="bubble cyan"></span> Datenbanken <span>↗</span></button>
-      <button (click)="choose('pos')"><span class="bubble orange"></span> C# Programmieren <span>↗</span></button>
+      <button [disabled]="!subjectHasTrainer('dbi')" (click)="choose('dbi')"><span class="bubble cyan"></span> Datenbanken <span>🔒</span></button>
+      <button [disabled]="!subjectHasTrainer('pos')" (click)="choose('pos')"><span class="bubble orange"></span> C# Programmieren <span>🔒</span></button>
     </div>
     <div class="sidebar-bottom">
       <div class="avatar">{{currentAvatar}}</div>
@@ -65,8 +65,9 @@
             <section>
               <div class="section-heading"><div><div class="eyebrow">EXPLORE THE UNIVERSE</div><h2>Deine Lernwelten <span>✦</span></h2></div><button class="text-link" (click)="go('subjects')">Alle Fächer ansehen →</button></div>
               <div class="tiles">
-                <button class="subject-card" *ngFor="let s of subjectsAll.slice(0,8)" (click)="choose(s.id)" [style.--tilecolor]="s.color">
-                  <span class="subject-icon">{{s.icon}}</span><span class="card-arrow">↗</span><small>{{s.short}}</small><strong>{{s.name}}</strong><span class="tile-bottom">{{s.id==='nawi'?'1 Test spielbereit':s.id==='dsai'?'Nächste Lernwelt':'Tests hinzufügen'}} <span>→</span></span>
+                <button class="subject-card" *ngFor="let s of subjectsAll.slice(0,8)" [disabled]="!subjectHasTrainer(s.id)" [class.subject-locked]="!subjectHasTrainer(s.id)" (click)="choose(s.id)" [style.--tilecolor]="s.color" [attr.aria-label]="subjectHasTrainer(s.id)?s.name+' öffnen':s.name+' – gesperrt, noch kein Test verfügbar'">
+                  <span class="subject-icon">{{s.icon}}</span><span class="card-arrow" *ngIf="subjectHasTrainer(s.id)">↗</span><small>{{s.short}}</small><strong>{{s.name}}</strong><span class="tile-bottom">{{subjectCountLabel(s.id)}} <span *ngIf="subjectHasTrainer(s.id)">→</span></span>
+                  <span class="subject-lock-overlay" *ngIf="!subjectHasTrainer(s.id)" aria-hidden="true"><span class="subject-lock-symbol">🔒</span><strong>LOCKED</strong><small>COMING SOON</small></span>
                 </button>
               </div>
               <div class="section-heading lower"><div><div class="eyebrow">NEXT UP</div><h2>Dein nächster Boss <span>↗</span></h2></div></div>
@@ -96,7 +97,7 @@
           <ng-container *ngIf="!selectedSubject;else chosenSubjectTemplate">
             <div class="filterbar"><input [(ngModel)]="search" placeholder="🔎  Fach suchen ..."><button class="btn secondary" (click)="addSubject()">+ Eigenes Fach</button></div>
             <div class="chips"><button *ngFor="let g of categories" (click)="group=g" [class.selected]="group===g">{{g}}</button></div>
-            <div class="all-subjects"><button class="subject-card detailed" *ngFor="let s of filteredSubjects" (click)="choose(s.id)" [style.--tilecolor]="s.color"><span class="subject-icon">{{s.icon}}</span><span class="card-arrow">↗</span><small>{{s.short}} · {{s.group}}</small><strong>{{s.name}}</strong><p>{{s.desc}}</p><span class="tile-bottom">{{s.id==='nawi'?'1 Test verfügbar':s.id==='dsai'?'Als Nächstes geplant':'Lernwelt vorbereiten'}} →</span></button></div>
+            <div class="all-subjects"><button class="subject-card detailed" *ngFor="let s of filteredSubjects" [disabled]="!subjectHasTrainer(s.id)" [class.subject-locked]="!subjectHasTrainer(s.id)" (click)="choose(s.id)" [style.--tilecolor]="s.color" [attr.aria-label]="subjectHasTrainer(s.id)?s.name+' öffnen':s.name+' – noch gesperrt'"><span class="subject-icon">{{s.icon}}</span><span class="card-arrow" *ngIf="subjectHasTrainer(s.id)">↗</span><small>{{s.short}} · {{s.group}}</small><strong>{{s.name}}</strong><p>{{s.desc}}</p><span class="tile-bottom">{{subjectCountLabel(s.id)}} <span *ngIf="subjectHasTrainer(s.id)">→</span></span><span class="subject-lock-overlay" *ngIf="!subjectHasTrainer(s.id)" aria-hidden="true"><span class="subject-lock-symbol">🔒</span><strong>LOCKED</strong><small>COMING SOON</small></span></button></div>
           </ng-container>
           <ng-template #chosenSubjectTemplate>
             <button class="back" (click)="selected=null">← Alle Fächer</button>
@@ -356,10 +357,31 @@
       <small>Ein STUDYVERSE-Backup ersetzt den Stand dieses Geräts nach Sicherheitsabfrage. Vorher wird eine lokale Rückfallkopie angelegt. Ein alter CHEMVERSE-Spielstand kann nur einmal übernommen werden.</small>
     </div>
   </div>
-  <div class="veil shop-preview-veil" *ngIf="previewed as item" role="dialog" aria-modal="true">
+  <div class="veil shop-preview-veil" *ngIf="previewed as item" role="dialog" aria-modal="true" aria-label="Live-Vorschau für ein Cosmetic">
     <div class="modal shop-preview-modal">
-      <div class="preview-visual" [style.background]="themeStyle(item)"><span>{{item.icon}}</span><i>✦</i></div>
-      <div class="eyebrow">LIVE-VORSCHAU · {{item.drop==='global'?'STUDYVERSE GLOBAL':'CHEMVERSE DROP'}}</div>
+      <div class="universe shop-live-stage" *ngIf="item.group!=='avatar' && item.group!=='title'"
+           [attr.data-theme]="previewValue('theme',item)" [attr.data-atm]="previewValue('atm',item)"
+           [attr.data-frame]="previewValue('frame',item)" [attr.data-font]="previewValue('font',item)"
+           [attr.data-banner]="previewValue('banner',item)" [attr.data-fx]="previewValue('fx',item)"
+           [attr.data-preview-group]="item.group" [attr.data-preview-id]="item.id">
+        <div class="shop-live-topbar topbar"><strong>✦ STUDYVERSE</strong><span>LEVEL 6 <b>🪙 1.745 TT</b></span></div>
+        <div class="shop-live-hero hero">
+          <div class="shop-live-hero-copy hero-copy"><span class="hero-badge">✦ DEINE LERNWELT</span>
+            <strong>Lernen. <em>Leveln.</em> Looten.</strong>
+            <small>So sieht dein Dashboard mit diesem Item aus.</small>
+          </div>
+          <span class="shop-live-hero-icon">🚀</span>
+        </div>
+        <div class="shop-live-cards">
+          <div class="profile-panel shop-frame-card"><span>⚡</span><div><b>3.175 XP</b><small>Dein Fortschritt</small></div></div>
+          <div class="stat shop-frame-card"><span>🏆</span><div><b>Achievements</b><small>Alle Welten</small></div></div>
+        </div>
+        <div class="shop-live-fx" *ngIf="item.group==='fx'" aria-hidden="true">
+          <span *ngFor="let particle of previewParticleSlots; let i=index" [style.--particle-index]="i">{{previewParticle(item)}}</span>
+        </div>
+      </div>
+      <div class="preview-visual" *ngIf="item.group==='avatar'||item.group==='title'" [style.background]="themeStyle(item)"><span>{{item.icon}}</span><i>✦</i></div>
+      <div class="eyebrow">LIVE-VORSCHAU · {{item.drop==='global'?'STUDYVERSE GLOBAL':item.drop==='dsai-test-01'?'DSAIVERSE DROP':'CHEMVERSE DROP'}}</div>
       <h2>{{item.name}}</h2><p>{{item.desc}}</p>
       <div class="preview-requirement" [class.ready]="itemProgressPercent(item)===100">
         {{itemProgressPercent(item)===100?'✓ Lernziel erfüllt':'⏳ Lernziel in Arbeit'}} · {{requirementLabel(item)}}
@@ -367,7 +389,7 @@
       <p class="preview-cost">{{item.cost===0?'Gratis':(item.cost | number)+' TT'}} <span *ngIf="owns(item) && shopTab==='catalog'">· Bereits im Inventar</span></p>
       <button class="btn primary full" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
       <button class="btn secondary full" (click)="closePreview()">Vorschau schließen</button>
-      <small *ngIf="item.group==='theme'||item.group==='atm'||item.group==='font'||item.group==='frame'||item.group==='banner'">Die Vorschau zeigt den Stil auf der Homepage. Es wurden keine TT abgezogen.</small>
+      <small>Vorschau ohne Kauf: Das Item wird nur hier gezeigt. Dein aktiver Style und deine TT bleiben unverändert.</small>
     </div>
   </div>
   <div class="notice" *ngIf="info"><span>{{info}}</span><button (click)="info=''">✕</button></div>
