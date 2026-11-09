@@ -18,14 +18,8 @@
       <button [class.active]="view==='shop'&&shopTab==='catalog'" (click)="go('shop')"><span>◇</span> Item-Shop <em>{{items.length}}</em></button>
       <button class="sidebar-inventory-link" [class.active]="view==='shop'&&shopTab==='inventory'" (click)="openInventory()"><span>🎒</span> Inventar <em>{{ownedCatalogItems.length}}</em></button>
       <button class="sidebar-inventory-link sidebar-earn-link" [class.active]="view==='shop'&&shopTab==='earn'" (click)="openTokenEarning()"><span>🪙</span> TastyTokens verdienen</button>
-      <button [class.active]="view==='profile'" (click)="go('profile')"><span>☻</span> Mein Profil</button>
     </nav>
 
-    <div class="sidebar-bottom">
-      <div class="avatar">{{currentAvatar}}</div>
-      <div><strong>{{profile.nickname}}</strong><small>Level {{level}} · {{title}}</small></div>
-      <button class="ghost-arrow" (click)="go('profile')">⚙</button>
-    </div>
   </aside>
 
   <div class="workspace">
@@ -36,7 +30,9 @@
       <div class="top-pills">
         <div class="top-pill lev"><span>⚡</span> Level {{level}} <div class="tiny-track"><i [style.width.%]="levelProgress"></i></div></div>
         <button class="top-pill token" title="TastyTokens (TT)" (click)="go('shop')"><span>◉</span> {{profile.tokens | number}} TT</button>
-        <div class="avatar-mini" (click)="go('profile')" role="button" tabindex="0">{{currentAvatar}}</div>
+        <button type="button" class="top-profile-link" [class.active]="view==='profile'" (click)="go('profile')" aria-label="Mein Profil öffnen" title="Mein Profil">
+          <span class="top-profile-avatar">{{currentAvatar}}</span><span class="top-profile-text">Mein Profil</span>
+        </button>
       </div>
     </header>
     <main>
@@ -335,8 +331,6 @@
     <button type="button" class="btn secondary profile-avatar-edit-btn" (click)="openAvatarPicker()">🖌️ Avatar ändern</button>
   </div>
 </div>
-<h3>CHEMVERSE-Spielstand</h3><p>{{profile.legacyImportedAt?'✅ CHEMVERSE wurde bereits einmal importiert.':'Du kannst deinen alten Spielstand einmalig übernehmen.'}}</p>
-          <button class="btn secondary" [disabled]="!canImport" (click)="importOpen=true">CHEMVERSE importieren</button>
           <h3>Dein Onlinekonto</h3>
           <div class="cloud-account-summary" *ngIf="cloudConfigured && cloud.session">
             <strong>☁️ @{{cloudUser}}</strong><span>{{cloudStatus}}</span>
@@ -345,15 +339,24 @@
           </div>
           <p class="small muted" *ngIf="!cloudConfigured">☁️ Cloud-Accounts werden freigeschaltet, sobald die Firebase-Webkonfiguration eingerichtet ist. Bis dahin ist dein aktueller Spielstand weiterhin lokal verfügbar.</p>
           <p class="small muted" *ngIf="cloudMessage">{{cloudMessage}}</p>
-          <h3>Backup &amp; alte Spielstände</h3><p>Ein Backup brauchst du normalerweise nicht mehr. Für alte CHEMVERSE- oder STUDYVERSE-Versionen bleibt JSON-Import und -Export trotzdem erhalten.</p>
-          <div class="backup-actions">
-            <button class="btn secondary" (click)="exportProfile()">⬇️ Backup exportieren</button>
-            <label class="btn primary backup-import-button" for="studyverse-backup-import">📂 Backup importieren
-              <input id="studyverse-backup-import" type="file" accept=".json,application/json" (change)="importFile($event)" hidden>
-            </label>
-          </div>
-          <p class="small muted">Unterstützt auch ältere <b>studyverse-backup.json</b>-Dateien und CHEMVERSE-Spielstände. Bestehende PC-Daten werden vor einer Wiederherstellung gesichert.</p>
-          <button class="btn secondary" *ngIf="canUndoRestore" (click)="undoStudyverseRestore()">↶ Letzten Backup-Import rückgängig machen</button></div></div>
+          <details class="profile-advanced-tools" [open]="!cloudConfigured">
+            <summary>⚙️ Erweiterte Datenverwaltung <span>Backups &amp; alte Spielstände</span></summary>
+            <div class="profile-advanced-body">
+              <p>Dein angemeldetes Konto speichert Fortschritte automatisch online. Für Notfälle oder ältere Versionen kannst du weiterhin eine Sicherheitskopie exportieren oder einen alten Spielstand importieren.</p>
+              <div class="backup-actions">
+                <button type="button" class="btn secondary" (click)="exportProfile()">⬇️ Sicherheitskopie herunterladen</button>
+                <label class="btn secondary backup-import-button" for="studyverse-backup-import">📂 Alten Spielstand wiederherstellen
+                  <input id="studyverse-backup-import" type="file" accept=".json,application/json" (change)="importFile($event)" hidden>
+                </label>
+              </div>
+              <div class="legacy-recovery" *ngIf="canImport">
+                <p>Hast du noch einen Chemverse-Spielstand aus einer früheren Version im Browser? Du kannst ihn einmalig übernehmen.</p>
+                <button type="button" class="btn secondary" (click)="importOpen=true">Chemverse-Altstand importieren</button>
+              </div>
+              <button type="button" class="btn secondary" *ngIf="canUndoRestore" (click)="undoStudyverseRestore()">↶ Letzte Wiederherstellung rückgängig machen</button>
+              <p class="small muted">Beim Import eines Studyverse-Backups wird dein aktueller Stand nach Bestätigung ersetzt und danach mit deinem Onlinekonto synchronisiert. Nutze das nur, wenn du wirklich einen alten Stand wiederherstellen möchtest.</p>
+            </div>
+          </details></div></div>
         </ng-container>
       </ng-container>
     </main>
@@ -379,7 +382,7 @@
   <div class="veil" *ngIf="intro && (!cloudReady || !cloudConfigured)" role="dialog" aria-modal="true">
     <div class="modal welcome"><div class="modal-symbol">🧪</div><span class="eyebrow">A LEGEND RETURNS</span><h2>Willkommen im <span>STUDYVERSE.</span></h2><p>Du hast schon in CHEMVERSE gelernt? Willst du deinen bisherigen Spielstand mit XP, TT und gekauften Items übernehmen?</p>
       <button class="btn primary full" (click)="startImport()">Ja, CHEMVERSE übertragen ↗</button><button class="btn secondary full" (click)="skipIntro()">Nein, frisch anfangen</button>
-      <small>Die Frage erscheint nur beim ersten Aufruf in diesem Browser. Der Import bleibt später im Profil verfügbar.</small>
+      <small>Die Frage erscheint nur beim ersten Aufruf in diesem Browser. Für Notfälle bleibt eine Importmöglichkeit in der erweiterten Datenverwaltung.</small>
     </div>
   </div>
 
@@ -410,11 +413,11 @@
   </div>
   <div class="veil" *ngIf="importOpen" role="dialog" aria-modal="true">
     <div class="modal"><div class="modal-symbol">📦</div><span class="eyebrow">SAVE TRANSFER</span><h2>Deinen Fortschritt <span>mitnehmen.</span></h2>
-      <p>Du wechselst vom Laptop auf den PC? Wähle hier deine <b>studyverse-backup.json</b> – oder den ursprünglichen CHEMVERSE-Export. Wir erkennen beide Dateitypen automatisch.</p>
+      <p>Hast du einen alten Studyverse- oder Chemverse-Spielstand? Lade die JSON-Datei hoch. Im normalen Alltag wird dein Fortschritt automatisch über dein Onlinekonto synchronisiert.</p>
       <label class="upload">📁 Backup-Datei (.json) auswählen <input type="file" accept=".json,application/json" (change)="importFile($event)"></label>
       <button class="btn secondary full" *ngIf="canImport" (click)="importBrowser()">Im Browser gespeicherten CHEMVERSE-Stand versuchen</button>
       <button class="btn plain full" (click)="importOpen=false">Später machen</button>
-      <small>Ein STUDYVERSE-Backup ersetzt den Stand dieses Geräts nach Sicherheitsabfrage. Vorher wird eine lokale Rückfallkopie angelegt. Ein alter CHEMVERSE-Spielstand kann nur einmal übernommen werden.</small>
+      <small>Ein Studyverse-Backup ersetzt den bestehenden Stand nach Rückfrage. Vorher wird eine lokale Rückfallkopie angelegt. Alte Chemverse-Daten lassen sich einmalig übernehmen.</small>
     </div>
   </div>
   <div class="veil shop-preview-veil" *ngIf="previewed as item" role="dialog" aria-modal="true" aria-label="Live-Vorschau für ein Cosmetic">
