@@ -36,6 +36,9 @@ jobs:
       - name: Test Chemverse quiz and daily Token economy
         run: node scripts/test-chemverse.cjs
 
+      - name: Test DSAIVERSE lessons, mini-games and Boss
+        run: node scripts/test-dsaiverse.cjs
+
       - name: Build Angular for GitHub Pages
         run: npm run build -- --base-href /studyverse/ --output-path dist/site
 

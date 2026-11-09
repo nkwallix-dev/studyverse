@@ -60,21 +60,22 @@ console.log('CHEMVERSE tests passed: syntax, daily caps, Boss scoring, repeat ch
 // Drop gate regression: learning worlds must NEVER require global profile levels.
 const catalog=fs.readFileSync('src/app/shop-items.ts','utf8');
 const items=catalog.split('\n').filter(line=>line.startsWith("{id:"));
-assert.equal(items.length,56,'Expected 56 cosmetics');
-let global=0,verse=0;
+assert.equal(items.length,75,'Expected 75 cosmetics including DSAIVERSE');
+let global=0,chem=0,dsai=0;
 for(const item of items){
  if(item.includes("drop:'global'")){
    global++;
    assert.match(item,/,level:\d+/,'Global item should have a profile-level requirement');
    assert.doesNotMatch(item,/,requirement:/,'Global items must not require subject-specific progress');
  }else{
-   verse++;
-   assert.match(item,/,drop:'nawi-test-01'/,'Verse item must belong to a trainer');
+   if(item.includes("drop:'nawi-test-01'"))chem++;
+   else if(item.includes("drop:'dsai-test-01'"))dsai++;
+   else throw new Error('Unknown shop drop '+item);
    assert.match(item,/,requirement:/,'Verse item must require actual study progress');
    assert.doesNotMatch(item,/,level:\d+/,'Verse item MUST NOT have global level lock');
  }
 }
-assert.equal(global,29);assert.equal(verse,27);
+assert.equal(global,33);assert.equal(chem,27);assert.equal(dsai,15);
 const studyTs=fs.readFileSync('src/app/app.ts','utf8');
 assert.match(studyTs,/if\(item\.drop==='global'\)return this\.level>=\(item\.level\|\|1\)/,
  'Profile level gate applies only to global items');
@@ -159,9 +160,9 @@ const settingsHtml=fs.readFileSync('src/app/app.html','utf8');
 const settingsSection=settingsHtml.slice(settingsHtml.indexOf('<div class="profile-panel settings">'),settingsHtml.indexOf('<h3>CHEMVERSE-Spielstand</h3>'));
 assert(settingsTs.includes('get unlockedTitles()'),'Profile must expose earned titles');
 assert(settingsTs.includes("item.group==='title'&&this.owns(item)"),'Locked titles must be excluded');
-assert(settingsTs.includes('setProfileTitle(id:string)'),'Title selection needs persistence handler');
-assert(settingsSection.indexOf('id="profile-title-select"')>settingsSection.indexOf('id="profile-name-input"'),'Title selection must appear directly under name field');
-assert(settingsSection.includes('(ngModelChange)="setProfileTitle($event)"'),'Changing title must trigger save handler');
+assert(settingsTs.includes('selectProfileTitle(id:string)'),'Title selection needs persistence handler');
+assert(settingsSection.indexOf('id="profileTitleSelect"')>settingsSection.indexOf('[(ngModel)]="nicknameEdit"'),'Title selection must appear directly under name field');
+assert(settingsSection.includes('(ngModelChange)="selectProfileTitle($event)"'),'Changing title must trigger save handler');
 assert(settingsSection.includes('(click)="openAvatarPicker()"'),'Paintbrush in Profile bearbeiten should open selector');
 assert(settingsHtml.includes('class="modal avatar-picker-modal"'),'Avatar popup should be present');
 console.log('Profile title + avatar editing form tests passed.');

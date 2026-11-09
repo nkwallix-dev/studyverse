@@ -117,7 +117,7 @@ export class App implements OnInit,OnDestroy {
    const save=this.snapshot(trainer),solved=isObj(save['solved'])?save['solved']:{};
    if(metric==='academy')return Object.values(isObj(save['courseDone'])?save['courseDone']:{}).filter(Boolean).length;
    if(metric==='boss')return safe(save['bestBoss']);
-   const prefix=metric==='quiz'?'q':metric==='draw'?'d':'r';
+   const prefix=({quiz:'q',draw:'d',reaction:'r',sorter:'s',pipeline:'p',forecast:'f'} as Record<ShopRequirement['metric'],string>)[metric]||'';
    return Object.keys(solved).filter(k=>k.startsWith(prefix)&&!!solved[k]).length;
  }
  isUnlocked(item:ShopItem):boolean{
@@ -131,7 +131,7 @@ export class App implements OnInit,OnDestroy {
    if(item.drop==='global')return 'Ab Profil-Level '+(item.level||1);
    const r=item.requirement;if(!r)return 'Drop noch nicht verfügbar';
    const value=this.metricProgress(item.drop,r.metric);
-   const captions={academy:'Lernlektionen',quiz:'Quizfragen',draw:'Zeichenaufgaben',reaction:'Reaktionsaufgaben',boss:'Boss-Ergebnis'};
+   const captions={academy:'Lernlektionen',quiz:'Quizfragen',draw:'Code- oder Zeichenaufgaben',reaction:'Reaktionsaufgaben',sorter:'Data-Sorter-Aufgaben',pipeline:'Prozess-Puzzles',forecast:'Festival-Prognosen',boss:'Boss-Ergebnis'};
    const proof=r.metric==='boss'?'Boss: '+value+'% / '+r.value+'%':value+'/'+r.value+' '+captions[r.metric];
    return proof;
  }
@@ -146,7 +146,8 @@ export class App implements OnInit,OnDestroy {
      reward:open.reduce((sum,a)=>sum+a.reward,0)};
  }
  get dailyChem(){
-   const snapshot=this.snapshot(TRAINERS[0]);
+   const trainer=TRAINERS.find(t=>t.id===this.shopDrop)||TRAINERS[0];
+   const snapshot=this.snapshot(trainer);
    const daily=isObj(snapshot['dailyCoin'])?snapshot['dailyCoin']:{};
    const now=new Date();
    const date=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
@@ -158,8 +159,9 @@ export class App implements OnInit,OnDestroy {
  get shopCollectionCost(){return this.dropItems.filter(i=>!this.owns(i)).reduce((n,i)=>n+i.cost,0);}
  get shopTokenGap(){return Math.max(0,this.shopCollectionCost-this.profile.tokens);}
  goEarnTokens(mode:'quiz'|'boss'|'academy'){
-   if(mode==='academy'){this.openTrainer('nawi-test-01');return;}
-   this.openTrainer('nawi-test-01',mode);
+   const trainer=TRAINERS.find(t=>t.id===this.shopDrop)||TRAINERS[0];
+   if(mode==='academy'){this.openTrainer(trainer.id);return;}
+   this.openTrainer(trainer.id,mode);
  }
  preview(item:ShopItem){this.previewed=item;}
  closePreview(){this.previewed=null;}

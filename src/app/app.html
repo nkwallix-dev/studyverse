@@ -71,8 +71,8 @@
               </div>
               <div class="section-heading lower"><div><div class="eyebrow">NEXT UP</div><h2>Dein nächster Boss <span>↗</span></h2></div></div>
               <div class="next-boss">
-                <div class="boss-symbol">⚗️</div><div class="boss-info"><small>NAWI · CHEMIE</small><h3>Chemverse 1. Test</h3><p>Lernakademie, Molekül-Werkstatt, Quiz und Bosskampf.</p><div class="badges"><span class="pill ready">● SPIELBEREIT</span><span class="pill">10. November 2026</span></div></div>
-                <button class="btn primary" (click)="openChemverse()">Jetzt starten ↗</button>
+                <div class="boss-symbol">🤖</div><div class="boss-info"><small>DSAI · DATA SCIENCE & AI</small><h3>DSAIVERSE 1. Test</h3><p>16 Lernlektionen, Quiz, Code-Detective, Data-Sorter und AI-Boss.</p><div class="badges"><span class="pill ready">● SPIELBEREIT</span><span class="pill">NEUE LERNWELT</span></div></div>
+                <button class="btn primary" (click)="openTrainer('dsai-test-01')">Jetzt starten ↗</button>
               </div>
             </section>
             <aside class="right-rail">
@@ -102,7 +102,7 @@
             <button class="back" (click)="selected=null">← Alle Fächer</button>
             <div class="subject-heading" *ngIf="selectedSubject as s" [style.--tilecolor]="s.color"><div class="subject-icon">{{s.icon}}</div><div><span class="eyebrow">{{s.short}} / LERNWELT</span><h2>{{s.name}}</h2><p>{{s.desc}}</p></div></div>
             <div class="section-heading lower"><h2>Deine Tests</h2></div>
-            <article class="test-row" *ngFor="let trainer of getTrainerForSubject(selected || '')"><div class="test-ico">🧪</div><div><small>TEST 01 · CHEMIE</small><h3>{{trainer.title}}</h3><p>{{trainer.subtitle}}</p><span class="pill ready">● SPIELBEREIT</span></div><button class="btn primary" (click)="openTrainer(trainer.id)">Spielen ↗</button></article>
+            <article class="test-row" *ngFor="let trainer of getTrainerForSubject(selected || '')"><div class="test-ico">{{trainer.subjectId==='dsai'?'🤖':'🧪'}}</div><div><small>TEST 01 · {{trainer.subjectId==='dsai'?'DATA SCIENCE & AI':'CHEMIE'}}</small><h3>{{trainer.title}}</h3><p>{{trainer.subtitle}}</p><span class="pill ready">● SPIELBEREIT</span></div><button class="btn primary" (click)="openTrainer(trainer.id)">Spielen ↗</button></article>
             <div class="empty-tests" *ngIf="getTrainerForSubject(selected || '').length===0"><span>🪐</span><h3>Diese Lernwelt wartet auf ihren ersten Test.</h3><p>Hier können wir später für jeden Test einen eigenen Angular- oder HTML-Trainer hinzufügen.</p><span class="pill">IN VORBEREITUNG</span></div>
           </ng-template>
         </ng-container>
@@ -178,7 +178,7 @@
               <div class="drop-stage-numbers" *ngIf="d.status==='live'"><b>{{dropUnlocked}} / {{dropItems.length}}</b><small>FREIGESCHALTET ODER BESITZ</small></div>
             </div>
             <div *ngIf="shopDrop==='global'" class="drop-guide">⚡ Globale Items werden über das STUDYVERSE-Profil-Level freigeschaltet. Neue Level, neue Basics – deine Käufe funktionieren in allen Lernwelten.</div>
-            <div *ngIf="d.status==='upcoming'" class="drop-guide">🤖 Der DSAI-Drop wird erst mit dem DSAI-Trainer veröffentlicht. Dann gibt's neue Items, Level-Freischaltungen und eigene Lernfortschritt-Sperren.</div>
+            <div *ngIf="d.status==='upcoming'" class="drop-guide">🤖 Der DSAI-Drop ist mit dem neuen Trainer verfügbar. Dann gibt's neue Items, Level-Freischaltungen und eigene Lernfortschritt-Sperren.</div>
           </div>
 
           <section class="coin-earning-station">

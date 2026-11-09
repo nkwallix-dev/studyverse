@@ -1,6 +1,6 @@
 export interface AchievementDef {
   id: string; icon: string; title: string; description: string;
-  metric: 'quiz'|'draw'|'reaction'|'flash'|'learn'|'combo'|'boss'|'purchase';
+  metric: 'quiz'|'draw'|'reaction'|'flash'|'learn'|'combo'|'boss'|'purchase'|'sorter'|'pipeline'|'forecast';
   target: number; reward: number;
 }
 export interface TrainerDef {
@@ -27,6 +27,25 @@ export const TRAINERS: TrainerDef[] = [
       {id:'learn14',icon:'🎓',title:'Alles gesehen',description:'13 Pflichtkapitel abgeschlossen',metric:'learn',target:13,reward:800},
       {id:'boss',icon:'👑',title:'Boss zerlegt',description:'Mindestens 80 % im Bosskampf',metric:'boss',target:80,reward:1000}
     ]
+  },
+  {
+    id:'dsai-test-01',subjectId:'dsai',title:'DSAIVERSE 1. Test',
+    subtitle:'Data Science & AI · 16 Lektionen, 106 Fragen, Code-Detective, Data-Sorter & Boss',
+    path:'dsai/test-01/index.html',saveKey:'dsai_studyverse_v1',
+    achievements:[
+      {id:'first',icon:'🤖',title:'Boot Sequence',description:'Erste Quizfrage richtig beantwortet',metric:'quiz',target:1,reward:170},
+      {id:'quiz20',icon:'⚡',title:'Data Explorer',description:'20 Quizfragen gemeistert',metric:'quiz',target:20,reward:300},
+      {id:'quiz60',icon:'🧠',title:'Neural Overdrive',description:'60 Quizfragen gemeistert',metric:'quiz',target:60,reward:450},
+      {id:'code1',icon:'🧩',title:'Hello, Output!',description:'Ersten Code-Schnipsel verstanden',metric:'draw',target:1,reward:180},
+      {id:'code12',icon:'🐍',title:'Python Whisperer',description:'12 Code-Schnipsel verstanden',metric:'draw',target:12,reward:380},
+      {id:'sorter12',icon:'🗂️',title:'Data Curator',description:'12 Datensortierungen gemeistert',metric:'sorter',target:12,reward:300},
+      {id:'pipeline3',icon:'🧭',title:'Process Architect',description:'Alle Prozess-Puzzles abgeschlossen',metric:'pipeline',target:3,reward:360},
+      {id:'forecast6',icon:'📈',title:'Predictive Mind',description:'6 Festival-Prognosen gelöst',metric:'forecast',target:6,reward:300},
+      {id:'learn8',icon:'📚',title:'Halfway to AI',description:'8 Lektionen abgeschlossen',metric:'learn',target:8,reward:350},
+      {id:'learn16',icon:'🎓',title:'DSAI Scholar',description:'Alle 16 Lektionen abgeschlossen',metric:'learn',target:16,reward:650},
+      {id:'combo8',icon:'🔥',title:'No Miss Streak',description:'8 richtige Antworten in Folge',metric:'combo',target:8,reward:240},
+      {id:'boss',icon:'👑',title:'Artificial Legend',description:'Mindestens 80 % im AI-Bosskampf',metric:'boss',target:80,reward:800}
+    ]
   }
 ];
 
@@ -38,6 +57,9 @@ export function achievementValue(a:AchievementDef,save:unknown):number{
   case 'quiz':return Object.keys(solved).filter(k=>k.startsWith('q')).length;
   case 'draw':return Object.keys(solved).filter(k=>k.startsWith('d')).length;
   case 'reaction':return Object.keys(solved).filter(k=>k.startsWith('r')).length;
+  case 'sorter':return Object.keys(solved).filter(k=>k.startsWith('s')).length;
+  case 'pipeline':return Object.keys(solved).filter(k=>k.startsWith('p')).length;
+  case 'forecast':return Object.keys(solved).filter(k=>k.startsWith('f')).length;
   case 'flash':return Object.values(object(s['cards'])).filter(v=>number(v)>=1).length;
   case 'learn':return Object.keys(object(s['learned'])).filter(k=>k!=='orb').length;
   case 'combo':return number(s['maxCombo']);

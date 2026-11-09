@@ -1,5 +1,5 @@
 /** Each trainer contributes a drop; the global catalog contains only general STUDYVERSE cosmetics. */
-export type ShopMetric = 'academy' | 'quiz' | 'draw' | 'reaction' | 'boss';
+export type ShopMetric = 'academy' | 'quiz' | 'draw' | 'reaction' | 'boss' | 'sorter' | 'pipeline' | 'forecast';
 export interface ShopRequirement { metric: ShopMetric; value: number }
 export interface ShopDrop {id:string;icon:string;title:string;subtitle:string;description:string;status:'live'|'upcoming'}
 export interface ShopItem {
@@ -10,7 +10,7 @@ export interface ShopItem {
 export const SHOP_DROPS:ShopDrop[]=[
  {id:'global',icon:'🌐',title:'STUDYVERSE Essentials',subtitle:'Profil-Level',description:'Zeitlose Basics, Fonts, Effekte und Profilstyles. Höhere Profil-Level öffnen weitere Angebote.',status:'live'},
  {id:'nawi-test-01',icon:'🧪',title:'Chemverse 1. Test',subtitle:'Lernfortschritt',description:'Exklusiver Chemie-Loot. Werde in der Lernakademie und den Übungsmodi besser, um Items freizuschalten.',status:'live'},
- {id:'dsai-test-01',icon:'🤖',title:'DSAIVERSE · 1. Test',subtitle:'Nächster Drop',description:'Kommt mit dem nächsten DSAI-Trainer – eigene Themen, eigene Challenges, eigener Shop-Loot.',status:'upcoming'}
+ {id:'dsai-test-01',icon:'🤖',title:'DSAIVERSE · 1. Test',subtitle:'Lernfortschritt',description:'Exklusiver Data-Science-Loot aus NumPy, Pandas, KI, Statistik und den Prozess-Minispielen.',status:'live'}
 ];
 export const SHOP_ITEMS:ShopItem[]=[
 {id:'neon',kind:'theme',icon:'🟢',name:'Toxic Neon',cost:160,desc:'Grün-violette Labornacht. Leuchtet schon beim Anschauen.',group:'theme',bg:'linear-gradient(125deg,#2f104d,#85ff50)',drop:'nawi-test-01',requirement:{metric:'academy',value:3}},
@@ -69,4 +69,23 @@ export const SHOP_ITEMS:ShopItem[]=[
 {id:'chem_link',kind:'banner',icon:'🔬',name:'Molekül-Matrix',cost:230,desc:'Ein molekulares Netz über deinem Dashboard.',group:'banner',equip:'molecule',drop:'nawi-test-01',requirement:{metric:'draw',value:8}},
 {id:'chem_radical',kind:'title',icon:'☢️',name:'Radikal-Master',cost:290,desc:'Für alle, die den Chemie-Boss wirklich zerstört haben.',group:'title',drop:'nawi-test-01',requirement:{metric:'boss',value:80}},
 {id:'chem_reactor',kind:'theme',icon:'🧪',name:'Neon-Reagenz',cost:430,desc:'Giftgrüne Reagenzgläser im futuristischen Labor.',group:'theme',bg:'linear-gradient(115deg,#08291e,#20bd85,#053928)',drop:'nawi-test-01',requirement:{metric:'academy',value:13}},
+{id:'dsai_bot',kind:'avatar',icon:'🤖',name:'Data-Bot',cost:90,desc:'Dein erster Lernfortschritt schaltet den Roboter frei.',group:'avatar',drop:'dsai-test-01',requirement:{metric:'academy',value:1}},
+{id:'dsai_panda',kind:'avatar',icon:'🐼',name:'Pandas-Panda',cost:125,desc:'Der kuschelige DataFrame-Experte.',group:'avatar',drop:'dsai-test-01',requirement:{metric:'academy',value:3}},
+{id:'dsai_python',kind:'avatar',icon:'🐍',name:'Python-Oracle',cost:210,desc:'Wer Code lesen kann, bekommt die Schlange.',group:'avatar',drop:'dsai-test-01',requirement:{metric:'draw',value:8}},
+{id:'dsai_neural',kind:'theme',icon:'🧠',name:'Neural Core',cost:460,desc:'Violett-türkises neuronales Netz für deine Lernwelt.',group:'theme',drop:'dsai-test-01',requirement:{metric:'academy',value:12}},
+{id:'dsai_terminal',kind:'theme',icon:'💻',name:'Terminal Noir',cost:320,desc:'Dark Mode für echte Code-Detektive.',group:'theme',drop:'dsai-test-01',requirement:{metric:'draw',value:12}},
+{id:'dsai_dataframe',kind:'frame',icon:'📊',name:'DataFrame-Rahmen',cost:175,desc:'Rasterkanten wie in einer Datenmatrix.',group:'frame',equip:'dataframe',drop:'dsai-test-01',requirement:{metric:'sorter',value:8}},
+{id:'dsai_prism',kind:'frame',icon:'🔮',name:'Neural Prism',cost:280,desc:'Leuchtende KI-Knoten umranden deine Panels.',group:'frame',equip:'neural',drop:'dsai-test-01',requirement:{metric:'pipeline',value:2}},
+{id:'dsai_binary',kind:'atm',icon:'0️⃣',name:'Binary Rain',cost:210,desc:'Ziffernrauschen im Hintergrund.',group:'atm',equip:'binary',drop:'dsai-test-01',requirement:{metric:'quiz',value:20}},
+{id:'dsai_nodes',kind:'atm',icon:'🕸️',name:'Netzwerknebel',cost:250,desc:'Pulsierendes neuronales Muster.',group:'atm',equip:'nodes',drop:'dsai-test-01',requirement:{metric:'academy',value:10}},
+{id:'dsai_flow',kind:'banner',icon:'🧭',name:'Process Flow',cost:200,desc:'Das Dashboard als Prozess-Netz.',group:'banner',equip:'flow',drop:'dsai-test-01',requirement:{metric:'pipeline',value:1}},
+{id:'dsai_chart',kind:'banner',icon:'📈',name:'Prediction Curve',cost:270,desc:'Regressionskurven im Banner.',group:'banner',equip:'curve',drop:'dsai-test-01',requirement:{metric:'forecast',value:6}},
+{id:'dsai_title_code',kind:'title',icon:'🐍',name:'Snippet-Slayer',cost:195,desc:'Code lesen statt tippen. Big Brain.',group:'title',drop:'dsai-test-01',requirement:{metric:'draw',value:10}},
+{id:'dsai_title_crisp',kind:'title',icon:'🧩',name:'CRISP-DM-Guru',cost:260,desc:'Sechs Phasen, null Stress.',group:'title',drop:'dsai-test-01',requirement:{metric:'pipeline',value:3}},
+{id:'dsai_title_boss',kind:'title',icon:'👑',name:'Artificial Legend',cost:440,desc:'Für alle, die den AI-Boss besiegen.',group:'title',drop:'dsai-test-01',requirement:{metric:'boss',value:80}},
+{id:'dsai_fx',kind:'extra',icon:'✨',name:'Neural Spark',cost:290,desc:'Neuronenfunkeln bei deinen Panels.',group:'fx',equip:'neural_spark',drop:'dsai-test-01',requirement:{metric:'boss',value:80}},
+{id:'g_soft_frame',kind:'frame',icon:'◽',name:'Soft Border',cost:145,desc:'Sanfte abgerundete Rahmen für jedes Verse.',group:'frame',equip:'soft',drop:'global',level:7},
+{id:'g_font_compact',kind:'font',icon:'🔠',name:'Compact UI',cost:120,desc:'Platzsparender Font für lange Lernsessionen.',group:'font',equip:'compact',drop:'global',level:8},
+{id:'g_cloud_banner',kind:'banner',icon:'☁️',name:'Cloudy Sky',cost:155,desc:'Ruhiger Himmel über deinem Dashboard.',group:'banner',equip:'cloud',drop:'global',level:10},
+{id:'g_dotted_atm',kind:'atm',icon:'🔹',name:'Dots & Lines',cost:180,desc:'Ein dezentes Punkte-Raster auf allen Seiten.',group:'atm',equip:'dots',drop:'global',level:11},
 ];

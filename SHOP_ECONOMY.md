@@ -38,4 +38,6 @@ Regelmäßiges Lernen bleibt auch nach allen erstmaligen Aufgaben möglich:
 4. Erreichten Besitz und bestehende XP/Coins niemals zurücksetzen; verifizierte Einmal-Belohnungen mit Claims-Ledger gegen Doppelgutschrift absichern.
 5. Angular-Build und Lerntrainer-Quiz-/Boss-Funktionsweise testen.
 
-Nächster Trainer: **DSAI – 1. Test**. Drop `dsai-test-01` ist als Platzhalter im Shop markiert.
+**DSAIVERSE 1. Test** ist spielbar unter `public/dsai/test-01/index.html`. Der Verse-Drop `dsai-test-01` ist aktiv und enthält 15 eigene Cosmetics. Daneben gibt es vier neue globale, levelgebundene Basics.
+
+DSAI-Training: 16 Lektionen, 106 MC-Aufgaben, 23 Code-Schnipsel, Data-Sorter, Pipeline-Puzzle, Festival-Forecast und Bosskampf. Jeder Modus hat einen „Fertig stellen“-Weg zu den offenen Aufgaben; fachliche Cosmetics benötigen ausschließlich Lernfortschritt. Die Quiz-Arena vergibt bis zu 500 zusätzliche TT am Tag, der Bosskampf bis zu 250 TT.
