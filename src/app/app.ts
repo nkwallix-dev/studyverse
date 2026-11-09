@@ -65,7 +65,14 @@ export class App implements OnInit,OnDestroy {
  profile:Profile=this.load(); public today=new Date();
  private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.queueCloudSave();};
  ngOnInit(){
-   this.nicknameEdit=this.profile.nickname;this.syncChemverse();
+   this.nicknameEdit=this.profile.nickname;
+   // Standalone Verses link to the shared player profile; resolve the hash
+   // without changing the single-page app's existing navigation model.
+   if(window.location.hash==='#profile'){
+     this.view='profile';
+     window.history.replaceState(null,'',window.location.pathname+window.location.search);
+   }
+   this.syncChemverse();
    const bonus=this.grantAchievementTokens();
    if(bonus)this.alert('🏆 Deine bereits erreichten Achievements bringen dir rückwirkend +'+bonus+' TT!');
    window.addEventListener('pageshow',this.onReturn);
