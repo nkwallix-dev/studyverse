@@ -98,9 +98,9 @@ export class App implements OnInit,OnDestroy {
    if(this.owns(item)||this.isUnlocked(item))return 100;
    if(item.drop==='global')return Math.min(100,Math.floor(100*this.level/(item.level||1)));
    if(!item.requirement)return 0;
-   const study=Math.min(100,Math.floor(100*this.metricProgress(item.drop,item.requirement.metric)/item.requirement.value));
-   const lev=Math.min(100,Math.floor(100*this.level/(item.level||1)));
-   return Math.min(study,lev);
+   // The bar measures progress in the selected verse, NOT the separate profile-level lock.
+   // E.g. Boss 93% / required 80% = 100%, even if profile Level 7 is still missing.
+   return Math.min(100,Math.floor(100*this.metricProgress(item.drop,item.requirement.metric)/item.requirement.value));
  }
  groupLabel(group:string):string{
    const labels:Record<string,string>={theme:'Themes',atm:'Hintergründe',avatar:'Avatare',frame:'Rahmen',font:'Schriften',banner:'Banner',title:'Titel',fx:'Effekte'};
@@ -135,7 +135,7 @@ export class App implements OnInit,OnDestroy {
    const value=this.metricProgress(item.drop,r.metric);
    const captions={academy:'Lernlektionen',quiz:'Quizfragen',draw:'Zeichenaufgaben',reaction:'Reaktionsaufgaben',boss:'Boss-Ergebnis'};
    const proof=r.metric==='boss'?'Boss: '+value+'% / '+r.value+'%':value+'/'+r.value+' '+captions[r.metric];
-   return (item.level?'Level '+item.level+' + ':'')+proof;
+   return proof;
  }
  get dropDescription(){return this.shopDrop==='global'?'Freischaltungen durchs globale Profil-Level':'Freischaltungen durch echten Fortschritt im jeweiligen Test';}
  get achievementRewardTotal(){return TRAINERS.reduce((n,t)=>n+t.achievements.reduce((sum,a)=>sum+a.reward,0),0);}
@@ -250,7 +250,8 @@ export class App implements OnInit,OnDestroy {
  }
  priceLabel(item:ShopItem){
    if(this.owns(item))return this.active(item)?'✓ Ausgerüstet':'Ausrüsten';
-   if(!this.isUnlocked(item))return '🔒 Noch gesperrt';
+   if(this.level<(item.level||1))return '🔒 Level '+item.level+' nötig';
+   if(!this.isUnlocked(item))return '🔒 Lernziel fehlt';
    return item.cost===0?'Kostenlos abholen':'◉ '+item.cost+' Tokens';
  }
  buyOrEquip(item:ShopItem){
