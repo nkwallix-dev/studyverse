@@ -181,3 +181,57 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
   .shop-view-tabs button:last-child{grid-column:1/-1}
   .shop-view-tabs button{padding:11px 9px;font-size:12px}
 }
+
+
+/* Dashboard: reclaim the wasted space from the former 280px right rail.
+   Learning worlds stay on the left; the four player cards form a compact 2×2
+   mosaic. The design adapts to smaller screens without horizontal scrolling. */
+.dashboard-grid{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(0,1.38fr);
+ gap:clamp(14px,1.8vw,26px);
+ align-items:start;
+}
+.dashboard-grid>section,.dashboard-grid>.right-rail{min-width:0}
+.dashboard-grid .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dashboard-grid .right-rail{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:clamp(10px,1.1vw,16px);
+ align-content:start;
+ align-items:stretch;
+}
+.dashboard-grid .right-rail>.level-card,
+.dashboard-grid .right-rail>.loot-card,
+.dashboard-grid .right-rail>.activity-card{
+ min-width:0;
+ height:100%;
+ display:flex;
+ flex-direction:column;
+ padding:clamp(15px,1.5vw,22px);
+}
+.dashboard-grid .right-rail :is(.rail-button,.loot-card button){margin-top:auto}
+.dashboard-grid .large-level{margin:9px 0 0}
+.dashboard-grid .large-level strong{font-size:clamp(38px,3vw,52px);line-height:1.06;letter-spacing:-2.5px}
+.dashboard-grid .level-card p{margin:5px 0 12px}
+.dashboard-grid .level-card>small{margin:8px 0 15px}
+.dashboard-grid .loot-card h3{margin:6px 0}
+.dashboard-grid .loot-card>span{font-size:27px}
+.dashboard-grid .activity{padding:9px 0}
+.dashboard-grid .activity:last-child{border-bottom:0}
+.dashboard-grid .achievements-preview h3{font-size:clamp(18px,1.55vw,22px)}
+@media(max-width:1420px){
+ .dashboard-grid{grid-template-columns:minmax(0,1fr)}
+ .dashboard-grid .tiles{grid-template-columns:repeat(auto-fit,minmax(185px,1fr))}
+ .dashboard-grid .right-rail{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ .dashboard-grid .right-rail{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dashboard-grid .right-rail>.level-card,
+ .dashboard-grid .right-rail>.loot-card,
+ .dashboard-grid .right-rail>.activity-card{padding:14px}
+}
+@media(max-width:530px){
+ .dashboard-grid .right-rail{grid-template-columns:minmax(0,1fr)}
+ .dashboard-grid .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
