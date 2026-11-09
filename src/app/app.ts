@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
+import { StudyverseCloud, CloudSnapshot, CLOUD_DAILY_KEY, cloudError } from './cloud';
 
 type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements';
 interface Subject { id:string; short:string; name:string; icon:string; group:string; color:string; desc:string; }
@@ -54,14 +55,20 @@ export class App implements OnInit,OnDestroy {
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
  shopDrop='nawi-test-01'; hideOwnedItems=false; shopTab:'catalog'|'inventory'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
+ readonly cloud=new StudyverseCloud();
+ cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false;
+ cloudMode:'register'|'login'='register'; cloudUsername=''; cloudPin=''; cloudMessage='';
+ cloudStatus='Lokal'; private cloudTimer:ReturnType<typeof setTimeout>|null=null;
+ private cloudWrites:Promise<void>=Promise.resolve();
  achievementSubject='Alle';achievementTest='Alle';
  profile:Profile=this.load(); public today=new Date();
- private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();};
+ private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.queueCloudSave();};
  ngOnInit(){
    this.nicknameEdit=this.profile.nickname;this.syncChemverse();
    const bonus=this.grantAchievementTokens();
    if(bonus)this.alert('🏆 Deine bereits erreichten Achievements bringen dir rückwirkend +'+bonus+' TT!');
    window.addEventListener('pageshow',this.onReturn);
+   void this.startCloud();
  }
  ngOnDestroy(){window.removeEventListener('pageshow',this.onReturn);}
  private load():Profile {
@@ -88,7 +95,7 @@ export class App implements OnInit,OnDestroy {
    }
    return restored;
  }
- private save(){write(KEY,JSON.stringify(this.profile));}
+ private save(){write(KEY,JSON.stringify(this.profile));this.queueCloudSave();}
  private alert(message:string){this.info=message;}
  get level(){return levelFor(this.profile.xp);}
  get levelBegin(){return (this.level-1)**2*110;}
@@ -361,7 +368,7 @@ export class App implements OnInit,OnDestroy {
      return;
    }
    this.profile=this.load();this.nicknameEdit=this.profile.nickname;
-   this.intro=false;this.importOpen=false;this.view='profile';
+   this.intro=false;this.importOpen=false;this.view='profile';this.queueCloudSave();
    this.alert('✅ STUDYVERSE-Backup wiederhergestellt! '+this.profile.xp+' XP, '+this.profile.tokens+' TT und '+this.profile.inventory.length+' Items sind da.'+
      (Object.keys(snapshots).length?' Lernstände wurden ebenfalls übertragen.':' Achtung: Diese Datei enthält keine gespeicherten Lernwelten.'));
  }
@@ -381,7 +388,7 @@ export class App implements OnInit,OnDestroy {
      try{this.writeBackupSnapshot(current);}catch{}
      this.alert('Rückgängig machen fehlgeschlagen. Der aktuelle Stand bleibt erhalten.');return;
    }
-   this.profile=this.load();this.nicknameEdit=this.profile.nickname;this.importOpen=false;
+   this.profile=this.load();this.nicknameEdit=this.profile.nickname;this.importOpen=false;this.queueCloudSave();
    this.alert('↶ Vorherigen PC-Spielstand wiederhergestellt.');
  }
  private applyImport(data:unknown){
