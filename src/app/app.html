@@ -220,9 +220,12 @@
                 </div>
                 <div class="item-meta"><span class="item-kind">{{groupLabel(item.group)}}</span><span class="owned" *ngIf="owns(item)">IM INVENTAR</span></div>
                 <h3>{{item.name}}</h3><p>{{item.desc}}</p>
-                <div class="item-unlock" [class.ready]="isUnlocked(item)">
+                <div class="item-unlock" [class.ready]="itemProgressPercent(item)===100">
                   <div class="unlock-caption"><span>{{requirementLabel(item)}}</span><b>{{itemProgressPercent(item)}}%</b></div>
                   <div class="progress-track"><i [style.width.%]="itemProgressPercent(item)"></i></div>
+                  <div *ngIf="item.drop!=='global' && item.level" class="item-level-requirement" [class.level-met]="level>=item.level">
+                    {{level>=item.level?'✓ Profil-Level '+item.level+' erreicht':'🔒 Profil-Level '+level+' / '+item.level+' – noch nicht erreicht'}}
+                  </div>
                 </div>
                 <div class="drop-price"><span>PREIS</span><strong>{{item.cost===0?'GRATIS':(item.cost | number)+' ◉'}}</strong></div>
                 <div class="drop-actions">
@@ -268,8 +271,11 @@
       <div class="preview-visual" [style.background]="themeStyle(item)"><span>{{item.icon}}</span><i>✦</i></div>
       <div class="eyebrow">LIVE-VORSCHAU · {{item.drop==='global'?'STUDYVERSE GLOBAL':'CHEMVERSE DROP'}}</div>
       <h2>{{item.name}}</h2><p>{{item.desc}}</p>
-      <div class="preview-requirement" [class.ready]="isUnlocked(item)">
-        {{isUnlocked(item)?'✓ Freigeschaltet':'🔒 Gesperrt'}} · {{requirementLabel(item)}}
+      <div class="preview-requirement" [class.ready]="itemProgressPercent(item)===100">
+        {{itemProgressPercent(item)===100?'✓ Lernziel erfüllt':'⏳ Lernziel in Arbeit'}} · {{requirementLabel(item)}}
+        <div *ngIf="item.drop!=='global' && item.level" class="item-level-requirement" [class.level-met]="level>=item.level">
+          {{level>=item.level?'✓ Profil-Level '+item.level+' erreicht':'🔒 Profil-Level '+level+' / '+item.level+' – noch nicht erreicht'}}
+        </div>
       </div>
       <p class="preview-cost">{{item.cost===0?'Gratis':(item.cost | number)+' Tokens'}} <span *ngIf="owns(item)">· Bereits im Inventar</span></p>
       <button class="btn primary full" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
