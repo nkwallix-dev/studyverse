@@ -140,12 +140,15 @@ console.log('STUDYVERSE inventory + sidebar smoke tests passed.');
 // User-facing wallet vocabulary & fair achievement reward estimates.
 const shopTs=fs.readFileSync('src/app/app.ts','utf8');
 const shopTemplate=fs.readFileSync('src/app/app.html','utf8');
-assert(shopTs.includes('get shopAchievementStatus()'),'Shop must compute remaining achievement rewards');
-assert(shopTs.includes('const open=trainer.achievements.filter(a=>achievementValue(a,save)<a.target)'),
+assert(shopTs.includes('get earningAchievementStatus()'),'TastyTokens tab must compute global remaining achievement rewards');
+assert(shopTs.includes('const remaining=trainer.achievements.filter(a=>achievementValue(a,save)<a.target)'),
  'Only unearned achievements may contribute to remaining currency');
 assert(shopTemplate.includes('Alle Achievements abgeschlossen.'),'Completion state must be explicit');
-assert(shopTemplate.includes('shopAchievementStatus.remaining===0'),'Completion label must appear when none are open');
+assert(shopTemplate.includes('earningAchievementStatus.remaining===0'),'Completion label must appear when none are open');
 assert(!shopTemplate.includes('Bis zu {{achievementRewardTotal'),'Do not advertise lifetime total as still obtainable');
+assert(shopTemplate.includes("shopTab==='earn'") && shopTemplate.includes('SO VERDIENST DU WEITERE TASTYTOKENS'),'TastyTokens must have their own earning tab and full name');
+assert(shopTemplate.includes('openTokenEarning()'),'Earning tab must appear below Inventory in the sidebar');
+assert(shopTs.includes("setShopTab(tab:'catalog'|'inventory'|'earn')"),'Three shop tabs must support navigation');
 assert(shopTemplate.includes('TastyTokens (TT)'),'Wallet must explain the renamed currency');
 assert(!shopTemplate.includes(' Tokens'),'Use TT, not old Tokens, in visible wallet UI');
 assert(!shopTemplate.includes('TastyTT'),'Do not corrupt full currency name when shortening the label');
