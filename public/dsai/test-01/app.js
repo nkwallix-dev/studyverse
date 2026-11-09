@@ -10,7 +10,7 @@ for(const key of ["solved","courseDone","learned","orders"])s[key]=obj(s[key]);
 const equip=Object.assign({},obj(s.loadout),obj(obj(load(PROFILE)).equipped));
 document.body.dataset.theme=equip.theme||s.theme||"base";document.body.dataset.atm=equip.atm||"none";document.body.dataset.frame=equip.frame||"none";document.body.dataset.font=equip.font||"standard";$("avatar").textContent=equip.avatar||"🤖";
 const esc=v=>String(v).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
-function store(){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){console.warn(e)}}
+function store(){try{localStorage.setItem(KEY,JSON.stringify(s));window.studyverseCloudTouch?.()}catch(e){console.warn(e)}}
 function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function toast(t){let e=$("toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.timeout);toast.timeout=setTimeout(()=>e.classList.remove("show"),2500)}
 function date(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
