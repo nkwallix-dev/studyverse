@@ -54,6 +54,20 @@ assert(js.includes('orders:core.map(q=>randomizedChoices(q))'),'Boss must use ne
 assert(js.includes("reward(q.id,15,'Quizfrage gemeistert');awardDailyQuiz(q.id);"),
  'Daily tokens must be granted only from the correct-answer branch');
 assert(js.includes("awardDailyBoss(pct)"),'Boss payout must use real final score');
+
+// Prestige title requirement must match the main Studyverse shop and be based on a perfect Boss run.
+const chemFischer=js.split('\n').find(line=>line.includes("id:'title_chaos',kind:'title'"));
+assert(chemFischer?.includes("requirement:{metric:'boss',value:100}"),
+ 'Chemverse Professor Fischer must require 100% Boss, not merely profile Level 4');
+assert(!chemFischer.includes('level:4'), 'Professor Fischer is never an automatic level-4 reward');
+const legacyGateFactory=new Function('state',
+  extract('function shopUnlocked(s)','function shopSlot(s)')+';return shopUnlocked;');
+const titleRule={requirement:{metric:'boss',value:100}};
+assert.equal(legacyGateFactory({bestBoss:99})(titleRule),false,
+ '99% Boss result cannot unlock Professor Fischer');
+assert.equal(legacyGateFactory({bestBoss:100})(titleRule),true,
+ 'Only a perfect 100% Boss result unlocks Professor Fischer');
+
 console.log('CHEMVERSE tests passed: syntax, daily caps, Boss scoring, repeat choice reshuffle.');
 
 
