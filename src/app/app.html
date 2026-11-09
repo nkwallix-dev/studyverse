@@ -374,7 +374,7 @@
     </div>
   </div>
 
-  <div class="veil cloud-auth-veil" *ngIf="cloudReady && cloudConfigured && !cloud.session" role="dialog" aria-modal="true" aria-label="STUDYVERSE Konto anmelden">
+  <div class="veil cloud-auth-veil" *ngIf="cloudReady && cloudConfigured && (!cloud.session || cloudBusy || !cloudMaySave)" role="dialog" aria-modal="true" aria-label="STUDYVERSE Konto anmelden">
     <div class="modal cloud-auth-modal">
       <div class="modal-symbol">☁️</div>
       <span class="eyebrow">STUDYVERSE · CLOUD ACCOUNTS</span>
