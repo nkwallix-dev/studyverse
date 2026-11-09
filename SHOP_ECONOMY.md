@@ -3,11 +3,11 @@
 ## Dauerhafte Regel für neue Lernwelten
 Mit **jedem neuen Test-Trainer** kommt ein neuer, eigener kosmetischer **Verse-Drop** in den globalen STUDYVERSE-Item-Shop.
 Jeder neue Test erweitert zugleich die möglichen **XP und Tokens**; die Belohnungen werden beim Wechsel zur STUDYVERSE-Homepage ins gemeinsame Profil übertragen.
-Neue Drops benötigen eigene Lernfortschritt-Sperren und möglichst auch zusätzliche globale Level-Meilensteine.
+Neue Drops benötigen eigene Lernfortschritt-Sperren. Neue **globale** Level-Meilensteine gibt es unabhängig davon nur für allgemeine STUDYVERSE-Items.
 
 - Globale Basics wie Schriften, Standard-Rahmen, Hintergründe und Effekte sind **an das globale Profil-Level** gebunden.
 - **Chemverse 1. Test** hat eigene Items wie Lehrer-Pizza und Froschlabor, die nur durch **Chemverse-Lernen** freigeschaltet werden.
-- Wertvollere Verse-Cosmetics können **beides** verlangen: Mindest-Profil-Level und Lernfortschritt im zugehörigen Test.
+- **Fachspezifische Cosmetics** haben **keine globalen Levelgrenzen** – ausschließlich nachweisbaren Fortschritt im zugehörigen Test. Sobald die Lernanforderung erfüllt ist, ist das Item kaufbar (sofern genügend Tokens vorhanden sind).
 - **Besessene Items** bleiben im globalen Inventar, auch wenn spätere Versionen Preise oder Sperren ändern. Einmal gekauft = in allen unterstützten Verses nutzbar.
 - **Galaxy** ist eine globale Prestige-Ausnahme und kostet 980 Tokens; Altbesitz bleibt gültig.
 - Der zentrale Katalog liegt in `src/app/shop-items.ts`, Lernwelten in `src/app/trainer-registry.ts`; neue Fächer/Test-Trainer hinzufügen, ohne das Shopsystem neu zu bauen.
@@ -33,7 +33,7 @@ Regelmäßiges Lernen bleibt auch nach allen erstmaligen Aufgaben möglich:
 
 ## Qualitätsanforderung für neue Tests
 1. Neuer Trainer in `trainer-registry.ts` mit Fach, Test-ID, Lernpfad, eindeutiger Speicherkennung und Achievements.
-2. Shop-Drop `{id:<trainer-id>,...}` hinzufügen; jedes neue Item erhält `drop`, `cost`, ggf. globales `level` und echte `requirement`.
+2. Shop-Drop `{id:<trainer-id>,...}` hinzufügen. **Verse-Items** erhalten `drop`, `cost` und eine echte `requirement`, aber **nie `level`**. Nur **globale Items** erhalten `level`, jedoch keine fachlichen Anforderungen.
 3. Wiederholbare Token-Quellen mit einem Zeit-/Aufgabenlimit und **abwechselnder Antwortreihenfolge** implementieren.
 4. Erreichten Besitz und bestehende XP/Coins niemals zurücksetzen; verifizierte Einmal-Belohnungen mit Claims-Ledger gegen Doppelgutschrift absichern.
 5. Angular-Build und Lerntrainer-Quiz-/Boss-Funktionsweise testen.

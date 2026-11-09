@@ -98,8 +98,7 @@ export class App implements OnInit,OnDestroy {
    if(this.owns(item)||this.isUnlocked(item))return 100;
    if(item.drop==='global')return Math.min(100,Math.floor(100*this.level/(item.level||1)));
    if(!item.requirement)return 0;
-   // The bar measures progress in the selected verse, NOT the separate profile-level lock.
-   // E.g. Boss 93% / required 80% = 100%, even if profile Level 7 is still missing.
+   // Verse item progress depends entirely on study achievements; global items use player level.
    return Math.min(100,Math.floor(100*this.metricProgress(item.drop,item.requirement.metric)/item.requirement.value));
  }
  groupLabel(group:string):string{
@@ -124,8 +123,8 @@ export class App implements OnInit,OnDestroy {
  }
  isUnlocked(item:ShopItem):boolean{
    if(this.owns(item))return true;
-   if(this.level<(item.level||1))return false;
-   if(item.drop==='global')return true;
+   // Only universal cosmetics are gated by the player profile level.
+   if(item.drop==='global')return this.level>=(item.level||1);
    if(!item.requirement)return false;
    return this.metricProgress(item.drop,item.requirement.metric)>=item.requirement.value;
  }
@@ -250,7 +249,7 @@ export class App implements OnInit,OnDestroy {
  }
  priceLabel(item:ShopItem){
    if(this.owns(item))return this.active(item)?'✓ Ausgerüstet':'Ausrüsten';
-   if(this.level<(item.level||1))return '🔒 Level '+item.level+' nötig';
+   if(item.drop==='global' && this.level<(item.level||1))return '🔒 Level '+item.level+' nötig';
    if(!this.isUnlocked(item))return '🔒 Lernziel fehlt';
    return item.cost===0?'Kostenlos abholen':'◉ '+item.cost+' Tokens';
  }

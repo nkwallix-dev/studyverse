@@ -55,3 +55,32 @@ assert(js.includes("reward(q.id,15,'Quizfrage gemeistert');awardDailyQuiz(q.id);
  'Daily tokens must be granted only from the correct-answer branch');
 assert(js.includes("awardDailyBoss(pct)"),'Boss payout must use real final score');
 console.log('CHEMVERSE tests passed: syntax, daily caps, Boss scoring, repeat choice reshuffle.');
+
+
+// Drop gate regression: learning worlds must NEVER require global profile levels.
+const catalog=fs.readFileSync('src/app/shop-items.ts','utf8');
+const items=catalog.split('\n').filter(line=>line.startsWith("{id:"));
+assert.equal(items.length,56,'Expected 56 cosmetics');
+let global=0,verse=0;
+for(const item of items){
+ if(item.includes("drop:'global'")){
+   global++;
+   assert.match(item,/,level:\d+/,'Global item should have a profile-level requirement');
+   assert.doesNotMatch(item,/,requirement:/,'Global items must not require subject-specific progress');
+ }else{
+   verse++;
+   assert.match(item,/,drop:'nawi-test-01'/,'Verse item must belong to a trainer');
+   assert.match(item,/,requirement:/,'Verse item must require actual study progress');
+   assert.doesNotMatch(item,/,level:\d+/,'Verse item MUST NOT have global level lock');
+ }
+}
+assert.equal(global,29);assert.equal(verse,27);
+const studyTs=fs.readFileSync('src/app/app.ts','utf8');
+assert.match(studyTs,/if\(item\.drop==='global'\)return this\.level>=\(item\.level\|\|1\)/,
+ 'Profile level gate applies only to global items');
+assert.doesNotMatch(studyTs,/if\(this\.level<\(item\.level\|\|1\)\)return false/,
+ 'Subject drops may not be gated by profile level');
+const studyHtml=fs.readFileSync('src/app/app.html','utf8');
+assert.doesNotMatch(studyHtml,/item\.drop!=='global' && item\.level/,
+ 'Do not show obsolete subject-drop profile level requirements');
+console.log('STUDYVERSE shop gate tests passed: 27 subject cosmetics require only learning progress; 29 global items use profile levels.');
