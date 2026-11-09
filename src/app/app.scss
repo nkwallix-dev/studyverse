@@ -235,3 +235,51 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
  .dashboard-grid .right-rail{grid-template-columns:minmax(0,1fr)}
  .dashboard-grid .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+/* Shared account entry: avatar + the explicit "Mein Profil" label in the top-right. */
+.top-profile-link{
+ display:inline-flex;align-items:center;justify-content:center;gap:9px;flex:0 0 auto;
+ min-height:43px;padding:5px 13px 5px 5px;
+ background:var(--card);border:1px solid var(--border);
+ border-radius:14px;color:var(--text);font:inherit;font-size:12px;font-weight:850;
+ white-space:nowrap;cursor:pointer;transition:background .18s,border-color .18s,transform .18s;
+}
+.top-profile-link:hover,.top-profile-link.active{background:var(--card2);border-color:var(--accent);transform:translateY(-1px)}
+.top-profile-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.top-profile-avatar{
+ display:grid;place-items:center;width:33px;height:33px;flex:0 0 33px;
+ background:linear-gradient(135deg,color-mix(in srgb,var(--accent),transparent 72%),var(--card2));
+ border:1px solid color-mix(in srgb,var(--accent),transparent 55%);
+ border-radius:10px;font-size:22px;
+}
+.top-profile-text{display:inline-block}
+/* Account data is cloud-first; legacy file controls should not dominate profile editing. */
+.profile-advanced-tools{margin-top:25px;padding:0 17px;border:1px solid var(--border);border-radius:14px;background:var(--card2)}
+.profile-advanced-tools summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;padding:16px 0;font-size:12px;font-weight:900;color:var(--text);list-style:none}
+.profile-advanced-tools summary::-webkit-details-marker{display:none}
+.profile-advanced-tools summary:after{content:'⌄';margin-left:auto;color:var(--accent);font-size:20px;line-height:1;transition:transform .2s}
+.profile-advanced-tools[open] summary:after{transform:rotate(180deg)}
+.profile-advanced-tools summary span{font-weight:500;color:var(--muted);font-size:11px}
+.profile-advanced-body{padding:2px 0 17px;border-top:1px solid var(--border);display:grid;gap:12px}
+.profile-advanced-body p{line-height:1.6;margin:8px 0}
+.profile-advanced-body .backup-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.profile-advanced-body .backup-actions :is(button,label){margin:0;max-width:100%;font-size:11px}
+.profile-advanced-body .legacy-recovery{border-top:1px dashed var(--border);padding-top:10px}
+.profile-advanced-body .legacy-recovery p{font-size:11px}
+@media(max-width:700px){
+ .topbar{gap:8px}
+ .top-pills{margin-left:auto}
+ .top-profile-link{min-height:39px;padding:4px 9px 4px 4px;gap:6px;font-size:11px}
+ .top-profile-avatar{width:30px;height:30px;flex-basis:30px;font-size:19px}
+}
+@media(max-width:520px){
+ .top-pills .top-pill.lev{display:none}
+ .top-profile-link{font-size:10px}
+ .breadcrumbs{gap:5px;font-size:10px}
+ .top-pills .top-pill.token{padding:7px}
+}
+@media(max-width:390px){
+ .breadcrumbs .slash,.breadcrumbs strong{display:none}
+ .top-profile-link{font-size:10px}
+}
