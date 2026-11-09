@@ -41,15 +41,15 @@ function stats(){
  return '<div class="stats"><div class="stat"><small>⚡ TAGESQUIZ</small><b>'+quiz+'/20</b><small>Richtige einzigartige Fragen vergütet</small>'+progressBar(quiz,20)+'</div><div class="stat"><small>🪙 HEUTE NOCH MÖGLICH</small><b>'+((20-quiz)*25+(d.bossPaid?0:250))+' TT</b><small>Maximal 750 TT pro Tag</small></div><div class="stat"><small>👾 BOSS-TAGESBONUS</small><b>'+(d.bossPaid?'✓ Erledigt':'250 TT')+'</b><small>Einmal täglich bei mindestens 70 %</small></div></div>';
 }
 function startScreen(){
- return '<div class="hero"><div><div class="eyebrow">✦ STUDYVERSE · GEMEINSAME DAILY ARENA</div><h1>Dein täglicher<br><span>XP-Check.</span></h1><p>20 wechselnde Fragen aus CHEMVERSE und DSAIVERSE. Beide Fächer können auftauchen, auch im Bosskampf. Deine TastyTokens landen direkt im globalen Profil.</p><div class="actions"><button class="btn" data-action="quiz">⚡ Tägliches Quiz</button><button class="btn secondary" data-action="boss">👾 Bosskampf</button></div></div><div class="hero-icon">⚡</div></div>'+stats()+
- '<div class="card"><h2>⚡ Quiz oder 👾 Boss?</h2><p>Im Quiz zählen bis zu 20 unterschiedliche richtig gelöste Fragen pro Tag für je 25 TT. Beim Boss gibt es einmal täglich 250 TT, wenn mindestens 70 % von 20 Fragen richtig sind. Fragen und Antwortpositionen werden neu gemischt.</p><div class="notice">Die täglichen Limits gelten <b>gemeinsam</b> für CHEMVERSE, DSAIVERSE und diese Arena – kein doppeltes Kassieren durch Fachwechsel.</div></div>';
+ return '<div class="hero"><div><div class="eyebrow">✦ STUDYVERSE · GEMEINSAME DAILY ARENA</div><h1>Dein täglicher<br><span>XP-Check.</span></h1><p>20 wechselnde Fragen aus CHEMVERSE und Dsaiverse. Beide Fächer können auftauchen, auch im Bosskampf. Deine TastyTokens landen direkt im globalen Profil.</p><div class="actions"><button class="btn" data-action="quiz">⚡ Tägliches Quiz</button><button class="btn secondary" data-action="boss">👾 Bosskampf</button></div></div><div class="hero-icon">⚡</div></div>'+stats()+
+ '<div class="card"><h2>⚡ Quiz oder 👾 Boss?</h2><p>Im Quiz zählen bis zu 20 unterschiedliche richtig gelöste Fragen pro Tag für je 25 TT. Beim Boss gibt es einmal täglich 250 TT, wenn mindestens 70 % von 20 Fragen richtig sind. Fragen und Antwortpositionen werden neu gemischt.</p><div class="notice">Die täglichen Limits gelten <b>gemeinsam</b> für CHEMVERSE, Dsaiverse und diese Arena – kein doppeltes Kassieren durch Fachwechsel.</div></div>';
 }
 function questionScreen(){
  const s=session,q=s.questions[s.pos],d=DAILY.get();
  const choices=s.options.map((o,i)=>'<button class="choice '+(s.answered?(o.correct?'correct':s.picked===i?'wrong':''):'')+'" '+(s.answered?'disabled':'')+' data-answer="'+i+'"><span class="letter">'+("ABCD"[i])+'</span><span>'+safe(o.label)+'</span></button>').join("");
  const correct=s.answered?s.options[s.picked].correct:false;
- return '<div class="eyebrow">'+(mode==="quiz"?"⚡ TÄGLICHES QUIZ":"👾 TÄGLICHER BOSSKAMPF")+' · CHEMVERSE + DSAIVERSE</div><h1>Wissen <span>beweisen.</span></h1>'+stats()+
- '<div class="card"><div class="tag">'+(q.subject==="chem"?'🧪 CHEMVERSE · CHEMIE':'🤖 DSAIVERSE · DATA SCIENCE')+'</div><div class="actions"><small>FRAGE '+(s.pos+1)+' / '+s.questions.length+'</small><small>· '+s.score+' richtig</small></div>'+progressBar(s.pos,s.questions.length)+
+ return '<div class="eyebrow">'+(mode==="quiz"?"⚡ TÄGLICHES QUIZ":"👾 TÄGLICHER BOSSKAMPF")+' · CHEMVERSE + Dsaiverse</div><h1>Wissen <span>beweisen.</span></h1>'+stats()+
+ '<div class="card"><div class="tag">'+(q.subject==="chem"?'🧪 CHEMVERSE · CHEMIE':'🤖 Dsaiverse · DATA SCIENCE')+'</div><div class="actions"><small>FRAGE '+(s.pos+1)+' / '+s.questions.length+'</small><small>· '+s.score+' richtig</small></div>'+progressBar(s.pos,s.questions.length)+
  (q.code?'<pre class="snippet">'+safe(q.code)+'</pre>':'')+
  '<div class="question">'+safe(q.question)+'</div><div class="choices">'+choices+'</div>'+
  (s.answered?'<div class="feedback '+(correct?'':'bad')+'"><b>'+(correct?'✅ Richtig!':'❌ Leider falsch.')+'</b><p>'+safe(q.why)+'</p></div><div class="actions"><button class="btn" data-action="next">'+(s.pos+1===s.questions.length?'Ergebnis ansehen 🏆':'Nächste Frage →')+'</button></div>':'')+'</div>'+
@@ -71,7 +71,7 @@ function answer(i){
   session.score++;
   if(mode==="quiz"){
    const q=session.questions[session.pos];
-   if(DAILY.claimQuiz(q.subject,q.id.split(":")[1]))addTT(25,"Tagesquiz · "+(q.subject==="chem"?"CHEMVERSE":"DSAIVERSE"));
+   if(DAILY.claimQuiz(q.subject,q.id.split(":")[1]))addTT(25,"Tagesquiz · "+(q.subject==="chem"?"CHEMVERSE":"Dsaiverse"));
   }
  }
  render();
@@ -82,7 +82,7 @@ function next(){
  if(session.pos>=session.questions.length){
   if(mode==="boss"){
    const p=Math.round(100*session.score/session.questions.length);
-   if(p>=70&&DAILY.claimBoss())addTT(250,"Tagesboss · CHEMVERSE & DSAIVERSE");
+   if(p>=70&&DAILY.claimBoss())addTT(250,"Tagesboss · CHEMVERSE & Dsaiverse");
   }
   render();scrollTo(0,0);return;
  }
