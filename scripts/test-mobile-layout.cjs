@@ -88,12 +88,34 @@ async function main(){
    await page.goto(base,{waitUntil:'load'});
    await page.locator('.dashboard-grid').waitFor({timeout:12000});
    await check(page,'Studyverse Dashboard '+width);
+   const cardLayout=await page.evaluate(()=>{
+    const bounds=selector=>document.querySelector(selector).getBoundingClientRect();
+    const rail=bounds('.dashboard-grid .right-rail');
+    const level=bounds('.dashboard-grid .right-rail>.level-card');
+    const inventory=bounds('.dashboard-grid .right-rail>.loot-card');
+    const achievements=bounds('.dashboard-grid .right-rail>.achievements-preview');
+    const activity=bounds('.dashboard-grid .right-rail>.activity-card:last-child');
+    return {railWidth:rail.width,levelWidth:level.width,
+      inventoryTop:inventory.top,achievementsTop:achievements.top,
+      activityWidth:activity.width};
+   });
+   assert(cardLayout.levelWidth >= cardLayout.railWidth-4,
+    'Level XP bar should span both dashboard info-grid columns at '+width+'px');
+   assert(cardLayout.activityWidth >= cardLayout.railWidth-4,
+    'Activity history should fill both dashboard info-grid columns at '+width+'px');
+   if(width>=360){
+    assert(Math.abs(cardLayout.inventoryTop-cardLayout.achievementsTop)<=6,
+     'Inventory and achievements should be side by side at '+width+'px');
+   }
    if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-dashboard-390.png'),fullPage:true});
    for(const [label,nav] of [
     ['Lernwelten','Lernwelten'],['Achievements','Achievements'],['Item-Shop','Item-Shop'],
     ['Inventar','Inventar'],['TastyTokens','TastyTokens verdienen']]){
-    const button=page.locator('.navigation button[aria-label="'+nav+'"]');
-    await button.waitFor({timeout:5000});
+    // On phones, Inventory and TastyTokens live within the Shop's own three tabs.
+    const button=width<=700&&['Inventar','TastyTokens'].includes(label)
+     ?page.locator('.shop-view-tabs button').filter({hasText:label==='Inventar'?'Inventar':'TastyTokens verdienen'})
+     :page.locator('.navigation button[aria-label="'+nav+'"]');
+    await button.waitFor({state:'visible',timeout:5000});
     await button.click();
     await page.waitForTimeout(100);
     await check(page,'Studyverse '+label+' '+width);
@@ -105,7 +127,11 @@ async function main(){
    await check(page,'Studyverse Profil '+width);
    if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-profil-390.png'),fullPage:true});
    const navLabels=await page.locator('.navigation button .mobile-nav-label:visible').count();
-   if(width<=430)assert.equal(navLabels,6,'All six bottom nav labels must be visible on phone');
+   if(width<=430){
+    assert.equal(navLabels,4,'Phone bottom bar should contain four readable main destinations');
+    const visibleNavButtons=await page.locator('.navigation button:visible').count();
+    assert.equal(visibleNavButtons,4,'Inventory and TastyTokens stay within the Shop on phones');
+   }
    assert(!errors.length,'Studyverse script errors at '+width+': '+errors.join('; '));
    await context.close();
   }
