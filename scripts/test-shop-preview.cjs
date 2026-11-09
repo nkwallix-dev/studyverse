@@ -42,3 +42,17 @@ for(const [subject,path] of [['nawi','public/nawi/test-01/index.html'],['dsai','
 }
 assert(t.includes("return item.group===slot?(item.equip||item.id)"),'Candidate item must only alter its own sample slot');
 console.log('PASS: scoped live previews and locked unavailable learning worlds.');
+
+const catalog=h.slice(h.indexOf('<div class="item-grid drop-item-grid">'),h.indexOf('class="item-grid drop-item-grid inventory-item-grid"'));
+const inventory=h.slice(h.indexOf('class="item-grid drop-item-grid inventory-item-grid"'),h.indexOf('class="empty-tests inventory-empty"'));
+assert(catalog.includes('class="item-title-row"'),'Shop badges must be adjacent to product title');
+assert(inventory.includes('class="item-title-row"'),'Inventory equipped badge must be adjacent to product title');
+assert(catalog.includes('class="item-inline-status owned"')&&catalog.includes('class="item-inline-status locked-status"'),'Catalog must label owned and locked, below art');
+assert(!catalog.includes('🔓 UNLOCKED'),'Redundant unlocked labels must be removed');
+assert(!catalog.includes('item-top-badge'),'No status overlays on catalog item art');
+assert(!inventory.includes('inventory-equipped-badge'),'No status overlays on inventory art');
+assert(inventory.includes('class="item-inline-status equipped-status"'),'Equipped state should be a small badge beside inventory title');
+assert(!inventory.includes('✓ OWNED')&&!inventory.includes('IM INVENTAR'),'Inventory already means owned: no redundant ownership badges');
+assert(catalog.includes("[class.panda-art]=\"item.id==='dsai_panda'\"")&&inventory.includes("[class.panda-art]=\"item.id==='dsai_panda'\""),'Panda needs the larger avatar art in shop and inventory');
+assert(c.includes('.drop-item .item-art.drop-item-art.panda-art .big-item-icon'),'Panda art must have an enlarged rendering');
+console.log('PASS: clean item art; statuses next to titles; enlarged panda in catalog and inventory.');

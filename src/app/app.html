@@ -217,12 +217,14 @@
 
             <div class="item-grid drop-item-grid">
               <article class="item drop-item" *ngFor="let item of filteredItems" [class.locked]="!isUnlocked(item)" [class.owned]="owns(item)">
-                <div class="item-art drop-item-art" [style.background]="themeStyle(item)">
+                <div class="item-art drop-item-art" [class.avatar-art]="item.group==='avatar'" [class.panda-art]="item.id==='dsai_panda'" [style.background]="themeStyle(item)">
                   <span class="item-spark one">✦</span><span class="big-item-icon">{{item.icon}}</span><span class="item-spark two">✧</span>
-                  <span class="item-top-badge">{{owns(item)?'✓ OWNED':isUnlocked(item)?'🔓 UNLOCKED':'🔒 LOCKED'}}</span>
                 </div>
-                <div class="item-meta"><span class="item-kind">{{groupLabel(item.group)}}</span><span class="owned" *ngIf="owns(item)">IM INVENTAR</span></div>
-                <h3>{{item.name}}</h3><p>{{item.desc}}</p>
+                <div class="item-meta"><span class="item-kind">{{groupLabel(item.group)}}</span></div>
+                <h3 class="item-title-row"><span class="item-name">{{item.name}}</span>
+                  <span class="item-inline-status owned" *ngIf="owns(item)">✓ OWNED</span>
+                  <span class="item-inline-status locked-status" *ngIf="!owns(item) && !isUnlocked(item)">🔒 LOCKED</span>
+                </h3><p>{{item.desc}}</p>
                 <div class="item-unlock" [class.ready]="itemProgressPercent(item)===100">
                   <div class="unlock-caption"><span>{{requirementLabel(item)}}</span><b>{{itemProgressPercent(item)}}%</b></div>
                   <div class="progress-track"><i [style.width.%]="itemProgressPercent(item)"></i></div>
@@ -261,12 +263,14 @@
             <div class="inventory-results"><strong>{{inventoryItems.length}} Items</strong><span>in deiner Auswahl</span></div>
             <div class="item-grid drop-item-grid inventory-item-grid" *ngIf="inventoryItems.length">
               <article class="item inventory-item" *ngFor="let item of inventoryItems" [class.equipped]="active(item)">
-                <div class="item-art drop-item-art" [style.background]="themeStyle(item)">
+                <div class="item-art drop-item-art" [class.avatar-art]="item.group==='avatar'" [class.panda-art]="item.id==='dsai_panda'" [style.background]="themeStyle(item)">
                   <span class="item-spark one">✦</span><span class="big-item-icon">{{item.icon}}</span>
-                  <span class="item-spark two">✧</span><span class="inventory-equipped-badge" *ngIf="active(item)">✓ Ausgerüstet</span>
+                  <span class="item-spark two">✧</span>
                 </div>
                 <div class="inventory-item-detail"><small>{{dropLabel(item.drop)}} · {{groupLabel(item.group)}}</small>
-                  <h3>{{item.name}}</h3><p>{{item.desc}}</p>
+                  <h3 class="item-title-row"><span class="item-name">{{item.name}}</span>
+                    <span class="item-inline-status equipped-status" *ngIf="active(item)">✓ Ausgerüstet</span>
+                  </h3><p>{{item.desc}}</p>
                 </div>
                 <div class="inventory-actions">
                   <button type="button" class="drop-preview-btn" (click)="preview(item)">👁 Vorschau</button>

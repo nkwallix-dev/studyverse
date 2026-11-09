@@ -323,3 +323,53 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .shop-live-stage.universe[data-atm],.shop-live-fx span,
  .shop-live-stage[data-fx="effect_discoin"] .shop-live-topbar{animation:none!important}
 }
+
+/* Cosmetics-first item cards: keep art completely free of status badges.
+   State labels sit beside the name, below the image in Shop and Inventory. */
+.drop-item .item-art.drop-item-art,.inventory-item .item-art.drop-item-art{
+  position:relative;isolation:isolate;overflow:hidden;display:grid;place-items:center;
+}
+.drop-item .item-art.drop-item-art.avatar-art,
+.inventory-item .item-art.drop-item-art.avatar-art{
+  height:146px;
+  min-height:146px;
+  background-position:center;
+}
+.drop-item .item-art.drop-item-art.avatar-art::before,
+.inventory-item .item-art.drop-item-art.avatar-art::before{
+  content:"";position:absolute;z-index:0;pointer-events:none;
+  width:126px;height:126px;left:50%;top:50%;transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,#eefaff33 0%,#add2ff13 58%,transparent 74%);
+}
+.drop-item .item-art.drop-item-art.avatar-art .big-item-icon,
+.inventory-item .item-art.drop-item-art.avatar-art .big-item-icon{
+  position:relative;z-index:2;display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;font-size:84px;line-height:1;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  letter-spacing:normal;transform:none;
+  filter:drop-shadow(0 8px 12px #0006);
+}
+.drop-item .item-art.drop-item-art.panda-art .big-item-icon,
+.inventory-item .item-art.drop-item-art.panda-art .big-item-icon{
+  font-size:101px;
+}
+.drop-item .item-art.drop-item-art.avatar-art .item-spark,
+.inventory-item .item-art.drop-item-art.avatar-art .item-spark{opacity:.35;z-index:1;font-size:16px}
+.drop-item .item-title-row,.inventory-item .item-title-row{
+  display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;
+  margin:9px 0 6px;min-width:0;line-height:1.35;
+}
+.drop-item .item-title-row .item-name,.inventory-item .item-title-row .item-name{
+  font-weight:900;font-size:16px;overflow-wrap:anywhere;
+}
+.drop-item .item-inline-status,.inventory-item .item-inline-status{
+  display:inline-flex;align-items:center;gap:3px;flex-shrink:0;
+  border:1px solid var(--border);border-radius:20px;
+  padding:3px 6px;font-size:9px;line-height:1.2;
+  letter-spacing:.2px;font-weight:800;white-space:nowrap;
+  background:color-mix(in srgb,var(--card2),transparent 10%);
+}
+.drop-item .item-inline-status.owned{color:#8ce9b7;border-color:#8ce9b74a}
+.drop-item .item-inline-status.locked-status{color:var(--muted)}
+.inventory-item .item-inline-status.equipped-status{color:#8ce9b7;border-color:#8ce9b74a}
