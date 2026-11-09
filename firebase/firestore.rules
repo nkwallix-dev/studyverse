@@ -1,0 +1,23 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Each signed-in user can access only their own progress.
+    match /users/{userId} {
+      allow get: if request.auth != null && request.auth.uid == userId;
+      allow list: if false;
+
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['profile', 'updatedAt'])
+        && request.resource.data.profile is string
+        && request.resource.data.profile.size() < 750000;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // No other collections are exposed to browser clients.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
