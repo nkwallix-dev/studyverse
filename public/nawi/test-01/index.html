@@ -120,6 +120,63 @@ body[data-frame="pixel"] :is(.panel,.hero){border:3px solid #b78aff!important;bo
 @media(max-width:720px){.studyverse-profile-link{padding:4px 9px 4px 4px;min-height:39px;gap:6px;font-size:11px}.studyverse-profile-link #levelAvatar{width:30px;height:30px;font-size:19px}}
 @media(max-width:430px){.studyverse-return{font-size:10px;padding:6px}.studyverse-profile-link{font-size:10px}}
 
+
+/* PHONE-FIRST CHEMVERSE: cards, toolbar and persistent Studyverse profile access. */
+@media(max-width:850px){
+ .app,.main{min-width:0;max-width:100%}
+ .main{overflow-x:clip}
+ .topbar{gap:8px}
+ .topbar-left{min-width:0;flex:0 1 auto}
+ .topstats{min-width:0;flex:0 0 auto;gap:7px}
+ .sidebar.open{max-width:min(290px,88vw);box-shadow:15px 0 55px #000a}
+ .grid>*{min-width:0}
+ .panel,.lesson-block,.course-panel{max-width:100%;min-width:0;overflow-wrap:anywhere}
+ .topbar-left .crumb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+ .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ .main{width:100%;padding:0 13px 36px}
+ .topbar{position:sticky;top:0;min-height:60px;padding:10px 0;align-items:center}
+ .topbar-left{flex:0 0 auto}
+ .topbar-left .crumb{display:none}
+ .topstats{gap:6px;flex-wrap:nowrap}
+ .studyverse-return{min-height:40px;padding:6px 9px;border-radius:11px;font-size:10px}
+ .studyverse-return span{font-size:10px!important}
+ .studyverse-profile-link{min-height:40px;padding:4px 9px 4px 4px;font-size:11px}
+ .studyverse-profile-link #levelAvatar{width:30px;height:30px}
+ .burger{display:inline-flex;align-items:center;justify-content:center;min-width:40px;min-height:40px;padding:7px 10px}
+ .grid{gap:11px}
+ .span3,.span4,.span5,.span6,.span7,.span8,.span9,.span12{grid-column:span 12}
+ .panel,.course-panel{padding:17px;border-radius:14px}
+ .hero{min-height:0;padding:23px 19px;border-radius:17px;overflow:hidden}
+ .hero h1{font-size:clamp(28px,8.5vw,40px);letter-spacing:-1px}
+ .hero p{font-size:13px;line-height:1.55}
+ .choice-grid{grid-template-columns:minmax(0,1fr)}
+ .choice{min-width:0;padding:14px;white-space:normal;overflow-wrap:anywhere}
+ .btnrow{flex-wrap:wrap;gap:8px}
+ .btnrow .btn{min-height:42px;max-width:100%;white-space:normal}
+ .course-steps{gap:3px}
+ .learn-formula,.formula-show{overflow-x:auto;max-width:100%;font-size:clamp(13px,4vw,17px)}
+ .editor-toolbar{gap:6px;overflow-x:auto;scrollbar-width:thin}
+ .editor-toolbar .group{flex-shrink:0}
+ .chem-area{min-width:0;min-height:270px}
+ .chem-area svg{width:100%;height:auto;min-height:260px}
+ .filterrow{gap:7px}
+ .filterrow .chip{font-size:11px}
+ .field{min-width:0}
+ .notice,.feedback{overflow-wrap:anywhere}
+ .toast-wrap{left:10px;right:10px;top:68px;max-width:none}
+}
+@media(max-width:380px){
+ .main{padding-inline:10px}
+ .studyverse-return{padding:5px 6px;font-size:9px}
+ .studyverse-profile-link{gap:5px;padding-right:6px;font-size:10px}
+ .studyverse-profile-link #levelAvatar{width:28px;height:28px;font-size:18px}
+ .topstats{gap:4px}
+ .hero .btnrow .btn{width:100%}
+ .btnrow .btn{flex:1 1 100%}
+}
+
 </style>
 </head>
 <body data-theme="base">
