@@ -57,7 +57,7 @@ export class App implements OnInit,OnDestroy {
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  readonly cloud=new StudyverseCloud();
  cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
- cloudMode:'register'|'login'='register'; cloudUsername=''; cloudPin=''; cloudMessage='';
+ cloudMode:'register'|'login'='register'; cloudUsername=''; cloudPin=''; cloudMessage=''; cloudStage='';
  cloudStatus='Lokal'; private cloudTimer:ReturnType<typeof setTimeout>|null=null;
  private cloudWrites:Promise<void>=Promise.resolve();
  achievementSubject='Alle';achievementTest='Alle';
@@ -181,15 +181,22 @@ export class App implements OnInit,OnDestroy {
    if(this.cloudBusy)return;
    this.cloudBusy=true;this.cloudMessage='';this.cloudHydrating=true;this.cloudMaySave=false;
    const registering=this.cloudMode==='register';
+   let authenticated=false;
    try{
      if(registering){
+       this.cloudStage='Account wird erstellt …';
        await this.cloud.register(this.cloudUsername,this.cloudPin);
+       authenticated=true;
+       this.cloudStage='Spielstand wird online gespeichert …';
        if(this.profile.nickname==='Explorer')this.profile.nickname=this.cloud.session!.username;
        this.nicknameEdit=this.profile.nickname;
        this.intro=false;write(INTRO,'1');
        await this.cloud.save(this.cloudSnapshot());
      }else{
+       this.cloudStage='Anmeldedaten werden geprüft …';
        await this.cloud.login(this.cloudUsername,this.cloudPin);
+       authenticated=true;
+       this.cloudStage='Cloud-Spielstand wird geladen …';
        const remote=await this.cloud.load();
        if(remote)this.useCloudSnapshot(remote);
        else {
@@ -205,8 +212,21 @@ export class App implements OnInit,OnDestroy {
      }
      this.cloudMaySave=true;this.cloudStatus='✓ Online gespeichert';this.cloudPin='';this.cloudUsername='';
      this.cloudMessage='';
-   }catch(e){this.cloudMessage=cloudError(e);}
-   finally{this.cloudHydrating=false;this.cloudBusy=false;}
+   }catch(e){
+     this.cloudMessage=cloudError(e);
+     if(registering&&authenticated){
+       // Firebase may have created the account even when the first Firestore write fails.
+       // Do not delete the session or local progress; a retry is safe and idempotent.
+       this.cloudMaySave=true;
+       this.cloudStatus='⚠ Cloud-Speichern fehlgeschlagen';
+       this.alert('Dein Account wurde erstellt, aber der Spielstand ist noch nicht online bestätigt: '+this.cloudMessage+' Im Profil kannst du „Jetzt synchronisieren“ drücken.');
+     }else if(authenticated){
+       // Loading an existing account failed: never overwrite the remote save with a stale local profile.
+       this.cloudMaySave=false;
+       this.cloudStatus='⚠ Cloud-Laden fehlgeschlagen';
+       this.alert('Login erfolgreich, aber Cloud-Spielstand nicht geladen: '+this.cloudMessage+' Lade die Seite erneut.');
+     }
+   }finally{this.cloudHydrating=false;this.cloudBusy=false;this.cloudStage='';}
  }
  private clearDeviceProgress(){
    for(const trainer of TRAINERS)localStorage.removeItem(trainer.saveKey);
