@@ -16,6 +16,15 @@ interface CloudConfig{apiKey:string;projectId:string}
 export interface CloudSession{uid:string;username:string;idToken:string;refreshToken:string;expiresAt:number}
 interface AuthResult{localId:string;idToken:string;refreshToken:string;expiresIn:string}
 interface FirestoreDocument{fields?:{profile?:{stringValue?:string}}}
+async function fetchCloud(url:string,init:RequestInit={},timeoutMs=16000):Promise<Response>{
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),timeoutMs);
+  try{return await fetch(url,{...init,signal:controller.signal});}
+  catch(error){
+    if(controller.signal.aborted)throw Error('CLOUD_TIMEOUT');
+    throw error;
+  }finally{clearTimeout(timeout);}
+}
 const SESSION_KEY=CLOUD_SESSION_KEY;
 function parseJson<T>(value:string|null):T|null{try{return value?JSON.parse(value) as T:null}catch{return null}}
 function usernameOk(value:string){return /^[a-z0-9][a-z0-9_-]{2,19}$/.test(value);}
@@ -29,6 +38,7 @@ export function cloudError(error:unknown):string{
   if(/TOO_MANY_ATTEMPTS|TOO_MANY_REQUESTS/.test(raw))return 'Zu viele Versuche. Versuch es später nochmal.';
   if(/OPERATION_NOT_ALLOWED/.test(raw))return 'Firebase: E-Mail/Passwort-Anmeldung muss noch aktiviert werden.';
   if(/PERMISSION_DENIED|Missing or insufficient permissions|403/.test(raw))return 'Firestore-Zugriff blockiert. Bitte die Besitzer-Regeln veröffentlichen.';
+  if(/CLOUD_TIMEOUT|AbortError/i.test(raw))return 'Firebase antwortet nicht rechtzeitig. Bitte Internet und Browser-Erweiterungen prüfen. Möglicherweise wurde der Account bereits erstellt.';
   if(/Failed to fetch|NetworkError|network/i.test(raw))return 'Keine Verbindung zur Cloud. Bitte Internet prüfen.';
   return raw.length>190?raw.slice(0,190)+'…':raw;
 }
@@ -68,7 +78,7 @@ export class StudyverseCloud{
     const normalized=publicUsername(username);
     if(!usernameOk(normalized))throw Error('Benutzername: 3–20 Zeichen, nur a–z, 0–9, _ und -; muss mit einem Buchstaben oder einer Zahl beginnen.');
     if(!/^\d{6}$/.test(pin))throw Error('Bitte genau sechs Ziffern als PIN eingeben.');
-    const response=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:'+endpoint+'?key='+encodeURIComponent(this.settings.apiKey),{
+    const response=await fetchCloud('https://identitytoolkit.googleapis.com/v1/accounts:'+endpoint+'?key='+encodeURIComponent(this.settings.apiKey),{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({email:loginEmail(normalized),password:pin,returnSecureToken:true})
     });
@@ -82,7 +92,7 @@ export class StudyverseCloud{
   async token():Promise<string>{
     if(!this.session)throw Error('Bitte zuerst anmelden.');
     if(this.session.expiresAt>Date.now()+60_000&&this.session.idToken)return this.session.idToken;
-    const response=await fetch('https://securetoken.googleapis.com/v1/token?key='+encodeURIComponent(this.settings.apiKey),{
+    const response=await fetchCloud('https://securetoken.googleapis.com/v1/token?key='+encodeURIComponent(this.settings.apiKey),{
       method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
       body:new URLSearchParams({grant_type:'refresh_token',refresh_token:this.session.refreshToken})
     });
@@ -99,7 +109,7 @@ export class StudyverseCloud{
       '/databases/(default)/documents/users/'+encodeURIComponent(this.session.uid);
   }
   async load():Promise<CloudSnapshot|null>{
-    const response=await fetch(this.endpoint(),{headers:{Authorization:'Bearer '+await this.token()}});
+    const response=await fetchCloud(this.endpoint(),{headers:{Authorization:'Bearer '+await this.token()}});
     if(response.status===404)return null;
     const result=await response.json() as FirestoreDocument&{error?:{message?:string}};
     if(!response.ok)throw Error(result.error?.message||'Cloud-Stand konnte nicht geladen werden ('+response.status+').');
@@ -114,7 +124,7 @@ export class StudyverseCloud{
     const text=JSON.stringify(snapshot);
     if(text.length>700000)throw Error('Cloud-Spielstand zu groß. Exportiere zuerst ein JSON-Backup.');
     const url=this.endpoint()+'?updateMask.fieldPaths=profile&updateMask.fieldPaths=updatedAt';
-    const response=await fetch(url,{
+    const response=await fetchCloud(url,{
       method:'PATCH',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await this.token()},
       body:JSON.stringify({fields:{profile:{stringValue:text},updatedAt:{timestampValue:new Date().toISOString()}}})
     });
