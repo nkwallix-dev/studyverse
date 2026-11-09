@@ -291,7 +291,7 @@ const SHOP=[
 {id:'avatar_atom',kind:'avatar',icon:'⚛️',name:'Atom-Champion',cost:0,level:2,desc:'Dein kostenloses Level-2-Abzeichen.',group:'avatar'},
 {id:'avatar_crown',kind:'avatar',icon:'👑',name:'Goldkrone',cost:220,level:8,desc:'König aller Kohlenwasserstoffe.',group:'avatar'},
 {id:'title',kind:'title',icon:'🏅',name:'CHEMIE BOSS',cost:140,desc:'Zeig allen deinen Chemie-Boss-Status.',group:'title'},
-{id:'title_chaos',kind:'title',icon:'☠️',name:'Professor Chaos',cost:0,level:4,desc:'Exklusiver Titel für Level 4.',group:'title'},
+{id:'title_chaos',kind:'title',icon:'☠️',name:'Professor Fischer',cost:0,level:4,desc:'Unterschätz niemals jemals jemand... Unterschätz den Mann.',group:'title'},
 {id:'title_pizza',kind:'title',icon:'🍕',name:'Mozzarella-Magister',cost:100,desc:'Pizzastudium mit Abschluss.',group:'title'},
 {id:'title_orbit',kind:'title',icon:'🪐',name:'Orbit-Gott',cost:140,desc:'Du beherrschst (fast) das Universum.',group:'title'},
 {id:'title_legend',kind:'title',icon:'🧪',name:'Labor-Legende',cost:180,desc:'Sieht teurer aus als eine Matura.',group:'title'},
@@ -545,7 +545,7 @@ function bossNext(){let b=bossSession;if(!b.answered)return;if(b.idx<b.questions
 function shopOwned(s){return !!state.purchased?.[s.id]||(s.cost===0&&!!s.level&&currentLevel()>=s.level)}
 function shopSlot(s){return s.kind==='theme'?'theme':(s.kind==='extra'?'fx':s.kind)}
 function currentSlot(s){let slot=shopSlot(s),ld=state.loadout||{};return slot==='theme'?state.theme||'base':slot==='avatar'?ld.avatar:slot==='title'?(ld.title|| (state.title?'title':'')):slot==='fx'?(s.id==='effects'?(state.effects?'effects':'none'):s.id==='effect_coinrain'?(ld.coinrain?'effect_coinrain':'none'):ld.fx):(ld[slot]||'none')}
-function activeTitleText(){let ld=state.loadout||{},id=ld.title||(state.title?'title':'');return ({title:'🏅 CHEMIE BOSS',title_chaos:'☠️ PROFESSOR CHAOS',title_pizza:'🍕 MOZZARELLA-MAGISTER',title_orbit:'🪐 ORBIT-GOTT',title_legend:'🧪 LABOR-LEGENDE'})[id]||'🧪 CHEMIE-AZUBI'}
+function activeTitleText(){let ld=state.loadout||{},id=ld.title||(state.title?'title':'');return ({title:'🏅 CHEMIE BOSS',title_chaos:'☠️ PROFESSOR FISCHER',title_pizza:'🍕 MOZZARELLA-MAGISTER',title_orbit:'🪐 ORBIT-GOTT',title_legend:'🧪 LABOR-LEGENDE'})[id]||'🧪 CHEMIE-AZUBI'}
 function shopIsActive(s){if(s.kind==='avatar')return currentSlot(s)===s.icon;
  if(s.kind==='extra')return currentSlot(s)===s.id;
  return currentSlot(s)===(s.equip||s.id);

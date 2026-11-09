@@ -112,7 +112,6 @@ export class App implements OnInit,OnDestroy {
  private sortRequirement(item:ShopItem){return item.drop==='global'?(item.level||1)*10:(item.requirement?.value||0);}
  get shopCategories(){return ['Alle',...new Set(this.dropItems.map(i=>i.group))];}
  chooseDrop(id:string){this.shopDrop=id;this.shopGroup='Alle';this.previewed=null;}
- get chemMilestones(){return {academy:this.metricProgress('nawi-test-01','academy'),quiz:this.metricProgress('nawi-test-01','quiz'),draw:this.metricProgress('nawi-test-01','draw'),reaction:this.metricProgress('nawi-test-01','reaction'),boss:this.metricProgress('nawi-test-01','boss')};}
  metricProgress(drop:string,metric:ShopRequirement['metric']):number{
    const trainer=TRAINERS.find(t=>t.id===drop);if(!trainer)return 0;
    const save=this.snapshot(trainer),solved=isObj(save['solved'])?save['solved']:{};

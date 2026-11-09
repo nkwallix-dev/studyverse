@@ -10,7 +10,7 @@
       <button [class.active]="view==='dashboard'" (click)="go('dashboard')"><span>◈</span> Dashboard <b>↗</b></button>
       <button [class.active]="view==='subjects'" (click)="go('subjects')"><span>▦</span> Lernwelten <em>{{subjectsAll.length}}</em></button>
       <button [class.active]="view==='achievements'" (click)="go('achievements')"><span>🏆</span> Achievements <em>{{achievementTotals.done}}/{{achievementTotals.total}}</em></button>
-      <button [class.active]="view==='shop'" (click)="go('shop')"><span>◇</span> Drop-Shop <em>{{items.length}}</em></button>
+      <button [class.active]="view==='shop'" (click)="go('shop')"><span>◇</span> Item-Shop <em>{{items.length}}</em></button>
       <button [class.active]="view==='profile'" (click)="go('profile')"><span>☻</span> Mein Profil</button>
     </nav>
     <div class="menu-label sublabel">SPEED TRAVEL</div>
@@ -30,7 +30,7 @@
   <div class="workspace">
     <header class="topbar">
       <div class="breadcrumbs"><span>✧</span> STUDYVERSE <span class="slash">/</span>
-        <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?'Drop-Shop':view==='achievements'?'Achievements':'Mein Profil'}}</strong>
+        <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?'Item-Shop':view==='achievements'?'Achievements':'Mein Profil'}}</strong>
       </div>
       <div class="top-pills">
         <div class="top-pill lev"><span>⚡</span> Level {{level}} <div class="tiny-track"><i [style.width.%]="levelProgress"></i></div></div>
@@ -135,7 +135,7 @@
 
         <ng-container *ngSwitchCase="'shop'">
           <div class="eyebrow">THE STUDYVERSE ITEM ECONOMY</div>
-          <h1 class="page-title">Der <span>Drop-Shop.</span></h1>
+          <h1 class="page-title">Der <span>Item-Shop.</span></h1>
           <p class="page-subtitle">Jede Lernwelt hat ihren eigenen Drop. <strong>Erst lernen, dann kaufen.</strong> Einmal erworbene Cosmetics gehören dir aber im gesamten STUDYVERSE.</p>
 
           <div class="shop-banner drop-hero">
@@ -168,14 +168,6 @@
               <div class="drop-stage-text"><div class="eyebrow">{{d.subtitle}} · {{d.status==='live'?'ACTIVE DROP':'UPCOMING DROP'}}</div>
                 <h2>{{d.title}}</h2><p>{{d.description}}</p></div>
               <div class="drop-stage-numbers" *ngIf="d.status==='live'"><b>{{dropUnlocked}} / {{dropItems.length}}</b><small>FREIGESCHALTET ODER BESITZ</small></div>
-            </div>
-            <div *ngIf="shopDrop==='nawi-test-01'" class="learning-milestones">
-              <div class="milestone"><span>🎓</span><b>{{chemMilestones.academy}} / 17</b><small>Lernlektionen</small></div>
-              <div class="milestone"><span>⚡</span><b>{{chemMilestones.quiz}} / 64</b><small>Quizfragen</small></div>
-              <div class="milestone"><span>✍️</span><b>{{chemMilestones.draw}}</b><small>Zeichenaufgaben</small></div>
-              <div class="milestone"><span>💥</span><b>{{chemMilestones.reaction}}</b><small>Reaktionen</small></div>
-              <div class="milestone"><span>👹</span><b>{{chemMilestones.boss}}%</b><small>Boss-Bestwert</small></div>
-              <button class="btn primary go-learn" (click)="openTrainer('nawi-test-01')">Chemverse spielen ↗</button>
             </div>
             <div *ngIf="shopDrop==='global'" class="drop-guide">⚡ Globale Items werden über das STUDYVERSE-Profil-Level freigeschaltet. Neue Level, neue Basics – deine Käufe funktionieren in allen Lernwelten.</div>
             <div *ngIf="d.status==='upcoming'" class="drop-guide">🤖 Der DSAI-Drop wird erst mit dem DSAI-Trainer veröffentlicht. Dann gibt's neue Items, Level-Freischaltungen und eigene Lernfortschritt-Sperren.</div>

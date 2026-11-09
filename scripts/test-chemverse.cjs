@@ -84,3 +84,15 @@ const studyHtml=fs.readFileSync('src/app/app.html','utf8');
 assert.doesNotMatch(studyHtml,/item\.drop!=='global' && item\.level/,
  'Do not show obsolete subject-drop profile level requirements');
 console.log('STUDYVERSE shop gate tests passed: 27 subject cosmetics require only learning progress; 29 global items use profile levels.');
+
+// Ensure the standalone trainer and global shop retain the same title ID, name and description.
+const shopCatalog=fs.readFileSync('src/app/shop-items.ts','utf8');
+const professor=shopCatalog.split('\n').find(x=>x.startsWith("{id:'title_chaos',"));
+assert(professor,'Existing cosmetic ID must be preserved for save compatibility');
+assert(professor.includes("name:'Professor Fischer'"),'Professor title must match the requested new name');
+assert(professor.includes("desc:'Unterschätz niemals jemals jemand... Unterschätz den Mann.'"),'Professor description must match exactly');
+assert(js.includes("title_chaos:'☠️ PROFESSOR FISCHER'"),'Trainer profile must use same title');
+const studyTemplate=fs.readFileSync('src/app/app.html','utf8');
+assert(!studyTemplate.includes('Drop-Shop'),'Navigation and heading must say Item-Shop');
+assert(!studyTemplate.includes('learning-milestones'),'Shop must not show module-level course progress');
+console.log('Item-Shop rename, module summary removal and Professor Fischer naming verified.');
