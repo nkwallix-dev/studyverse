@@ -93,10 +93,10 @@ export class App implements OnInit,OnDestroy {
      restored.equipped['avatar']='🐟';
      write(KEY,JSON.stringify(restored));
    }
-   // Respect items users already earned in the pre-drop economy (including formerly free rewards).
+   // Preserve explicitly owned cosmetics while applying only legacy free rewards that do not bypass new boss achievements.
    if(raw['shopDropMigrationV1']!==true){
      const oldLevel=levelFor(restored.xp);
-     const previousRewards=[{id:'avatar_atom',level:2},{id:'ionstorm',level:3},{id:'title_chaos',level:4},{id:'blueprint',level:4},{id:'legend',level:5}];
+     const previousRewards=[{id:'avatar_atom',level:2},{id:'ionstorm',level:3},{id:'blueprint',level:4},{id:'legend',level:5}];
      restored.inventory=[...new Set([...restored.inventory,...previousRewards.filter(x=>oldLevel>=x.level).map(x=>x.id)])];
      restored.shopDropMigrationV1=true;
      write(KEY,JSON.stringify(restored));
@@ -611,7 +611,7 @@ export class App implements OnInit,OnDestroy {
    const purchased=data['purchased'] as Record<string,unknown>;
    this.profile.xp+=safe(data['xp']);this.profile.tokens+=safe(data['coins']);
    const importedLevel=levelFor(safe(data['xp']));
-   const legacyFree=[{id:'avatar_atom',level:2},{id:'ionstorm',level:3},{id:'title_chaos',level:4},{id:'blueprint',level:4},{id:'legend',level:5}];
+   const legacyFree=[{id:'avatar_atom',level:2},{id:'ionstorm',level:3},{id:'blueprint',level:4},{id:'legend',level:5}];
    this.profile.inventory=[...new Set([...this.profile.inventory,...Object.keys(purchased).filter(k=>!!purchased[k]),
      ...legacyFree.filter(i=>importedLevel>=i.level).map(i=>i.id)])];
    if(isObj(data['claimedLevels']))this.profile.claimedLevels={...this.profile.claimedLevels,...data['claimedLevels'] as Record<string,boolean>};
