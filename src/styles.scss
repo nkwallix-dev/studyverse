@@ -373,3 +373,116 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .drop-item .item-inline-status.owned{color:#8ce9b7;border-color:#8ce9b74a}
 .drop-item .item-inline-status.locked-status{color:var(--muted)}
 .inventory-item .item-inline-status.equipped-status{color:#8ce9b7;border-color:#8ce9b74a}
+
+/* === STUDYVERSE FULL HERO-SCENE BANNERS, SHOP AND ACTUAL DASHBOARD === */
+.universe .banner-scenery{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden;border-radius:inherit}
+.universe .banner-scene{position:absolute;inset:0;display:none;pointer-events:none}
+.universe .hero:has(.banner-scenery) .hero-copy{position:relative;z-index:3}
+.universe .hero:has(.banner-scenery)::after{z-index:1}
+.universe[data-banner="gold"] :is(.scene-gold),
+.universe[data-banner="warning"] :is(.scene-warning),
+.universe[data-banner="galaxy"] :is(.scene-galaxy),
+.universe[data-banner="molecule"] :is(.scene-molecule),
+.universe[data-banner="flow"] :is(.scene-flow),
+.universe[data-banner="curve"] :is(.scene-curve),
+.universe[data-banner="cloud"] :is(.scene-cloud){display:block}
+.universe[data-banner]:not([data-banner="default"]):not([data-banner="none"]) .hero:has(.banner-scenery) .planet-stage{display:none}
+.universe[data-banner]:not([data-banner="default"]):not([data-banner="none"]) .shop-live-hero-icon{display:none}
+/* Every banner reshapes the entire hero surface, not a decorative border. */
+.universe[data-banner="gold"] .hero:has(.banner-scenery){
+ background:radial-gradient(ellipse at 82% 50%,#ffeab38c,transparent 40%),repeating-linear-gradient(135deg,#e6b75717 0 5px,transparent 5px 24px),linear-gradient(110deg,#342017,#77511e 70%,#d3a04d)!important;
+ border-color:#fce2a0;box-shadow:inset 0 0 35px #ffd46c28,0 9px 42px #b886292b}
+.universe[data-banner="gold"] .hero:has(.banner-scenery) .hero-badge{color:#fff1c5;border-color:#ffd57670;background:#51351a98}
+.universe[data-banner="gold"] .hero:has(.banner-scenery) .btn.primary{background:linear-gradient(105deg,#ffe8ac,#f5bb4c)}
+.scene-gold .gold-rays{position:absolute;right:0;top:-70%;width:56%;height:240%;transform:rotate(21deg);
+ background:repeating-conic-gradient(from 20deg at 53% 50%,#ffdc8540 0deg 10deg,transparent 10deg 28deg)}
+.scene-gold .gold-trophy{position:absolute;right:10%;top:12%;font-size:clamp(82px,11vw,162px);filter:drop-shadow(0 13px 15px #6b421c) drop-shadow(0 0 25px #ffe98a);transform:rotate(-10deg);animation:banner-hover 6s ease-in-out infinite alternate}
+.scene-gold .gold-spark{position:absolute;right:8%;top:14%;font-size:30px;color:#fff0b0;text-shadow:0 0 14px #ffd368}
+.scene-gold .gold-spark.sp2{right:41%;top:60%;font-size:21px}.scene-gold .gold-spark.sp3{right:24%;top:75%;font-size:25px}
+/* High visibility radioactive chemistry laboratory. */
+.universe[data-banner="warning"] .hero:has(.banner-scenery){background:radial-gradient(circle at 76% 36%,#fdf7638b,transparent 28%),repeating-linear-gradient(138deg,#f5c92f14 0 24px,#101c20 24px 48px),linear-gradient(112deg,#091920,#304533 77%,#697029)!important;border:3px solid #e7c736;box-shadow:inset 0 0 29px #ffff7040}
+.universe[data-banner="warning"] .hero:has(.banner-scenery) .hero-badge{color:#fff5b3;border-color:#ffcc5473}
+.universe[data-banner="warning"] .hero:has(.banner-scenery) .btn.primary{background:linear-gradient(105deg,#fff66a,#b2de51)}
+.scene-warning .warning-chevrons{position:absolute;right:-12%;bottom:-12%;width:70%;height:34px;transform:rotate(-18deg);
+ background:repeating-linear-gradient(90deg,#f4d22d 0 34px,#121517 34px 67px);box-shadow:0 4px 20px #0008}
+.scene-warning .warning-flask{position:absolute;right:10%;top:12%;font-size:clamp(95px,11vw,165px);filter:drop-shadow(0 0 22px #d6f867);animation:banner-hover 6s ease-in-out infinite alternate}
+.scene-warning .warning-bio{position:absolute;right:35%;top:52%;font-size:58px;color:#eaff7dcc;text-shadow:0 0 22px #c3ec4f}
+.scene-warning .warning-ident{position:absolute;bottom:14px;right:18px;font:900 11px Consolas,monospace;letter-spacing:2px;color:#f1f8af}
+/* 3D-feeling galactic ring and portal. */
+.universe[data-banner="galaxy"] .hero:has(.banner-scenery){background:radial-gradient(circle at 83% 49%,#b4a2ffbd 0,#6d3dc35c 17%,transparent 45%),radial-gradient(ellipse at 50% 0,#aa4ffd38,transparent 52%),linear-gradient(112deg,#120d3c,#2e1765 60%,#0c1b46)!important;border-color:#aa9cff;box-shadow:inset 0 0 26px #d2adff24,0 0 24px #6659f150}
+.scene-galaxy{background-image:radial-gradient(2px 2px at 21% 20%,#fff 95%,transparent),radial-gradient(2px 2px at 50% 70%,#befaff 95%,transparent),radial-gradient(3px 3px at 80% 14%,#eea1ff 95%,transparent);background-size:77px 105px,112px 130px,133px 98px}
+.scene-galaxy .galaxy-halo{position:absolute;right:5%;top:-26%;width:45%;height:155%;border-radius:50%;background:radial-gradient(ellipse,#a26fff71,transparent 64%);filter:blur(12px)}
+.scene-galaxy .galaxy-orbit{position:absolute;right:0%;top:25%;width:48%;height:50%;border:4px solid #c4b0ffcc;border-radius:50%;transform:rotate(-25deg);box-shadow:0 0 18px #ad85ff}
+.scene-galaxy .galaxy-orbit.b{right:8%;top:8%;width:34%;height:80%;transform:rotate(30deg);border-color:#80e7ff7a}
+.scene-galaxy .galaxy-core{position:absolute;right:13%;top:16%;width:26%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 27% 22%,#f1d4ff,#7c54e1 52%,#21145b 83%);box-shadow:inset -15px -15px 22px #0d0a44,0 0 35px #c598ffa5;animation:banner-hover 8s ease-in-out infinite alternate}
+.scene-galaxy .galaxy-star{position:absolute;color:#f3edff;font-size:34px;right:5%;top:15%;text-shadow:0 0 16px #c6bbff}
+.scene-galaxy .galaxy-star.b{right:43%;top:70%}.scene-galaxy .galaxy-star.c{right:38%;top:13%}
+/* Actual molecular bonds, not just a border. */
+.universe[data-banner="molecule"] .hero:has(.banner-scenery){background:radial-gradient(circle at 77% 42%,#72efd47d,transparent 33%),linear-gradient(112deg,#092629,#134b52 58%,#102b58)!important;border-color:#67e7dc}
+.scene-molecule .molecule-atom{position:absolute;right:15%;top:24%;width:67px;height:67px;border:3px solid #dcfff7;box-shadow:inset -9px -11px 19px #063a4a,0 0 15px #6de9e6;background:radial-gradient(circle at 23% 20%,#8ffff7,#127d87);border-radius:50%;display:grid;place-items:center;color:#f8ffff;font:900 22px Consolas,monospace;z-index:2}
+.scene-molecule .molecule-atom.b{right:40%;top:53%;width:47px;height:47px;font-size:17px;background:#bfe9ff;color:#1b3750}
+.scene-molecule .molecule-atom.c{right:35%;top:8%;background:radial-gradient(circle at 23% 20%,#ffb6ae,#bd3f66)}
+.scene-molecule .molecule-atom.d{right:5%;top:60%;width:53px;height:53px;background:radial-gradient(circle at 23% 20%,#c0b0ff,#7165dc)}
+.scene-molecule .molecule-atom.e{right:4%;top:10%;width:46px;height:46px;font-size:16px;background:#d5e4ff;color:#1b3750}
+.scene-molecule .molecule-link{position:absolute;right:22%;top:48%;width:27%;height:5px;border-radius:6px;background:#91fff0;transform:rotate(-38deg);box-shadow:0 0 9px #7bfcf0}
+.scene-molecule .molecule-link.b{right:22%;top:28%;transform:rotate(31deg);width:21%}
+.scene-molecule .molecule-link.c{right:9%;top:56%;transform:rotate(60deg);width:18%}
+.scene-molecule .molecule-link.d{right:11%;top:24%;transform:rotate(-60deg);width:17%}
+/* Data science pipeline as a functional visual vocabulary. */
+.universe[data-banner="flow"] .hero:has(.banner-scenery){background:radial-gradient(ellipse at 80% 50%,#a38aff77,transparent 40%),repeating-linear-gradient(0deg,#ffffff08 0 1px,transparent 1px 32px),linear-gradient(112deg,#17173d,#31235c 64%,#264a68)!important;border-color:#96ccff}
+.scene-flow .flow-steps{position:absolute;right:4%;top:31%;width:48%;display:flex;align-items:center;justify-content:center;gap:9px}
+.scene-flow .flow-steps span{display:flex;flex-direction:column;justify-content:center;align-items:center;width:27%;max-width:105px;aspect-ratio:1.1;background:linear-gradient(150deg,#d9b8ff9c,#4f93b38a);border:2px solid #b6f8ff;border-radius:19px;box-shadow:0 0 22px #93ffff59;transform:rotate(-5deg)}
+.scene-flow .flow-steps span:nth-of-type(2){transform:rotate(5deg);background:linear-gradient(150deg,#a3d8ff9c,#8e65c28a)}
+.scene-flow .flow-steps b{font-size:clamp(23px,3vw,37px);color:#fff;font-weight:950}
+.scene-flow .flow-steps small{font-size:9px;font-weight:900;color:#d4f6ff;letter-spacing:.4px}
+.scene-flow .flow-steps i{color:#aafcff;font-style:normal;font-size:26px}
+/* Regression chart as full hero artwork. */
+.universe[data-banner="curve"] .hero:has(.banner-scenery){background:radial-gradient(circle at 85% 40%,#37edce5b,transparent 39%),linear-gradient(110deg,#0a2140,#1e4254 57%,#155d6b)!important;border-color:#56ecd7}
+.scene-curve .curve-grid{position:absolute;right:0;top:0;width:57%;height:100%;background-image:linear-gradient(#a3ffe51e 1px,transparent 1px),linear-gradient(90deg,#a3ffe51e 1px,transparent 1px);background-size:25px 25px}
+.scene-curve svg{position:absolute;right:3%;top:7%;width:48%;height:88%;filter:drop-shadow(0 0 12px #6ce9c6)}
+.scene-curve .curve-label{position:absolute;right:9%;top:8%;font:900 12px Consolas,monospace;color:#b1ffe7;letter-spacing:1px}
+/* Dreamy cloudy sky. */
+.universe[data-banner="cloud"] .hero:has(.banner-scenery){background:linear-gradient(180deg,#5d77ad,#8ab2e0 45%,#d4cff6 98%)!important;border-color:#bee2ff;box-shadow:inset 0 -30px 50px #b0bbed44}
+.universe[data-banner="cloud"] .hero:has(.banner-scenery) :is(.hero h1,.hero p,.hero-copy>p){color:#182d54;text-shadow:0 1px 2px #ffffff65}
+.universe[data-banner="cloud"] .hero:has(.banner-scenery) .hero h1 span,
+.universe[data-banner="cloud"] .hero:has(.banner-scenery) h1 span{background:linear-gradient(95deg,#284e8b,#6c42aa);background-clip:text;color:transparent}
+.universe[data-banner="cloud"] .hero:has(.banner-scenery) .hero-badge{background:#e8efff9f;color:#2a4b85;border-color:#dce8ff}
+.universe[data-banner="cloud"] .hero:has(.banner-scenery) .btn.primary{background:linear-gradient(95deg,#d6efff,#dfd3ff)}
+.scene-cloud .cloud-blob{position:absolute;right:0;top:2%;font-size:clamp(140px,20vw,280px);line-height:1;color:#f4f9ffd9;text-shadow:0 20px 30px #ebf5ffad;transform:rotate(-7deg);animation:banner-hover 10s ease-in-out infinite alternate}
+.scene-cloud .cloud-two{right:24%;top:43%;font-size:clamp(78px,12vw,160px);opacity:.85;animation-delay:-4s}
+.scene-cloud .cloud-three{right:-5%;top:62%;font-size:clamp(95px,14vw,185px);opacity:.8;animation-delay:-6s}
+.scene-cloud .cloud-sun{position:absolute;top:4%;right:22%;font-size:70px;color:#fff1a4;text-shadow:0 0 24px #fffdad}
+@keyframes banner-hover{from{translate:0 -8px}to{translate:0 12px}}
+/* The preview hero gets the SAME banner scenery, scaled rather than a mere frame treatment. */
+.shop-live-stage.universe .shop-live-hero.hero .banner-scenery{border-radius:inherit}
+.shop-live-stage.universe .shop-live-hero.hero .banner-scene{transform-origin:100% 50%}
+.shop-live-stage .scene-gold .gold-trophy,.shop-live-stage .scene-warning .warning-flask{font-size:63px;right:8%;top:18%}
+.shop-live-stage .scene-galaxy .galaxy-core{top:21%;right:17%;width:27%}
+.shop-live-stage .scene-molecule .molecule-atom{width:31px;height:31px;font-size:11px;border-width:1px}
+.shop-live-stage .scene-molecule .molecule-atom.b,.shop-live-stage .scene-molecule .molecule-atom.d{width:22px;height:22px;font-size:9px}
+.shop-live-stage .scene-molecule .molecule-atom.e{width:20px;height:20px;font-size:9px}
+.shop-live-stage .scene-flow .flow-steps{right:1%;top:26%;width:52%;gap:3px}
+.shop-live-stage .scene-flow .flow-steps span{border-radius:8px;border-width:1px}
+.shop-live-stage .scene-flow .flow-steps b{font-size:14px}.shop-live-stage .scene-flow .flow-steps small{font-size:6px}
+.shop-live-stage .scene-flow .flow-steps i{font-size:13px}
+.shop-live-stage .scene-curve .curve-label{font-size:8px}
+.shop-live-stage .scene-cloud .cloud-blob{font-size:110px}
+.shop-live-stage .scene-cloud .cloud-two{font-size:75px}.shop-live-stage .scene-cloud .cloud-three{font-size:90px}
+.shop-live-stage .scene-cloud .cloud-sun{font-size:35px}
+.shop-live-stage.universe .shop-live-hero.hero:has(.banner-scenery) .shop-live-hero-copy{position:relative;z-index:3}
+/* Live courses: first content under STUDYVERSE identity, not buried in navigation. */
+.sidebar-live-label{display:flex;justify-content:space-between;align-items:center;margin:0 0 7px;padding:0 11px 5px!important;letter-spacing:1.1px!important}
+.live-indicator{font-size:9px;color:#83efc4;letter-spacing:.4px}
+.sidebar-live-courses{display:grid;gap:8px;margin:0 0 25px}
+.sidebar-live-course{display:flex;align-items:center;gap:9px;width:100%;min-width:0;text-align:left;padding:11px 10px!important;color:var(--text);border:1px solid #7964b688!important;border-radius:13px;background:linear-gradient(95deg,#3828507d,#102b3666)!important;box-shadow:inset 3px 0 #b6b0ff!important}
+.sidebar-live-course.chemistry{border-color:#67eac061!important;box-shadow:inset 3px 0 #61e6ae!important}
+.sidebar-live-course.datascience{border-color:#a48cfd88!important;box-shadow:inset 3px 0 #a58cff!important}
+.sidebar-live-course:hover{transform:translateX(2px);border-color:var(--accent)!important;background:color-mix(in srgb,var(--accent),transparent 85%)!important}
+.sidebar-live-course .course-icon{width:33px;height:33px;flex-shrink:0;display:grid;place-items:center;font-size:20px;background:#ffffff15;border-radius:9px}
+.sidebar-live-course .course-text{display:grid;min-width:0;flex:1;gap:2px}
+.sidebar-live-course .course-text strong{font-size:12px;letter-spacing:.4px;font-weight:950;line-height:1.2}
+.sidebar-live-course .course-text small{font-size:9px;color:var(--muted);font-weight:700;line-height:1.3}
+.sidebar-live-course .course-arrow{color:var(--accent);font-size:20px;font-weight:900}
+@media(max-width:830px){.universe .hero .banner-scene{opacity:.48}.universe .hero .hero-copy{max-width:100%}.sidebar-live-course .course-text strong{font-size:11px}}
+@media(max-width:540px){.universe .hero .banner-scenery .banner-scene{opacity:.22}.shop-live-stage .shop-live-hero .banner-scene{opacity:.72!important}}
+@media(prefers-reduced-motion:reduce){.universe .banner-scenery *{animation:none!important}}

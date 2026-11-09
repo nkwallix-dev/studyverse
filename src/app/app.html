@@ -5,6 +5,11 @@
       <span class="brand-icon">✦</span>
       <span><strong>STUDY<span>VERSE</span></strong><small>YOUR LEARNING UNIVERSE</small></span>
     </button>
+    <div class="menu-label sidebar-live-label">SPIELBARE KURSE <span class="live-indicator">● LIVE</span></div>
+    <div class="sidebar-live-courses">
+      <button class="sidebar-live-course chemistry" (click)="openTrainer('nawi-test-01')"><span class="course-icon">🧪</span><span class="course-text"><strong>CHEMVERSE</strong><small>1. TEST · CHEMIE</small></span><span class="course-arrow">↗</span></button>
+      <button class="sidebar-live-course datascience" (click)="openTrainer('dsai-test-01')"><span class="course-icon">🤖</span><span class="course-text"><strong>DSAIVERSE</strong><small>1. TEST · DATA SCIENCE</small></span><span class="course-arrow">↗</span></button>
+    </div>
     <div class="menu-label">DEIN UNIVERSUM</div>
     <nav class="navigation">
       <button [class.active]="view==='dashboard'" (click)="go('dashboard')"><span>◈</span> Dashboard <b>↗</b></button>
@@ -14,13 +19,7 @@
       <button class="sidebar-inventory-link" [class.active]="view==='shop'&&shopTab==='inventory'" (click)="openInventory()"><span>🎒</span> Inventar <em>{{ownedCatalogItems.length}}</em></button>
       <button [class.active]="view==='profile'" (click)="go('profile')"><span>☻</span> Mein Profil</button>
     </nav>
-    <div class="menu-label sublabel">SPEED TRAVEL</div>
-    <div class="fast-links">
-      <button (click)="choose('nawi')"><span class="bubble mint"></span> Naturwissenschaften <span>↗</span></button>
-      <button (click)="choose('dsai')"><span class="bubble violet"></span> Data Science & AI <span>↗</span></button>
-      <button [disabled]="!subjectHasTrainer('dbi')" (click)="choose('dbi')"><span class="bubble cyan"></span> Datenbanken <span>🔒</span></button>
-      <button [disabled]="!subjectHasTrainer('pos')" (click)="choose('pos')"><span class="bubble orange"></span> C# Programmieren <span>🔒</span></button>
-    </div>
+
     <div class="sidebar-bottom">
       <div class="avatar">{{currentAvatar}}</div>
       <div><strong>{{profile.nickname}}</strong><small>Level {{level}} · {{title}}</small></div>
@@ -53,12 +52,20 @@
                 <button class="btn secondary" (click)="go('subjects')">Welten entdecken</button>
               </div>
             </div>
-            <div class="planet-stage"><div class="planet-glow"></div><div class="planet-orbit orbit-1"></div><div class="planet-orbit orbit-2"></div><div class="planet"><span>✦</span></div><div class="orbit-spark s1">✧</div><div class="orbit-spark s2">✦</div></div>
+            <div class="banner-scenery" aria-hidden="true">
+  <div class="banner-scene scene-gold"><div class="gold-rays"></div><div class="gold-trophy">🏆</div><span class="gold-spark sp1">✦</span><span class="gold-spark sp2">✧</span><span class="gold-spark sp3">✦</span></div>
+  <div class="banner-scene scene-warning"><div class="warning-chevrons"></div><div class="warning-flask">⚗️</div><div class="warning-bio">☣</div><span class="warning-ident">LAB · 001 / HAZARD</span></div>
+  <div class="banner-scene scene-galaxy"><div class="galaxy-halo"></div><div class="galaxy-orbit a"></div><div class="galaxy-orbit b"></div><div class="galaxy-core"></div><span class="galaxy-star a">✦</span><span class="galaxy-star b">✧</span><span class="galaxy-star c">✶</span></div>
+  <div class="banner-scene scene-molecule"><div class="molecule-link a"></div><div class="molecule-link b"></div><div class="molecule-link c"></div><div class="molecule-link d"></div><span class="molecule-atom a">C</span><span class="molecule-atom b">H</span><span class="molecule-atom c">O</span><span class="molecule-atom d">N</span><span class="molecule-atom e">H</span></div>
+  <div class="banner-scene scene-flow"><div class="flow-steps"><span><b>01</b><small>DATA</small></span><i>→</i><span><b>02</b><small>MODEL</small></span><i>→</i><span><b>03</b><small>INSIGHT</small></span></div></div>
+  <div class="banner-scene scene-curve"><div class="curve-grid"></div><svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid meet"><path d="M22 198 C86 193 106 146 152 135 S232 113 273 65 S331 61 383 18" fill="none" stroke="#78ffdc" stroke-width="7" stroke-linecap="round"/><path d="M22 198 C86 193 106 146 152 135 S232 113 273 65 S331 61 383 18 L383 239 L22 239Z" fill="#5fffd022"/><circle cx="152" cy="135" r="10" fill="#ffc77e"/><circle cx="273" cy="65" r="10" fill="#ffc77e"/></svg><span class="curve-label">PREDICTION ↗</span></div>
+  <div class="banner-scene scene-cloud"><span class="cloud-blob cloud-one">☁</span><span class="cloud-blob cloud-two">☁</span><span class="cloud-blob cloud-three">☁</span><span class="cloud-sun">☀</span></div>
+</div><div class="planet-stage"><div class="planet-glow"></div><div class="planet-orbit orbit-1"></div><div class="planet-orbit orbit-2"></div><div class="planet"><span>✦</span></div><div class="orbit-spark s1">✧</div><div class="orbit-spark s2">✦</div></div>
           </div>
           <section class="stats">
             <div class="stat"><div class="stat-icon purple">⚡</div><div><small>GESAMTE ERFAHRUNG</small><strong>{{profile.xp | number}} <span>XP</span></strong><p>Level {{level}} Explorer</p></div></div>
             <div class="stat"><div class="stat-icon gold">◉</div><div><small>DEINE TOKENS</small><strong>{{profile.tokens | number}}</strong><p>Im Item-Shop ausgeben ↗</p></div></div>
-            <div class="stat"><div class="stat-icon cyan">▦</div><div><small>LERNWELTEN</small><strong>{{subjectsAll.length}}</strong><p>1 Lernwelt spielbereit</p></div></div>
+            <div class="stat"><div class="stat-icon cyan">▦</div><div><small>LERNWELTEN</small><strong>{{subjectsAll.length}}</strong><p>2 Lernwelten spielbereit</p></div></div>
             <div class="stat"><div class="stat-icon pink">✦</div><div><small>FREIGESCHALTETE ITEMS</small><strong>{{claimed}}</strong><p>Customise dein Universum</p></div></div>
           </section>
           <div class="dashboard-grid">
@@ -229,7 +236,7 @@
                   <div class="unlock-caption"><span>{{requirementLabel(item)}}</span><b>{{itemProgressPercent(item)}}%</b></div>
                   <div class="progress-track"><i [style.width.%]="itemProgressPercent(item)"></i></div>
                 </div>
-                <div class="drop-price"><span>PREIS</span><strong>{{item.cost===0?'GRATIS':(item.cost | number)+' TT'}}</strong></div>
+                <div class="drop-price" *ngIf="!owns(item)"><span>PREIS</span><strong>{{item.cost===0?'GRATIS':(item.cost | number)+' TT'}}</strong></div>
                 <div class="drop-actions">
                   <button type="button" class="drop-preview-btn" (click)="preview(item)">👁 Vorschau</button>
                   <button type="button" class="drop-buy-btn" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
@@ -374,7 +381,15 @@
             <strong>Lernen. <em>Leveln.</em> Looten.</strong>
             <small>So sieht dein Dashboard mit diesem Item aus.</small>
           </div>
-          <span class="shop-live-hero-icon">🚀</span>
+          <span class="shop-live-hero-icon">🚀</span><div class="banner-scenery" aria-hidden="true">
+  <div class="banner-scene scene-gold"><div class="gold-rays"></div><div class="gold-trophy">🏆</div><span class="gold-spark sp1">✦</span><span class="gold-spark sp2">✧</span><span class="gold-spark sp3">✦</span></div>
+  <div class="banner-scene scene-warning"><div class="warning-chevrons"></div><div class="warning-flask">⚗️</div><div class="warning-bio">☣</div><span class="warning-ident">LAB · 001 / HAZARD</span></div>
+  <div class="banner-scene scene-galaxy"><div class="galaxy-halo"></div><div class="galaxy-orbit a"></div><div class="galaxy-orbit b"></div><div class="galaxy-core"></div><span class="galaxy-star a">✦</span><span class="galaxy-star b">✧</span><span class="galaxy-star c">✶</span></div>
+  <div class="banner-scene scene-molecule"><div class="molecule-link a"></div><div class="molecule-link b"></div><div class="molecule-link c"></div><div class="molecule-link d"></div><span class="molecule-atom a">C</span><span class="molecule-atom b">H</span><span class="molecule-atom c">O</span><span class="molecule-atom d">N</span><span class="molecule-atom e">H</span></div>
+  <div class="banner-scene scene-flow"><div class="flow-steps"><span><b>01</b><small>DATA</small></span><i>→</i><span><b>02</b><small>MODEL</small></span><i>→</i><span><b>03</b><small>INSIGHT</small></span></div></div>
+  <div class="banner-scene scene-curve"><div class="curve-grid"></div><svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid meet"><path d="M22 198 C86 193 106 146 152 135 S232 113 273 65 S331 61 383 18" fill="none" stroke="#78ffdc" stroke-width="7" stroke-linecap="round"/><path d="M22 198 C86 193 106 146 152 135 S232 113 273 65 S331 61 383 18 L383 239 L22 239Z" fill="#5fffd022"/><circle cx="152" cy="135" r="10" fill="#ffc77e"/><circle cx="273" cy="65" r="10" fill="#ffc77e"/></svg><span class="curve-label">PREDICTION ↗</span></div>
+  <div class="banner-scene scene-cloud"><span class="cloud-blob cloud-one">☁</span><span class="cloud-blob cloud-two">☁</span><span class="cloud-blob cloud-three">☁</span><span class="cloud-sun">☀</span></div>
+</div>
         </div>
         <div class="shop-live-cards">
           <div class="profile-panel shop-frame-card"><span>⚡</span><div><b>3.175 XP</b><small>Dein Fortschritt</small></div></div>
@@ -390,7 +405,7 @@
       <div class="preview-requirement" [class.ready]="itemProgressPercent(item)===100">
         {{itemProgressPercent(item)===100?'✓ Lernziel erfüllt':'⏳ Lernziel in Arbeit'}} · {{requirementLabel(item)}}
       </div>
-      <p class="preview-cost">{{item.cost===0?'Gratis':(item.cost | number)+' TT'}} <span *ngIf="owns(item) && shopTab==='catalog'">· Bereits im Inventar</span></p>
+      <p class="preview-cost" *ngIf="!owns(item)">{{item.cost===0?'Gratis':(item.cost | number)+' TT'}}</p>
       <button class="btn primary full" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
       <button class="btn secondary full" (click)="closePreview()">Vorschau schließen</button>
       <small>Vorschau ohne Kauf: Das Item wird nur hier gezeigt. Dein aktiver Style und deine TT bleiben unverändert.</small>

@@ -56,3 +56,22 @@ assert(!inventory.includes('✓ OWNED')&&!inventory.includes('IM INVENTAR'),'Inv
 assert(catalog.includes("[class.panda-art]=\"item.id==='dsai_panda'\"")&&inventory.includes("[class.panda-art]=\"item.id==='dsai_panda'\""),'Panda needs the larger avatar art in shop and inventory');
 assert(c.includes('.drop-item .item-art.drop-item-art.panda-art .big-item-icon'),'Panda art must have an enlarged rendering');
 console.log('PASS: clean item art; statuses next to titles; enlarged panda in catalog and inventory.');
+
+const newShop=fs.readFileSync('src/app/shop-items.ts','utf8');
+assert(h.includes('class="sidebar-live-courses"'),'Both playable trainer shortcuts should appear in top-left sidebar');
+assert(h.includes("openTrainer('nawi-test-01')")&&h.includes("openTrainer('dsai-test-01')"),'Both subject shortcuts must launch their own trainer');
+const bannerCount=(h.match(/class="banner-scenery"/g)||[]).length;
+assert.equal(bannerCount,2,'Both home and shop preview need full scene-based banners');
+for(const banner of ['gold','warning','galaxy','molecule','flow','curve','cloud']){
+ assert(c.includes('.universe[data-banner="'+banner+'"] .hero:has(.banner-scenery)'),banner+' needs its own full hero design');
+ assert(h.includes('scene-'+banner),banner+' needs actual thematic scenery');
+}
+assert(h.includes('<div class="drop-price" *ngIf="!owns(item)"'),'Owned cosmetics should not show cost in store');
+assert(h.includes('<p class="preview-cost" *ngIf="!owns(item)"'),'Owned cosmetics should not show cost in preview popup');
+const weber=newShop.split('\n').find(x=>x.includes("id:'dsai_title_weber'"));
+const fischer=newShop.split('\n').find(x=>x.includes("id:'title_chaos'"));
+const radical=newShop.split('\n').find(x=>x.includes("id:'chem_radical'"));
+assert(weber.includes("requirement:{metric:'boss',value:100}"),'Professorin Weber requires a perfect DSAI boss');
+assert(fischer.includes("requirement:{metric:'boss',value:100}"),'Professor Fischer requires a perfect Chemistry boss');
+assert(radical.includes("requirement:{metric:'academy',value:12}"),'Former prestige Radikal-Master swapped to academy');
+console.log('Full-scene banner previews, prestige teachers, hidden owned prices and top-left courses verified.');
