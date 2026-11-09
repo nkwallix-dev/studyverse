@@ -152,3 +152,16 @@ assert(shopTemplate.includes("goEarnTokens('quiz')")&&shopTemplate.includes("goE
  'Daily TT shortcuts must still call the real Angular method');
 assert(js.includes('25 TastyTokens (TT)')&&js.includes('250 zusätzliche TT'),'Chemverse must use TT in practice descriptions');
 console.log('Shop reward honesty and TastyTokens wording verified.');
+
+// Profile editor: avatar brush and title dropdown must live beside the name input.
+const settingsTs=fs.readFileSync('src/app/app.ts','utf8');
+const settingsHtml=fs.readFileSync('src/app/app.html','utf8');
+const settingsSection=settingsHtml.slice(settingsHtml.indexOf('<div class="profile-panel settings">'),settingsHtml.indexOf('<h3>CHEMVERSE-Spielstand</h3>'));
+assert(settingsTs.includes('get unlockedTitles()'),'Profile must expose earned titles');
+assert(settingsTs.includes("item.group==='title'&&this.owns(item)"),'Locked titles must be excluded');
+assert(settingsTs.includes('setProfileTitle(id:string)'),'Title selection needs persistence handler');
+assert(settingsSection.indexOf('id="profile-title-select"')>settingsSection.indexOf('id="profile-name-input"'),'Title selection must appear directly under name field');
+assert(settingsSection.includes('(ngModelChange)="setProfileTitle($event)"'),'Changing title must trigger save handler');
+assert(settingsSection.includes('(click)="openAvatarPicker()"'),'Paintbrush in Profile bearbeiten should open selector');
+assert(settingsHtml.includes('class="modal avatar-picker-modal"'),'Avatar popup should be present');
+console.log('Profile title + avatar editing form tests passed.');

@@ -287,25 +287,28 @@
           <div class="profile-grid"><div class="profile-panel"><div class="profile-avatar-wrap">
      <div class="large-avatar">{{currentAvatar}}</div>
      <button type="button" class="profile-avatar-brush" (click)="openAvatarPicker()" aria-label="Avatar ändern" title="Avatar ändern">🖌️</button>
-   </div><h2>{{profile.nickname}}</h2><span class="pill">⚡ LEVEL {{level}}</span><div class="progress-track"><i [style.width.%]="levelProgress"></i></div><p>{{profile.xp | number}} XP gesammelt</p><div class="profile-stats"><div><b>{{profile.tokens | number}}</b><small>TT</small></div><div><b>{{claimed}}</b><small>Items</small></div><div><b>{{subjectsAll.length}}</b><small>Fächer</small></div></div></div>
-          <div class="profile-panel settings"><h3>Profil bearbeiten</h3><label>Dein Anzeigename</label><div class="inline-form"><input [(ngModel)]="nicknameEdit" maxlength="24"><button class="btn primary" (click)="saveNickname()">Speichern</button></div>
-          <div class="profile-edit-cosmetics">
-            <div class="profile-edit-control">
-              <label>Dein Avatar</label>
-              <button type="button" class="profile-edit-avatar-button" (click)="openAvatarPicker()" aria-label="Avatar ändern und freigeschalteten Avatar auswählen">
-                <span class="profile-edit-avatar-icon">{{currentAvatar}}</span><span class="profile-edit-avatar-copy">Avatar auswählen<small>Nur freigeschaltete Designs</small></span><span class="profile-edit-brush">🖌️</span>
-              </button>
-            </div>
-            <div class="profile-edit-control">
-              <label for="profileTitleSelect">Dein Titel</label>
-              <select id="profileTitleSelect" class="profile-edit-title-select" [ngModel]="profile.equipped['title'] || ''" (ngModelChange)="selectProfileTitle($event)">
-                <option value="">Kein Titel / Weltenentdecker</option>
-                <option *ngFor="let item of unlockedTitles" [value]="item.id">{{item.icon}} {{item.name}}</option>
-              </select>
-              <small class="profile-edit-help">Nur deine bereits erworbenen Titel. Änderung wird sofort gespeichert.</small>
-            </div>
-          </div>
-          <h3>CHEMVERSE-Spielstand</h3><p>{{profile.legacyImportedAt?'✅ CHEMVERSE wurde bereits einmal importiert.':'Du kannst deinen alten Spielstand einmalig übernehmen.'}}</p>
+   </div><h2>{{profile.nickname}}</h2><p class="profile-current-title">✦ {{title}}</p><span class="pill">⚡ LEVEL {{level}}</span><div class="progress-track"><i [style.width.%]="levelProgress"></i></div><p>{{profile.xp | number}} XP gesammelt</p><div class="profile-stats"><div><b>{{profile.tokens | number}}</b><small>TT</small></div><div><b>{{claimed}}</b><small>Items</small></div><div><b>{{subjectsAll.length}}</b><small>Fächer</small></div></div></div>
+          <div class="profile-panel settings">
+<h3>Profil bearbeiten</h3>
+<label for="profile-name-input">Dein Anzeigename</label>
+<div class="inline-form"><input id="profile-name-input" [(ngModel)]="nicknameEdit" maxlength="24"><button class="btn primary" (click)="saveNickname()">Speichern</button></div>
+<div class="profile-edit-field">
+  <label for="profile-title-select">Dein Titel</label>
+  <select id="profile-title-select" class="profile-title-select" [ngModel]="profile.equipped['title'] || ''" (ngModelChange)="setProfileTitle($event)">
+    <option value="">✦ Weltenentdecker (Standard)</option>
+    <option *ngFor="let item of unlockedTitles" [value]="item.id">{{item.icon}} {{item.name}}</option>
+  </select>
+  <small>Nur freigeschaltete Titel · Wird direkt gespeichert</small>
+</div>
+<div class="profile-edit-field">
+  <label>Dein Avatar</label>
+  <div class="profile-avatar-edit">
+    <div class="profile-avatar-edit-preview">{{currentAvatar}}</div>
+    <div class="profile-avatar-edit-meta"><strong>Aktueller Avatar</strong><small>{{unlockedAvatars.length}} zusätzliche Avatare freigeschaltet</small></div>
+    <button type="button" class="btn secondary profile-avatar-edit-btn" (click)="openAvatarPicker()">🖌️ Avatar ändern</button>
+  </div>
+</div>
+<h3>CHEMVERSE-Spielstand</h3><p>{{profile.legacyImportedAt?'✅ CHEMVERSE wurde bereits einmal importiert.':'Du kannst deinen alten Spielstand einmalig übernehmen.'}}</p>
           <button class="btn secondary" [disabled]="!canImport" (click)="importOpen=true">CHEMVERSE importieren</button>
           <h3>Lokales Backup</h3><p>Exportiere dein STUDYVERSE-Profil als JSON. Noch keine geräteübergreifende Cloud-Synchronisierung.</p>
           <button class="btn secondary" (click)="exportProfile()">📁 Backup exportieren</button></div></div>

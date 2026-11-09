@@ -218,12 +218,16 @@ export class App implements OnInit,OnDestroy {
  get currentAvatar(){return this.profile.equipped['avatar'] || '🧪';}
  get unlockedAvatars(){return SHOP_ITEMS.filter(item=>item.group==='avatar'&&this.owns(item));}
  get unlockedTitles(){return SHOP_ITEMS.filter(item=>item.group==='title'&&this.owns(item));}
- selectProfileTitle(id:string){
-   if(id!==''&&!this.unlockedTitles.some(item=>item.id===id)){this.alert('Diesen Titel hast du noch nicht freigeschaltet.');return;}
-   this.profile.equipped['title']=id;
+ setProfileTitle(id:string){
+   if(id){
+     const item=SHOP_ITEMS.find(x=>x.id===id&&x.group==='title');
+     if(!item||!this.owns(item)){this.alert('Diesen Titel hast du noch nicht freigeschaltet.');return;}
+   }
+   this.profile.equipped['title']=id||'';
    this.save();
-   this.alert(id?'🏅 Titel ausgerüstet!':'🏅 Titel abgelegt.');
+   this.alert('🏅 Titel geändert: '+this.title);
  }
+
  openAvatarPicker(){this.avatarPickerOpen=true;}
  closeAvatarPicker(){this.avatarPickerOpen=false;}
  selectProfileAvatar(id:string){
