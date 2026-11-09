@@ -12,12 +12,12 @@
     </div>
     <div class="menu-label">DEIN UNIVERSUM</div>
     <nav class="navigation">
-      <button [class.active]="view==='dashboard'" (click)="go('dashboard')"><span>◈</span> Dashboard <b>↗</b></button>
-      <button [class.active]="view==='subjects'" (click)="go('subjects')"><span>▦</span> Lernwelten <em>{{subjectsAll.length}}</em></button>
-      <button [class.active]="view==='achievements'" (click)="go('achievements')"><span>🏆</span> Achievements <em>{{achievementTotals.done}}/{{achievementTotals.total}}</em></button>
-      <button [class.active]="view==='shop'&&shopTab==='catalog'" (click)="go('shop')"><span>◇</span> Item-Shop <em>{{items.length}}</em></button>
-      <button class="sidebar-inventory-link" [class.active]="view==='shop'&&shopTab==='inventory'" (click)="openInventory()"><span>🎒</span> Inventar <em>{{ownedCatalogItems.length}}</em></button>
-      <button class="sidebar-inventory-link sidebar-earn-link" [class.active]="view==='shop'&&shopTab==='earn'" (click)="openTokenEarning()"><span>🪙</span> TastyTokens verdienen</button>
+      <button [class.active]="view==='dashboard'" (click)="go('dashboard')" aria-label="Dashboard"><span>◈</span> Dashboard <small class="mobile-nav-label">Home</small><b>↗</b></button>
+      <button [class.active]="view==='subjects'" (click)="go('subjects')" aria-label="Lernwelten"><span>▦</span> Lernwelten <small class="mobile-nav-label">Welten</small><em>{{subjectsAll.length}}</em></button>
+      <button [class.active]="view==='achievements'" (click)="go('achievements')" aria-label="Achievements"><span>🏆</span> Achievements <small class="mobile-nav-label">Erfolge</small><em>{{achievementTotals.done}}/{{achievementTotals.total}}</em></button>
+      <button [class.active]="view==='shop'&&shopTab==='catalog'" (click)="go('shop')" aria-label="Item-Shop"><span>◇</span> Item-Shop <small class="mobile-nav-label">Shop</small><em>{{items.length}}</em></button>
+      <button class="sidebar-inventory-link" [class.active]="view==='shop'&&shopTab==='inventory'" (click)="openInventory()" aria-label="Inventar"><span>🎒</span> Inventar <small class="mobile-nav-label">Inventar</small><em>{{ownedCatalogItems.length}}</em></button>
+      <button class="sidebar-inventory-link sidebar-earn-link" [class.active]="view==='shop'&&shopTab==='earn'" (click)="openTokenEarning()" aria-label="TastyTokens verdienen"><span>🪙</span> TastyTokens verdienen <small class="mobile-nav-label">Tokens</small></button>
     </nav>
 
   </aside>
