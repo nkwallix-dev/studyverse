@@ -52,7 +52,7 @@ export class App implements OnInit,OnDestroy {
  readonly subjects=SUBJECTS;
  readonly items=SHOP_ITEMS;
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
- shopDrop='nawi-test-01'; shopTab:'catalog'|'inventory'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
+ shopDrop='nawi-test-01'; hideOwnedItems=false; shopTab:'catalog'|'inventory'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  achievementSubject='Alle';achievementTest='Alle';
  profile:Profile=this.load(); public today=new Date();
@@ -119,8 +119,10 @@ export class App implements OnInit,OnDestroy {
  }
 
  get dropUnlocked(){return this.dropItems.filter(i=>this.owns(i)||this.isUnlocked(i)).length;}
- get filteredItems(){return this.dropItems.filter(i=>(this.shopGroup==='Alle'||i.group===this.shopGroup)).slice()
-   .sort((a,b)=>this.owns(a)===this.owns(b)?this.sortRequirement(a)-this.sortRequirement(b):this.owns(a)?-1:1);}
+ get filteredItems(){return this.dropItems
+   .filter(i=>(this.shopGroup==='Alle'||i.group===this.shopGroup)&&(!this.hideOwnedItems||!this.owns(i)))
+   .sort((a,b)=>Number(this.owns(a))-Number(this.owns(b))
+     ||this.sortRequirement(a)-this.sortRequirement(b)||a.name.localeCompare(b.name,'de'));}
  private sortRequirement(item:ShopItem){return item.drop==='global'?(item.level||1)*10:(item.requirement?.value||0);}
  get shopCategories(){return ['Alle',...new Set(this.dropItems.map(i=>i.group))];}
  chooseDrop(id:string){this.shopDrop=id;this.shopGroup='Alle';this.previewed=null;}
