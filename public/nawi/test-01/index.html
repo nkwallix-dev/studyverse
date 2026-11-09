@@ -296,7 +296,7 @@ const SHOP=[
 {id:'legend',kind:'frame',icon:'⚜️',name:'LEGENDEN-RAHMEN',cost:0,level:5,desc:'Gratis-Belohnung für Level 5: goldene Ränder.',group:'frame'},
 {id:'avatar_pizza',kind:'avatar',icon:'🍕',name:'Pizza-Gehirn',cost:60,desc:'Pizza als Profilkopf. Wissenschaft.',group:'avatar'},
 {id:'avatar_alien',kind:'avatar',icon:'👽',name:'Alien-Genie',cost:90,level:4,desc:'Lerne organische Chemie intergalaktisch.',group:'avatar'},
-{id:'avatar_frog',kind:'avatar',icon:'🐸',name:'Froschlabor',cost:75,level:2,desc:'Der Frosch weiß Bescheid.',group:'avatar'},
+{id:'avatar_frog',kind:'avatar',icon:'🐟',name:'Laborfisch',cost:75,level:2,desc:'Der Fisch weiß Bescheid.',group:'avatar'},
 {id:'avatar_dragon',kind:'avatar',icon:'🐉',name:'Chemie-Drache',cost:180,level:5,desc:'Prüfungsboss-Level in einem einzigen Avatar.',group:'avatar'},
 {id:'avatar_brain',kind:'avatar',icon:'🧠',name:'Galaxy-Brain',cost:105,level:11,desc:'Sichtbarer Intelligenz-Bonus (nur optisch).',group:'avatar'},
 {id:'avatar_atom',kind:'avatar',icon:'⚛️',name:'Atom-Champion',cost:0,level:2,desc:'Dein kostenloses Level-2-Abzeichen.',group:'avatar'},
@@ -324,6 +324,7 @@ let state;try{state={...DEFAULT(),...JSON.parse(localStorage.getItem(KEY)||'{}')
 for(const k of ['earned','solved','mastered','learned','cards','purchased','totals','courseStep','courseDone']) if(!state[k]||typeof state[k]!=='object')state[k]=DEFAULT()[k];
 if(state.testDate==='2026-11-11')state.testDate='2026-11-10';
 if(!state.loadout||typeof state.loadout!=='object')state.loadout={...DEFAULT().loadout};
+if(state.loadout.avatar==='🐸')state.loadout.avatar='🐟'; // Existing avatar_frog owners keep their purchased item
 if(!state.claimedLevels||typeof state.claimedLevels!=='object')state.claimedLevels={};
 if(!state.quizAnswerOrders||typeof state.quizAnswerOrders!=='object')state.quizAnswerOrders={};
 let shopFilter='all',shopPreview=null;
@@ -598,7 +599,7 @@ function bossNext(){let b=bossSession;if(!b.answered)return;if(b.idx<b.questions
 function shopOwned(s){return !!state.purchased?.[s.id]||(s.cost===0&&!!s.level&&currentLevel()>=s.level)}
 function shopSlot(s){return s.kind==='theme'?'theme':(s.kind==='extra'?'fx':s.kind)}
 function currentSlot(s){let slot=shopSlot(s),ld=state.loadout||{};return slot==='theme'?state.theme||'base':slot==='avatar'?ld.avatar:slot==='title'?(ld.title|| (state.title?'title':'')):slot==='fx'?(s.id==='effects'?(state.effects?'effects':'none'):s.id==='effect_coinrain'?(ld.coinrain?'effect_coinrain':'none'):ld.fx):(ld[slot]||'none')}
-function activeTitleText(){let ld=state.loadout||{},id=ld.title||(state.title?'title':'');return ({title:'🏅 CHEMIE BOSS',title_chaos:'☠️ PROFESSOR FISCHER',title_pizza:'🍕 MOZZARELLA-MAGISTER',title_orbit:'🪐 ORBIT-GOTT',title_legend:'🧪 LABOR-LEGENDE'})[id]||'🧪 CHEMIE-AZUBI'}
+function activeTitleText(){let ld=state.loadout||{},id=ld.title||(state.title?'title':'');return ({title:'🏅 CHEMIE BOSS',title_chaos:'☠️ PROFESSOR FISCHER',dsai_title_weber:'🕷️ PROFESSORIN WEBER',title_pizza:'🍕 MOZZARELLA-MAGISTER',title_orbit:'🪐 ORBIT-GOTT',title_legend:'🧪 LABOR-LEGENDE'})[id]||'🧪 CHEMIE-AZUBI'}
 function shopIsActive(s){if(s.kind==='avatar')return currentSlot(s)===s.icon;
  if(s.kind==='extra')return currentSlot(s)===s.id;
  return currentSlot(s)===(s.equip||s.id);
@@ -767,6 +768,7 @@ function openLesson(id){if(!LEARNPATH.some(l=>l.id===id))return;lessonSession.id
 function levelBounty(level){return 60+(level-1)*60}
 function ensureCosmeticState(){if(!state.purchased||typeof state.purchased!=='object')state.purchased={};
  if(!state.loadout||typeof state.loadout!=='object')state.loadout={...DEFAULT().loadout};
+if(state.loadout.avatar==='🐸')state.loadout.avatar='🐟'; // Existing avatar_frog owners keep their purchased item
  state.loadout={...DEFAULT().loadout,...state.loadout};
  if(!state.claimedLevels||typeof state.claimedLevels!=='object')state.claimedLevels={};
  if(state.testDate==='2026-11-11')state.testDate='2026-11-10';

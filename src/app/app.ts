@@ -73,6 +73,11 @@ export class App implements OnInit,OnDestroy {
     claimedLevels:isObj(raw['claimedLevels'])?raw['claimedLevels'] as Record<string,boolean>:{},
     equipped:{...defaultEquip(),...(isObj(raw['equipped'])?raw['equipped']:{} as Record<string,string>)},
     activity:Array.isArray(raw['activity'])?raw['activity'] as Activity[]:[]};
+   // Existing Froschlabor purchases retain avatar_frog; update only the currently equipped emoji.
+   if(restored.equipped['avatar']==='🐸'){
+     restored.equipped['avatar']='🐟';
+     write(KEY,JSON.stringify(restored));
+   }
    // Respect items users already earned in the pre-drop economy (including formerly free rewards).
    if(raw['shopDropMigrationV1']!==true){
      const oldLevel=levelFor(restored.xp);
@@ -376,6 +381,7 @@ export class App implements OnInit,OnDestroy {
    if(isObj(data['claimedLevels']))this.profile.claimedLevels={...this.profile.claimedLevels,...data['claimedLevels'] as Record<string,boolean>};
    const loadout=isObj(data['loadout'])?data['loadout']:{};
    this.profile.equipped={...this.profile.equipped,...loadout as Record<string,string>};
+   if(this.profile.equipped['avatar']==='🐸')this.profile.equipped['avatar']='🐟';
    if(typeof data['theme']==='string')this.profile.equipped['theme']=data['theme'];
    this.profile.legacyImportedAt=new Date().toISOString();
    this.profile.chemverseSave=data;

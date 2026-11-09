@@ -60,7 +60,7 @@ console.log('CHEMVERSE tests passed: syntax, daily caps, Boss scoring, repeat ch
 // Drop gate regression: learning worlds must NEVER require global profile levels.
 const catalog=fs.readFileSync('src/app/shop-items.ts','utf8');
 const items=catalog.split('\n').filter(line=>line.startsWith("{id:"));
-assert.equal(items.length,75,'Expected 75 cosmetics including DSAIVERSE');
+assert.equal(items.length,77,'Expected 77 cosmetics including new DSAIVERSE items');
 let global=0,chem=0,dsai=0;
 for(const item of items){
  if(item.includes("drop:'global'")){
@@ -75,7 +75,7 @@ for(const item of items){
    assert.doesNotMatch(item,/,level:\d+/,'Verse item MUST NOT have global level lock');
  }
 }
-assert.equal(global,33);assert.equal(chem,27);assert.equal(dsai,15);
+assert.equal(global,33);assert.equal(chem,27);assert.equal(dsai,17);
 const studyTs=fs.readFileSync('src/app/app.ts','utf8');
 assert.match(studyTs,/if\(item\.drop==='global'\)return this\.level>=\(item\.level\|\|1\)/,
  'Profile level gate applies only to global items');
@@ -166,3 +166,16 @@ assert(settingsSection.includes('(ngModelChange)="setProfileTitle($event)"'),'Ch
 assert(settingsSection.includes('(click)="openAvatarPicker()"'),'Paintbrush in Profile bearbeiten should open selector');
 assert(settingsHtml.includes('class="modal avatar-picker-modal"'),'Avatar popup should be present');
 console.log('Profile title + avatar editing form tests passed.');
+
+// The DSAI Professorin Weber and spider avatar are new; the Chemverse fish keeps the old frog ID.
+const shopSource=fs.readFileSync('src/app/shop-items.ts','utf8');
+const dsaiWeberLine=shopSource.split('\n').find(x=>x.includes("id:'dsai_title_weber'"));
+const dsaiSpiderLine=shopSource.split('\n').find(x=>x.includes("id:'dsai_spider'"));
+const fishLine=shopSource.split('\n').find(x=>x.includes("id:'avatar_frog'"));
+assert(dsaiWeberLine?.includes("name:'Professorin Weber'")&&dsaiWeberLine.includes("drop:'dsai-test-01'"),'DSAI teacher title in DSAI shop');
+assert(dsaiSpiderLine?.includes("icon:'🕷️'")&&dsaiSpiderLine.includes("drop:'dsai-test-01'"),'Spinning spider avatar in DSAI shop');
+assert(fishLine?.includes("icon:'🐟'")&&fishLine.includes("name:'Laborfisch'"),'Frog item ID preserved with fish emoji');
+assert(js.includes("if(state.loadout.avatar==='🐸')state.loadout.avatar='🐟'"),'Old equipped frogs migrated in local trainer');
+assert(js.includes("dsai_title_weber:'🕷️ PROFESSORIN WEBER'"),'Global DSAI title recognized by Chemverse');
+assert(shopTs.includes("if(restored.equipped['avatar']==='🐸')"),'Global equipment migrated too');
+console.log('DSAIVERSE new teacher title and spider avatar, CHEMVERSE fish migration verified.');
