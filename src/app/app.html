@@ -389,7 +389,7 @@
       <label for="cloud-pin">Deine 6-stellige Zahlen-PIN</label>
       <input id="cloud-pin" class="cloud-auth-input cloud-pin-input" type="password" inputmode="numeric" pattern="[0-9]{6}" [(ngModel)]="cloudPin" maxlength="6" minlength="6" autocomplete="current-password" placeholder="● ● ● ● ● ●" [disabled]="cloudBusy" (keyup.enter)="submitCloudAccount()">
       <p class="cloud-auth-error" *ngIf="cloudMessage">{{cloudMessage}}</p>
-      <button type="button" class="btn primary full" [disabled]="cloudBusy" (click)="submitCloudAccount()">{{cloudBusy?'Verbindung wird geprüft …':cloudMode==='register'?'🚀 Account erstellen':'↩ Einloggen & Spielstand laden'}}</button>
+      <button type="button" class="btn primary full" [disabled]="cloudBusy" (click)="submitCloudAccount()">{{cloudBusy?cloudStage:cloudMode==='register'?'🚀 Account erstellen':'↩ Einloggen & Spielstand laden'}}</button>
       <div class="cloud-auth-import" *ngIf="cloudMode==='register'">
         <p>Schon einen alten Studyverse- oder Chemverse-Spielstand? Importiere zuerst das Backup, dann erstelle deinen Account.</p>
         <label class="btn secondary cloud-auth-upload">📦 Alten Spielstand importieren
