@@ -10,7 +10,7 @@
   const PROFILE='studyverse_profile_v1';
   const BRIDGE='studyverse_trainer_launch_v2';
   const DAILY='studyverse_shared_daily_v1';
-  const TRAINERS={'nawi-test-01':'chemverse_niklas_v1','dsai-test-01':'dsaiverse_test01_v1'};
+  const TRAINERS={'nawi-test-01':'chemverse_niklas_v1','dsai-test-01':'dsai_studyverse_v1'};
   const script=document.currentScript;
   const configUrl=new URL('../cloud-config.json',script&&script.src?script.src:document.baseURI).href;
   const configPromise=fetch(configUrl,{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null);
