@@ -170,3 +170,14 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
 
 /* Import feedback must stay visible above the sign-up dialog. */
 .cloud-auth-veil ~ .notice{z-index:90}
+
+
+/* Shop navigation: three equal tabs, including the independent TastyTokens guide. */
+.shop-view-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:min(100%,850px)}
+.shop-view-tabs button{justify-content:center;text-align:center;min-width:0;padding:11px 12px;line-height:1.35;white-space:normal}
+.navigation .sidebar-earn-link{color:var(--muted)}
+@media(max-width:620px){
+  .shop-view-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .shop-view-tabs button:last-child{grid-column:1/-1}
+  .shop-view-tabs button{padding:11px 9px;font-size:12px}
+}
