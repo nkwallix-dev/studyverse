@@ -10,7 +10,8 @@
       <button [class.active]="view==='dashboard'" (click)="go('dashboard')"><span>◈</span> Dashboard <b>↗</b></button>
       <button [class.active]="view==='subjects'" (click)="go('subjects')"><span>▦</span> Lernwelten <em>{{subjectsAll.length}}</em></button>
       <button [class.active]="view==='achievements'" (click)="go('achievements')"><span>🏆</span> Achievements <em>{{achievementTotals.done}}/{{achievementTotals.total}}</em></button>
-      <button [class.active]="view==='shop'" (click)="go('shop')"><span>◇</span> Item-Shop <em>{{items.length}}</em></button>
+      <button [class.active]="view==='shop'&&shopTab==='catalog'" (click)="go('shop')"><span>◇</span> Item-Shop <em>{{items.length}}</em></button>
+      <button class="sidebar-inventory-link" [class.active]="view==='shop'&&shopTab==='inventory'" (click)="openInventory()"><span>🎒</span> Inventar <em>{{ownedCatalogItems.length}}</em></button>
       <button [class.active]="view==='profile'" (click)="go('profile')"><span>☻</span> Mein Profil</button>
     </nav>
     <div class="menu-label sublabel">SPEED TRAVEL</div>
@@ -30,11 +31,11 @@
   <div class="workspace">
     <header class="topbar">
       <div class="breadcrumbs"><span>✧</span> STUDYVERSE <span class="slash">/</span>
-        <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?'Item-Shop':view==='achievements'?'Achievements':'Mein Profil'}}</strong>
+        <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':'Item-Shop'):view==='achievements'?'Achievements':'Mein Profil'}}</strong>
       </div>
       <div class="top-pills">
         <div class="top-pill lev"><span>⚡</span> Level {{level}} <div class="tiny-track"><i [style.width.%]="levelProgress"></i></div></div>
-        <button class="top-pill token" (click)="go('shop')"><span>◉</span> {{profile.tokens | number}} Tokens</button>
+        <button class="top-pill token" title="TastyTokens (TT)" (click)="go('shop')"><span>◉</span> {{profile.tokens | number}} TT</button>
         <div class="avatar-mini" (click)="go('profile')" role="button" tabindex="0">{{currentAvatar}}</div>
       </div>
     </header>
@@ -126,7 +127,7 @@
             <div class="section-heading"><div><div class="eyebrow">{{group.trainer.subjectId.toUpperCase()}} · {{group.trainer.id}}</div><h2>{{group.trainer.title}} <span>✦</span></h2></div><span class="pill">{{group.items.length}} mögliche Erfolge</span></div>
             <div class="achievement-grid"><article class="achievement-card" *ngFor="let a of group.items" [class.achievement-unlocked]="a.done">
               <div class="achievement-symbol">{{a.done?a.icon:'🔒'}}</div><div class="achievement-content"><div class="achievement-status">{{a.done?'✓ FREIGESCHALTET':'NOCH GESPERRT'}}</div>
-              <h3>{{a.title}}</h3><p>{{a.description}}</p><div class="achievement-reward">🪙 +{{a.reward | number}} Tokens {{a.done?'· verdient':'· bei Abschluss'}}</div><div class="achievement-foot"><span>{{a.value}} / {{a.target}}</span><span>{{a.percent}}%</span></div>
+              <h3>{{a.title}}</h3><p>{{a.description}}</p><div class="achievement-reward">🪙 +{{a.reward | number}} TT {{a.done?'· verdient':'· bei Abschluss'}}</div><div class="achievement-foot"><span>{{a.value}} / {{a.target}}</span><span>{{a.percent}}%</span></div>
               <div class="progress-track"><i [style.width.%]="a.percent"></i></div></div>
             </article></div>
           </section>
@@ -134,14 +135,21 @@
         </ng-container>
 
         <ng-container *ngSwitchCase="'shop'">
-          <div class="eyebrow">THE STUDYVERSE ITEM ECONOMY</div>
-          <h1 class="page-title">Der <span>Item-Shop.</span></h1>
-          <p class="page-subtitle">Jede Lernwelt hat ihren eigenen Drop. <strong>Erst lernen, dann kaufen.</strong> Einmal erworbene Cosmetics gehören dir aber im gesamten STUDYVERSE.</p>
+          <div class="eyebrow">STUDYVERSE COSMETICS</div>
+          <h1 class="page-title" *ngIf="shopTab==='catalog'">Der <span>Item-Shop.</span></h1>
+          <h1 class="page-title" *ngIf="shopTab==='inventory'">Dein <span>Inventar.</span></h1>
+          <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Erst lernen, dann kaufen.</strong> Einmal erworbene Cosmetics gehören dir aber im gesamten STUDYVERSE.</p>
+          <p class="page-subtitle" *ngIf="shopTab==='inventory'">Alle deine Cosmetics an einem Ort. Nach Drop und Kategorie filtern, Styles anschauen und direkt ausrüsten.</p>
+          <div class="shop-view-tabs" role="tablist" aria-label="Shop und Inventar">
+            <button type="button" role="tab" [attr.aria-selected]="shopTab==='catalog'" [class.selected]="shopTab==='catalog'" (click)="setShopTab('catalog')">◇ Item-Shop</button>
+            <button type="button" role="tab" [attr.aria-selected]="shopTab==='inventory'" [class.selected]="shopTab==='inventory'" (click)="setShopTab('inventory')">🎒 Inventar <span>{{ownedCatalogItems.length}}</span></button>
+          </div>
+          <ng-container *ngIf="shopTab==='catalog'">
 
           <div class="shop-banner drop-hero">
             <div class="drop-hero-copy">
               <span class="eyebrow">✦ GLOBAL INVENTORY · ALL VERSES</span>
-              <h2><span class="wallet-icon">◉</span> {{profile.tokens | number}} <small>Tokens</small></h2>
+              <h2><span class="wallet-icon">◉</span> {{profile.tokens | number}} <small>TastyTokens (TT)</small></h2>
               <p>Level {{level}} · {{claimed}} Cosmetics im Inventar · Ein gemeinsamer Geldbeutel für alle Lernwelten.</p>
             </div>
             <div class="drop-floating-art"><span class="drop-planet">🪐</span><span class="drop-spark">✦</span></div>
@@ -176,24 +184,26 @@
           <section class="coin-earning-station">
             <div class="coin-station-head">
               <span class="coin-station-emoji">🪙</span>
-              <div><div class="eyebrow">TOKEN EARNING STATION</div><h2>EY DU, DA GIBT'S NOCH COINS ZU HOLEN!</h2>
-                <p>Schon alle Achievements? Kein Problem. Wiederhole echte Aufgaben und verdiene täglich weitere Tokens.</p></div>
-              <div class="coin-station-value"><small>NOCH IN DIESEM DROP ZU KAUFEN</small><strong>{{shopCollectionCost | number}} ◉</strong>
-                <span *ngIf="shopTokenGap>0">Dir fehlen noch {{shopTokenGap | number}} Tokens fürs komplette Set.</span>
+              <div><div class="eyebrow">TASTYTOKENS · VERDIENEN</div><h2>SO VERDIENST DU WEITERE TT</h2>
+                <p>Offene Achievements bringen einmalige Boni. Danach verdienst du durch tägliches Üben weiter TastyTokens.</p></div>
+              <div class="coin-station-value"><small>NOCH IN DIESEM DROP ZU KAUFEN</small><strong>{{shopCollectionCost | number}} TT</strong>
+                <span *ngIf="shopTokenGap>0">Dir fehlen noch {{shopTokenGap | number}} TT fürs komplette Set.</span>
                 <span *ngIf="shopTokenGap===0">Dein Guthaben reicht theoretisch für den Rest der Kollektion!</span></div>
             </div>
             <div class="coin-earning-grid">
-              <div class="earning-tile"><span class="earn-icon">🏆</span><div class="earn-type">ACHIEVEMENTS</div><strong>Bis zu {{achievementRewardTotal | number}} ◉</strong>
-                <p>Alle 11 Chemverse-Erfolge bringen einmalige Token-Boni. Alte Erfolge werden rückwirkend gutgeschrieben.</p>
-                <button (click)="go('achievements')">Achievements ansehen ↗</button></div>
+              <div class="earning-tile"><span class="earn-icon">🏆</span><div class="earn-type">ACHIEVEMENTS · {{shopAchievementStatus.done}} / {{shopAchievementStatus.total}}</div>
+                <strong *ngIf="shopAchievementStatus.remaining>0">Noch {{shopAchievementStatus.reward | number}} TT</strong>
+                <strong class="earning-complete" *ngIf="shopAchievementStatus.remaining===0">✓ Alle Achievements abgeschlossen.</strong>
+                <p *ngIf="shopAchievementStatus.remaining>0">{{shopAchievementStatus.remaining}} Achievements in {{shopAchievementStatus.trainer}} sind noch offen. Nur dafür kannst du noch einmalige TT erhalten.</p>
+                <button (click)="go('achievements')">{{shopAchievementStatus.remaining>0?'Offene Achievements ansehen ↗':'Achievements ansehen ↗'}}</button></div>
               <div class="earning-tile"><span class="earn-icon">⚡</span><div class="earn-type">TÄGLICHES QUIZ</div><strong>{{dailyChem.questions}} / 20 <span>Fragen</span></strong>
-                <p>Je 25 Tokens für 20 verschiedene richtige Fragen pro Tag – auch bereits gelöste Fragen zählen. Noch {{dailyChem.quizRemaining}} ◉ möglich.</p>
+                <p>Je 25 TT für 20 verschiedene richtige Fragen pro Tag – auch bereits gelöste Fragen zählen. Noch {{dailyChem.quizRemaining}} TT möglich.</p>
                 <button (click)="goEarnTokens('quiz')">Quiz wiederholen ↗</button></div>
-              <div class="earning-tile"><span class="earn-icon">👹</span><div class="earn-type">TÄGLICHER BOSSKAMPF</div><strong>{{dailyChem.boss?'✓ Erledigt':'+250 ◉'}}</strong>
-                <p>Einmal täglich 250 Tokens bei mindestens 70 % richtigen Antworten. Antwortpositionen werden neu gemischt.</p>
+              <div class="earning-tile"><span class="earn-icon">👹</span><div class="earn-type">TÄGLICHER BOSSKAMPF</div><strong>{{dailyChem.boss?'✓ Erledigt':'+250 TT'}}</strong>
+                <p>Einmal täglich 250 TT bei mindestens 70 % richtigen Antworten. Antwortpositionen werden neu gemischt.</p>
                 <button (click)="goEarnTokens('boss')">Boss herausfordern ↗</button></div>
             </div>
-            <div class="coin-earning-foot">💡 Neue Tests geben dir zusätzliche erstmalige XP und Tokens. Für jeden weiteren Trainer kommen neue Achievements und neue Drops hinzu. Wiederholungsboni werden pro Browser-Tag zurückgesetzt.</div>
+            <div class="coin-earning-foot">💡 Neue Tests geben dir zusätzliche erstmalige XP und TT. Für jeden weiteren Trainer kommen neue Achievements und neue Drops hinzu. Wiederholungsboni werden pro Browser-Tag zurückgesetzt.</div>
           </section>
 
           <ng-container *ngIf="selectedDrop.status==='live'">
@@ -216,7 +226,7 @@
                   <div class="unlock-caption"><span>{{requirementLabel(item)}}</span><b>{{itemProgressPercent(item)}}%</b></div>
                   <div class="progress-track"><i [style.width.%]="itemProgressPercent(item)"></i></div>
                 </div>
-                <div class="drop-price"><span>PREIS</span><strong>{{item.cost===0?'GRATIS':(item.cost | number)+' ◉'}}</strong></div>
+                <div class="drop-price"><span>PREIS</span><strong>{{item.cost===0?'GRATIS':(item.cost | number)+' TT'}}</strong></div>
                 <div class="drop-actions">
                   <button type="button" class="drop-preview-btn" (click)="preview(item)">👁 Vorschau</button>
                   <button type="button" class="drop-buy-btn" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
@@ -224,12 +234,57 @@
               </article>
             </div>
           </ng-container>
+          </ng-container>
+          <ng-container *ngIf="shopTab==='inventory'">
+            <div class="inventory-summary">
+              <div class="inventory-summary-icon">🎒</div>
+              <div class="inventory-summary-text"><div class="eyebrow">GLOBAL COLLECTION · ALL VERSES</div>
+                <h2>{{ownedCatalogItems.length}} Cosmetics gesammelt</h2><p>Alle hier verfügbaren Items kannst du in STUDYVERSE und den unterstützten Lernwelten verwenden.</p></div>
+              <div class="inventory-summary-stat"><strong>{{inventoryEquippedCount}}</strong><span>Ausgerüstet</span></div>
+            </div>
+            <div class="inventory-filter-bar">
+              <label>Kollektion
+                <select [ngModel]="inventoryDrop" (ngModelChange)="changeInventoryDrop($event)">
+                  <option *ngFor="let drop of inventoryDrops" [value]="drop">{{drop==='Alle'?'Alle Verses':dropLabel(drop)}}</option>
+                </select>
+              </label>
+              <label>Kategorie
+                <select [(ngModel)]="inventoryGroup">
+                  <option *ngFor="let group of inventoryCategories" [value]="group">{{group==='Alle'?'Alle Kategorien':groupLabel(group)}}</option>
+                </select>
+              </label>
+              <label class="inventory-search-label">Suchen
+                <input type="search" [(ngModel)]="inventorySearch" placeholder="Cosmetic suchen …">
+              </label>
+            </div>
+            <div class="inventory-results"><strong>{{inventoryItems.length}} Items</strong><span>in deiner Auswahl</span></div>
+            <div class="item-grid drop-item-grid inventory-item-grid" *ngIf="inventoryItems.length">
+              <article class="item inventory-item" *ngFor="let item of inventoryItems" [class.equipped]="active(item)">
+                <div class="item-art drop-item-art" [style.background]="themeStyle(item)">
+                  <span class="item-spark one">✦</span><span class="big-item-icon">{{item.icon}}</span>
+                  <span class="item-spark two">✧</span><span class="inventory-equipped-badge" *ngIf="active(item)">✓ Ausgerüstet</span>
+                </div>
+                <div class="inventory-item-detail"><small>{{dropLabel(item.drop)}} · {{groupLabel(item.group)}}</small>
+                  <h3>{{item.name}}</h3><p>{{item.desc}}</p>
+                </div>
+                <div class="inventory-actions">
+                  <button type="button" class="drop-preview-btn" (click)="preview(item)">👁 Vorschau</button>
+                  <button type="button" class="drop-buy-btn" (click)="buyOrEquip(item)">{{active(item)?'Ablegen':'Ausrüsten'}}</button>
+                </div>
+              </article>
+            </div>
+            <div class="empty-tests inventory-empty" *ngIf="inventoryItems.length===0">
+              <span>🎒</span><h3>{{ownedCatalogItems.length===0?'Dein Inventar ist noch leer.':'Keine Cosmetics mit diesen Filtern.'}}</h3>
+              <p>{{ownedCatalogItems.length===0?'Verdiene TT und schalte dir im Item-Shop deinen ersten Style frei.':'Probiere eine andere Kollektion, Kategorie oder Suche.'}}</p>
+              <button class="btn primary" (click)="setShopTab('catalog')">Zum Item-Shop ↗</button>
+            </div>
+          </ng-container>
         </ng-container>
 
         <ng-container *ngSwitchCase="'profile'">
           <div class="eyebrow">PLAYER PROFILE</div><h1 class="page-title">Dein <span>Profil.</span></h1>
           <p class="page-subtitle">Globale XP, Items und alle Lernwelten an einem Ort. Aktuell lokal in diesem Browser gespeichert.</p>
-          <div class="profile-grid"><div class="profile-panel"><div class="large-avatar">{{currentAvatar}}</div><h2>{{profile.nickname}}</h2><span class="pill">⚡ LEVEL {{level}}</span><div class="progress-track"><i [style.width.%]="levelProgress"></i></div><p>{{profile.xp | number}} XP gesammelt</p><div class="profile-stats"><div><b>{{profile.tokens | number}}</b><small>Tokens</small></div><div><b>{{claimed}}</b><small>Items</small></div><div><b>{{subjectsAll.length}}</b><small>Fächer</small></div></div></div>
+          <div class="profile-grid"><div class="profile-panel"><div class="large-avatar">{{currentAvatar}}</div><h2>{{profile.nickname}}</h2><span class="pill">⚡ LEVEL {{level}}</span><div class="progress-track"><i [style.width.%]="levelProgress"></i></div><p>{{profile.xp | number}} XP gesammelt</p><div class="profile-stats"><div><b>{{profile.tokens | number}}</b><small>TT</small></div><div><b>{{claimed}}</b><small>Items</small></div><div><b>{{subjectsAll.length}}</b><small>Fächer</small></div></div></div>
           <div class="profile-panel settings"><h3>Profil bearbeiten</h3><label>Dein Anzeigename</label><div class="inline-form"><input [(ngModel)]="nicknameEdit" maxlength="24"><button class="btn primary" (click)="saveNickname()">Speichern</button></div>
           <h3>CHEMVERSE-Spielstand</h3><p>{{profile.legacyImportedAt?'✅ CHEMVERSE wurde bereits einmal importiert.':'Du kannst deinen alten Spielstand einmalig übernehmen.'}}</p>
           <button class="btn secondary" [disabled]="!canImport" (click)="importOpen=true">CHEMVERSE importieren</button>
@@ -242,7 +297,7 @@
   </div>
 
   <div class="veil" *ngIf="intro" role="dialog" aria-modal="true">
-    <div class="modal welcome"><div class="modal-symbol">🧪</div><span class="eyebrow">A LEGEND RETURNS</span><h2>Willkommen im <span>STUDYVERSE.</span></h2><p>Du hast schon in CHEMVERSE gelernt? Willst du deinen bisherigen Spielstand mit XP, Tokens und gekauften Items übernehmen?</p>
+    <div class="modal welcome"><div class="modal-symbol">🧪</div><span class="eyebrow">A LEGEND RETURNS</span><h2>Willkommen im <span>STUDYVERSE.</span></h2><p>Du hast schon in CHEMVERSE gelernt? Willst du deinen bisherigen Spielstand mit XP, TT und gekauften Items übernehmen?</p>
       <button class="btn primary full" (click)="startImport()">Ja, CHEMVERSE übertragen ↗</button><button class="btn secondary full" (click)="skipIntro()">Nein, frisch anfangen</button>
       <small>Die Frage erscheint nur beim ersten Aufruf in diesem Browser. Der Import bleibt später im Profil verfügbar.</small>
     </div>
@@ -252,7 +307,7 @@
       <label class="upload">📁 JSON-Datei auswählen <input type="file" accept=".json,application/json" (change)="importFile($event)"></label>
       <button class="btn secondary full" *ngIf="canImport" (click)="importBrowser()">Im Browser gespeicherten CHEMVERSE-Stand versuchen</button>
       <button class="btn plain full" (click)="importOpen=false">Später machen</button>
-      <small>Der Import erfolgt einmalig pro lokalem Profil und kann nicht doppelt Tokens vergeben.</small>
+      <small>Der Import erfolgt einmalig pro lokalem Profil und kann nicht doppelt TT vergeben.</small>
     </div>
   </div>
   <div class="veil shop-preview-veil" *ngIf="previewed as item" role="dialog" aria-modal="true">
@@ -263,10 +318,10 @@
       <div class="preview-requirement" [class.ready]="itemProgressPercent(item)===100">
         {{itemProgressPercent(item)===100?'✓ Lernziel erfüllt':'⏳ Lernziel in Arbeit'}} · {{requirementLabel(item)}}
       </div>
-      <p class="preview-cost">{{item.cost===0?'Gratis':(item.cost | number)+' Tokens'}} <span *ngIf="owns(item)">· Bereits im Inventar</span></p>
+      <p class="preview-cost">{{item.cost===0?'Gratis':(item.cost | number)+' TT'}} <span *ngIf="owns(item) && shopTab==='catalog'">· Bereits im Inventar</span></p>
       <button class="btn primary full" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
       <button class="btn secondary full" (click)="closePreview()">Vorschau schließen</button>
-      <small *ngIf="item.group==='theme'||item.group==='atm'||item.group==='font'||item.group==='frame'||item.group==='banner'">Die Vorschau zeigt den Stil auf der Homepage. Es wurden keine Tokens abgezogen.</small>
+      <small *ngIf="item.group==='theme'||item.group==='atm'||item.group==='font'||item.group==='frame'||item.group==='banner'">Die Vorschau zeigt den Stil auf der Homepage. Es wurden keine TT abgezogen.</small>
     </div>
   </div>
   <div class="notice" *ngIf="info"><span>{{info}}</span><button (click)="info=''">✕</button></div>

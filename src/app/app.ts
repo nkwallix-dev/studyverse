@@ -45,7 +45,7 @@ export class App implements OnInit,OnDestroy {
  readonly subjects=SUBJECTS;
  readonly items=SHOP_ITEMS;
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
- shopDrop='nawi-test-01'; previewed:ShopItem|null=null;
+ shopDrop='nawi-test-01'; shopTab:'catalog'|'inventory'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  achievementSubject='Alle';achievementTest='Alle';
  profile:Profile=this.load(); public today=new Date();
@@ -53,7 +53,7 @@ export class App implements OnInit,OnDestroy {
  ngOnInit(){
    this.nicknameEdit=this.profile.nickname;this.syncChemverse();
    const bonus=this.grantAchievementTokens();
-   if(bonus)this.alert('🏆 Deine bereits erreichten Achievements bringen dir rückwirkend +'+bonus+' Tokens!');
+   if(bonus)this.alert('🏆 Deine bereits erreichten Achievements bringen dir rückwirkend +'+bonus+' TT!');
    window.addEventListener('pageshow',this.onReturn);
  }
  ngOnDestroy(){window.removeEventListener('pageshow',this.onReturn);}
@@ -136,7 +136,15 @@ export class App implements OnInit,OnDestroy {
    return proof;
  }
  get dropDescription(){return this.shopDrop==='global'?'Freischaltungen durchs globale Profil-Level':'Freischaltungen durch echten Fortschritt im jeweiligen Test';}
- get achievementRewardTotal(){return TRAINERS.reduce((n,t)=>n+t.achievements.reduce((sum,a)=>sum+a.reward,0),0);}
+ get shopAchievementStatus(){
+   // This shows ONLY rewards that can still be earned, not the lifetime reward pool.
+   const trainer=TRAINERS.find(t=>t.id===this.shopDrop) || TRAINERS[0];
+   const save=this.snapshot(trainer);
+   const open=trainer.achievements.filter(a=>achievementValue(a,save)<a.target);
+   return {trainer:trainer.title,total:trainer.achievements.length,
+     done:trainer.achievements.length-open.length,remaining:open.length,
+     reward:open.reduce((sum,a)=>sum+a.reward,0)};
+ }
  get dailyChem(){
    const snapshot=this.snapshot(TRAINERS[0]);
    const daily=isObj(snapshot['dailyCoin'])?snapshot['dailyCoin']:{};
@@ -158,6 +166,24 @@ export class App implements OnInit,OnDestroy {
 
  get categories(){return ['Alle','Informatik','Naturwissenschaften','Wirtschaft','Gesellschaft','Andere'];}
  get claimed(){return this.profile.inventory.length;}
+ get ownedCatalogItems(){return this.items.filter(item=>this.owns(item));}
+ get inventoryDrops(){return ['Alle',...new Set(this.ownedCatalogItems.map(item=>item.drop))];}
+ get inventoryCategories(){
+   return ['Alle',...new Set(this.ownedCatalogItems.filter(item=>this.inventoryDrop==='Alle'||item.drop===this.inventoryDrop).map(item=>item.group))];
+ }
+ get inventoryItems(){
+   const query=this.inventorySearch.trim().toLocaleLowerCase('de');
+   return this.ownedCatalogItems.filter(item=>
+      (this.inventoryDrop==='Alle'||item.drop===this.inventoryDrop) &&
+      (this.inventoryGroup==='Alle'||item.group===this.inventoryGroup) &&
+      (!query||(item.name+' '+item.desc+' '+this.groupLabel(item.group)).toLocaleLowerCase('de').includes(query))
+   ).sort((a,b)=>Number(this.active(b))-Number(this.active(a))||a.name.localeCompare(b.name,'de'));
+ }
+ get inventoryEquippedCount(){return this.ownedCatalogItems.filter(item=>this.active(item)).length;}
+ dropLabel(id:string){return this.drops.find(drop=>drop.id===id)?.title||id;}
+ changeInventoryDrop(id:string){this.inventoryDrop=id;this.inventoryGroup='Alle';}
+ setShopTab(tab:'catalog'|'inventory'){this.shopTab=tab;this.previewed=null;window.scrollTo({top:0,behavior:'smooth'});}
+ openInventory(){this.go('shop');this.setShopTab('inventory');}
  get trainers(){return TRAINERS;}
  get achievementSubjects(){return ['Alle',...new Set(TRAINERS.map(t=>t.subjectId))];}
  get achievementTests(){return TRAINERS.filter(t=>this.achievementSubject==='Alle'||t.subjectId===this.achievementSubject);}
@@ -190,7 +216,7 @@ export class App implements OnInit,OnDestroy {
  get previewTheme(){return this.previewed?.group==='theme'?this.previewed.id:this.currentTheme;}
  previewSlot(k:string){return this.previewed?.group===k?(this.previewed.equip||this.previewed.id):this.profile.equipped[k];}
  get currentAvatar(){return this.profile.equipped['avatar'] || '🧪';}
- go(page:View){if(page==='achievements'||page==='shop')this.syncTrainer();this.view=page;this.selected=null;this.previewed=null;window.scrollTo({top:0,behavior:'smooth'});}
+ go(page:View){if(page==='achievements'||page==='shop')this.syncTrainer();this.view=page;this.selected=null;this.previewed=null;if(page==='shop')this.shopTab='catalog';window.scrollTo({top:0,behavior:'smooth'});}
  choose(id:string){this.selected=id;this.view='subjects';window.scrollTo({top:0,behavior:'smooth'});}
  startImport(){this.intro=false;this.importOpen=true;write(INTRO,'1');}
  skipIntro(){this.intro=false;write(INTRO,'1');}
@@ -204,7 +230,7 @@ export class App implements OnInit,OnDestroy {
  }
  private applyImport(data:unknown){
    if(!this.canImport){this.alert('CHEMVERSE wurde bereits einmal importiert.');return;}
-   if(!validChem(data)){this.alert('Ungültiger CHEMVERSE-Export: XP, Coins oder Fortschrittsdaten fehlen.');return;}
+   if(!validChem(data)){this.alert('Ungültiger CHEMVERSE-Export: XP, TastyTokens oder Fortschrittsdaten fehlen.');return;}
    const purchased=data['purchased'] as Record<string,unknown>;
    this.profile.xp+=safe(data['xp']);this.profile.tokens+=safe(data['coins']);
    const importedLevel=levelFor(safe(data['xp']));
@@ -222,7 +248,7 @@ export class App implements OnInit,OnDestroy {
    this.awardGlobalLevelRewards();this.awardLevelFreebies();this.save();write(CHEM,JSON.stringify(data));
    const achievedBonus=this.grantAchievementTokens();
    this.importOpen=false;this.intro=false;write(INTRO,'1');
-   this.alert('CHEMVERSE übertragen! '+(achievedBonus?'+ '+achievedBonus+' Achievement-Tokens rückwirkend! 🎉':'XP, Tokens und Items sind angekommen. 🎉'));
+   this.alert('CHEMVERSE übertragen! '+(achievedBonus?'+ '+achievedBonus+' Achievement-TT rückwirkend! 🎉':'XP, TastyTokens und Items sind angekommen. 🎉'));
  }
  private awardGlobalLevelRewards():number {
    let total=0;
@@ -233,7 +259,7 @@ export class App implements OnInit,OnDestroy {
      const bonus=60+(lvl-1)*60;
      this.profile.tokens+=bonus;
      total+=bonus;
-     this.profile.activity=[{label:'Level '+lvl+' erreicht · Token-Bonus',date:new Date().toISOString(),amount:bonus},...this.profile.activity].slice(0,30);
+     this.profile.activity=[{label:'Level '+lvl+' erreicht · TT-Bonus',date:new Date().toISOString(),amount:bonus},...this.profile.activity].slice(0,30);
    }
    return total;
  }
@@ -250,12 +276,12 @@ export class App implements OnInit,OnDestroy {
    if(this.owns(item))return this.active(item)?'✓ Ausgerüstet':'Ausrüsten';
    if(item.drop==='global' && this.level<(item.level||1))return '🔒 Level '+item.level+' nötig';
    if(!this.isUnlocked(item))return '🔒 Lernziel fehlt';
-   return item.cost===0?'Kostenlos abholen':'◉ '+item.cost+' Tokens';
+   return item.cost===0?'Kostenlos abholen':'◉ '+item.cost+' TT';
  }
  buyOrEquip(item:ShopItem){
    if(!this.owns(item)){
      if(!this.isUnlocked(item)){this.alert('Erst freischalten: '+this.requirementLabel(item));return;}
-     if(this.profile.tokens<item.cost){this.alert('Nicht genug Tokens, Bruder. 💀');return;}
+     if(this.profile.tokens<item.cost){this.alert('Nicht genug TastyTokens, Bruder. 💀');return;}
      this.profile.tokens-=item.cost;this.profile.inventory=[...this.profile.inventory,item.id];
      this.profile.activity=[{label:item.name+' gekauft · '+this.selectedDrop.title,date:new Date().toISOString(),amount:-item.cost},...this.profile.activity].slice(0,30);
      this.alert(item.icon+' '+item.name+' gehört dir! Überall in STUDYVERSE ausrüstbar.');
@@ -320,6 +346,6 @@ export class App implements OnInit,OnDestroy {
    if(gained)this.profile.activity=[{label:trainer.title+' · Lernrunde',date:new Date().toISOString(),amount:gained},...this.profile.activity].slice(0,30);
    this.save();try{localStorage.removeItem(BRIDGE)}catch{}
    const achievementBonus=this.grantAchievementTokens();
-   if(gained||levelBonus||achievementBonus)this.alert('Willkommen zurück! '+(gained?'+'+gained+' XP ':'')+(levelBonus?'· +'+levelBonus+' Level-Tokens':'')+(achievementBonus?' · 🏆 +'+achievementBonus+' Achievement-Tokens':'')+' synchronisiert.');
+   if(gained||levelBonus||achievementBonus)this.alert('Willkommen zurück! '+(gained?'+'+gained+' XP ':'')+(levelBonus?'· +'+levelBonus+' Level-TT':'')+(achievementBonus?' · 🏆 +'+achievementBonus+' Achievement-TT':'')+' synchronisiert.');
  }
 }

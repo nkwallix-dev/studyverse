@@ -96,3 +96,59 @@ const studyTemplate=fs.readFileSync('src/app/app.html','utf8');
 assert(!studyTemplate.includes('Drop-Shop'),'Navigation and heading must say Item-Shop');
 assert(!studyTemplate.includes('learning-milestones'),'Shop must not show module-level course progress');
 console.log('Item-Shop rename, module summary removal and Professor Fischer naming verified.');
+
+// Regression: completion shortcut must jump straight to unsolved reaction IDs.
+assert(js.includes("case'reactionfinish':startReactionFinish()"),'Dashboard finish button must route to unfinished reactions');
+assert(js.includes('data-rxjump'),'Missing reactions must be directly selectable');
+assert(js.includes("if(reactionSession.onlyMissing&&!pending.length)"),'Completed reaction focus mode needs a success screen');
+const reactionSource=extract('function remainingReactions(){','function renderReactions(){');
+const reactionFactory=new Function('REACTIONS','state','reactionSession','toast','activatePage',
+  reactionSource+';return {remainingReactions,jumpToReaction,startReactionFinish};');
+const completed=Object.fromEntries(Array.from({length:10},(_,i)=>['r'+i,1]));
+const focusState={solved:completed};
+const focusSession={idx:0,step:1,answered:true,correct:true,failed:true,onlyMissing:false};
+let opened='';
+const focus=reactionFactory(Array.from({length:12},(_,i)=>({id:'r'+i})),focusState,focusSession,()=>{},page=>opened=page);
+assert.deepEqual(focus.remainingReactions().map(x=>x.task.id),['r10','r11'],'10/12 must show only the remaining two tasks');
+focus.startReactionFinish();
+assert.equal(opened,'reactions');
+assert.equal(focusSession.onlyMissing,true);
+assert.equal(focusSession.idx,10,'Finish must jump to the first unsolved reaction');
+assert.equal(focusSession.step,0,'Finish must restart the incomplete task from step one');
+assert.equal(focusSession.answered,false);
+focusState.solved['r10']=1;
+assert.deepEqual(focus.remainingReactions().map(x=>x.task.id),['r11'],'Completing one should leave only the other');
+focusState.solved['r11']=1;
+assert.equal(focus.remainingReactions().length,0);
+console.log('Reaction Finish tests passed: 10/12 -> two missing missions -> all completed.');
+
+const studyTs=fs.readFileSync('src/app/app.ts','utf8');
+const inventoryHtml=fs.readFileSync('src/app/app.html','utf8');
+const inventoryStyles=fs.readFileSync('src/app/app.scss','utf8');
+assert(studyTs.includes("shopTab:'catalog'|'inventory'"),'Shop and inventory must be separate tabs');
+assert(studyTs.includes('get inventoryItems()'),'Inventory filtering must exist');
+assert(studyTs.includes('this.ownedCatalogItems.filter(item=>'),'Inventory must list owned items only');
+assert(studyTs.includes("this.inventoryDrop==='Alle'")&&studyTs.includes("this.inventoryGroup==='Alle'"),'Drop/category inventory filters required');
+assert(inventoryHtml.includes('class="shop-view-tabs"')&&inventoryHtml.includes('class="item-grid drop-item-grid inventory-item-grid"'),'Inventory UI tab and item cards missing');
+const inventoryCard=inventoryHtml.slice(inventoryHtml.indexOf('class="item-grid drop-item-grid inventory-item-grid"'),inventoryHtml.indexOf('class="empty-tests inventory-empty"'));
+assert(!inventoryCard.includes('OWNED')&&!inventoryCard.includes('IM INVENTAR'),'No redundant owned badges in the inventory');
+assert(inventoryStyles.includes('overflow-x:clip'),'Layout must not create a scroll ancestor that breaks sticky sidebar');
+assert(inventoryStyles.includes('height:100dvh;align-self:flex-start'),'Sidebar should remain full viewport height');
+console.log('STUDYVERSE inventory + sidebar smoke tests passed.');
+
+// User-facing wallet vocabulary & fair achievement reward estimates.
+const shopTs=fs.readFileSync('src/app/app.ts','utf8');
+const shopTemplate=fs.readFileSync('src/app/app.html','utf8');
+assert(shopTs.includes('get shopAchievementStatus()'),'Shop must compute remaining achievement rewards');
+assert(shopTs.includes('const open=trainer.achievements.filter(a=>achievementValue(a,save)<a.target)'),
+ 'Only unearned achievements may contribute to remaining currency');
+assert(shopTemplate.includes('Alle Achievements abgeschlossen.'),'Completion state must be explicit');
+assert(shopTemplate.includes('shopAchievementStatus.remaining===0'),'Completion label must appear when none are open');
+assert(!shopTemplate.includes('Bis zu {{achievementRewardTotal'),'Do not advertise lifetime total as still obtainable');
+assert(shopTemplate.includes('TastyTokens (TT)'),'Wallet must explain the renamed currency');
+assert(!shopTemplate.includes(' Tokens'),'Use TT, not old Tokens, in visible wallet UI');
+assert(!shopTemplate.includes('TastyTT'),'Do not corrupt full currency name when shortening the label');
+assert(shopTemplate.includes("goEarnTokens('quiz')")&&shopTemplate.includes("goEarnTokens('boss')"),
+ 'Daily TT shortcuts must still call the real Angular method');
+assert(js.includes('25 TT')&&js.includes('250 TT'),'Chemverse must use TT in practice descriptions');
+console.log('Shop reward honesty and TastyTokens wording verified.');
