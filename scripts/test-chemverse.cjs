@@ -122,13 +122,13 @@ focusState.solved['r11']=1;
 assert.equal(focus.remainingReactions().length,0);
 console.log('Reaction Finish tests passed: 10/12 -> two missing missions -> all completed.');
 
-const studyTs=fs.readFileSync('src/app/app.ts','utf8');
+const inventoryAppTs=fs.readFileSync('src/app/app.ts','utf8');
 const inventoryHtml=fs.readFileSync('src/app/app.html','utf8');
 const inventoryStyles=fs.readFileSync('src/app/app.scss','utf8');
-assert(studyTs.includes("shopTab:'catalog'|'inventory'"),'Shop and inventory must be separate tabs');
-assert(studyTs.includes('get inventoryItems()'),'Inventory filtering must exist');
-assert(studyTs.includes('this.ownedCatalogItems.filter(item=>'),'Inventory must list owned items only');
-assert(studyTs.includes("this.inventoryDrop==='Alle'")&&studyTs.includes("this.inventoryGroup==='Alle'"),'Drop/category inventory filters required');
+assert(inventoryAppTs.includes("shopTab:'catalog'|'inventory'"),'Shop and inventory must be separate tabs');
+assert(inventoryAppTs.includes('get inventoryItems()'),'Inventory filtering must exist');
+assert(inventoryAppTs.includes('this.ownedCatalogItems.filter(item=>'),'Inventory must list owned items only');
+assert(inventoryAppTs.includes("this.inventoryDrop==='Alle'")&&studyTs.includes("this.inventoryGroup==='Alle'"),'Drop/category inventory filters required');
 assert(inventoryHtml.includes('class="shop-view-tabs"')&&inventoryHtml.includes('class="item-grid drop-item-grid inventory-item-grid"'),'Inventory UI tab and item cards missing');
 const inventoryCard=inventoryHtml.slice(inventoryHtml.indexOf('class="item-grid drop-item-grid inventory-item-grid"'),inventoryHtml.indexOf('class="empty-tests inventory-empty"'));
 assert(!inventoryCard.includes('OWNED')&&!inventoryCard.includes('IM INVENTAR'),'No redundant owned badges in the inventory');
