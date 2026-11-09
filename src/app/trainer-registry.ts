@@ -29,7 +29,7 @@ export const TRAINERS: TrainerDef[] = [
     ]
   },
   {
-    id:'dsai-test-01',subjectId:'dsai',title:'DSAIVERSE 1. Test',
+    id:'dsai-test-01',subjectId:'dsai',title:'Dsaiverse 1. Test',
     subtitle:'Data Science & AI · 16 Lektionen, 106 Fragen, Code-Detective, Data-Sorter & Boss',
     path:'dsai/test-01/index.html',saveKey:'dsai_studyverse_v1',
     achievements:[
