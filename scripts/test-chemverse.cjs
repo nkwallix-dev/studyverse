@@ -160,7 +160,7 @@ console.log('Shop reward honesty and TastyTokens wording verified.');
 // Profile editor: avatar brush and title dropdown must live beside the name input.
 const settingsTs=fs.readFileSync('src/app/app.ts','utf8');
 const settingsHtml=fs.readFileSync('src/app/app.html','utf8');
-const settingsSection=settingsHtml.slice(settingsHtml.indexOf('<div class="profile-panel settings">'),settingsHtml.indexOf('<h3>CHEMVERSE-Spielstand</h3>'));
+const settingsSection=settingsHtml.slice(settingsHtml.indexOf('<div class="profile-panel settings">'),settingsHtml.indexOf('<h3>Dein Onlinekonto</h3>'));
 assert(settingsTs.includes('get unlockedTitles()'),'Profile must expose earned titles');
 assert(settingsTs.includes("item.group==='title'&&this.owns(item)"),'Locked titles must be excluded');
 assert(settingsTs.includes('setProfileTitle(id:string)'),'Title selection needs persistence handler');
@@ -168,6 +168,21 @@ assert(settingsSection.indexOf('id="profile-title-select"')>settingsSection.inde
 assert(settingsSection.includes('(ngModelChange)="setProfileTitle($event)"'),'Changing title must trigger save handler');
 assert(settingsSection.includes('(click)="openAvatarPicker()"'),'Paintbrush in Profile bearbeiten should open selector');
 assert(settingsHtml.includes('class="modal avatar-picker-modal"'),'Avatar popup should be present');
+assert(settingsHtml.includes('class="top-profile-link"') && settingsHtml.includes('Mein Profil</span>'),
+ 'Studyverse must show the avatar and Mein Profil together in the top-right');
+assert(!settingsHtml.includes('class="sidebar-bottom"'),
+ 'Duplicate profile info should not consume the Studyverse sidebar');
+assert(settingsTs.includes("window.location.hash==='#profile'"),
+ 'Standalone learning worlds must open the central account page via #profile');
+const chemverseHeader=fs.readFileSync('public/nawi/test-01/index.html','utf8');
+const dsaiverseHeader=fs.readFileSync('public/dsai/test-01/index.html','utf8');
+for(const [name,html] of [['Chemverse',chemverseHeader],['Dsaiverse',dsaiverseHeader]]){
+ assert(html.includes('href="../../#profile"') && html.includes('Mein Profil</span>'),
+  name+' should show the same account navigation with visible label');
+}
+assert(settingsHtml.includes('class="profile-advanced-tools"') && settingsHtml.includes('[open]="!cloudConfigured"'),
+ 'Online accounts should keep old JSON controls collapsed by default');
+
 console.log('Profile title + avatar editing form tests passed.');
 
 // The DSAI Professorin Weber and spider avatar are new; the Chemverse fish keeps the old frog ID.
