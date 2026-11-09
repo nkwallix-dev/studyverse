@@ -110,7 +110,7 @@ function makePrompt(){
  }
  if(mode==="pipeline"){
   let p=C.pipelines.find(x=>"p"+x.id===id),correct=p.parts[run.step],arr=shuffle([correct,...shuffle(p.parts.filter((_,i)=>i!==run.step)).slice(0,3)]);
-  return {text:"Welcher Schritt kommt bei "+p.name+" an Stelle "+(run.step+1)+"?",code:run.step?"Bisher: "+p.parts.slice(0,run.step).join(" → "):"Beginne mit dem ersten Prozessschritt.",category:"Prozess-Puzzle",why:p.parts.join(" → "),opts:arr.map(z=>({text:z,correct:z===correct}))};
+  return {text:"Welcher Schritt kommt bei "+p.name+" an Stelle "+(run.step+1)+"?",code:run.step?"Bisher: "+p.parts.slice(0,run.step).join(" → "):"Beginne mit dem ersten Prozessschritt.",category:"Prozess-Puzzle",why:"Ordne die Phasen selbst in die richtige Reihenfolge.",opts:arr.map(z=>({text:z,correct:z===correct}))};
  }
 }
 function prepare(){run.answered=false;run.picked=-1;run.correct=false;run.prompt=makePrompt()}
@@ -126,7 +126,7 @@ function modePage(){
  <div class="task-grid"><div class="question-card"><div class="eyebrow">${esc(p.category)} · ${run.at+1}/${run.items.length}</div>
  ${pipe?`<div class="puzzle-row">${pipe.parts.map((x,i)=>`<span class="puzzle-step ${i<run.step?"done":""}">${i<run.step?"✓ "+esc(x):i===run.step?"❔ "+(i+1):"🔒"}</span>`).join("")}</div>`:""}
  ${p.code?`<div class="code">${esc(p.code)}</div>`:""}<div class="question">${esc(p.text)}</div>${choices(p.opts,run.answered,run.picked,"answer")}
- ${run.answered?feed(run.correct,p.why)+`<div class="actions">${button(run.mode==="pipeline"&&!run.correct?"Diesen Schritt erneut ↻":run.mode==="pipeline"&&run.step<pipe.parts.length-1?"Nächster Schritt →":run.at+1===run.items.length?"Runde abschließen 🏁":"Nächste Aufgabe →","next")}</div>`:""}</div>
+ ${run.answered?(run.mode==="pipeline"?`<div class="feedback ${run.correct?"":"bad"}"><b>${run.correct?"✅ Richtig – der nächste Schritt wartet.":"❌ Falsche Phase!"}</b><p>${run.correct?"Weiter geht’s. Bleib konzentriert – die vollständige Lösung wird nicht verraten.":"Die aktuelle Prozesskette startet wieder bei Schritt 1. Keine Spoiler, du packst das!"}</p></div>`:feed(run.correct,p.why))+`<div class="actions">${button(run.mode==="pipeline"&&!run.correct?"↻ Prozess bei Schritt 1 neu starten":run.mode==="pipeline"&&run.step<pipe.parts.length-1?"Nächster Schritt →":run.at+1===run.items.length?"Runde abschließen 🏁":"Nächste Aufgabe →","next")}</div>`:""}</div>
  <div class="info-card"><div class="eyebrow">💡 TRAININGS-TIPP</div><h3>${run.mode==="code"?"Code verstehen":run.mode==="sorter"?"Kategorien unterscheiden":run.mode==="forecast"?"Regressionsformel lesen":run.mode==="pipeline"?"Reihenfolge beherrschen":"Warum statt Wo"}</h3>
  <p>${run.mode==="code"?"Bei NumPy: Indizes beginnen bei 0, Slicing stoppt vor dem Endindex, axis=0 summiert Spalten.":run.mode==="sorter"?"Achte auf nahe Begriffe wie Variety und Veracity oder nominal und ordinal.":run.mode==="forecast"?"Lies x als Sonnenstunden; die Ausgabe y ist in Hunderten Besuchern.":run.mode==="pipeline"?"Es wird Schritt für Schritt die nächste Phase gesucht – nicht geraten.":"Begründe dir selbst jede Entscheidung, bevor du klickst."}</p>
  <div class="info-strip">⭐ Neues korrekt gelöstes Beispiel: XP + TT. Tägliches Quiz: zusätzliche TT. Keine Eingabe von Python-Code.</div></div></div>`;
@@ -148,7 +148,7 @@ function advance(){
  if(!run?.answered)return;
  if(run.mode==="pipeline"){
   const p=C.pipelines.find(x=>"p"+x.id===run.items[run.at]);
-  if(!run.correct){prepare();render();return}
+  if(!run.correct){run.step=0;prepare();render();return}
   if(run.step<p.parts.length-1){run.step++;prepare();render();return}
   payFirst("p"+p.id,55,45);run.step=0;
  }

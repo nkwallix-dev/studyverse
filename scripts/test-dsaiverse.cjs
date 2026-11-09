@@ -71,3 +71,10 @@ clickAction('start-boss');
 assert(elements.main.innerHTML.includes('data-bossanswer='),'Boss must show MC questions');
 
 console.log('DSAIVERSE PASS: 16 lessons, 106 MC questions, 23 snippets, all Finish modes, game runtime and Boss.');
+
+// Pipeline requires full mastery: no solution spoilers and mistakes restart from phase 1.
+assert(app.includes('if(!run.correct){run.step=0;prepare();render();return}'),'Wrong pipeline answers must reset the entire process to step 1');
+assert(!app.includes('why:p.parts.join(" → ")'),'Do not leak process solution through feedback');
+assert(app.includes('Die aktuelle Prozesskette startet wieder bei Schritt 1'),'Show reset notice rather than the answer');
+assert(app.includes('Prozess bei Schritt 1 neu starten'),'Reset action needs clear label');
+console.log('DSAIVERSE pipeline spoiler-free restart checks passed.');
