@@ -167,3 +167,6 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
 .cloud-account-summary strong{font-size:15px;color:var(--accent)}
 .cloud-account-summary>span{color:var(--muted);font-size:12px}
 .cloud-account-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:7px}
+
+/* Import feedback must stay visible above the sign-up dialog. */
+.cloud-auth-veil ~ .notice{z-index:90}
