@@ -284,7 +284,10 @@
         <ng-container *ngSwitchCase="'profile'">
           <div class="eyebrow">PLAYER PROFILE</div><h1 class="page-title">Dein <span>Profil.</span></h1>
           <p class="page-subtitle">Globale XP, Items und alle Lernwelten an einem Ort. Aktuell lokal in diesem Browser gespeichert.</p>
-          <div class="profile-grid"><div class="profile-panel"><div class="large-avatar">{{currentAvatar}}</div><h2>{{profile.nickname}}</h2><span class="pill">⚡ LEVEL {{level}}</span><div class="progress-track"><i [style.width.%]="levelProgress"></i></div><p>{{profile.xp | number}} XP gesammelt</p><div class="profile-stats"><div><b>{{profile.tokens | number}}</b><small>TT</small></div><div><b>{{claimed}}</b><small>Items</small></div><div><b>{{subjectsAll.length}}</b><small>Fächer</small></div></div></div>
+          <div class="profile-grid"><div class="profile-panel"><div class="profile-avatar-wrap">
+     <div class="large-avatar">{{currentAvatar}}</div>
+     <button type="button" class="profile-avatar-brush" (click)="openAvatarPicker()" aria-label="Avatar ändern" title="Avatar ändern">🖌️</button>
+   </div><h2>{{profile.nickname}}</h2><span class="pill">⚡ LEVEL {{level}}</span><div class="progress-track"><i [style.width.%]="levelProgress"></i></div><p>{{profile.xp | number}} XP gesammelt</p><div class="profile-stats"><div><b>{{profile.tokens | number}}</b><small>TT</small></div><div><b>{{claimed}}</b><small>Items</small></div><div><b>{{subjectsAll.length}}</b><small>Fächer</small></div></div></div>
           <div class="profile-panel settings"><h3>Profil bearbeiten</h3><label>Dein Anzeigename</label><div class="inline-form"><input [(ngModel)]="nicknameEdit" maxlength="24"><button class="btn primary" (click)="saveNickname()">Speichern</button></div>
           <h3>CHEMVERSE-Spielstand</h3><p>{{profile.legacyImportedAt?'✅ CHEMVERSE wurde bereits einmal importiert.':'Du kannst deinen alten Spielstand einmalig übernehmen.'}}</p>
           <button class="btn secondary" [disabled]="!canImport" (click)="importOpen=true">CHEMVERSE importieren</button>
@@ -294,6 +297,22 @@
       </ng-container>
     </main>
     <footer>✦ STUDYVERSE <span>Made for learning, built for legends · Alle Fortschritte derzeit lokal gespeichert</span></footer>
+  </div>
+
+  <div class="veil avatar-picker-veil" *ngIf="avatarPickerOpen" role="dialog" aria-modal="true" aria-label="Avatar auswählen" (click)="closeAvatarPicker()">
+    <div class="modal avatar-picker-modal" (click)="$event.stopPropagation()">
+      <div class="eyebrow">🖌️ PERSONALISIERUNG</div>
+      <h2>Wähle deinen <span>Avatar.</span></h2>
+      <p>Nur freigeschaltete Avatare – dein Outfit gilt in allen Lernwelten.</p>
+      <div class="avatar-pick-grid">
+        <button type="button" class="avatar-pick-item" [class.picked]="currentAvatar==='🧪'" (click)="selectProfileAvatar('default')"><span>🧪</span><b>Standard</b><small>{{currentAvatar==='🧪'?'✓ Ausgewählt':'Gratis'}}</small></button>
+        <button type="button" class="avatar-pick-item" *ngFor="let item of unlockedAvatars" [class.picked]="currentAvatar===item.icon" (click)="selectProfileAvatar(item.id)">
+          <span>{{item.icon}}</span><b>{{item.name}}</b><small>{{currentAvatar===item.icon?'✓ Ausgewählt':'Ausrüsten'}}</small>
+        </button>
+      </div>
+      <p *ngIf="unlockedAvatars.length===0" class="avatar-picker-hint">Weitere Avatare findest du in den Drops des Item-Shops.</p>
+      <button type="button" class="btn secondary full" (click)="closeAvatarPicker()">Schließen</button>
+    </div>
   </div>
 
   <div class="veil" *ngIf="intro" role="dialog" aria-modal="true">

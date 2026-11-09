@@ -45,7 +45,7 @@ export class App implements OnInit,OnDestroy {
  readonly subjects=SUBJECTS;
  readonly items=SHOP_ITEMS;
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
- shopDrop='nawi-test-01'; shopTab:'catalog'|'inventory'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null;
+ shopDrop='nawi-test-01'; shopTab:'catalog'|'inventory'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  achievementSubject='Alle';achievementTest='Alle';
  profile:Profile=this.load(); public today=new Date();
@@ -216,6 +216,19 @@ export class App implements OnInit,OnDestroy {
  get previewTheme(){return this.previewed?.group==='theme'?this.previewed.id:this.currentTheme;}
  previewSlot(k:string){return this.previewed?.group===k?(this.previewed.equip||this.previewed.id):this.profile.equipped[k];}
  get currentAvatar(){return this.profile.equipped['avatar'] || '🧪';}
+ get unlockedAvatars(){return SHOP_ITEMS.filter(item=>item.group==='avatar'&&this.owns(item));}
+ openAvatarPicker(){this.avatarPickerOpen=true;}
+ closeAvatarPicker(){this.avatarPickerOpen=false;}
+ selectProfileAvatar(id:string){
+   if(id==='default'){
+     this.profile.equipped['avatar']=defaultEquip().avatar;
+   } else {
+     const item=SHOP_ITEMS.find(x=>x.id===id&&x.group==='avatar');
+     if(!item||!this.owns(item)){this.alert('Diesen Avatar musst du erst im Item-Shop erhalten.');return;}
+     this.profile.equipped['avatar']=item.icon;
+   }
+   this.avatarPickerOpen=false;this.save();this.alert('🖌️ Avatar aktualisiert!');
+ }
  go(page:View){if(page==='achievements'||page==='shop')this.syncTrainer();this.view=page;this.selected=null;this.previewed=null;if(page==='shop')this.shopTab='catalog';window.scrollTo({top:0,behavior:'smooth'});}
  choose(id:string){this.selected=id;this.view='subjects';window.scrollTo({top:0,behavior:'smooth'});}
  startImport(){this.intro=false;this.importOpen=true;write(INTRO,'1');}
