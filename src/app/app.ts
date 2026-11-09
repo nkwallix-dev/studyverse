@@ -16,12 +16,19 @@ interface Profile {
   [key:string]:unknown;
 }
 const KEY='studyverse_profile_v1', INTRO='studyverse_import_prompt_seen_v1';
-const CHEM='chemverse_niklas_v1', BRIDGE='studyverse_trainer_launch_v2';
+const CHEM='chemverse_niklas_v1', BRIDGE='studyverse_trainer_launch_v2', RESTORE='studyverse_before_restore_v1';
 const defaultEquip=()=>({theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'});
 const initial=():Profile=>({xp:0,tokens:0,nickname:'Explorer',inventory:[],equipped:defaultEquip(),claimedLevels:{},activity:[],customSubjects:[],shopDropMigrationV1:true});
 const safe=(n:unknown):number=>typeof n==='number'&&Number.isFinite(n)?Math.max(0,Math.floor(n)):0;
 const isObj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v);
 const validChem=(v:unknown):v is Record<string,unknown>=>isObj(v)&&typeof v['xp']==='number'&&typeof v['coins']==='number'&&['learned','solved','earned','purchased'].every(k=>isObj(v[k]));
+// Backups exported from STUDYVERSE use "tokens" and "inventory", not CHEMVERSE's "coins" and "purchased".
+const validStudyverse=(v:unknown):v is Record<string,unknown>=>isObj(v)
+ && typeof v['xp']==='number'&&Number.isFinite(v['xp'])&&v['xp']>=0
+ && typeof v['tokens']==='number'&&Number.isFinite(v['tokens'])&&v['tokens']>=0
+ && typeof v['nickname']==='string'&&v['nickname'].trim().length>0
+ && Array.isArray(v['inventory'])&&v['inventory'].every(x=>typeof x==='string')
+ && isObj(v['equipped']);
 const read=(k:string):string|null=>{try{return localStorage.getItem(k)}catch{return null}};
 const write=(k:string,v:string):void=>{try{localStorage.setItem(k,v)}catch{}};
 const parse=(s:string|null):unknown=>{try{return s?JSON.parse(s):null}catch{return null}};
@@ -247,12 +254,99 @@ export class App implements OnInit,OnDestroy {
  startImport(){this.intro=false;this.importOpen=true;write(INTRO,'1');}
  skipIntro(){this.intro=false;write(INTRO,'1');}
  get canImport(){return !this.profile.legacyImportedAt;}
+ get canUndoRestore(){return isObj(parse(read(RESTORE)));}
  importBrowser(){this.applyImport(parse(read(CHEM)));}
  async importFile(event:Event){
    const input=event.target as HTMLInputElement;const file=input.files?.[0];if(!file)return;
-   if(file.size>2_000_000){this.alert('Datei zu groß (max. 2 MB).');return;}
-   try{this.applyImport(JSON.parse(await file.text()));}catch{this.alert('Das ist keine gültige CHEMVERSE-JSON-Datei.');}
-   input.value='';
+   try{
+     if(file.size>10_000_000){this.alert('Datei zu groß (max. 10 MB).');return;}
+     let data:unknown;
+     try{data=JSON.parse(await file.text());}
+     catch{this.alert('Die Datei ist kein gültiges JSON. Bitte das Original-Backup wählen.');return;}
+     // Works for both classic raw STUDYVERSE backups and a future versioned backup envelope.
+     const candidate=isObj(data)&&isObj(data['profile'])?data['profile']:data;
+     if(validStudyverse(candidate)){this.restoreStudyverseBackup(candidate);return;}
+     if(validChem(candidate)){this.applyImport(candidate);return;}
+     this.alert('Dateiformat nicht erkannt. Bitte STUDYVERSE-Backup oder CHEMVERSE-Spielstand (.json) auswählen.');
+   }finally{input.value='';}
+ }
+ private currentBackupSnapshot():{profile:string|null;trainers:Record<string,string|null>}{
+   const trainers:Record<string,string|null>={};
+   for(const trainer of TRAINERS)trainers[trainer.id]=read(trainer.saveKey);
+   return {profile:read(KEY),trainers};
+ }
+ private writeBackupSnapshot(snapshot:{profile:string|null;trainers:Record<string,string|null>}):void{
+   if(snapshot.profile===null)localStorage.removeItem(KEY);
+   else localStorage.setItem(KEY,snapshot.profile);
+   for(const trainer of TRAINERS){
+     const value=snapshot.trainers[trainer.id];
+     if(typeof value==='string')localStorage.setItem(trainer.saveKey,value);
+     else localStorage.removeItem(trainer.saveKey);
+   }
+ }
+ private restoreStudyverseBackup(data:Record<string,unknown>){
+   // Restore is a replacement, not an addition: importing the same file twice must NEVER duplicate XP/TT.
+   const hasLocalProgress=this.profile.xp>0||this.profile.tokens>0||this.profile.inventory.length>0
+     ||TRAINERS.some(tr=>isObj(parse(read(tr.saveKey)))&&Object.keys(parse(read(tr.saveKey)) as Record<string,unknown>).length>0);
+   if(hasLocalProgress&&!window.confirm('STUDYVERSE-Backup wiederherstellen? Der aktuelle Spielstand auf diesem Gerät wird ersetzt. Zur Sicherheit bleibt eine Rückfallkopie lokal gespeichert.'))return;
+   const snapshots:Record<string,Record<string,unknown>>={};
+   const provided=isObj(data['trainerSaves'])?data['trainerSaves']:{};
+   for(const trainer of TRAINERS){
+     const raw=provided[trainer.id];
+     if(isObj(raw))snapshots[trainer.id]=raw;
+     else if(trainer.id==='nawi-test-01'&&isObj(data['chemverseSave']))snapshots[trainer.id]=data['chemverseSave'] as Record<string,unknown>;
+   }
+   const incoming:Profile={
+     ...initial(),...data,
+     xp:safe(data['xp']),tokens:safe(data['tokens']),
+     nickname:(data['nickname'] as string).trim().slice(0,24),
+     inventory:[...new Set(data['inventory'] as string[])],
+     equipped:{...defaultEquip(),...data['equipped'] as Record<string,string>},
+     claimedLevels:isObj(data['claimedLevels'])?data['claimedLevels'] as Record<string,boolean>:{},
+     activity:Array.isArray(data['activity'])?data['activity'] as Activity[]:[],
+     trainerSaves:snapshots,
+     shopDropMigrationV1:data['shopDropMigrationV1']===true
+   };
+   if(snapshots['nawi-test-01']){
+     incoming.chemverseSave=snapshots['nawi-test-01'];
+     if(!incoming.legacyImportedAt)incoming.legacyImportedAt='Aus STUDYVERSE-Backup';
+   }
+   const next:{profile:string|null;trainers:Record<string,string|null>}={profile:JSON.stringify(incoming),trainers:{}};
+   for(const trainer of TRAINERS)next.trainers[trainer.id]=snapshots[trainer.id]?JSON.stringify(snapshots[trainer.id]):null;
+   const previous=this.currentBackupSnapshot();
+   try{
+     localStorage.setItem(RESTORE,JSON.stringify(previous));
+     this.writeBackupSnapshot(next);
+     localStorage.removeItem(BRIDGE); // A pending old trainer bridge must never add phantom XP after restoration.
+     localStorage.setItem(INTRO,'1');
+   }catch{
+     try{this.writeBackupSnapshot(previous);}catch{}
+     this.alert('Backup konnte nicht gespeichert werden (Browser-Speicher prüfen). Dein bisheriger Stand wurde beibehalten.');
+     return;
+   }
+   this.profile=this.load();this.nicknameEdit=this.profile.nickname;
+   this.intro=false;this.importOpen=false;this.view='profile';
+   this.alert('✅ STUDYVERSE-Backup wiederhergestellt! '+this.profile.xp+' XP, '+this.profile.tokens+' TT und '+this.profile.inventory.length+' Items sind da.'+
+     (Object.keys(snapshots).length?' Lernstände wurden ebenfalls übertragen.':' Achtung: Diese Datei enthält keine gespeicherten Lernwelten.'));
+ }
+ undoStudyverseRestore(){
+   const raw=parse(read(RESTORE));
+   if(!isObj(raw)||(raw['profile']!==null&&typeof raw['profile']!=='string')||!isObj(raw['trainers'])){
+     this.alert('Keine gültige Rückfallkopie vorhanden.');return;
+   }
+   if(!window.confirm('Vorherigen lokalen PC-Stand wiederherstellen? Der aktuell importierte Stand wird dadurch ersetzt.'))return;
+   const earlier={profile:raw['profile'] as string|null,trainers:raw['trainers'] as Record<string,string|null>};
+   const current=this.currentBackupSnapshot();
+   try{
+     this.writeBackupSnapshot(earlier);
+     localStorage.removeItem(BRIDGE);
+     localStorage.removeItem(RESTORE);
+   }catch{
+     try{this.writeBackupSnapshot(current);}catch{}
+     this.alert('Rückgängig machen fehlgeschlagen. Der aktuelle Stand bleibt erhalten.');return;
+   }
+   this.profile=this.load();this.nicknameEdit=this.profile.nickname;this.importOpen=false;
+   this.alert('↶ Vorherigen PC-Spielstand wiederhergestellt.');
  }
  private applyImport(data:unknown){
    if(!this.canImport){this.alert('CHEMVERSE wurde bereits einmal importiert.');return;}
@@ -336,6 +430,17 @@ export class App implements OnInit,OnDestroy {
    this.profile.nickname=name;this.save();this.alert('Profil aktualisiert.');
  }
  exportProfile(){
+   // Include the most recent per-test save, not just the global wallet and appearance.
+   this.syncTrainer();
+   const snapshots:Record<string,Record<string,unknown>>={...(this.profile.trainerSaves||{})};
+   for(const trainer of TRAINERS){
+     const local=parse(read(trainer.saveKey));
+     const prior=snapshots[trainer.id];
+     if(isObj(local)&&(!isObj(prior)||safe(local['xp'])>=safe(prior['xp'])))snapshots[trainer.id]=local;
+   }
+   this.profile.trainerSaves=snapshots;
+   if(isObj(snapshots['nawi-test-01']))this.profile.chemverseSave=snapshots['nawi-test-01'];
+   this.save();
    const blob=new Blob([JSON.stringify(this.profile,null,2)],{type:'application/json'});
    const url=URL.createObjectURL(blob);const link=document.createElement('a');
    link.href=url;link.download='studyverse-backup.json';link.click();

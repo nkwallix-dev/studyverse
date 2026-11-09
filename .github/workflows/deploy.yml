@@ -39,6 +39,9 @@ jobs:
       - name: Test DSAIVERSE lessons, mini-games and Boss
         run: node scripts/test-dsaiverse.cjs
 
+      - name: Verify STUDYVERSE backup transfer (old and new saves)
+        run: node scripts/test-save-transfer.cjs
+
       - name: Build Angular for GitHub Pages
         run: npm run build -- --base-href /studyverse/ --output-path dist/site
 

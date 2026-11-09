@@ -310,8 +310,15 @@
 </div>
 <h3>CHEMVERSE-Spielstand</h3><p>{{profile.legacyImportedAt?'✅ CHEMVERSE wurde bereits einmal importiert.':'Du kannst deinen alten Spielstand einmalig übernehmen.'}}</p>
           <button class="btn secondary" [disabled]="!canImport" (click)="importOpen=true">CHEMVERSE importieren</button>
-          <h3>Lokales Backup</h3><p>Exportiere dein STUDYVERSE-Profil als JSON. Noch keine geräteübergreifende Cloud-Synchronisierung.</p>
-          <button class="btn secondary" (click)="exportProfile()">📁 Backup exportieren</button></div></div>
+          <h3>Lokales Backup</h3><p>Übertrage dein STUDYVERSE-Konto samt XP, TT, Inventar und Lernwelten zwischen Laptop und PC. Noch keine geräteübergreifende Cloud-Synchronisierung.</p>
+          <div class="backup-actions">
+            <button class="btn secondary" (click)="exportProfile()">⬇️ Backup exportieren</button>
+            <label class="btn primary backup-import-button" for="studyverse-backup-import">📂 Backup importieren
+              <input id="studyverse-backup-import" type="file" accept=".json,application/json" (change)="importFile($event)" hidden>
+            </label>
+          </div>
+          <p class="small muted">Unterstützt auch ältere <b>studyverse-backup.json</b>-Dateien und CHEMVERSE-Spielstände. Bestehende PC-Daten werden vor einer Wiederherstellung gesichert.</p>
+          <button class="btn secondary" *ngIf="canUndoRestore" (click)="undoStudyverseRestore()">↶ Letzten Backup-Import rückgängig machen</button></div></div>
         </ng-container>
       </ng-container>
     </main>
@@ -341,11 +348,12 @@
     </div>
   </div>
   <div class="veil" *ngIf="importOpen" role="dialog" aria-modal="true">
-    <div class="modal"><div class="modal-symbol">📦</div><span class="eyebrow">SAVE TRANSFER</span><h2>Deinen Fortschritt <span>mitnehmen.</span></h2><p>Exportiere in CHEMVERSE unter Einstellungen deinen Spielstand als JSON und wähle die Datei hier aus.</p>
-      <label class="upload">📁 JSON-Datei auswählen <input type="file" accept=".json,application/json" (change)="importFile($event)"></label>
+    <div class="modal"><div class="modal-symbol">📦</div><span class="eyebrow">SAVE TRANSFER</span><h2>Deinen Fortschritt <span>mitnehmen.</span></h2>
+      <p>Du wechselst vom Laptop auf den PC? Wähle hier deine <b>studyverse-backup.json</b> – oder den ursprünglichen CHEMVERSE-Export. Wir erkennen beide Dateitypen automatisch.</p>
+      <label class="upload">📁 Backup-Datei (.json) auswählen <input type="file" accept=".json,application/json" (change)="importFile($event)"></label>
       <button class="btn secondary full" *ngIf="canImport" (click)="importBrowser()">Im Browser gespeicherten CHEMVERSE-Stand versuchen</button>
       <button class="btn plain full" (click)="importOpen=false">Später machen</button>
-      <small>Der Import erfolgt einmalig pro lokalem Profil und kann nicht doppelt TT vergeben.</small>
+      <small>Ein STUDYVERSE-Backup ersetzt den Stand dieses Geräts nach Sicherheitsabfrage. Vorher wird eine lokale Rückfallkopie angelegt. Ein alter CHEMVERSE-Spielstand kann nur einmal übernommen werden.</small>
     </div>
   </div>
   <div class="veil shop-preview-veil" *ngIf="previewed as item" role="dialog" aria-modal="true">
