@@ -43,3 +43,21 @@ body[data-atm="atom_orbit"]::after{background-image:radial-gradient(ellipse 50px
 body[data-atm="nodes"] .app,body[data-atm="atom_orbit"] .app{position:relative;z-index:1}
 body[data-frame="pixel"] :is(.panel,.question-card,.lesson-card,.mode-card,.stat,.hero,.info-card){border:3px solid #b78aff!important;border-radius:0!important;box-shadow:5px 5px 0 #5deeea,9px 9px 0 #261e50!important;outline:2px dashed #ff9ff0;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){body[data-atm="nodes"]::after,body[data-atm="atom_orbit"]::after{animation:none!important}}
+
+
+/* Studyverse shared profile access — same avatar + label across all verses. */
+.topbar-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;min-width:0;flex-shrink:0}
+.topbar-actions .back{min-height:43px;padding:7px 12px;border-radius:14px}
+.studyverse-profile-link{display:inline-flex;gap:9px;align-items:center;min-height:43px;padding:5px 13px 5px 5px;border:1px solid var(--border);background:var(--panel);border-radius:14px;color:var(--ink);font-size:12px;font-weight:850;text-decoration:none;white-space:nowrap;transition:border-color .18s,background .18s,transform .18s}
+.studyverse-profile-link:hover{background:var(--panel2);border-color:var(--aqua);color:var(--aqua);transform:translateY(-1px)}
+.studyverse-profile-link .avatar{width:33px;height:33px;border:1px solid var(--border);border-radius:10px;font-size:22px;background:#41335d}
+@media(max-width:680px){
+ .topbar-actions{gap:6px}
+ .topbar-actions .back{font-size:10px;min-height:39px;padding:5px 8px}
+ .studyverse-profile-link{font-size:11px;min-height:39px;padding:4px 9px 4px 4px;gap:6px}
+ .studyverse-profile-link .avatar{width:30px;height:30px;font-size:19px}
+}
+@media(max-width:400px){
+ .topbar-actions .back{font-size:9px;padding:5px}
+ .studyverse-profile-link{font-size:10px}
+}
