@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
@@ -50,6 +50,7 @@ export const SUBJECTS:Subject[]=[
  templateUrl:'./app.html', styleUrl:'./app.scss'
 })
 export class App implements OnInit,OnDestroy {
+ private readonly changeDetector=inject(ChangeDetectorRef);
  readonly subjects=SUBJECTS;
  readonly items=SHOP_ITEMS;
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
@@ -154,9 +155,11 @@ export class App implements OnInit,OnDestroy {
      if(this.cloud.session?.uid!==uid)return;
      await this.cloud.save(snapshot);
      this.cloudStatus='✓ Online gespeichert';
+     this.changeDetector.markForCheck();
    }).catch(error=>{
      this.cloudStatus='⚠ Speichern fehlgeschlagen';
      this.cloudMessage=cloudError(error);
+     this.changeDetector.markForCheck();
    });
    await this.cloudWrites;
  }
@@ -171,10 +174,14 @@ export class App implements OnInit,OnDestroy {
        this.cloudMaySave=true;
        this.cloudHydrating=false;
      }
-   }catch(e){this.cloudMessage=cloudError(e);this.cloudStatus='⚠ Cloud-Laden fehlgeschlagen';this.cloudMaySave=false;this.cloudHydrating=false;}
-   finally{
+   }catch(e){
+     this.cloudMessage=cloudError(e);this.cloudStatus='⚠ Cloud-Laden fehlgeschlagen';
+     this.cloudMaySave=false;this.cloudHydrating=false;
+     if(this.cloud.session)this.cloudMode='login';
+   }finally{
      this.cloudConfigured=this.cloud.configured;this.cloudReady=true;
      if(this.cloud.session&&this.cloudMaySave)this.queueCloudSave();
+     this.changeDetector.markForCheck();
    }
  }
  async submitCloudAccount(){
@@ -188,6 +195,7 @@ export class App implements OnInit,OnDestroy {
        await this.cloud.register(this.cloudUsername,this.cloudPin);
        authenticated=true;
        this.cloudStage='Spielstand wird online gespeichert …';
+       this.changeDetector.markForCheck();
        if(this.profile.nickname==='Explorer')this.profile.nickname=this.cloud.session!.username;
        this.nicknameEdit=this.profile.nickname;
        this.intro=false;write(INTRO,'1');
@@ -197,6 +205,7 @@ export class App implements OnInit,OnDestroy {
        await this.cloud.login(this.cloudUsername,this.cloudPin);
        authenticated=true;
        this.cloudStage='Cloud-Spielstand wird geladen …';
+       this.changeDetector.markForCheck();
        const remote=await this.cloud.load();
        if(remote)this.useCloudSnapshot(remote);
        else {
@@ -226,7 +235,12 @@ export class App implements OnInit,OnDestroy {
        this.cloudStatus='⚠ Cloud-Laden fehlgeschlagen';
        this.alert('Login erfolgreich, aber Cloud-Spielstand nicht geladen: '+this.cloudMessage+' Lade die Seite erneut.');
      }
-   }finally{this.cloudHydrating=false;this.cloudBusy=false;this.cloudStage='';}
+   }finally{
+     this.cloudHydrating=false;this.cloudBusy=false;this.cloudStage='';
+     // Angular's zoneless change detection needs an explicit notification after fetch promises.
+     // Notify it when cloud data is loaded, so the login modal closes without an extra click.
+     this.changeDetector.markForCheck();
+   }
  }
  private clearDeviceProgress(){
    for(const trainer of TRAINERS)localStorage.removeItem(trainer.saveKey);
@@ -243,6 +257,7 @@ export class App implements OnInit,OnDestroy {
    this.profile=initial();this.nicknameEdit=this.profile.nickname;
    this.cloudMode='login';this.cloudStatus='Abgemeldet';this.cloudMessage='';
    this.view='dashboard';this.intro=false;write(INTRO,'1');
+   this.changeDetector.markForCheck();
  }
 
  get level(){return levelFor(this.profile.xp);}
