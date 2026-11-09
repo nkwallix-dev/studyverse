@@ -217,6 +217,13 @@ export class App implements OnInit,OnDestroy {
  previewSlot(k:string){return this.previewed?.group===k?(this.previewed.equip||this.previewed.id):this.profile.equipped[k];}
  get currentAvatar(){return this.profile.equipped['avatar'] || '🧪';}
  get unlockedAvatars(){return SHOP_ITEMS.filter(item=>item.group==='avatar'&&this.owns(item));}
+ get unlockedTitles(){return SHOP_ITEMS.filter(item=>item.group==='title'&&this.owns(item));}
+ selectProfileTitle(id:string){
+   if(id!==''&&!this.unlockedTitles.some(item=>item.id===id)){this.alert('Diesen Titel hast du noch nicht freigeschaltet.');return;}
+   this.profile.equipped['title']=id;
+   this.save();
+   this.alert(id?'🏅 Titel ausgerüstet!':'🏅 Titel abgelegt.');
+ }
  openAvatarPicker(){this.avatarPickerOpen=true;}
  closeAvatarPicker(){this.avatarPickerOpen=false;}
  selectProfileAvatar(id:string){
