@@ -283,3 +283,149 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
  .breadcrumbs .slash,.breadcrumbs strong{display:none}
  .top-profile-link{font-size:10px}
 }
+
+
+/* MOBILE APP SHELL v1 — phone-first navigation and safe-area layouts. */
+.mobile-nav-label{display:none}
+@media(max-width:850px){
+ .workspace{width:100%;min-width:0}
+ .topbar{min-width:0}
+ .top-pills{min-width:0}
+ .dashboard-grid .right-rail{min-width:0}
+ .achievement-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+ .section-heading{min-width:0;flex-wrap:wrap;align-items:center;gap:9px}
+ .section-heading>div{min-width:0}
+ .section-heading h2{font-size:clamp(18px,3.8vw,25px)}
+ .section-heading .pill{max-width:100%;white-space:normal}
+ .achievement-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+ .achievement-filters label{min-width:0}
+ .achievement-filters select{max-width:100%;width:100%;min-width:0}
+ .drop-stage-head,.coin-station-head{flex-wrap:wrap}
+}
+@media(max-width:700px){
+ .universe{min-width:0;max-width:100%}
+ .sidebar{
+   box-sizing:border-box;position:fixed;left:0;right:0;top:auto;bottom:0;
+   width:100%;height:auto;min-height:0;max-height:none;
+   padding:5px 5px calc(5px + env(safe-area-inset-bottom,0px));
+   z-index:25;overflow:visible;border-right:0;border-top:1px solid var(--border);
+   background:color-mix(in srgb,var(--sidebar),#08081e 12%);
+   box-shadow:0 -9px 26px #0007;
+ }
+ .sidebar .sidebar-live-label,.sidebar .sidebar-live-courses,.sidebar .menu-label,.sidebar .brand,.sidebar .sidebar-bottom{display:none!important}
+ .navigation{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));width:100%;gap:2px;align-items:stretch;justify-content:stretch;padding:0;margin:0}
+ .navigation button,.navigation button.sidebar-inventory-link{
+   box-sizing:border-box;display:flex;flex-direction:column;align-items:center;
+   justify-content:center;gap:3px;min-width:0;width:100%;height:58px;min-height:58px;
+   margin:0;padding:5px 1px;border-radius:11px;border:0;
+   color:var(--muted);font-size:0;line-height:1;white-space:nowrap;
+ }
+ .navigation button span{font-size:21px;line-height:1.1}
+ .navigation button .mobile-nav-label{display:block;font-size:clamp(9px,2.35vw,11px);font-weight:800;line-height:1.1;letter-spacing:-.2px}
+ .navigation button.active{color:var(--accent)!important;background:color-mix(in srgb,var(--accent),transparent 87%);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent),transparent 70%)}
+ .navigation button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+ .navigation button b,.navigation button em{display:none!important}
+ .workspace{padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))}
+ main{padding:22px 15px 35px}
+ .topbar{
+   min-height:60px;position:relative;z-index:6;gap:7px;
+   padding:9px 13px;align-items:center;
+ }
+ .breadcrumbs{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;font-size:10px}
+ .breadcrumbs>span:first-child{font-size:15px;margin-right:4px}
+ .top-pills{display:flex;flex:0 0 auto;gap:6px;align-items:center;margin-left:auto}
+ .top-pills .top-pill.lev{display:none}
+ .top-pills .top-pill.token{padding:8px;border-radius:12px;font-size:11px;min-height:40px}
+ .top-profile-link{min-height:40px;gap:6px;padding:4px 9px 4px 4px;font-size:11px}
+ .top-profile-avatar{width:30px;height:30px;flex-basis:30px;font-size:20px}
+ .hero{margin-top:12px;min-height:0;padding:25px 21px 28px;border-radius:19px}
+ .hero-copy{width:100%;min-width:0;max-width:100%}
+ .hero h1{font-size:clamp(31px,9vw,46px);line-height:1.1;letter-spacing:-1.5px;margin:15px 0}
+ .hero p{font-size:12px;line-height:1.65}
+ .hero .planet-stage{opacity:.13;right:-100px;bottom:-120px;pointer-events:none}
+ .hero-actions{position:relative;z-index:2;gap:8px}
+ .hero-actions .btn{min-height:42px;padding:11px 13px}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:15px 0 22px}
+ .stat{min-width:0;gap:8px;padding:12px;border-radius:14px}
+ .stat-icon{flex:0 0 32px;width:32px;height:32px;font-size:17px}
+ .stat>div:last-child{min-width:0}
+ .stat small{font-size:9px;line-height:1.25;letter-spacing:.1px;overflow-wrap:anywhere}
+ .stat strong{font-size:clamp(17px,5vw,23px);overflow-wrap:anywhere}
+ .stat p{font-size:10px;line-height:1.35}
+ .dashboard-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:13px}
+ .dashboard-grid .tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .subject-card{padding:13px;min-width:0;min-height:145px;border-radius:14px}
+ .subject-card strong{font-size:13px;overflow-wrap:anywhere}
+ .dashboard-grid .right-rail{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .dashboard-grid .right-rail>.level-card,
+ .dashboard-grid .right-rail>.loot-card,
+ .dashboard-grid .right-rail>.activity-card{padding:14px;min-height:0}
+ .dashboard-grid .right-rail .eyebrow{font-size:9px;letter-spacing:.8px}
+ .dashboard-grid .large-level strong{font-size:44px}
+ .dashboard-grid .activity{overflow-wrap:anywhere;min-width:0}
+ .dashboard-grid .activity b{flex-shrink:0}
+ .section-heading{margin:12px 0}
+ .section-heading.lower{margin-top:23px}
+ .text-link{font-size:11px;white-space:normal;text-align:left}
+ .page-title{font-size:clamp(33px,8vw,45px);letter-spacing:-1.2px;overflow-wrap:anywhere}
+ .page-subtitle{font-size:12px;margin-bottom:17px}
+ .all-subjects{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .achievement-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .achievement-filters{grid-template-columns:repeat(2,minmax(0,1fr));margin:15px 0 23px;gap:8px}
+ .achievement-filters label:last-child{grid-column:1/-1}
+ .achievement-card{min-width:0;padding:15px}
+ .achievement-card h3{overflow-wrap:anywhere}
+ .shop-view-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;width:100%;max-width:100%}
+ .shop-view-tabs button{grid-column:auto!important;padding:9px 4px;font-size:clamp(10px,2.6vw,12px);min-height:46px;white-space:normal}
+ .filterbar{margin:16px 0 12px;gap:8px}
+ .filterbar input{flex:1 1 100%;min-width:0;width:100%}
+ .filterbar .btn{width:100%}
+ .chips{margin:13px 0;gap:7px}
+ .chips button{font-size:11px;padding:7px 11px}
+ .shop-drop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .shop-drop-card{min-width:0}
+ .drop-stage-head{display:flex;gap:10px;align-items:flex-start}
+ .drop-stage-text{min-width:0;flex:1 1 170px}
+ .drop-stage-numbers{flex:1 1 100%;text-align:left}
+ .item-grid,.drop-item-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .drop-item{min-width:0;padding:13px}
+ .drop-item .item-art{min-height:80px}
+ .item-title-row,.item-name{overflow-wrap:anywhere}
+ .coin-earning-station{margin:15px 0 20px}
+ .coin-earning-grid{grid-template-columns:1fr;gap:10px}
+ .coin-station-head{gap:10px}
+ .profile-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ .profile-panel{padding:19px}
+ .profile-stats{gap:7px;flex-wrap:wrap}
+ .profile-panel.settings .inline-form{min-width:0}
+ .profile-panel.settings .inline-form input{min-width:0}
+ .profile-advanced-tools summary span{display:none}
+ .cloud-account-actions .btn{flex:1 1 150px}
+ .modal{max-width:100%;padding:22px 18px;max-height:calc(100dvh - 24px);overflow-y:auto}
+ .veil{padding:12px}
+ .shop-preview-modal{max-width:100%;max-height:calc(100dvh - 24px);overflow-y:auto}
+}
+@media(max-width:460px){
+ .breadcrumbs .slash,.breadcrumbs strong{display:none}
+ .top-pills .top-pill.token{font-size:10px;padding:7px}
+ .achievement-grid{grid-template-columns:minmax(0,1fr)}
+ .all-subjects{grid-template-columns:minmax(0,1fr)}
+ .shop-drop-grid{grid-template-columns:minmax(0,1fr)}
+ .item-grid,.drop-item-grid{grid-template-columns:minmax(0,1fr)}
+ .subject-card.detailed{min-height:130px}
+ .profile-panel.settings .inline-form{flex-direction:column}
+ .profile-panel.settings .inline-form input,.profile-panel.settings .inline-form button{width:100%}
+ .shop-view-tabs button{font-size:10px}
+ .shop-view-tabs button span{display:none}
+ .dashboard-grid .right-rail{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dashboard-grid .right-rail>.activity-card:last-child{grid-column:1/-1}
+}
+@media(max-width:350px){
+ .top-pills .top-pill.token{display:none}
+ .dashboard-grid .tiles{grid-template-columns:1fr}
+ .dashboard-grid .right-rail{grid-template-columns:1fr}
+ .dashboard-grid .right-rail>.activity-card:last-child{grid-column:auto}
+ .navigation button .mobile-nav-label{font-size:9px}
+ .navigation button span{font-size:19px}
+ .hero-actions .btn{width:100%}
+}
