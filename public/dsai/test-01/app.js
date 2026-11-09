@@ -161,7 +161,7 @@ function endRound(){
  return `<div class="result panel"><div class="icon">🏅</div><div class="eyebrow">RUNDE ABGESCHLOSSEN</div><h1>GG, <span>weiter so.</span></h1><p>${run.right} richtige Antworten in ${run.items.length} Aufgaben. Insgesamt ${p.done}/${p.total} dieses Modus geschafft.</p><div class="actions" style="justify-content:center">${p.left?button("🎯 Die "+p.left+" offenen fertig stellen","finish:"+run.mode):""}${button("Nochmal üben","start:"+run.mode,"btn secondary")}${navbtn("Übersicht","home","btn ghost")}</div></div>`;
 }
 function bossIntro(){
- return `<div class="eyebrow">👾 ENDGAME · DSAIVERSE 1. TEST</div><h1>Finaler <span>AI-Boss.</span></h1><div class="panel"><h2>20 gemischte Multiple-Choice-Fragen</h2><p>Alle 16 Stoffbereiche, inklusive Code-Schnipsel. Die richtige Antwort wandert bei wiederholten Fragen auf andere Positionen. Ab 70 % gibt es einmal täglich +250 TT.</p>
+ return `<div class="eyebrow">👾 ENDGAME · Dsaiverse 1. TEST</div><h1>Finaler <span>AI-Boss.</span></h1><div class="panel"><h2>20 gemischte Multiple-Choice-Fragen</h2><p>Alle 16 Stoffbereiche, inklusive Code-Schnipsel. Die richtige Antwort wandert bei wiederholten Fragen auf andere Positionen. Ab 70 % gibt es einmal täglich +250 TT.</p>
  <div class="stats"><div class="stat"><b>${s.bestBoss||0}%</b><small>Bestes Ergebnis</small></div><div class="stat"><b>${s.bossRuns||0}</b><small>Bosskämpfe</small></div><div class="stat"><b>${daily().bossPaid?"✓":"250 TT"}</b><small>Täglicher Bonus</small></div><div class="stat"><b>70%</b><small>Für Tages-TT benötigt</small></div></div><div class="actions">${button("⚔️ Boss starten","start-boss")}${navbtn("Vorher lernen","academy","btn secondary")}</div></div>`;
 }
 function startBoss(){
