@@ -48,6 +48,9 @@ jobs:
       - name: Verify cross-verse daily arena and shared TT caps
         run: node scripts/test-daily.cjs
 
+      - name: Test account cloud mirror and session refresh
+        run: node scripts/test-cloud-sync.cjs
+
       - name: Build Angular for GitHub Pages
         run: npm run build -- --base-href /studyverse/ --output-path dist/site
 
