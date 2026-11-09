@@ -221,6 +221,12 @@
                 {{g==='Alle'?'Alle':groupLabel(g)}} <small *ngIf="g==='Alle'">({{dropItems.length}})</small>
               </button>
             </div>
+            <label class="shop-owned-toggle">
+              <input type="checkbox" [(ngModel)]="hideOwnedItems">
+              <span>✓ Bereits im Besitz ausblenden</span>
+              <small>{{filteredItems.length}} Items angezeigt</small>
+            </label>
+            <p class="shop-owned-empty" *ngIf="filteredItems.length===0">🎒 Hier ist gerade alles in deinem Inventar. Deaktiviere den Filter, um deine gekauften Items wiederzusehen.</p>
 
             <div class="item-grid drop-item-grid">
               <article class="item drop-item" *ngFor="let item of filteredItems" [class.locked]="!isUnlocked(item)" [class.owned]="owns(item)">
