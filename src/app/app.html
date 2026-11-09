@@ -205,10 +205,10 @@
                 <p *ngIf="shopAchievementStatus.remaining>0">{{shopAchievementStatus.remaining}} Achievements in {{shopAchievementStatus.trainer}} sind noch offen. Nur dafür kannst du noch einmalige TT erhalten.</p>
                 <button (click)="go('achievements')">{{shopAchievementStatus.remaining>0?'Offene Achievements ansehen ↗':'Achievements ansehen ↗'}}</button></div>
               <div class="earning-tile"><span class="earn-icon">⚡</span><div class="earn-type">TÄGLICHES QUIZ</div><strong>{{dailyChem.questions}} / 20 <span>Fragen</span></strong>
-                <p>Je 25 TT für 20 verschiedene richtige Fragen pro Tag – auch bereits gelöste Fragen zählen. Noch {{dailyChem.quizRemaining}} TT möglich.</p>
-                <button (click)="goEarnTokens('quiz')">Quiz wiederholen ↗</button></div>
+                <p>Chemverse und DSAIVERSE gemischt: 20 richtige unterschiedliche Fragen pro Tag, je 25 TT. Noch {{dailyChem.quizRemaining}} TT möglich.</p>
+                <button (click)="goEarnTokens('quiz')">Gemischtes Quiz starten ↗</button></div>
               <div class="earning-tile"><span class="earn-icon">👹</span><div class="earn-type">TÄGLICHER BOSSKAMPF</div><strong>{{dailyChem.boss?'✓ Erledigt':'+250 TT'}}</strong>
-                <p>Einmal täglich 250 TT bei mindestens 70 % richtigen Antworten. Antwortpositionen werden neu gemischt.</p>
+                <p>Chemverse + DSAIVERSE gemeinsam: einmal täglich 250 TT bei mindestens 70 % im gemischten Bosskampf. Antwortpositionen werden neu gemischt.</p>
                 <button (click)="goEarnTokens('boss')">Boss herausfordern ↗</button></div>
             </div>
             <div class="coin-earning-foot">💡 Neue Tests geben dir zusätzliche erstmalige XP und TT. Für jeden weiteren Trainer kommen neue Achievements und neue Drops hinzu. Wiederholungsboni werden pro Browser-Tag zurückgesetzt.</div>

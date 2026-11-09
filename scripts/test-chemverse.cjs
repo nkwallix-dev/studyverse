@@ -17,10 +17,10 @@ function extract(start,end){
 let today='2026-11-09';
 let writes=0;
 const state={coins:0,quizAnswerOrders:{},dailyCoin:{date:'',quizIds:[],bossPaid:false}};
-const rewardFactory=new Function('state','dayString','save','toast',
+const rewardFactory=new Function('state','dayString','save','toast','window',
   extract('const DAILY_QUIZ_COUNT','function randomizedChoices(')+
   ';return {dailyCoinState,awardDailyQuiz,awardDailyBoss};');
-const {awardDailyQuiz,awardDailyBoss}=rewardFactory(state,()=>today,()=>writes++,()=>{});
+const {awardDailyQuiz,awardDailyBoss}=rewardFactory(state,()=>today,()=>writes++,()=>{},{});
 for(let i=0;i<20;i++)assert.equal(awardDailyQuiz('q'+i),true);
 assert.equal(state.coins,500,'20 unique correct quiz answers = 500 Tokens');
 assert.equal(awardDailyQuiz('q0'),false,'No duplicate payment for the same question on the same day');
@@ -179,3 +179,8 @@ assert(js.includes("if(state.loadout.avatar==='🐸')state.loadout.avatar='🐟'
 assert(js.includes("dsai_title_weber:'🕷️ PROFESSORIN WEBER'"),'Global DSAI title recognized by Chemverse');
 assert(shopTs.includes("if(restored.equipped['avatar']==='🐸')"),'Global equipment migrated too');
 console.log('DSAIVERSE new teacher title and spider avatar, CHEMVERSE fish migration verified.');
+
+assert(html.includes('src="../../shared/daily-rewards.js"'),'Chemverse must use the common daily reward ledger');
+assert(js.includes("STUDYVERSE_DAILY.claimQuiz('chem',questionId)"),'Chemverse daily quizzes must obey shared limit');
+assert(js.includes("STUDYVERSE_DAILY.claimBoss()"),'Chemverse boss must obey shared daily limit');
+console.log('Shared daily ledger integration in Chemverse verified.');

@@ -105,6 +105,7 @@ body[data-fx="effect_discoin"] .topbar .pill{animation:nebulaPulse 1.1s linear i
 <div class="side-bottom"><div class="tiny">🧪 Nur aus deinen hochgeladenen Unterlagen · Offline · Fortschritt lokal im Browser</div></div>
 </aside><div class="main"><header class="topbar"><div class="topbar-left"><button class="btn secondary small burger" id="menuBtn" aria-label="Menü öffnen">☰</button><div class="crumb">CHEMVERSE 1. TEST <span style="opacity:.45">/</span> <b id="crumbText">Kommandozentrale</b></div></div><div class="topstats"><a id="returnStudyverse" class="studyverse-return" href="../../" title="Zur STUDYVERSE-Homepage zurückkehren"><span id="levelAvatar" aria-hidden="true">🧪</span><span>↩ STUDYVERSE</span></a><span class="tag studyverse-study">🧪 LERNWELT · 1. TEST</span></div></header><main id="pages"></main><footer class="footer">CHEMVERSE · Private lokale Lernhilfe · Kein Internet benötigt · Die Quellenangaben beziehen sich auf deine hochgeladenen Unterrichtsunterlagen. Mit dieser App werden keine Daten versendet.</footer></div></div>
 <div id="toastWrap" class="toast-wrap" aria-live="polite"></div>
+<script src="../../shared/daily-rewards.js"></script>
 <script>
 'use strict';
 const SRC={wh:'0. WH 2.Klasse(1).pptx',orb:'1. Orbitalmodell.pptx',orbU:'1. Orbitalmodell Übung.docx',intro:'2. Organische Chemie - Einführung.pptx',kws:'3. KWS - Anwendung, Isomere, Bindungen.pptx',rx:'4.1 Reaktionen der org Chemie.pptx',test:'1. Teststoff 4.Klasse_2.docx',ki:'Teststoff_Chemie_KI.docx (KI-Lernhilfe)',ws:'Chemie_übungen_TEST.docx',pdf:'Übung Reaktionen1.pdf',notes:'Chemie Mitschrift.docx'};
@@ -366,6 +367,7 @@ function dailyCoinState(){
 function awardDailyQuiz(questionId){
  let daily=dailyCoinState();
  if(daily.quizIds.includes(questionId)||daily.quizIds.length>=DAILY_QUIZ_COUNT)return false;
+ if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimQuiz('chem',questionId))return false;
  daily.quizIds.push(questionId);
  state.coins+=DAILY_QUIZ_TOKENS;
  save();
@@ -375,6 +377,7 @@ function awardDailyQuiz(questionId){
 function awardDailyBoss(percent){
  let daily=dailyCoinState();
  if(percent<70||daily.bossPaid)return false;
+ if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimBoss())return false;
  daily.bossPaid=true;
  state.coins+=DAILY_BOSS_TOKENS;
  save();

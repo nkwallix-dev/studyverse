@@ -158,22 +158,35 @@ export class App implements OnInit,OnDestroy {
      reward:open.reduce((sum,a)=>sum+a.reward,0)};
  }
  get dailyChem(){
-   const trainer=TRAINERS.find(t=>t.id===this.shopDrop)||TRAINERS[0];
-   const snapshot=this.snapshot(trainer);
-   const daily=isObj(snapshot['dailyCoin'])?snapshot['dailyCoin']:{};
+   // Global daily budget: 20 quiz payouts and one boss payout shared by all Ver(s)es.
+   // Include earlier per-trainer payouts when migrating from the original single-subject daily system.
    const now=new Date();
    const date=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
-   const valid=daily['date']===date;
-   const ids=valid&&Array.isArray(daily['quizIds'])?daily['quizIds']:[];
-   return {questions:Math.min(20,ids.length),boss:valid&&daily['bossPaid']===true,
-     quizRemaining:Math.max(0,20-ids.length)*25, bossRemaining:valid&&daily['bossPaid']===true?0:250};
+   const global=parse(read('studyverse_shared_daily_v1'));
+   const unique=new Set<string>(),valid=isObj(global)&&global['date']===date;
+   if(valid&&Array.isArray(global['quizIds']))for(const id of global['quizIds']){
+     if(typeof id==='string')unique.add(id);
+   }
+   let boss=valid&&global['bossPaid']===true;
+   for(const trainer of TRAINERS){
+     const snap=this.snapshot(trainer),daily=isObj(snap['dailyCoin'])?snap['dailyCoin']:{};
+     if(daily['date']!==date)continue;
+     if(Array.isArray(daily['quizIds']))for(const id of daily['quizIds']){
+       if(typeof id==='string')unique.add(id.includes(':')?id:(trainer.subjectId==='nawi'?'chem:':'dsai:')+id);
+     }
+     boss=boss||daily['bossPaid']===true;
+   }
+   const count=Math.min(20,unique.size);
+   return {questions:count,boss,quizRemaining:(20-count)*25,bossRemaining:boss?0:250};
  }
  get shopCollectionCost(){return this.dropItems.filter(i=>!this.owns(i)).reduce((n,i)=>n+i.cost,0);}
  get shopTokenGap(){return Math.max(0,this.shopCollectionCost-this.profile.tokens);}
  goEarnTokens(mode:'quiz'|'boss'|'academy'){
    const trainer=TRAINERS.find(t=>t.id===this.shopDrop)||TRAINERS[0];
    if(mode==='academy'){this.openTrainer(trainer.id);return;}
-   this.openTrainer(trainer.id,mode);
+   const url=new URL('daily/index.html',document.baseURI);
+   url.searchParams.set('mode',mode);
+   window.location.assign(url.href);
  }
  preview(item:ShopItem){this.previewed=item;}
  closePreview(){this.previewed=null;}

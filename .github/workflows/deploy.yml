@@ -45,6 +45,9 @@ jobs:
       - name: Test live cosmetics preview and locked learning worlds
         run: node scripts/test-shop-preview.cjs
 
+      - name: Verify cross-verse daily arena and shared TT caps
+        run: node scripts/test-daily.cjs
+
       - name: Build Angular for GitHub Pages
         run: npm run build -- --base-href /studyverse/ --output-path dist/site
 

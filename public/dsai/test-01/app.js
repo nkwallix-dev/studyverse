@@ -16,8 +16,8 @@ function toast(t){let e=$("toast");e.textContent=t;e.classList.add("show");clear
 function date(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function daily(){if(s.dailyCoin?.date!==date())s.dailyCoin={date:date(),quizIds:[],bossPaid:false};return s.dailyCoin}
 function payFirst(id,xp,tt){if(s.solved[id])return false;s.solved[id]=true;s.xp+=xp;s.coins+=tt;store();toast(`✨ Erstmals geschafft: +${xp} XP · +${tt} TT`);return true}
-function payDailyQuiz(id){let d=daily();if(!Array.isArray(d.quizIds))d.quizIds=[];if(d.quizIds.includes(id)||d.quizIds.length>=20)return;d.quizIds.push(id);s.coins+=25;store();toast(`🪙 Tägliche Quizbelohnung: +25 TT (${d.quizIds.length}/20)`)}
-function payDailyBoss(p){let d=daily();if(p<70||d.bossPaid)return;d.bossPaid=true;s.coins+=250;store();toast("🪙 Tagesboss geschafft: +250 TT")}
+function payDailyQuiz(id){let d=daily();if(!Array.isArray(d.quizIds))d.quizIds=[];if(d.quizIds.includes(id)||d.quizIds.length>=20)return;if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimQuiz('dsai',id))return;d.quizIds.push(id);s.coins+=25;store();toast(`🪙 Tägliche Quizbelohnung: +25 TT (${d.quizIds.length}/20)`)}
+function payDailyBoss(p){let d=daily();if(p<70||d.bossPaid)return;if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimBoss())return;d.bossPaid=true;s.coins+=250;store();toast("🪙 Tagesboss geschafft: +250 TT")}
 function ids(mode){return mode==="quiz"?Q.map(x=>x.id):mode==="code"?CODE.map(x=>"d"+x.id):mode==="sorter"?C.sort.map(x=>x.id):mode==="pipeline"?C.pipelines.map(x=>"p"+x.id):mode==="forecast"?FORE.map(x=>x.id):[]}
 function progress(mode){let a=ids(mode),done=a.filter(x=>s.solved[x]).length;return {total:a.length,done,left:a.length-done}}
 function learned(){return C.lessons.filter(l=>s.courseDone[l.id]).length}
