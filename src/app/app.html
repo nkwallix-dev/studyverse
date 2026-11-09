@@ -301,7 +301,7 @@
 
         <ng-container *ngSwitchCase="'profile'">
           <div class="eyebrow">PLAYER PROFILE</div><h1 class="page-title">Dein <span>Profil.</span></h1>
-          <p class="page-subtitle">Globale XP, Items und alle Lernwelten an einem Ort. Aktuell lokal in diesem Browser gespeichert.</p>
+          <p class="page-subtitle">Globale XP, Items und alle Lernwelten an einem Ort. {{cloudConfigured?'Dein Fortschritt wird über dein Onlinekonto synchronisiert.':'Bis zur Firebase-Aktivierung wird weiterhin lokal gespeichert.'}}</p>
           <div class="profile-grid"><div class="profile-panel"><div class="profile-avatar-wrap">
      <div class="large-avatar">{{currentAvatar}}</div>
      <button type="button" class="profile-avatar-brush" (click)="openAvatarPicker()" aria-label="Avatar ändern" title="Avatar ändern">🖌️</button>
@@ -328,7 +328,15 @@
 </div>
 <h3>CHEMVERSE-Spielstand</h3><p>{{profile.legacyImportedAt?'✅ CHEMVERSE wurde bereits einmal importiert.':'Du kannst deinen alten Spielstand einmalig übernehmen.'}}</p>
           <button class="btn secondary" [disabled]="!canImport" (click)="importOpen=true">CHEMVERSE importieren</button>
-          <h3>Lokales Backup</h3><p>Übertrage dein STUDYVERSE-Konto samt XP, TT, Inventar und Lernwelten zwischen Laptop und PC. Noch keine geräteübergreifende Cloud-Synchronisierung.</p>
+          <h3>Dein Onlinekonto</h3>
+          <div class="cloud-account-summary" *ngIf="cloudConfigured && cloud.session">
+            <strong>☁️ @{{cloudUser}}</strong><span>{{cloudStatus}}</span>
+            <div class="cloud-account-actions"><button type="button" class="btn secondary" (click)="syncCloudNow()">☁️ Jetzt synchronisieren</button>
+              <button type="button" class="btn secondary" (click)="logOutCloud()">↩ Abmelden</button></div>
+          </div>
+          <p class="small muted" *ngIf="!cloudConfigured">☁️ Cloud-Accounts werden freigeschaltet, sobald die Firebase-Webkonfiguration eingerichtet ist. Bis dahin ist dein aktueller Spielstand weiterhin lokal verfügbar.</p>
+          <p class="small muted" *ngIf="cloudMessage">{{cloudMessage}}</p>
+          <h3>Backup &amp; alte Spielstände</h3><p>Ein Backup brauchst du normalerweise nicht mehr. Für alte CHEMVERSE- oder STUDYVERSE-Versionen bleibt JSON-Import und -Export trotzdem erhalten.</p>
           <div class="backup-actions">
             <button class="btn secondary" (click)="exportProfile()">⬇️ Backup exportieren</button>
             <label class="btn primary backup-import-button" for="studyverse-backup-import">📂 Backup importieren
@@ -340,7 +348,7 @@
         </ng-container>
       </ng-container>
     </main>
-    <footer>✦ STUDYVERSE <span>Made for learning, built for legends · Alle Fortschritte derzeit lokal gespeichert</span></footer>
+    <footer>✦ STUDYVERSE <span>Made for learning, built for legends · {{cloudConfigured?'Cloud-Sync für angemeldete Accounts':'Lokale Speicherung'}}</span></footer>
   </div>
 
   <div class="veil avatar-picker-veil" *ngIf="avatarPickerOpen" role="dialog" aria-modal="true" aria-label="Avatar auswählen" (click)="closeAvatarPicker()">
@@ -359,10 +367,36 @@
     </div>
   </div>
 
-  <div class="veil" *ngIf="intro" role="dialog" aria-modal="true">
+  <div class="veil" *ngIf="intro && (!cloudReady || !cloudConfigured)" role="dialog" aria-modal="true">
     <div class="modal welcome"><div class="modal-symbol">🧪</div><span class="eyebrow">A LEGEND RETURNS</span><h2>Willkommen im <span>STUDYVERSE.</span></h2><p>Du hast schon in CHEMVERSE gelernt? Willst du deinen bisherigen Spielstand mit XP, TT und gekauften Items übernehmen?</p>
       <button class="btn primary full" (click)="startImport()">Ja, CHEMVERSE übertragen ↗</button><button class="btn secondary full" (click)="skipIntro()">Nein, frisch anfangen</button>
       <small>Die Frage erscheint nur beim ersten Aufruf in diesem Browser. Der Import bleibt später im Profil verfügbar.</small>
+    </div>
+  </div>
+
+  <div class="veil cloud-auth-veil" *ngIf="cloudReady && cloudConfigured && !cloud.session" role="dialog" aria-modal="true" aria-label="STUDYVERSE Konto anmelden">
+    <div class="modal cloud-auth-modal">
+      <div class="modal-symbol">☁️</div>
+      <span class="eyebrow">STUDYVERSE · CLOUD ACCOUNTS</span>
+      <h2>Dein Fortschritt. <span>Überall.</span></h2>
+      <p>Einmal anmelden, dann bleiben XP, TastyTokens, Items und Lernwelten auf deinen Geräten erhalten. Kein E-Mail-Konto notwendig.</p>
+      <div class="cloud-auth-tabs">
+        <button type="button" [class.selected]="cloudMode==='register'" (click)="cloudMode='register';cloudMessage='';cloudPin=''">Neuen Account</button>
+        <button type="button" [class.selected]="cloudMode==='login'" (click)="cloudMode='login';cloudMessage='';cloudPin=''">Einloggen</button>
+      </div>
+      <label for="cloud-user">Benutzername</label>
+      <input id="cloud-user" class="cloud-auth-input" type="text" [(ngModel)]="cloudUsername" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="z. B. niklas42" [disabled]="cloudBusy">
+      <label for="cloud-pin">Deine 6-stellige Zahlen-PIN</label>
+      <input id="cloud-pin" class="cloud-auth-input cloud-pin-input" type="password" inputmode="numeric" pattern="[0-9]{6}" [(ngModel)]="cloudPin" maxlength="6" minlength="6" autocomplete="current-password" placeholder="● ● ● ● ● ●" [disabled]="cloudBusy" (keyup.enter)="submitCloudAccount()">
+      <p class="cloud-auth-error" *ngIf="cloudMessage">{{cloudMessage}}</p>
+      <button type="button" class="btn primary full" [disabled]="cloudBusy" (click)="submitCloudAccount()">{{cloudBusy?'Verbindung wird geprüft …':cloudMode==='register'?'🚀 Account erstellen':'↩ Einloggen & Spielstand laden'}}</button>
+      <div class="cloud-auth-import" *ngIf="cloudMode==='register'">
+        <p>Schon einen alten Studyverse- oder Chemverse-Spielstand? Importiere zuerst das Backup, dann erstelle deinen Account.</p>
+        <label class="btn secondary cloud-auth-upload">📦 Alten Spielstand importieren
+          <input type="file" accept=".json,application/json" (change)="importFile($event)" hidden>
+        </label>
+      </div>
+      <small>Deine PIN sollte niemand kennen. Ohne E-Mail-Konto gibt es keine automatische PIN-Wiederherstellung – merk sie dir! Alte JSON-Backups funktionieren weiterhin.</small>
     </div>
   </div>
   <div class="veil" *ngIf="importOpen" role="dialog" aria-modal="true">
