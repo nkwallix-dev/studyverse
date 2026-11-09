@@ -56,7 +56,7 @@ export class App implements OnInit,OnDestroy {
  shopDrop='nawi-test-01'; hideOwnedItems=false; shopTab:'catalog'|'inventory'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  readonly cloud=new StudyverseCloud();
- cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false;
+ cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
  cloudMode:'register'|'login'='register'; cloudUsername=''; cloudPin=''; cloudMessage='';
  cloudStatus='Lokal'; private cloudTimer:ReturnType<typeof setTimeout>|null=null;
  private cloudWrites:Promise<void>=Promise.resolve();
@@ -137,13 +137,16 @@ export class App implements OnInit,OnDestroy {
    this.syncTrainer();
  }
  private queueCloudSave(){
-   if(!this.cloudReady||!this.cloud.session||this.cloudHydrating)return;
+   if(!this.cloudReady||!this.cloud.session||this.cloudHydrating||!this.cloudMaySave)return;
    if(this.cloudTimer!==null)clearTimeout(this.cloudTimer);
    this.cloudStatus='Ungespeicherte Änderungen';
    this.cloudTimer=setTimeout(()=>{this.cloudTimer=null;void this.syncCloudNow();},1000);
  }
  async syncCloudNow():Promise<void>{
-   if(!this.cloud.session||this.cloudHydrating)return;
+   if(!this.cloud.session||this.cloudHydrating||!this.cloudMaySave){
+     if(this.cloud.session&&!this.cloudMaySave)this.cloudMessage='Cloud-Stand nicht geladen. Bitte die Seite neu öffnen, bevor du synchronisierst.';
+     return;
+   }
    if(this.cloudTimer!==null){clearTimeout(this.cloudTimer);this.cloudTimer=null;}
    const uid=this.cloud.session.uid;
    const snapshot=this.cloudSnapshot();
@@ -165,17 +168,18 @@ export class App implements OnInit,OnDestroy {
        this.cloudHydrating=true;
        const remote=await this.cloud.load();
        if(remote)this.useCloudSnapshot(remote);
+       this.cloudMaySave=true;
        this.cloudHydrating=false;
      }
-   }catch(e){this.cloudMessage=cloudError(e);this.cloudHydrating=false;}
+   }catch(e){this.cloudMessage=cloudError(e);this.cloudStatus='⚠ Cloud-Laden fehlgeschlagen';this.cloudMaySave=false;this.cloudHydrating=false;}
    finally{
      this.cloudConfigured=this.cloud.configured;this.cloudReady=true;
-     if(this.cloud.session)this.queueCloudSave();
+     if(this.cloud.session&&this.cloudMaySave)this.queueCloudSave();
    }
  }
  async submitCloudAccount(){
    if(this.cloudBusy)return;
-   this.cloudBusy=true;this.cloudMessage='';this.cloudHydrating=true;
+   this.cloudBusy=true;this.cloudMessage='';this.cloudHydrating=true;this.cloudMaySave=false;
    const registering=this.cloudMode==='register';
    try{
      if(registering){
@@ -199,7 +203,7 @@ export class App implements OnInit,OnDestroy {
          await this.cloud.save(this.cloudSnapshot());
        }
      }
-     this.cloudStatus='✓ Online gespeichert';this.cloudPin='';this.cloudUsername='';
+     this.cloudMaySave=true;this.cloudStatus='✓ Online gespeichert';this.cloudPin='';this.cloudUsername='';
      this.cloudMessage='';
    }catch(e){this.cloudMessage=cloudError(e);}
    finally{this.cloudHydrating=false;this.cloudBusy=false;}
@@ -211,8 +215,11 @@ export class App implements OnInit,OnDestroy {
  async logOutCloud(){
    if(!this.cloud.session)return;
    await this.syncCloudNow();
-   if(this.cloudStatus==='⚠ Speichern fehlgeschlagen'&&!window.confirm('Cloud-Speicherung fehlgeschlagen. Trotzdem abmelden? Nicht hochgeladene Daten bleiben nur lokal.'))return;
-   this.cloud.signOut();this.clearDeviceProgress();
+   if(!this.cloudMaySave||this.cloudStatus==='⚠ Speichern fehlgeschlagen'){
+     this.alert('Cloud-Speicherung fehlgeschlagen. Exportiere zur Sicherheit ein Backup und versuche es erneut, bevor du dich abmeldest.');
+     return;
+   }
+   this.cloud.signOut();this.cloudMaySave=false;this.clearDeviceProgress();
    this.profile=initial();this.nicknameEdit=this.profile.nickname;
    this.cloudMode='login';this.cloudStatus='Abgemeldet';this.cloudMessage='';
    this.view='dashboard';this.intro=false;write(INTRO,'1');
