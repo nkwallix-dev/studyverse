@@ -37,7 +37,7 @@ assert(code.includes('localStorage.removeItem(BRIDGE)'),'Old in-flight trainer m
 assert(code.includes('undoStudyverseRestore()'),'Users need undo after restoring');
 assert(code.includes('this.profile.trainerSaves=snapshots'),'A full backup must carry per-test progress');
 assert(code.includes('this.profile.tokens')===true,'Use global TT on profile restore');
-assert(html.includes('id="studyverse-backup-import"'),'Backup import needs a visible control directly in the profile');
+assert(html.includes('class="profile-advanced-tools"') && html.includes('id="studyverse-backup-import"'),'Legacy backup import must remain available in collapsible advanced data tools');
 assert(html.includes('undoStudyverseRestore()'),'Undo button required');
-assert(html.includes('studyverse-backup.json'),'Dialog should explain the correct backup');
+assert(html.includes('class="cloud-auth-import"') && html.includes('(change)="importFile($event)"'),'Legacy import must be offered during registration');
 console.log('PASS: STUDYVERSE raw export / CHEMVERSE export differentiated, backup restore and undo flow linked in UI.');
