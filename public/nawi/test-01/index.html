@@ -122,6 +122,7 @@ body[data-frame="pixel"] :is(.panel,.hero){border:3px solid #b78aff!important;bo
 </aside><div class="main"><header class="topbar"><div class="topbar-left"><button class="btn secondary small burger" id="menuBtn" aria-label="Menü öffnen">☰</button><div class="crumb">CHEMVERSE 1. TEST <span style="opacity:.45">/</span> <b id="crumbText">Kommandozentrale</b></div></div><div class="topstats"><a id="returnStudyverse" class="studyverse-return" href="../../" title="Zur STUDYVERSE-Homepage zurückkehren"><span id="levelAvatar" aria-hidden="true">🧪</span><span>↩ STUDYVERSE</span></a></div></header><main id="pages"></main><footer class="footer">CHEMVERSE · Private lokale Lernhilfe · Kein Internet benötigt · Die Quellenangaben beziehen sich auf deine hochgeladenen Unterrichtsunterlagen. Mit dieser App werden keine Daten versendet.</footer></div></div>
 <div id="toastWrap" class="toast-wrap" aria-live="polite"></div>
 <script src="../../shared/daily-rewards.js"></script>
+<script src="../../shared/cloud-progress.js"></script>
 <script>
 'use strict';
 const SRC={wh:'0. WH 2.Klasse(1).pptx',orb:'1. Orbitalmodell.pptx',orbU:'1. Orbitalmodell Übung.docx',intro:'2. Organische Chemie - Einführung.pptx',kws:'3. KWS - Anwendung, Isomere, Bindungen.pptx',rx:'4.1 Reaktionen der org Chemie.pptx',test:'1. Teststoff 4.Klasse_2.docx',ki:'Teststoff_Chemie_KI.docx (KI-Lernhilfe)',ws:'Chemie_übungen_TEST.docx',pdf:'Übung Reaktionen1.pdf',notes:'Chemie Mitschrift.docx'};
@@ -349,7 +350,7 @@ let active='home',lastTopic=null,quizSession={question:null,answered:false,filte
 const $=(s)=>document.querySelector(s), $$=(s)=>Array.from(document.querySelectorAll(s));
 const h=(v)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function sourceHTML(ref){let rr=String(ref||'').split(';').map(x=>x.trim());return `<div class="source">📚 Quelle: ${rr.map(x=>{let [id,...rest]=x.split(':');return `<strong>${h(SHORT[id]||id)}</strong>${rest.length?' · '+h(rest.join(':')):''}`}).join(' · ')}</div>`}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){console.warn('Speichern fehlgeschlagen',e)}updateTop();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));window.studyverseCloudTouch?.()}catch(e){console.warn('Speichern fehlgeschlagen',e)}updateTop();}
 function dayString(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function updateDay(){let now=dayString(),yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);let y=`${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;if(state.lastDay!==now){state.streak=state.lastDay===y?state.streak+1:1;state.lastDay=now;save();}}
 function currentLevel(){return 1+Math.floor(Math.sqrt(state.xp/110))}
