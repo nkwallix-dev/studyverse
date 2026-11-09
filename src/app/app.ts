@@ -97,6 +97,127 @@ export class App implements OnInit,OnDestroy {
  }
  private save(){write(KEY,JSON.stringify(this.profile));this.queueCloudSave();}
  private alert(message:string){this.info=message;}
+
+ get cloudUser(){return this.cloud.session?.username||'';}
+ private cloudSnapshot():CloudSnapshot{
+   const trainers:Record<string,Record<string,unknown>>={...(this.profile.trainerSaves||{})};
+   for(const trainer of TRAINERS){
+     const local=parse(read(trainer.saveKey));
+     if(isObj(local))trainers[trainer.id]=local;
+   }
+   const snapshot:CloudSnapshot={version:1,profile:{...this.profile,trainerSaves:trainers},trainers};
+   const daily=parse(read(CLOUD_DAILY_KEY));
+   if(daily!==null)snapshot.daily=daily;
+   const bridge=parse(read(BRIDGE));
+   if(isObj(bridge))snapshot.bridge=bridge;
+   return snapshot;
+ }
+ private useCloudSnapshot(snapshot:CloudSnapshot){
+   if(!validStudyverse(snapshot.profile))throw Error('Ungültiger Cloud-Spielstand. Der lokale Stand bleibt erhalten.');
+   const previous=this.currentBackupSnapshot();
+   try{
+     write(RESTORE,JSON.stringify(previous));
+     write(KEY,JSON.stringify(snapshot.profile));
+     for(const trainer of TRAINERS){
+       const saved=snapshot.trainers[trainer.id];
+       if(isObj(saved))write(trainer.saveKey,JSON.stringify(saved));
+       else localStorage.removeItem(trainer.saveKey);
+     }
+     if(snapshot.daily!==undefined)write(CLOUD_DAILY_KEY,JSON.stringify(snapshot.daily));
+     else localStorage.removeItem(CLOUD_DAILY_KEY);
+     if(isObj(snapshot.bridge))write(BRIDGE,JSON.stringify(snapshot.bridge));
+     else localStorage.removeItem(BRIDGE);
+     write(INTRO,'1');
+   }catch(e){
+     this.writeBackupSnapshot(previous);
+     throw e;
+   }
+   this.profile=this.load();this.nicknameEdit=this.profile.nickname;
+   this.intro=false;this.importOpen=false;
+   this.syncTrainer();
+ }
+ private queueCloudSave(){
+   if(!this.cloudReady||!this.cloud.session||this.cloudHydrating)return;
+   if(this.cloudTimer!==null)clearTimeout(this.cloudTimer);
+   this.cloudStatus='Ungespeicherte Änderungen';
+   this.cloudTimer=setTimeout(()=>{this.cloudTimer=null;void this.syncCloudNow();},1000);
+ }
+ async syncCloudNow():Promise<void>{
+   if(!this.cloud.session||this.cloudHydrating)return;
+   if(this.cloudTimer!==null){clearTimeout(this.cloudTimer);this.cloudTimer=null;}
+   const uid=this.cloud.session.uid;
+   const snapshot=this.cloudSnapshot();
+   this.cloudWrites=this.cloudWrites.catch(()=>{}).then(async()=>{
+     if(this.cloud.session?.uid!==uid)return;
+     await this.cloud.save(snapshot);
+     this.cloudStatus='✓ Online gespeichert';
+   }).catch(error=>{
+     this.cloudStatus='⚠ Speichern fehlgeschlagen';
+     this.cloudMessage=cloudError(error);
+   });
+   await this.cloudWrites;
+ }
+ private async startCloud(){
+   try{
+     await this.cloud.initialize();
+     this.cloudConfigured=this.cloud.configured;
+     if(this.cloud.session){
+       this.cloudHydrating=true;
+       const remote=await this.cloud.load();
+       if(remote)this.useCloudSnapshot(remote);
+       this.cloudHydrating=false;
+     }
+   }catch(e){this.cloudMessage=cloudError(e);this.cloudHydrating=false;}
+   finally{
+     this.cloudConfigured=this.cloud.configured;this.cloudReady=true;
+     if(this.cloud.session)this.queueCloudSave();
+   }
+ }
+ async submitCloudAccount(){
+   if(this.cloudBusy)return;
+   this.cloudBusy=true;this.cloudMessage='';this.cloudHydrating=true;
+   const registering=this.cloudMode==='register';
+   try{
+     if(registering){
+       await this.cloud.register(this.cloudUsername,this.cloudPin);
+       if(this.profile.nickname==='Explorer')this.profile.nickname=this.cloud.session!.username;
+       this.nicknameEdit=this.profile.nickname;
+       this.intro=false;write(INTRO,'1');
+       await this.cloud.save(this.cloudSnapshot());
+     }else{
+       await this.cloud.login(this.cloudUsername,this.cloudPin);
+       const remote=await this.cloud.load();
+       if(remote)this.useCloudSnapshot(remote);
+       else {
+         const hasLocal=this.profile.xp>0||this.profile.tokens>0||this.profile.inventory.length>0;
+         const keep=hasLocal&&window.confirm('Dieses Onlinekonto hat noch keinen Spielstand. Den lokalen Stand auf dieses Konto hochladen?');
+         if(!keep){
+           this.clearDeviceProgress();
+           this.profile=initial();this.nicknameEdit=this.profile.nickname;
+           write(KEY,JSON.stringify(this.profile));
+         }
+         await this.cloud.save(this.cloudSnapshot());
+       }
+     }
+     this.cloudStatus='✓ Online gespeichert';this.cloudPin='';this.cloudUsername='';
+     this.cloudMessage='';
+   }catch(e){this.cloudMessage=cloudError(e);}
+   finally{this.cloudHydrating=false;this.cloudBusy=false;}
+ }
+ private clearDeviceProgress(){
+   for(const trainer of TRAINERS)localStorage.removeItem(trainer.saveKey);
+   for(const key of [KEY,CHEM,BRIDGE,CLOUD_DAILY_KEY,RESTORE])localStorage.removeItem(key);
+ }
+ async logOutCloud(){
+   if(!this.cloud.session)return;
+   await this.syncCloudNow();
+   if(this.cloudStatus==='⚠ Speichern fehlgeschlagen'&&!window.confirm('Cloud-Speicherung fehlgeschlagen. Trotzdem abmelden? Nicht hochgeladene Daten bleiben nur lokal.'))return;
+   this.cloud.signOut();this.clearDeviceProgress();
+   this.profile=initial();this.nicknameEdit=this.profile.nickname;
+   this.cloudMode='login';this.cloudStatus='Abgemeldet';this.cloudMessage='';
+   this.view='dashboard';this.intro=false;write(INTRO,'1');
+ }
+
  get level(){return levelFor(this.profile.xp);}
  get levelBegin(){return (this.level-1)**2*110;}
  get levelEnd(){return this.level**2*110;}
