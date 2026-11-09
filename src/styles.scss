@@ -486,3 +486,28 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @media(max-width:830px){.universe .hero .banner-scene{opacity:.48}.universe .hero .hero-copy{max-width:100%}.sidebar-live-course .course-text strong{font-size:11px}}
 @media(max-width:540px){.universe .hero .banner-scenery .banner-scene{opacity:.22}.shop-live-stage .shop-live-hero .banner-scene{opacity:.72!important}}
 @media(prefers-reduced-motion:reduce){.universe .banner-scenery *{animation:none!important}}
+
+/* Isolate the preview from the currently equipped homepage banner.
+   The outer STUDYVERSE universe may have a different data-banner value. */
+.shop-live-stage.universe .banner-scene{display:none!important}
+.shop-live-stage.universe[data-banner="gold"] .scene-gold,
+.shop-live-stage.universe[data-banner="warning"] .scene-warning,
+.shop-live-stage.universe[data-banner="galaxy"] .scene-galaxy,
+.shop-live-stage.universe[data-banner="molecule"] .scene-molecule,
+.shop-live-stage.universe[data-banner="flow"] .scene-flow,
+.shop-live-stage.universe[data-banner="curve"] .scene-curve,
+.shop-live-stage.universe[data-banner="cloud"] .scene-cloud{display:block!important}
+.shop-live-stage.universe[data-banner="none"]>.shop-live-hero.hero,
+.shop-live-stage.universe[data-banner="default"]>.shop-live-hero.hero{
+  background:radial-gradient(circle at 78% 48%,#5546b27e,transparent 28%),linear-gradient(115deg,#1f1c48,#181933 57%,#222044)!important;
+  border-color:var(--border)!important
+}
+.shop-live-stage.universe[data-banner="gold"]>.shop-live-hero.hero{background:radial-gradient(circle at 80% 48%,#ffe4ab9f,transparent 39%),linear-gradient(115deg,#342017,#77511e 70%,#d3a04d)!important}
+.shop-live-stage.universe[data-banner="warning"]>.shop-live-hero.hero{background:radial-gradient(circle at 80% 40%,#f9f27677,transparent 38%),repeating-linear-gradient(138deg,#f5c92f14 0 12px,#101c20 12px 24px),linear-gradient(110deg,#091920,#304533)!important}
+.shop-live-stage.universe[data-banner="galaxy"]>.shop-live-hero.hero{background:radial-gradient(circle at 84% 50%,#b4a2ffa2,transparent 43%),linear-gradient(115deg,#120d3c,#2e1765 60%,#0c1b46)!important}
+.shop-live-stage.universe[data-banner="molecule"]>.shop-live-hero.hero{background:radial-gradient(circle at 78% 43%,#72efd47d,transparent 38%),linear-gradient(112deg,#092629,#134b52 58%,#102b58)!important}
+.shop-live-stage.universe[data-banner="flow"]>.shop-live-hero.hero{background:radial-gradient(ellipse at 80% 50%,#a38aff77,transparent 45%),linear-gradient(112deg,#17173d,#31235c 64%,#264a68)!important}
+.shop-live-stage.universe[data-banner="curve"]>.shop-live-hero.hero{background:radial-gradient(circle at 85% 40%,#37edce5b,transparent 42%),linear-gradient(110deg,#0a2140,#1e4254 57%,#155d6b)!important}
+.shop-live-stage.universe[data-banner="cloud"]>.shop-live-hero.hero{background:linear-gradient(180deg,#5d77ad,#8ab2e0 45%,#d4cff6)!important}
+.shop-live-stage.universe[data-banner="cloud"] .shop-live-hero-copy :is(strong,small){color:#14264b}
+.shop-live-stage.universe[data-banner="cloud"] .shop-live-hero-copy strong em{color:#483e83}
