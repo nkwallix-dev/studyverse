@@ -17,6 +17,7 @@
       <button [class.active]="view==='achievements'" (click)="go('achievements')"><span>🏆</span> Achievements <em>{{achievementTotals.done}}/{{achievementTotals.total}}</em></button>
       <button [class.active]="view==='shop'&&shopTab==='catalog'" (click)="go('shop')"><span>◇</span> Item-Shop <em>{{items.length}}</em></button>
       <button class="sidebar-inventory-link" [class.active]="view==='shop'&&shopTab==='inventory'" (click)="openInventory()"><span>🎒</span> Inventar <em>{{ownedCatalogItems.length}}</em></button>
+      <button class="sidebar-inventory-link sidebar-earn-link" [class.active]="view==='shop'&&shopTab==='earn'" (click)="openTokenEarning()"><span>🪙</span> TastyTokens verdienen</button>
       <button [class.active]="view==='profile'" (click)="go('profile')"><span>☻</span> Mein Profil</button>
     </nav>
 
@@ -30,7 +31,7 @@
   <div class="workspace">
     <header class="topbar">
       <div class="breadcrumbs"><span>✧</span> STUDYVERSE <span class="slash">/</span>
-        <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':'Item-Shop'):view==='achievements'?'Achievements':'Mein Profil'}}</strong>
+        <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='earn'?'TastyTokens verdienen':'Item-Shop'):view==='achievements'?'Achievements':'Mein Profil'}}</strong>
       </div>
       <div class="top-pills">
         <div class="top-pill lev"><span>⚡</span> Level {{level}} <div class="tiny-track"><i [style.width.%]="levelProgress"></i></div></div>
@@ -146,11 +147,14 @@
           <div class="eyebrow">STUDYVERSE COSMETICS</div>
           <h1 class="page-title" *ngIf="shopTab==='catalog'">Der <span>Item-Shop.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='inventory'">Dein <span>Inventar.</span></h1>
+          <h1 class="page-title" *ngIf="shopTab==='earn'">TastyTokens <span>verdienen.</span></h1>
           <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Erst lernen, dann kaufen.</strong> Einmal erworbene Cosmetics gehören dir aber im gesamten STUDYVERSE.</p>
           <p class="page-subtitle" *ngIf="shopTab==='inventory'">Alle deine Cosmetics an einem Ort. Nach Drop und Kategorie filtern, Styles anschauen und direkt ausrüsten.</p>
-          <div class="shop-view-tabs" role="tablist" aria-label="Shop und Inventar">
+          <p class="page-subtitle" *ngIf="shopTab==='earn'">Sammle TastyTokens mit Achievements, täglichen Quizfragen und Bosskämpfen – und hol dir damit deine nächsten Cosmetics.</p>
+          <div class="shop-view-tabs" role="tablist" aria-label="Item-Shop, Inventar und TastyTokens verdienen">
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='catalog'" [class.selected]="shopTab==='catalog'" (click)="setShopTab('catalog')">◇ Item-Shop</button>
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='inventory'" [class.selected]="shopTab==='inventory'" (click)="setShopTab('inventory')">🎒 Inventar <span>{{ownedCatalogItems.length}}</span></button>
+            <button type="button" role="tab" [attr.aria-selected]="shopTab==='earn'" [class.selected]="shopTab==='earn'" (click)="setShopTab('earn')">🪙 TastyTokens verdienen</button>
           </div>
           <ng-container *ngIf="shopTab==='catalog'">
 
@@ -189,30 +193,7 @@
             <div *ngIf="d.status==='upcoming'" class="drop-guide">🤖 Der DSAI-Drop ist mit dem neuen Trainer verfügbar. Dann gibt's neue Items, Level-Freischaltungen und eigene Lernfortschritt-Sperren.</div>
           </div>
 
-          <section class="coin-earning-station">
-            <div class="coin-station-head">
-              <span class="coin-station-emoji">🪙</span>
-              <div><div class="eyebrow">TASTYTOKENS · VERDIENEN</div><h2>SO VERDIENST DU WEITERE TT</h2>
-                <p>Offene Achievements bringen einmalige Boni. Danach verdienst du durch tägliches Üben weiter TastyTokens.</p></div>
-              <div class="coin-station-value"><small>NOCH IN DIESEM DROP ZU KAUFEN</small><strong>{{shopCollectionCost | number}} TT</strong>
-                <span *ngIf="shopTokenGap>0">Dir fehlen noch {{shopTokenGap | number}} TT fürs komplette Set.</span>
-                <span *ngIf="shopTokenGap===0">Dein Guthaben reicht theoretisch für den Rest der Kollektion!</span></div>
-            </div>
-            <div class="coin-earning-grid">
-              <div class="earning-tile"><span class="earn-icon">🏆</span><div class="earn-type">ACHIEVEMENTS · {{shopAchievementStatus.done}} / {{shopAchievementStatus.total}}</div>
-                <strong *ngIf="shopAchievementStatus.remaining>0">Noch {{shopAchievementStatus.reward | number}} TT</strong>
-                <strong class="earning-complete" *ngIf="shopAchievementStatus.remaining===0">✓ Alle Achievements abgeschlossen.</strong>
-                <p *ngIf="shopAchievementStatus.remaining>0">{{shopAchievementStatus.remaining}} Achievements in {{shopAchievementStatus.trainer}} sind noch offen. Nur dafür kannst du noch einmalige TT erhalten.</p>
-                <button (click)="go('achievements')">{{shopAchievementStatus.remaining>0?'Offene Achievements ansehen ↗':'Achievements ansehen ↗'}}</button></div>
-              <div class="earning-tile"><span class="earn-icon">⚡</span><div class="earn-type">TÄGLICHES QUIZ</div><strong>{{dailyChem.questions}} / 20 <span>Fragen</span></strong>
-                <p>Chemverse und DSAIVERSE gemischt: 20 richtige unterschiedliche Fragen pro Tag, je 25 TT. Noch {{dailyChem.quizRemaining}} TT möglich.</p>
-                <button (click)="goEarnTokens('quiz')">Gemischtes Quiz starten ↗</button></div>
-              <div class="earning-tile"><span class="earn-icon">👹</span><div class="earn-type">TÄGLICHER BOSSKAMPF</div><strong>{{dailyChem.boss?'✓ Erledigt':'+250 TT'}}</strong>
-                <p>Chemverse + DSAIVERSE gemeinsam: einmal täglich 250 TT bei mindestens 70 % im gemischten Bosskampf. Antwortpositionen werden neu gemischt.</p>
-                <button (click)="goEarnTokens('boss')">Boss herausfordern ↗</button></div>
-            </div>
-            <div class="coin-earning-foot">💡 Neue Tests geben dir zusätzliche erstmalige XP und TT. Für jeden weiteren Trainer kommen neue Achievements und neue Drops hinzu. Wiederholungsboni werden pro Browser-Tag zurückgesetzt.</div>
-          </section>
+
 
           <ng-container *ngIf="selectedDrop.status==='live'">
             <div class="section-heading lower"><div><div class="eyebrow">COLLECTION · {{selectedDrop.title}}</div><h2>Alle Items <span>✦</span></h2></div><span class="pill">{{dropOwned}} / {{dropItems.length}} gekauft oder erhalten</span></div>
@@ -296,6 +277,32 @@
               <p>{{ownedCatalogItems.length===0?'Verdiene TT und schalte dir im Item-Shop deinen ersten Style frei.':'Probiere eine andere Kollektion, Kategorie oder Suche.'}}</p>
               <button class="btn primary" (click)="setShopTab('catalog')">Zum Item-Shop ↗</button>
             </div>
+          </ng-container>
+          <ng-container *ngIf="shopTab==='earn'">
+          <section class="coin-earning-station">
+            <div class="coin-station-head">
+              <span class="coin-station-emoji">🪙</span>
+              <div><div class="eyebrow">TASTYTOKENS · DEINE VERDIENSTMÖGLICHKEITEN</div><h2>SO VERDIENST DU WEITERE TASTYTOKENS</h2>
+                <p>Offene Achievements bringen einmalige Boni. Danach verdienst du durch tägliches Üben weiter TastyTokens.</p></div>
+              <div class="coin-station-value"><small>NOCH IN ALLEN DROPS ZU KAUFEN</small><strong>{{shopTotalRemainingCost | number}} TT</strong>
+                <span *ngIf="shopTotalTokenGap>0">Dir fehlen noch {{shopTotalTokenGap | number}} TT für alle noch nicht gekauften Cosmetics.</span>
+                <span *ngIf="shopTotalTokenGap===0">Dein Guthaben reicht theoretisch für alle noch nicht gekauften Cosmetics!</span></div>
+            </div>
+            <div class="coin-earning-grid">
+              <div class="earning-tile"><span class="earn-icon">🏆</span><div class="earn-type">ACHIEVEMENTS · {{earningAchievementStatus.done}} / {{earningAchievementStatus.total}}</div>
+                <strong *ngIf="earningAchievementStatus.remaining>0">Noch {{earningAchievementStatus.reward | number}} TT</strong>
+                <strong class="earning-complete" *ngIf="earningAchievementStatus.remaining===0">✓ Alle Achievements abgeschlossen.</strong>
+                <p *ngIf="earningAchievementStatus.remaining>0">{{earningAchievementStatus.remaining}} Achievements in deinen Lernwelten sind noch offen. Nur dafür kannst du noch einmalige TT erhalten.</p>
+                <button (click)="go('achievements')">{{earningAchievementStatus.remaining>0?'Offene Achievements ansehen ↗':'Achievements ansehen ↗'}}</button></div>
+              <div class="earning-tile"><span class="earn-icon">⚡</span><div class="earn-type">TÄGLICHES QUIZ</div><strong>{{dailyChem.questions}} / 20 <span>Fragen</span></strong>
+                <p>Chemverse und DSAIVERSE gemischt: 20 richtige unterschiedliche Fragen pro Tag, je 25 TT. Noch {{dailyChem.quizRemaining}} TT möglich.</p>
+                <button (click)="goEarnTokens('quiz')">Gemischtes Quiz starten ↗</button></div>
+              <div class="earning-tile"><span class="earn-icon">👹</span><div class="earn-type">TÄGLICHER BOSSKAMPF</div><strong>{{dailyChem.boss?'✓ Erledigt':'+250 TT'}}</strong>
+                <p>Chemverse + DSAIVERSE gemeinsam: einmal täglich 250 TT bei mindestens 70 % im gemischten Bosskampf. Antwortpositionen werden neu gemischt.</p>
+                <button (click)="goEarnTokens('boss')">Boss herausfordern ↗</button></div>
+            </div>
+            <div class="coin-earning-foot">💡 Neue Tests geben dir zusätzliche erstmalige XP und TastyTokens. Für jeden weiteren Trainer kommen neue Achievements und neue Drops hinzu. Wiederholungsboni werden pro Browser-Tag zurückgesetzt.</div>
+          </section>
           </ng-container>
         </ng-container>
 
