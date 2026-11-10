@@ -1,4 +1,4 @@
-// Real Chromium mobile smoke test for Studyverse, Chemverse and Dsaiverse.
+// Real Chromium mobile smoke test for Studyverse, Chemverse, Dsaiverse and Sharpverse.
 // Run after: npm run build -- --base-href /studyverse/ --output-path dist/site
 // Requires the Playwright package and Google Chrome/Chromium on the test runner.
 const fs=require('node:fs');
@@ -137,7 +137,8 @@ async function main(){
   }
   for(const [world,url,mainSelector,header] of [
    ['Chemverse','nawi/test-01/','#pages','.studyverse-profile-link'],
-   ['Dsaiverse','dsai/test-01/','#main','.studyverse-profile-link']]){
+   ['Dsaiverse','dsai/test-01/','#main','.studyverse-profile-link'],
+   ['Sharpverse','pos/pa-01/','#main','.profile-link']]){
    for(const width of [320,360,390,430,768]){
     const context=await browser.newContext({
      viewport:{width,height:800},deviceScaleFactor:1,isMobile:true,hasTouch:true
@@ -154,17 +155,17 @@ async function main(){
      path:path.join(screenshots,world.toLowerCase()+'-390.png'),fullPage:true
     });
     if(width<=430){
-     const menu=page.locator(world==='Chemverse'?'#menuBtn':'#mobileMenu');
+     const menu=page.locator(world==='Chemverse'?'#menuBtn':world==='Dsaiverse'?'#mobileMenu':'.mobile-menu');
      await menu.click();
-     const drawer=page.locator('#sidebar');
+     const drawer=page.locator(world==='Sharpverse'?'.sidebar':'#sidebar');
      await page.waitForTimeout(120);
      assert(await drawer.evaluate(e=>e.classList.contains('open')),
       'Mobile navigation drawer must open in '+world);
-     if(world==='Dsaiverse'){
-      await page.locator('#nav button[data-nav="academy"]').click();
+     if(world==='Dsaiverse'||world==='Sharpverse'){
+      await page.locator(world==='Dsaiverse'?'#nav button[data-nav="academy"]':'.nav-link[data-action="view:academy"]').click();
       await page.waitForTimeout(120);
       assert(!await drawer.evaluate(e=>e.classList.contains('open')),
-       'Dsaiverse drawer must close after navigating');
+       world+' drawer must close after navigating');
       await check(page,world+' Academy '+width);
      }
     }
@@ -179,6 +180,6 @@ async function main(){
  if(problems.length){
   console.error('Mobile overflow detected:\n'+JSON.stringify(problems,null,2));
   process.exitCode=1;
- }else console.log('PASS: Chromium mobile layout and navigation across all three Verses, 320–768px.');
+ }else console.log('PASS: Chromium mobile layout and navigation across all four Verses, 320–768px.');
 }
 main().catch(error=>{console.error(error);process.exitCode=1;server.close()});
