@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -82,6 +83,24 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: dist/site/browser
+
+      # Upload is complete before the artifact is necessarily visible to the Actions API.
+      # Waiting for actual list visibility avoids deploy-pages claiming no artifact exists.
+      - name: Wait until the Pages artifact is visible
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for attempt in $(seq 1 20); do
+            found=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '[.artifacts[] | select(.name == "github-pages")] | length')
+            if [ "$found" = "1" ]; then
+              echo "GitHub Pages artifact is visible (attempt ${attempt})."
+              exit 0
+            fi
+            echo "Waiting for Pages artifact API indexing (attempt ${attempt})..."
+            sleep 3
+          done
+          echo "::error::Pages artifact did not become visible in GitHub Actions API"
+          exit 1
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
