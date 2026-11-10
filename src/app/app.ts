@@ -305,6 +305,22 @@ export class App implements OnInit,OnDestroy {
    const labels:Record<string,string>={theme:'Themes',atm:'Hintergründe',avatar:'Avatare',frame:'Rahmen',font:'Schriften',banner:'Banner',title:'Titel',fx:'Effekte'};
    return labels[group]||group;
  }
+ // The product category belongs in its readable name, not only in tiny metadata.
+ // Item IDs and stored base names are deliberately unchanged for old inventories.
+ itemTypeName(group:string):string{
+   const labels:Record<string,string>={theme:'Theme',atm:'Hintergrund',avatar:'Avatar',frame:'Rahmen',font:'Schriftart',banner:'Banner',title:'Titel',fx:'Effekt'};
+   return labels[group]||'Cosmetic';
+ }
+ itemNameSuffix(item:ShopItem):string{
+   const type=this.itemTypeName(item.group);
+   const endings=item.group==='font'?['schrift','schriftart']:[type.toLocaleLowerCase('de')];
+   const name=item.name.trim().toLocaleLowerCase('de');
+   return endings.some(suffix=>name===suffix||name.endsWith(' '+suffix)||name.endsWith('-'+suffix))?'':type;
+ }
+ itemDisplayName(item:ShopItem):string{
+   const suffix=this.itemNameSuffix(item);
+   return suffix?item.name+' '+suffix:item.name;
+ }
 
  get dropUnlocked(){return this.dropItems.filter(i=>this.owns(i)||this.isUnlocked(i)).length;}
  get filteredItems(){return this.dropItems
@@ -408,7 +424,7 @@ export class App implements OnInit,OnDestroy {
    return this.ownedCatalogItems.filter(item=>
       (this.inventoryDrop==='Alle'||item.drop===this.inventoryDrop) &&
       (this.inventoryGroup==='Alle'||item.group===this.inventoryGroup) &&
-      (!query||(item.name+' '+item.desc+' '+this.groupLabel(item.group)).toLocaleLowerCase('de').includes(query))
+      (!query||(this.itemDisplayName(item)+' '+item.desc+' '+this.groupLabel(item.group)).toLocaleLowerCase('de').includes(query))
    ).sort((a,b)=>Number(this.active(b))-Number(this.active(a))||a.name.localeCompare(b.name,'de'));
  }
  get inventoryEquippedCount(){return this.ownedCatalogItems.filter(item=>this.active(item)).length;}
@@ -662,11 +678,11 @@ export class App implements OnInit,OnDestroy {
      if(this.profile.tokens<item.cost){this.alert('Nicht genug TastyTokens, Bruder. 💀');return;}
      this.profile.tokens-=item.cost;this.profile.inventory=[...this.profile.inventory,item.id];
      this.profile.activity=[{label:item.name+' gekauft · '+this.selectedDrop.title,date:new Date().toISOString(),amount:-item.cost},...this.profile.activity].slice(0,30);
-     this.alert(item.icon+' '+item.name+' gehört dir! Überall in STUDYVERSE ausrüstbar.');
+     this.alert(item.icon+' '+this.itemDisplayName(item)+' gehört dir! Überall in STUDYVERSE ausrüstbar.');
    }else{
      const key=item.group,value=key==='avatar'?item.icon:(item.equip||item.id);
      this.profile.equipped[key]=this.active(item)?this.equipDefault(key):value;
-     this.alert(item.name+' – Ausrüstung geändert.');
+     this.alert(this.itemDisplayName(item)+' – Ausrüstung geändert.');
    }
    this.previewed=null;
    this.save();
