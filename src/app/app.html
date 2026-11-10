@@ -436,7 +436,7 @@
     </div>
   </div>
   <div class="veil shop-preview-veil" *ngIf="previewed as item" role="dialog" aria-modal="true" aria-label="Live-Vorschau für ein Cosmetic">
-    <div class="modal shop-preview-modal">
+    <div class="modal shop-preview-modal" [attr.data-category]="item.group">
       <div class="universe shop-live-stage" *ngIf="item.group!=='avatar' && item.group!=='title'"
            [attr.data-theme]="previewValue('theme',item)" [attr.data-atm]="previewValue('atm',item)"
            [attr.data-frame]="previewValue('frame',item)" [attr.data-font]="previewValue('font',item)"
