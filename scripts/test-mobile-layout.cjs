@@ -119,9 +119,32 @@ async function main(){
     await button.click();
     await page.waitForTimeout(100);
     await check(page,'Studyverse '+label+' '+width);
+    if(label==='Item-Shop'){
+     const select=page.locator('#shop-drop-select');
+     assert(await select.isVisible(),'Drop selector should be beside Alle Items at '+width+'px');
+     assert.equal(await page.locator('.shop-drop-card').count(),0,'No old chunky drop cards');
+     assert((await page.locator('.item-name-type').count())>0,
+      'Product names should visibly include the cosmetic kind');
+     await select.selectOption('global');
+     assert((await page.locator('.shop-current-drop').innerText()).includes('GLOBAL'),
+      'Dropdown must update selected collection and items');
+     const layout=await page.evaluate(()=>{
+      const head=document.querySelector('.shop-items-heading-main h2').getBoundingClientRect();
+      const select=document.querySelector('#shop-drop-select').getBoundingClientRect();
+      return {headingBottom:head.bottom,selectTop:select.top,selectLeft:select.left,headRight:head.right};
+     });
+     assert(layout.selectLeft>=layout.headRight-4||Math.abs(layout.selectTop-layout.headingBottom)<48,
+      'Drop selector should be in same header row on mobile '+width+'px: '+JSON.stringify(layout));
+     await select.selectOption('nawi-test-01');
+     await check(page,'Studyverse Shop-Drop-Selector '+width);
+    }
     if(width===390&&['Item-Shop','Achievements'].includes(label))
      await page.screenshot({path:path.join(screenshots,'studyverse-'+label.toLowerCase()+'-390.png'),fullPage:true});
    }
+   await page.locator('.top-friends-link').click();
+   await page.locator('.friends-page').waitFor({timeout:4000});
+   await check(page,'Studyverse Freunde '+width);
+   if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-freunde-390.png'),fullPage:true});
    await page.locator('.top-profile-link').click();
    await page.locator('.profile-grid').waitFor({timeout:4000});
    await check(page,'Studyverse Profil '+width);
