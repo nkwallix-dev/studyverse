@@ -740,3 +740,61 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @media(prefers-reduced-motion:reduce){
   .universe[data-atm="dots"]::after{animation:none!important}
 }
+
+
+/* NEW SHARPVERSE REWARDS — work on the Studyverse homepage AND mini previews. */
+.universe[data-theme="sharp_cutline"]{
+ --bg:#07111f;--sidebar:#0c1c32;--card:#162b45;--card2:#10233a;
+ --border:#396d88;--text:#eaffff;--muted:#aed1e1;
+ --accent:#85f7ee;--accent2:#f7a9d6;--glow:#5ee2ea
+}
+.universe[data-theme="sharp_cutline"] .hero:not([data-unrelated]){
+ background:radial-gradient(circle at 80% 35%,#80fbff43,transparent 36%),
+ linear-gradient(122deg,#0b1c36,#27436b 60%,#7b3c7a)!important;
+ border-color:#84f5ee77;
+}
+.universe[data-atm="sharp_rain"]::after,
+.universe[data-atm="sharp_wool"]::after{
+ content:"";
+ position:fixed;inset:0;
+ z-index:42;pointer-events:none;
+ display:block;opacity:.62;
+}
+.universe[data-atm="sharp_rain"]::after{
+ background-image:
+  repeating-linear-gradient(0deg,transparent 0 40px,#65ffe74f 41px 42px,transparent 43px 98px),
+  repeating-linear-gradient(90deg,transparent 0 80px,#b3a9ff4a 81px 83px,transparent 84px 158px),
+  radial-gradient(circle,#a0fff1 0 2px,transparent 3px);
+ background-size:170px 192px,157px 139px,95px 101px;
+ animation:sv-sharp-rain 14s linear infinite;
+}
+.universe[data-atm="sharp_wool"]::after{
+ background-image:
+  radial-gradient(ellipse 90px 33px at 44% 46%,transparent 87%,#f3a9d8b9 94%,transparent 100%),
+  radial-gradient(ellipse 36px 82px at 44% 46%,transparent 88%,#9fa5ffb9 95%,transparent 100%),
+  radial-gradient(circle,#fff5cc 0 3px,transparent 4px);
+ background-size:168px 170px,168px 170px,107px 125px;
+ animation:sv-sharp-wool 22s linear infinite;
+}
+.shop-live-stage.universe[data-atm="sharp_rain"]::after,
+.shop-live-stage.universe[data-atm="sharp_wool"]::after{
+ position:absolute;z-index:6;opacity:.9;
+ border-radius:inherit;
+ background-size:92px 110px,109px 98px,73px 83px;
+}
+@keyframes sv-sharp-rain{from{background-position:0 0,0 0,0 0}to{background-position:0 240px,0 170px,18px 145px}}
+@keyframes sv-sharp-wool{from{background-position:0 0,0 0,0 0}to{background-position:43px -75px,28px 50px,0 -100px}}
+.shop-live-stage[data-fx="thread_sparks"] .shop-live-fx span{
+ color:#70ffe4;font-size:26px;
+ filter:drop-shadow(0 0 12px #64ecff);
+ animation:shop-fx-neural 2.2s ease-in-out infinite alternate;
+}
+.shop-live-stage[data-fx="pulse_rings"] .shop-live-fx span{
+ font-size:21px;color:#cbb1ff;
+ text-shadow:0 0 12px #a68fff;
+ animation:shop-fx-neural 3.6s ease-in-out infinite alternate;
+}
+@media(prefers-reduced-motion:reduce){
+ .universe[data-atm="sharp_rain"]::after,
+ .universe[data-atm="sharp_wool"]::after{animation:none!important}
+}
