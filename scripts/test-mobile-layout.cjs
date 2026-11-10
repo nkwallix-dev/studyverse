@@ -265,6 +265,43 @@ async function main(){
     'Sharpverse must have a top-right back button just like Chemverse and Dsaiverse');
    await check(cosmeticPage,world+' global equipment');
    await cosmeticPage.screenshot({path:path.join(screenshots,world.toLowerCase()+'-global-cosmetics-390.png'),fullPage:true});
+   // Switching equipment must replace old textures, including a restored background tab.
+   for(const atm of ['snow','bubbles','none']){
+    await cosmeticPage.evaluate(atm=>{
+     const profile=JSON.parse(localStorage.getItem('studyverse_profile_v1'));
+     profile.equipped.atm=atm;profile.equipped.fx='none';
+     localStorage.setItem('studyverse_profile_v1',JSON.stringify(profile));
+     window.dispatchEvent(new Event('pageshow'));
+    },atm);
+    await cosmeticPage.waitForFunction(atm=>document.body.dataset.atm===atm&&document.body.dataset.fx==='none',atm);
+    await cosmeticPage.waitForTimeout(300);
+    const layers=await cosmeticPage.evaluate(()=>({
+     count:document.querySelectorAll('.verse-atmosphere').length,
+     before:getComputedStyle(document.body,'::before').content,
+     after:getComputedStyle(document.body,'::after').content,
+     opacity:Number(getComputedStyle(document.querySelector('.verse-atmosphere')).opacity),
+     particles:document.querySelectorAll('.verse-fx i').length,
+     z:Number(getComputedStyle(document.querySelector('.verse-atmosphere')).zIndex),
+     appZ:Number(getComputedStyle(document.querySelector('#app,.app')).zIndex)
+    }));
+    assert.equal(layers.count,1,world+' should have exactly one atmosphere layer');
+    assert.equal(layers.before,'none',world+' should disable legacy background');
+    assert.equal(layers.after,'none',world+' should disable legacy atmosphere');
+    assert.equal(layers.particles,0,world+' must clear unequipped effects');
+    assert(layers.z<layers.appZ,world+' atmosphere must stay behind content');
+    assert(atm==='none'?layers.opacity===0:layers.opacity>0,world+' should apply '+atm);
+   }
+   // Sources are reachable through each trainer menu and contain no old settings.
+   const menu=cosmeticPage.locator(world==='Chemverse'?'#menuBtn':world==='Dsaiverse'?'#mobileMenu':'.mobile-menu');
+   await menu.click();
+   const sourceNav=cosmeticPage.locator(world==='Sharpverse'?'[data-action="view:sources"]':'[data-nav="sources"]');
+   await sourceNav.click();
+   await cosmeticPage.locator('.sources-list').waitFor();
+   assert((await cosmeticPage.locator('.sources-list').innerText()).length>150,world+' must list real teaching sources');
+   assert.equal(await cosmeticPage.locator('.sources-list input,.sources-list select,#resetBtn,#exportBtn,#focusToggle,#soundToggle,#testDate').count(),0,
+    world+' sources page must not contain settings');
+   await check(cosmeticPage,world+' sources');
+   await cosmeticPage.screenshot({path:path.join(screenshots,world.toLowerCase()+'-sources-390.png'),fullPage:true});
    await equipped.close();
   }
   // 1440 × 900 desktop: profile settings should fit without scrolling.

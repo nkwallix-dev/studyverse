@@ -3,7 +3,8 @@
 (function(){
 'use strict';
 const PROFILE_KEY='studyverse_profile_v1';
-const SLOTS=['theme','atm','frame','font','banner','fx'];
+const DEFAULTS={theme:'base',atm:'none',frame:'none',font:'standard',banner:'default',fx:'none'};
+const SLOTS=Object.keys(DEFAULTS);
 const BANNERS={
  gold:['🏆','✦','🥇'],warning:['⚠️','🧪','⚡'],galaxy:['🪐','✨','🌠'],
  molecule:['⚛️','🔬','✦'],flow:['▣','→','▣'],curve:['📈','✦','📊'],
@@ -70,10 +71,12 @@ function refreshFx(fx){
  lastFx=fx;
 }
 function applyEquipment(){
+ document.body.classList.add('studyverse-cosmetics');
  const profile=readProfile();
  const equip=profile&&profile.equipped&&typeof profile.equipped==='object'?profile.equipped:{};
  for(const slot of SLOTS){
-  if(typeof equip[slot]==='string'&&equip[slot].length<80)document.body.dataset[slot]=equip[slot];
+  const value=typeof equip[slot]==='string'&&equip[slot].length>0&&equip[slot].length<80?equip[slot]:DEFAULTS[slot];
+  if(document.body.dataset[slot]!==value)document.body.dataset[slot]=value;
  }
  const banner=document.body.dataset.banner||'default';
  const fx=document.body.dataset.fx||'none';
@@ -92,7 +95,7 @@ function applyEquipment(){
   let tag=topbar.querySelector('.verse-equipped-title');
   if(title){
    if(!tag){tag=document.createElement('span');tag.className='verse-equipped-title';topbar.appendChild(tag)}
-   tag.textContent='🏅 '+title;
+   if(tag.textContent!=='🏅 '+title)tag.textContent='🏅 '+title;
   }else if(tag)tag.remove();
  }
 }
@@ -109,6 +112,9 @@ function init(){
  observer.observe(document.body,{subtree:true,childList:true});
  window.addEventListener('storage',event=>{if(event.key===PROFILE_KEY)schedule()});
  window.addEventListener('pageshow',schedule);
+ window.addEventListener('focus',schedule);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
+ window.addEventListener('studyverse-equipment-change',schedule);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
 else init();

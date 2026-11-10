@@ -43,11 +43,11 @@ const MODE=[
 {id:"forecast",icon:"📈",title:"Festival-Forecast",desc:"Regressionsprognosen ohne Code berechnen."}
 ];
 let view="home",lessonId="",lessonOpts=[],lessonAnswered=false,lessonPick=-1,run=null,bossPercent=0;
-const titles={home:"Kommandozentrale",academy:"Von Null lernen",atlas:"Nachschlageatlas",lesson:"Lernakademie",quiz:"Quiz-Arena",code:"Code-Detective",sorter:"Data-Sorter",pipeline:"Pipeline-Puzzle",forecast:"Festival-Forecast",boss:"AI-Bosskampf","boss-run":"AI-Bosskampf","boss-result":"AI-Bosskampf",result:"Ergebnis"};
+const titles={sources:"Quellen",home:"Kommandozentrale",academy:"Von Null lernen",atlas:"Nachschlageatlas",lesson:"Lernakademie",quiz:"Quiz-Arena",code:"Code-Detective",sorter:"Data-Sorter",pipeline:"Pipeline-Puzzle",forecast:"Festival-Forecast",boss:"AI-Bosskampf","boss-run":"AI-Bosskampf","boss-result":"AI-Bosskampf",result:"Ergebnis"};
 function go(where){
  $("sidebar").classList.remove("open");
  if(allModes.includes(where)){begin(where,false);return}
- view=["home","academy","atlas","boss"].includes(where)?where:"home";run=null;render();window.scrollTo(0,0)
+ view=["home","academy","atlas","boss","sources"].includes(where)?where:"home";run=null;render();window.scrollTo(0,0)
 }
 function overview(){
  const lc=learned(),p=mode=>progress(mode);
@@ -60,6 +60,10 @@ function academy(){
  let n=learned(),left=C.lessons.length-n;
  return `<div class="eyebrow">🎓 LERNAKADEMIE · SCHRITT FÜR SCHRITT</div><h1>Von <span>Null.</span></h1><p>Jedes der 16 Kapitel erklärt genau euren Stoff. Nach den Beispielen beantwortest du eine Verständnisfrage. Erst dann zählt es als abgeschlossen.</p><div class="panel"><h2>${n}/${C.lessons.length} abgeschlossen</h2>${bar(n,C.lessons.length)}<div class="actions">${left?button("🎯 Die "+left+" offenen Lektionen fertig stellen","finish:academy"):navbtn("🏆 Alles geschafft","atlas","btn secondary")}</div></div>
  <div class="lesson-list">${C.lessons.map((l,i)=>`<button class="lesson-card" data-lesson="${esc(l.id)}"><span>${l.icon}</span><div><b>${i+1}. ${esc(l.title)}</b><small>${esc(l.group)}</small></div><span class="done">${s.courseDone[l.id]?"✓ Fertig":"↗"}</span></button>`).join("")}</div>`;
+}
+function sources(){
+ const refs=[...new Set(C.lessons.map(l=>l.source).filter(Boolean))];
+ return `<div class="eyebrow">QUELLEN</div><h1>Quellen</h1><section class="panel sources-list"><h2>Unterrichtsunterlagen · DSAI</h2><p>Die Lernlektionen und Übungen basieren auf den folgenden Unterrichtsunterlagen. Die einzelnen Kapitel nennen die zugehörigen Seiten.</p><ul>${refs.map(ref=>`<li>${esc(ref)}</li>`).join("")}</ul></section>`;
 }
 function atlas(){
  return `<div class="eyebrow">📚 NACHSCHLAGEATLAS</div><h1>Alles auf <span>einen Blick.</span></h1><p>Die Kernaussagen, Beispiele, Stolperfallen und Quellen deiner Unterrichtsmappen.</p>${C.lessons.map((l,i)=>`<details class="panel"><summary><b>${l.icon} ${i+1}. ${esc(l.title)}</b> <small>${esc(l.group)}</small></summary><ul>${l.blocks.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><div class="code">${esc(l.example)}</div><div class="tip">💡 ${esc(l.trap)}</div><p class="source">Quelle: ${esc(l.source)}</p>${button("Zum Kapitel","lesson:"+l.id,"btn small")}</details>`).join("")}`;
@@ -197,7 +201,7 @@ function render(){
  $("crumb").textContent=titles[view]||"Kommandozentrale";
  let selected=view==="lesson"?"academy":view.startsWith("boss")?"boss":view==="result"?run?.mode:view;
  document.querySelectorAll("#nav button[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===selected));
- $("main").innerHTML=view==="home"?overview():view==="academy"?academy():view==="atlas"?atlas():view==="lesson"?lesson():view==="boss"?bossIntro():view==="boss-run"?bossPage():view==="boss-result"?bossEnd():view==="result"?endRound():modePage();
+ $("main").innerHTML=view==="sources"?sources():view==="home"?overview():view==="academy"?academy():view==="atlas"?atlas():view==="lesson"?lesson():view==="boss"?bossIntro():view==="boss-run"?bossPage():view==="boss-result"?bossEnd():view==="result"?endRound():modePage();
 }
 function doAction(action){
  if(action.startsWith("finish:")){

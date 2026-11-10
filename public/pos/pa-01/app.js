@@ -154,7 +154,7 @@ function sidebar(){
  '<p class="nav-title">DEIN PROGRAMMIER-UNIVERSUM</p>'+navLink('home','Kommandozentrale','◈')+
  '<p class="nav-title">LERNEN</p>'+navLink('academy','Lernakademie','📘')+navLink('vs','Visual Studio Crashkurs','🖥️')+navLink('lab','Threading-Labor','⚡')+
  '<p class="nav-title">ANWENDEN</p>'+navLink('code','Code-Detective','🧩')+navLink('writing','Code-Schreibtrainer','✍️')+navLink('transfer','PA-Transferaufgaben','🧠')+navLink('extras','Extra Extensions','🔥')+
- '<p class="nav-title">ENDGAME</p>'+navLink('boss','1. PA · Bosskampf','👑')+
+ '<p class="nav-title">ENDGAME</p>'+navLink('boss','1. PA · Bosskampf','👑')+navLink('sources','Quellen','📚')+
  '<div class="nav-bottom"><small>DEIN FORTSCHRITT</small><strong>'+p.lessons+' / '+D.lessons.length+' Lektionen</strong>'+progressBar(p.lessons,D.lessons.length)+'<p>☁ Spielstand mit Studyverse verbunden</p><a href="../../">↩ Studyverse</a></div></aside>';
 }
 function home(){
@@ -270,10 +270,14 @@ function bossPage(){
  (answered?'<div class="feedback '+(correct?'right':'wrong')+'"><b>'+(correct?'✅ Richtig!':'❌ Leider falsch.')+'</b><p>'+h(q.explain)+'</p></div><div class="actions">'+choice(boss.at+1===boss.items.length?'Ergebnis ansehen 🏁':'Nächste Aufgabe →','boss-next','primary')+'</div>':'')+'</div>'+
  '<p class="exam-note">Der Boss prüft Transfer und Codeverständnis. 100 % schalten den exklusive Shop-Titel frei – der eigentliche C#-Programmiernachweis passiert weiterhin in Visual Studio.</p>';
 }
+function sources(){
+ return '<div class="eyebrow">QUELLEN</div><h1>Quellen</h1><section class="panel sources-list"><h2>Unterrichtsunterlagen · C#, Threading &amp; WPF</h2><p>Grundlage sind die Theorieunterlagen und praktischen Aufgaben der 1. PA. Die Lernkapitel nennen zusätzlich ihren jeweiligen Unterrichtsbezug.</p><ul>'+D.sources.map(source=>'<li>'+h(source)+'</li>').join('')+'</ul></section>';
+}
 function render(){
  // Initial entry only contains #app; #main is created by this first render.
  let page='';
  switch(view){
+  case 'sources':page=sources();break;
   case 'academy':page=academy();break;case 'vs':page=academy(true);break;
   case 'lesson':page=lessonPage();break;
   case 'code':case 'transfer':case 'extras':page=challengePage();break;
