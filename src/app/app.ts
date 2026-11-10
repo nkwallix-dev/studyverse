@@ -257,7 +257,7 @@ export class App implements OnInit,OnDestroy {
        this.changeDetector.markForCheck();
        // Every NEW cloud account gets its short Studyverse login name as the
        // initial public display nickname. Existing accounts' chosen names stay.
-       // Use session.username (e.g. "test"), NEVER test@studyverse.invalid.
+       // Use session.username (e.g. "test"), never a generated auth email address.
        if(this.cloud.session?.username)
          this.profile.nickname=this.cloud.session.username;
        this.nicknameEdit=this.profile.nickname;
