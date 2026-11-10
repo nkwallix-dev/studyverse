@@ -180,36 +180,22 @@
             <div class="drop-floating-art"><span class="drop-planet">🪐</span><span class="drop-spark">✦</span></div>
           </div>
 
-          <div class="section-heading drop-section-title"><div><div class="eyebrow">WÄHLE DEINEN DROP</div><h2>Shop-Kollektionen <span>✦</span></h2></div></div>
-          <div class="shop-drop-grid">
-            <button type="button" class="shop-drop-card" *ngFor="let drop of drops"
-              [class.selected]="shopDrop===drop.id" [class.upcoming]="drop.status==='upcoming'"
-              (click)="chooseDrop(drop.id)">
-              <div class="drop-card-top"><span class="drop-icon">{{drop.icon}}</span><span class="drop-card-status" [class.live]="drop.status==='live'">{{drop.status==='live'?'● LIVE':'✧ COMING SOON'}}</span></div>
-              <strong>{{drop.title}}</strong>
-              <p>{{drop.description}}</p>
-              <div class="drop-card-bottom">
-                <span>{{drop.subtitle}}</span>
-                <b>{{drop.status==='live'?dropOwnedCount(drop.id)+' / '+dropItemCount(drop.id)+' Items':'Bald verfügbar'}}</b>
-              </div>
-            </button>
-          </div>
-
-          <div class="drop-stage" *ngIf="selectedDrop as d">
-            <div class="drop-stage-head">
-              <div class="drop-stage-icon">{{d.icon}}</div>
-              <div class="drop-stage-text"><div class="eyebrow">{{d.subtitle}} · {{d.status==='live'?'ACTIVE DROP':'UPCOMING DROP'}}</div>
-                <h2>{{d.title}}</h2><p>{{d.description}}</p></div>
-              <div class="drop-stage-numbers" *ngIf="d.status==='live'"><b>{{dropUnlocked}} / {{dropItems.length}}</b><small>FREIGESCHALTET ODER BESITZ</small></div>
+          <div class="section-heading lower shop-items-heading">
+            <div class="shop-items-heading-main">
+              <h2>Alle Items <span>✦</span></h2>
+              <small class="shop-current-drop">{{selectedDrop.icon}} {{dropOwned}} / {{dropItems.length}} · {{selectedDrop.title}}</small>
             </div>
-            <div *ngIf="shopDrop==='global'" class="drop-guide">⚡ Pro Profil-Level werden höchstens zwei neue Items zum Kauf freigeschaltet. Absolute Null wartet auf Level 12, Reaktor-Kern auf Level 13 und der legendäre Goldrahmen auf Level 15. Alles funktioniert in sämtlichen Lernwelten – bereits gekaufte Items bleiben erhalten.</div>
-            <div *ngIf="d.status==='upcoming'" class="drop-guide">🤖 Der DSAI-Drop ist mit dem neuen Trainer verfügbar. Dann gibt's neue Items, Level-Freischaltungen und eigene Lernfortschritt-Sperren.</div>
+            <label class="shop-drop-picker">
+              <span>WÄHLE DEINEN DROP</span>
+              <select id="shop-drop-select" aria-label="Drop-Kollektion auswählen"
+                [ngModel]="shopDrop" (ngModelChange)="chooseDrop($event)">
+                <option *ngFor="let drop of drops" [value]="drop.id">{{drop.icon}} {{drop.title}}{{drop.status==='upcoming'?' · Bald verfügbar':''}}</option>
+              </select>
+            </label>
           </div>
-
-
-
+          <p class="shop-drop-hint" *ngIf="shopDrop==='global'">⚡ Maximal 2 neue Level-Items pro Stufe · ❄️ Absolute Null: Lv 12 · 🌋 Reaktor-Kern: Lv 13 · ⚜️ Legenden-Rahmen: Lv 15</p>
+          <p class="shop-drop-hint" *ngIf="selectedDrop.status==='upcoming'">✧ Diese Kollektion ist noch nicht spielbar. Wähle einen anderen Drop.</p>
           <ng-container *ngIf="selectedDrop.status==='live'">
-            <div class="section-heading lower"><div><div class="eyebrow">COLLECTION · {{selectedDrop.title}}</div><h2>Alle Items <span>✦</span></h2></div><span class="pill">{{dropOwned}} / {{dropItems.length}} gekauft oder erhalten</span></div>
             <div class="chips shop-category-chips">
               <button type="button" *ngFor="let g of shopCategories" [class.selected]="shopGroup===g" (click)="shopGroup=g">
                 {{g==='Alle'?'Alle':groupLabel(g)}} <small *ngIf="g==='Alle'">({{dropItems.length}})</small>
