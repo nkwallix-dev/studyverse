@@ -199,6 +199,8 @@ async function main(){
   // 1440 × 900 desktop: profile settings should fit without scrolling.
   const desktop=await browser.newContext({viewport:{width:1440,height:900}});
   const desktopPage=await desktop.newPage();
+  // Dismiss the one-time legacy import welcome veil, as in the phone checks.
+  await desktopPage.addInitScript(()=>localStorage.setItem('studyverse_import_prompt_seen_v1','1'));
   await desktopPage.goto(base,{waitUntil:'load'});
   await desktopPage.locator('.top-profile-link').click();
   await desktopPage.locator('.profile-view').waitFor();
