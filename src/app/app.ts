@@ -229,7 +229,12 @@ export class App implements OnInit,OnDestroy {
      if(this.cloud.session)this.cloudMode='login';
    }finally{
      this.cloudConfigured=this.cloud.configured;this.cloudReady=true;
-     if(this.cloud.session&&this.cloudMaySave)this.queueCloudSave();
+     if(this.cloud.session&&this.cloudMaySave){
+       // Existing accounts also need a public directory entry after re-opening Studyverse.
+       // Do not require a new XP gain, a private-save change, or a Friends-page visit.
+       void this.publishPlayerProfile();
+       this.queueCloudSave();
+     }
      this.changeDetector.markForCheck();
    }
  }
@@ -245,7 +250,8 @@ export class App implements OnInit,OnDestroy {
        authenticated=true;
        this.cloudStage='Spielstand wird online gespeichert …';
        this.changeDetector.markForCheck();
-       if(this.profile.nickname==='Explorer')this.profile.nickname=this.cloud.session!.username;
+       // Login usernames must never be copied into the PUBLIC display nickname.
+       // The user can choose an independent nickname in Mein Profil.
        this.nicknameEdit=this.profile.nickname;
        this.intro=false;write(INTRO,'1');
        await this.cloud.save(this.cloudSnapshot());
