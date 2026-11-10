@@ -39,6 +39,9 @@ jobs:
       - name: Test DSAIVERSE lessons, mini-games and Boss
         run: node scripts/test-dsaiverse.cjs
 
+      - name: Test Sharpverse first PA, writing lab and threading simulations
+        run: node scripts/test-sharpverse.cjs
+
       - name: Verify STUDYVERSE backup transfer (old and new saves)
         run: node scripts/test-save-transfer.cjs
 
