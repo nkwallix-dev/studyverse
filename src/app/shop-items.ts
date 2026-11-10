@@ -10,7 +10,8 @@ export interface ShopItem {
 export const SHOP_DROPS:ShopDrop[]=[
  {id:'global',icon:'🌐',title:'STUDYVERSE Essentials',subtitle:'Profil-Level',description:'Zeitlose Basics, Fonts, Effekte und Profilstyles. Höhere Profil-Level öffnen weitere Angebote.',status:'live'},
  {id:'nawi-test-01',icon:'🧪',title:'Chemverse 1. Test',subtitle:'Lernfortschritt',description:'Exklusiver Chemie-Loot. Werde in der Lernakademie und den Übungsmodi besser, um Items freizuschalten.',status:'live'},
- {id:'dsai-test-01',icon:'🤖',title:'Dsaiverse · 1. Test',subtitle:'Lernfortschritt',description:'Exklusiver Data-Science-Loot aus NumPy, Pandas, KI, Statistik und den Prozess-Minispielen.',status:'live'}
+ {id:'dsai-test-01',icon:'🤖',title:'Dsaiverse · 1. Test',subtitle:'Lernfortschritt',description:'Exklusiver Data-Science-Loot aus NumPy, Pandas, KI, Statistik und den Prozess-Minispielen.',status:'live'},
+ {id:'pos-pa-01',icon:'♯',title:'Sharpverse · 1. PA',subtitle:'C# · Threads · WPF',description:'Wortspiele, Weltraum-Schafe, spielerische Karten-Banner und Prestige-Items für Code-Versteher.',status:'live'}
 ];
 export const SHOP_ITEMS:ShopItem[]=[
 {id:'neon',kind:'theme',icon:'🟢',name:'Toxic Neon',cost:160,desc:'Grün-violette Labornacht. Leuchtet schon beim Anschauen.',group:'theme',bg:'linear-gradient(125deg,#2f104d,#85ff50)',drop:'nawi-test-01',requirement:{metric:'academy',value:3}},
@@ -90,4 +91,20 @@ export const SHOP_ITEMS:ShopItem[]=[
 {id:'g_font_compact',kind:'font',icon:'🔠',name:'Compact UI',cost:120,desc:'Platzsparender Font für lange Lernsessionen.',group:'font',equip:'compact',drop:'global',level:8},
 {id:'g_cloud_banner',kind:'banner',icon:'☁️',name:'Cloudy Sky',cost:155,desc:'Ruhiger Himmel über deinem Dashboard.',group:'banner',equip:'cloud',drop:'global',level:10},
 {id:'g_dotted_atm',kind:'atm',icon:'🔹',name:'Dots & Lines',cost:180,desc:'Ein dezentes Punkte-Raster auf allen Seiten.',group:'atm',equip:'dots',drop:'global',level:11},
+
+// SHARPVERSE DROP · first practical assessment
+{id:'sharp_sheep',kind:'avatar',icon:'🐑',name:'Scharfes Schaf',cost:125,desc:'Mäh. Das schärfste Schaf in C#.',group:'avatar',drop:'pos-pa-01',requirement:{metric:'academy',value:1}},
+{id:'sharp_scissors',kind:'avatar',icon:'✂️',name:'Sharp Object',cost:135,desc:'C# ist scharf – diese Schere auch. Wortspiel-Level: 100.',group:'avatar',drop:'pos-pa-01',requirement:{metric:'draw',value:4}},
+{id:'sharp_ram',kind:'avatar',icon:'🐏',name:'Thread-Hirte',cost:195,desc:'Wolle in vielen Threads, aber kein einziger Deadlock.',group:'avatar',drop:'pos-pa-01',requirement:{metric:'academy',value:8}},
+{id:'sharp_title_thread',kind:'title',icon:'🧵',name:'Threadstarter',cost:130,desc:'Ein paar Threads gestartet, ohne Visual Studio anzuzünden.',group:'title',drop:'pos-pa-01',requirement:{metric:'academy',value:5}},
+{id:'sharp_title_lock',kind:'title',icon:'🔒',name:'Lockpicker',cost:210,desc:'Sperrt kritische Abschnitte, nicht seine Zukunft.',group:'title',drop:'pos-pa-01',requirement:{metric:'draw',value:15}},
+{id:'sharp_title_spermann',kind:'title',icon:'👑',name:'Professor Spermann',cost:210,desc:'Prestige-Titel: 100 % im Sharpverse-1.-PA-Bosskampf – keine 99, kein Mitleid.',group:'title',drop:'pos-pa-01',requirement:{metric:'boss',value:100}},
+{id:'sharp_solitaire',kind:'banner',icon:'🃏',name:'Solitaire Cascade',cost:220,desc:'Die legendären herabfallenden Spielkarten vom Windows-Solitaire-Sieg als bewegtes Dashboard-Banner.',group:'banner',equip:'solitaire',drop:'pos-pa-01',requirement:{metric:'academy',value:2}},
+{id:'sharp_pink',kind:'banner',icon:'💗',name:'Pink Paradise',cost:190,desc:'Ein richtig rosa Banner mit Herzchen, Blüten und sanftem Glitzern. :3',group:'banner',equip:'pink_paradise',drop:'pos-pa-01',requirement:{metric:'academy',value:4}},
+{id:'sharp_schematic',kind:'banner',icon:'🧬',name:'Parallel Pulse',cost:235,desc:'Pulsierende Leiterbahnen und Datenströme auf deinem Dashboard.',group:'banner',equip:'parallel_pulse',drop:'pos-pa-01',requirement:{metric:'draw',value:10}},
+{id:'sharp_font',kind:'font',icon:'🩷',name:'Velvet Voltage',cost:180,desc:'Ungewöhnlich weich, prägnant und geometrisch – absichtlich weder Terminal- noch Standardschrift.',group:'font',equip:'velvet_voltage',drop:'pos-pa-01',requirement:{metric:'academy',value:6}},
+{id:'sharp_theme',kind:'theme',icon:'♯',name:'Violet Overclock',cost:320,desc:'Kühles Nachtviolett trifft neonpinke Signalleitungen.',group:'theme',bg:'linear-gradient(125deg,#110d29,#663fa8 56%,#f27aa8)',drop:'pos-pa-01',requirement:{metric:'draw',value:16}},
+// Two GLOBAL VFX unlock before level 7; unlike the old Confetti-only experience.
+{id:'g_thread_sparks',kind:'extra',icon:'⚡',name:'Thread Sparks',cost:160,desc:'Leuchtende Datenfunken jagen über die Oberfläche – neues Effekt-Item ab Profil-Level 4.',group:'fx',equip:'thread_sparks',drop:'global',level:4},
+{id:'g_pulse_rings',kind:'extra',icon:'🟣',name:'Pulse Rings',cost:190,desc:'Sanfte konzentrische Signalringe pulsieren im Dashboard – neues Effekt-Item ab Profil-Level 6.',group:'fx',equip:'pulse_rings',drop:'global',level:6},
 ];
