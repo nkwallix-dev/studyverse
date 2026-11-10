@@ -670,3 +670,37 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @media(max-width:660px) {
   :is(.drop-item,.inventory-item) .item-title-row .item-name{font-size:17px}
 }
+
+
+/* A single compact Drop selector replaces the old multi-row collection cards.
+   Native select works on phones and with keyboard navigation. */
+.shop-items-heading{display:flex;align-items:center;justify-content:space-between;gap:13px;margin:18px 0 12px!important;flex-wrap:wrap}
+.shop-items-heading-main{min-width:0;flex:1 1 240px}
+.shop-items-heading-main h2{margin:0 0 3px}
+.shop-current-drop{display:block;color:var(--muted);font-size:11px;font-weight:750}
+.shop-drop-picker{display:flex;align-items:center;gap:11px;flex:0 1 390px;min-width:0}
+.shop-drop-picker>span{font-size:10px;font-weight:900;letter-spacing:1px;color:var(--muted);white-space:nowrap}
+.shop-drop-picker select{
+  display:block;min-height:44px;width:100%;min-width:0;flex:1;
+  appearance:auto;border-radius:11px;border:1px solid color-mix(in srgb,var(--accent),var(--border) 42%);
+  background:var(--card2);color:var(--text);
+  padding:9px 12px;font:inherit;font-size:13px;font-weight:800;
+  cursor:pointer
+}
+.shop-drop-picker select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.shop-drop-picker option{background:var(--card2);color:var(--text)}
+.shop-drop-hint{font-size:11px;line-height:1.5;margin:0 0 11px;color:var(--muted)}
+.shop-items-heading+.shop-category-chips{margin-top:10px}
+@media(max-width:660px){
+  .shop-items-heading{gap:7px}
+  .shop-items-heading-main{flex:1 1 130px}
+  .shop-items-heading-main h2{font-size:23px}
+  .shop-drop-picker{flex:1 1 180px;justify-content:flex-end;gap:0}
+  .shop-drop-picker>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .shop-drop-picker select{font-size:12px;min-height:42px;max-width:230px}
+  .shop-current-drop{font-size:10px}
+}
+@media(max-width:370px){
+  .shop-drop-picker{flex-basis:100%}
+  .shop-drop-picker select{max-width:100%}
+}
