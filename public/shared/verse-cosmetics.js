@@ -61,6 +61,8 @@ function refreshFx(fx){
   for(let i=0;i<9;i++){
    const span=document.createElement('i');
    span.style.setProperty('--i',i);
+   span.style.left=(6+i*11)+'%';
+   span.style.top=(10+(i%4)*21)+'%';
    span.textContent=symbol;
    layer.appendChild(span);
   }
