@@ -1,0 +1,109 @@
+/* Shared cosmetic renderer for Chemverse, Dsaiverse and Sharpverse.
+   All values come from the SAME Studyverse account equipment in localStorage.
+   Decorative overlays cannot block clicks or modify progress. */
+:root { --verse-pink:#f8a3da; --verse-cyan:#80f6e3; }
+body[data-theme="sharp_theme"]{--bg:#110d27;--bg2:#1b1436;--side:#1c1538;--sidebar-bg:#1c1538;--panel:#281c47;--card:#291d47;--card2:#1e1638;--surface:#2b1f46;--surface2:#38265d;--surface3:#493875;--border:#784d9f;--accent:#eeb3ff;--accent2:#87f5dc;--aqua:#87f5dc;--ink:#f8efff;--text:#f8efff;--muted:#c8b2de}
+body[data-theme="sharp_cutline"]{--bg:#070e20;--bg2:#0c1831;--side:#0c1831;--panel:#132b44;--card:#172e49;--card2:#10223a;--surface:#17334a;--surface2:#254860;--surface3:#365875;--border:#386c88;--accent:#91f3ed;--accent2:#f3a3de;--aqua:#91f3ed;--ink:#e9fbff;--text:#e9fbff;--muted:#a4cee2}
+body[data-theme="dsai_neural"]{--bg:#130c2a;--bg2:#1d1140;--side:#1d1140;--panel:#27204d;--card:#2b2251;--card2:#221a3f;--surface:#2b2350;--surface2:#3c2e65;--border:#8062be;--accent:#cf9eff;--accent2:#8cffe8;--aqua:#8cffe8;--ink:#fff3ff;--text:#fff3ff;--muted:#d0b8e5}
+body[data-theme="dsai_terminal"]{--bg:#071c19;--bg2:#0b2623;--side:#0b2623;--panel:#15362c;--card:#15362c;--card2:#0d2b22;--surface:#15392c;--surface2:#1b4837;--border:#347d63;--accent:#8dffd2;--accent2:#e4f8a9;--aqua:#8dffd2;--ink:#e7fff6;--text:#e7fff6;--muted:#a9dac3}
+body[data-theme="neon"]{--bg:#0d0919;--side:#141024;--card:#261a36;--card2:#1a1230;--panel:#261a36;--border:#75458e;--accent:#b6ff75;--aqua:#b6ff75}
+body[data-theme="pizza"]{--bg:#25130c;--side:#28160e;--card:#3e271c;--card2:#302019;--panel:#3e271c;--border:#935a39;--accent:#ffd27a;--aqua:#ffca91}
+body[data-theme="cosmic"]{--bg:#090c24;--side:#11143d;--card:#22234a;--card2:#191b3b;--panel:#22234a;--border:#6256a7;--accent:#d3a6ff;--aqua:#8cf0f9}
+body[data-theme="lava"]{--bg:#210c13;--side:#31131b;--card:#3f2226;--card2:#331b20;--panel:#3f2226;--border:#95473f;--accent:#ffbf86;--aqua:#ffd69b}
+body[data-theme="frost"]{--bg:#071b29;--side:#0e2a3d;--card:#183c53;--card2:#102d42;--panel:#183c53;--border:#36748e;--accent:#beefff;--aqua:#84ffe9}
+body[data-theme="sakura"]{--bg:#29132b;--side:#371b37;--card:#48243f;--card2:#392038;--panel:#48243f;--border:#98567e;--accent:#ffc0e4;--aqua:#e9b4ff}
+body[data-theme="matrix"]{--bg:#05170b;--side:#092213;--card:#193c25;--card2:#112b1a;--panel:#193c25;--border:#488658;--accent:#91ff9a;--aqua:#91ff9a}
+body[data-theme="arcade"]{--bg:#180d2b;--side:#271542;--card:#382455;--card2:#2b1c44;--panel:#382455;--border:#8d53b6;--accent:#ff99ef;--aqua:#a2f5ff}
+body[data-theme="sunset"]{--bg:#2a1225;--side:#351a32;--card:#46243f;--card2:#361b36;--panel:#46243f;--border:#a76091;--accent:#ffc591;--aqua:#ffb3d1}
+body[data-theme="paper"]{--bg:#ecdfc9;--side:#e0d2b8;--card:#fff4df;--card2:#f3e7d3;--panel:#fff4df;--border:#b4a188;--accent:#864d31;--aqua:#345d58;--ink:#37251e;--text:#37251e;--muted:#6a5849}
+body[data-theme="hologram"]{--bg:#071d29;--side:#0d2f3d;--card:#1b3c4b;--card2:#123340;--panel:#1b3c4b;--border:#4b8394;--accent:#80fff2;--aqua:#80fff2}
+body[data-theme="blueprint"]{--bg:#071527;--side:#112b44;--card:#19334d;--card2:#122940;--panel:#19334d;--border:#3677a1;--accent:#a3eaff;--aqua:#a3eaff}
+body[data-theme="dsai_neural"] .hero,body[data-theme="sharp_theme"] .hero{background:radial-gradient(circle at 80% 28%,#c88cff64,transparent 43%),linear-gradient(120deg,#1c153d,#5b327c)!important}
+body[data-theme="sharp_cutline"] .hero,body[data-theme="dsai_terminal"] .hero{background:radial-gradient(circle at 79% 50%,#29d5da55,transparent 48%),linear-gradient(120deg,#09172b,#26456a)!important}
+body[data-theme="sakura"] .hero{background:radial-gradient(circle at 75% 42%,#ffbddd77,transparent 48%),linear-gradient(115deg,#452142,#bd7197)!important}
+body[data-theme="frost"] .hero{background:linear-gradient(115deg,#113b59,#509cb0)!important}
+body[data-theme="lava"] .hero{background:linear-gradient(115deg,#401b25,#b94d32)!important}
+body[data-theme="cosmic"] .hero{background:radial-gradient(circle at 85% 34%,#ac82ff82,transparent 37%),linear-gradient(115deg,#14103d,#4f2c88)!important}
+body[data-theme="paper"] .hero{background:linear-gradient(115deg,#e6d0a7,#f8ebd0)!important;color:#392a23}
+/* Abstract world texture: always visible even if the cards are solid-colored. */
+.verse-atmosphere{
+  position:fixed;inset:0;z-index:16;pointer-events:none;
+  opacity:0;background-repeat:repeat;transition:opacity .25s ease;
+}
+body[data-atm="stars"] .verse-atmosphere{opacity:.46;background:radial-gradient(circle,#faffff 1.4px,transparent 2.6px) 0 0/77px 97px,radial-gradient(circle,#b8b2ff 1.8px,transparent 3.2px) 22px 33px/151px 177px;animation:verse-drift 28s linear infinite}
+body[data-atm="dots"] .verse-atmosphere{opacity:.55;background:radial-gradient(circle,#e7ceff 0 3px,transparent 4.3px) 4px 7px/103px 96px,radial-gradient(circle,#93ffef 0 2px,transparent 3.2px) 40px 34px/143px 127px,repeating-linear-gradient(28deg,transparent 0 94px,#ab9aff80 95px 96px,transparent 97px 191px),repeating-linear-gradient(150deg,transparent 0 136px,#7fe7f480 137px 138px,transparent 139px 265px);animation:verse-drift 30s linear infinite}
+body[data-atm="grid"] .verse-atmosphere{opacity:.4;background:linear-gradient(#65effe7c 1px,transparent 1px) 0 0/51px 51px,linear-gradient(90deg,#65effe7c 1px,transparent 1px) 0 0/51px 51px}
+body[data-atm="ionstorm"] .verse-atmosphere,body[data-atm="laser"] .verse-atmosphere{opacity:.42;background:repeating-linear-gradient(119deg,transparent 0 88px,#be9bff88 89px 91px,transparent 92px 186px);animation:verse-drift 16s linear infinite}
+body[data-atm="bubbles"] .verse-atmosphere{opacity:.45;background:radial-gradient(circle at 28% 40%,transparent 8px,#b2eaffc4 9px 11px,transparent 12px) 0 0/153px 164px,radial-gradient(circle at 72% 50%,transparent 15px,#91f2df91 16px 18px,transparent 19px) 0 0/205px 224px;animation:verse-rise 25s linear infinite}
+body[data-atm="snow"] .verse-atmosphere{opacity:.57;background:radial-gradient(circle,#e7fbff 2px,transparent 3px) 0 0/111px 93px,radial-gradient(circle,#b7e4ff 1.5px,transparent 3px) 17px 31px/76px 129px;animation:verse-rise 22s linear infinite}
+body[data-atm="confetti"] .verse-atmosphere{opacity:.45;background:radial-gradient(circle,#ffe7a4 3px,transparent 4px) 0 0/89px 138px,radial-gradient(circle,#f6a5d9 2.4px,transparent 3px) 38px 24px/129px 119px}
+body[data-atm="sparkles"] .verse-atmosphere{opacity:.55;background:radial-gradient(circle,#fff2c4 2px,transparent 5px) 0 0/90px 103px,radial-gradient(circle,#b7fff3 2px,transparent 4px) 27px 22px/151px 172px;animation:verse-glimmer 5s ease-in-out infinite alternate}
+body[data-atm="atom_orbit"] .verse-atmosphere{opacity:.55;background:radial-gradient(ellipse 22px 9px at 35% 40%,transparent 87%,#7afae1 94%,transparent 98%),radial-gradient(ellipse 11px 24px at 35% 40%,transparent 87%,#d1adff 94%,transparent 98%);background-size:168px 161px;animation:verse-drift 26s linear infinite}
+body[data-atm="binary"] .verse-atmosphere{opacity:.45;background:repeating-linear-gradient(0deg,transparent 0 18px,#68d8b95c 19px 20px,transparent 21px 45px),repeating-linear-gradient(90deg,transparent 0 50px,#84fce67d 51px 53px,transparent 54px 120px);background-size:143px 171px;animation:verse-rise 14s linear infinite}
+body[data-atm="nodes"] .verse-atmosphere{opacity:.44;background:radial-gradient(circle,#e1c0ff 0 5px,transparent 6px) 0 0/171px 153px,radial-gradient(circle,#83fff1 0 4px,transparent 6px) 65px 55px/195px 195px,repeating-linear-gradient(39deg,transparent 0 99px,#a99df475 100px 102px,transparent 103px 211px)}
+body[data-atm="sharp_rain"] .verse-atmosphere{opacity:.42;background:repeating-linear-gradient(0deg,transparent 0 28px,#6bf8d75b 29px 30px,transparent 31px 95px),repeating-linear-gradient(90deg,transparent 0 60px,#d09aff53 61px 63px,transparent 64px 132px);animation:verse-rise 17s linear infinite}
+body[data-atm="sharp_rain"] .verse-atmosphere:after{content:"♯    { }     =>      lock      ♯      async       .cs      ♯       new()";position:absolute;inset:0;white-space:pre-wrap;word-spacing:45px;font:700 20px/5 Consolas,monospace;color:#7fffe0}
+body[data-atm="sharp_wool"] .verse-atmosphere{opacity:.43;background:radial-gradient(ellipse 90px 37px at 35% 55%,transparent 91%,#ffd1e2b9 94%,transparent 98%),radial-gradient(ellipse 37px 87px at 35% 55%,transparent 91%,#a6b5ffac 94%,transparent 98%),radial-gradient(circle,#fff4d5 0 4px,transparent 5px);background-size:167px 143px,167px 143px,135px 131px;animation:verse-drift 31s linear infinite}
+@keyframes verse-drift{from{background-position:0 0,0 0,0 0,0 0}to{background-position:60px 180px,-70px 150px,80px 100px,120px 190px}}
+@keyframes verse-rise{from{background-position:0 0,0 0,0 0}to{background-position:0 -250px,30px -170px,0 -200px}}
+@keyframes verse-glimmer{from{filter:brightness(.8)}to{filter:brightness(1.5)}}
+/* Equipped frames: cards, never the topbar, avatar or other frame equipment. */
+body[data-frame="gold"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:2px solid #ffd073!important;box-shadow:0 0 15px #ffbe4b38,inset 0 0 12px #ffda7b16}
+body[data-frame="legend"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:2px solid #fce29b!important;box-shadow:0 0 10px #ffd95d9e,0 0 27px #ffbd3690,inset 0 0 13px #f8cc5681}
+body[data-frame="glow"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:2px solid #91ffec!important;box-shadow:0 0 18px #7dfade75}
+body[data-frame="pixel"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:3px solid #93e9f4!important;border-radius:2px!important;box-shadow:5px 5px 0 #6165bc58}
+body[data-frame="dashed"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:2px dashed #c5b1f6!important}
+body[data-frame="prism"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:2px solid #aab7ff!important;box-shadow:3px 0 13px #ff9c9d55,-3px 0 13px #86f7ec55}
+body[data-frame="dataframe"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:2px solid #86ddbd!important;box-shadow:inset 0 0 0 4px #409c8166}
+body[data-frame="neural"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:2px solid #b89dff!important;box-shadow:0 0 18px #998cf175}
+body[data-frame="safety"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:2px solid #ecc54b!important;box-shadow:0 0 0 2px #161208,0 8px 20px #ebb42c28}
+body[data-frame="soft"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:2px solid #c2c5f6!important;border-radius:24px!important;box-shadow:0 7px 24px #949ee83a}
+/* All supported global fonts, no per-verse subset. */
+body[data-font="mono"]{font-family:"Cascadia Code",Consolas,monospace!important}
+body[data-font="serif"]{font-family:Georgia,serif!important}
+body[data-font="comic"]{font-family:"Comic Sans MS","Trebuchet MS",cursive!important}
+body[data-font="wide"]{font-family:"Trebuchet MS",Verdana,sans-serif!important;letter-spacing:.35px}
+body[data-font="compact"]{font-family:"Arial Narrow","Segoe UI",sans-serif!important;letter-spacing:-.5px}
+body[data-font="velvet_voltage"]{font-family:"Unbounded","Trebuchet MS",sans-serif!important;letter-spacing:-.3px}
+/* Equipped banners are rendered as actual media inside dynamic trainer heroes. */
+.hero{isolation:isolate}
+.hero > :not(.verse-banner){position:relative;z-index:2}
+.verse-banner{position:absolute;inset:0;z-index:1;display:none;pointer-events:none;overflow:hidden;border-radius:inherit}
+body[data-banner]:not([data-banner="default"]):not([data-banner="none"]) .hero .verse-banner{display:block}
+.verse-banner span{position:absolute;display:block;line-height:1;font-size:clamp(32px,7vw,88px);filter:drop-shadow(0 6px 18px #0004);animation:verse-float 6s ease-in-out infinite alternate}
+.verse-banner span:nth-child(1){right:8%;top:5%}
+.verse-banner span:nth-child(2){right:30%;top:52%;animation-delay:-2s;font-size:clamp(24px,4vw,58px)}
+.verse-banner span:nth-child(3){right:2%;bottom:5%;animation-delay:-4s;font-size:clamp(26px,4.2vw,64px)}
+body[data-banner="cloud"] .hero{background:radial-gradient(circle at 72% 31%,#a4ddfca1,transparent 48%),linear-gradient(120deg,#284785,#609aca 75%,#acdaf1)!important}
+body[data-banner="pink_paradise"] .hero{background:radial-gradient(circle at 80% 27%,#fff1faab,transparent 40%),linear-gradient(120deg,#73345d,#d06a9f 60%,#fec9e5)!important}
+body[data-banner="solitaire"] .hero{background:radial-gradient(circle at 75% 30%,#69c68b7d,transparent 42%),linear-gradient(120deg,#0b3329,#27724c 68%,#146d4f)!important}
+body[data-banner="solitaire"] .verse-banner .verse-card{background:#fff;color:#d94d74;border-radius:8px;border:2px solid white;box-shadow:0 8px 10px #042a2977;padding:14px 9px;line-height:1.1;font:900 clamp(24px,3vw,45px)/1.2 Georgia,serif;transform:rotate(-15deg);animation:verse-card-fall 4s ease-in-out infinite alternate}
+body[data-banner="solitaire"] .verse-banner .verse-card:nth-child(2){color:#29384f;transform:rotate(19deg)}
+body[data-banner="gold"] .hero{background:radial-gradient(circle at 75% 20%,#fdeb9777,transparent 45%),linear-gradient(120deg,#4e3417,#c59a3d 75%,#f6c365)!important}
+body[data-banner="warning"] .hero{background:radial-gradient(circle at 85% 30%,#eafc7078,transparent 42%),linear-gradient(120deg,#3e2e0b,#9a8023 74%,#e7bc47)!important}
+body[data-banner="galaxy"] .hero{background:radial-gradient(circle at 75% 38%,#a76efaba,transparent 45%),linear-gradient(120deg,#101236,#302275 74%,#572f98)!important}
+body[data-banner="molecule"] .hero{background:radial-gradient(circle at 80% 40%,#8dffed78,transparent 43%),linear-gradient(120deg,#0d3143,#296578)!important}
+body[data-banner="flow"] .hero{background:linear-gradient(125deg,#1e2755,#3f6994 80%,#5c8f9f)!important}
+body[data-banner="curve"] .hero{background:radial-gradient(circle at 82% 24%,#fa9bc277,transparent 45%),linear-gradient(120deg,#1b1e45,#6e4a9f)!important}
+body[data-banner="parallel_pulse"] .hero{background:repeating-linear-gradient(125deg,#252750 0 19px,#3b4987 20px 21px,#262b56 23px 51px)!important}
+@keyframes verse-float{from{translate:0 10px;rotate:-4deg}to{translate:0 -13px;rotate:7deg}}
+@keyframes verse-card-fall{from{translate:0 -18px;rotate:-9deg}to{translate:10px 22px;rotate:12deg}}
+/* Equipped effects are decorative foreground elements across ALL trainers. */
+.verse-fx{position:fixed;inset:0;pointer-events:none;z-index:30;display:none;overflow:hidden}
+body[data-fx]:not([data-fx="none"]) .verse-fx{display:block}
+.verse-fx i{position:absolute;font-style:normal;left:calc(7% + 11% * var(--i));top:calc(13% + 8% * (var(--i) % 4));font-size:20px;opacity:.62;animation:verse-fx-drift 5s ease-in-out infinite alternate;animation-delay:calc(-.7s * var(--i));filter:drop-shadow(0 0 11px #bbdfff)}
+body[data-fx="pulse_rings"] .verse-fx i{border:2px solid #d1b5ff;width:70px;height:70px;border-radius:50%;font-size:0;box-shadow:0 0 0 14px #a4dcfc25,0 0 0 28px #b79aff14;opacity:.55}
+body[data-fx="effect_coinrain"] .verse-fx i{animation:verse-fx-fall 6s linear infinite}
+body[data-fx="thread_sparks"] .verse-fx i,body[data-fx="neural_spark"] .verse-fx i{color:#7ffff2;font-size:27px;animation:verse-fx-drift 3.5s ease-in-out infinite alternate}
+body[data-fx="effect_discoin"] .verse-fx i{filter:drop-shadow(0 0 15px #e4b0ff)}
+@keyframes verse-fx-drift{from{translate:0 23px;opacity:.15;rotate:-12deg}to{translate:9px -27px;opacity:.8;rotate:18deg}}
+@keyframes verse-fx-fall{from{translate:0 -150px;opacity:0}to{translate:8px 90vh;opacity:.65}}
+.verse-equipped-title{font-size:10px;font-weight:850;color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:10px;padding:6px 9px;white-space:nowrap;max-width:190px;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:670px){
+ .verse-equipped-title{display:none}
+ .verse-banner span:nth-child(2){right:15%;top:52%}
+ .verse-fx i{font-size:15px}
+}
+@media(prefers-reduced-motion:reduce){
+ .verse-atmosphere,.verse-banner span,.verse-fx i{animation:none!important}
+}
