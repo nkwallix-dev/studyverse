@@ -74,7 +74,7 @@ console.log('CHEMVERSE tests passed: syntax, daily caps, Boss scoring, repeat ch
 // Drop gate regression: learning worlds must NEVER require global profile levels.
 const catalog=fs.readFileSync('src/app/shop-items.ts','utf8');
 const items=catalog.split('\n').filter(line=>line.startsWith("{id:"));
-assert.equal(items.length,90,'Expected 90 cosmetics after adding the Sharpverse drop and two global effects');
+assert.equal(items.length,89,'The retired Professor Prestige theme must be removed without touching Professor Fischer');
 let global=0,chem=0,dsai=0,sharp=0;
 for(const item of items){
  if(item.includes("drop:'global'")){
@@ -90,7 +90,46 @@ for(const item of items){
    assert.doesNotMatch(item,/,level:\d+/,'Verse item MUST NOT have global level lock');
  }
 }
-assert.equal(global,35);assert.equal(chem,27);assert.equal(dsai,17);assert.equal(sharp,11);
+assert.equal(global,37);assert.equal(chem,24);assert.equal(dsai,17);assert.equal(sharp,11);
+
+// Every global profile level has at most two newly unlockable cosmetics.
+const globalByLevel=new Map();
+for(const line of items.filter(line=>line.includes("drop:'global'"))){
+ const id=line.match(/id:'([^']+)'/)[1],level=Number(line.match(/,level:(\d+)/)?.[1]);
+ assert(Number.isInteger(level)&&level>=2,'All global cosmetics must have a positive level gate: '+id);
+ globalByLevel.set(level,[...(globalByLevel.get(level)||[]),id]);
+}
+for(const [level,ids] of globalByLevel){
+ assert(ids.length<=2,'At most two global cosmetic unlocks at level '+level+': '+ids.join(', '));
+}
+for(const [id,level] of [['frost',12],['lava',13],['legend',15]]){
+ const line=items.find(x=>x.includes("id:'"+id+"'"));
+ assert(line?.includes("drop:'global',level:"+level),id+' must be available only from global level '+level);
+}
+assert(items.every(line=>!line.includes("name:'Professor Prestige'")),
+ 'Remove Professor Prestige theme, not the actual Professor Fischer prestige title');
+
+// Standalone Chemverse must keep the same cap for its own level-gated offers.
+const localShop=js.slice(js.indexOf('const SHOP=['),js.indexOf('];\nconst MENUS='));
+const localItems=localShop.split('\n').filter(x=>x.startsWith("{id:"));
+const localLevels=new Map();
+for(const line of localItems.filter(x=>/level:\d+/.test(x))){
+ const level=Number(line.match(/level:(\d+)/)[1]);
+ localLevels.set(level,[...(localLevels.get(level)||[]),line.match(/id:'([^']+)'/)[1]]);
+}
+for(const [level,ids] of localLevels){
+ assert(ids.length<=2,'At most two Chemverse level-gated cosmetics at level '+level+': '+ids.join(', '));
+}
+assert(!localItems.some(line=>line.includes("name:'Professor Prestige'")),
+ 'The duplicate retired Professor Prestige theme must also leave the standalone trainer');
+assert(localItems.some(line=>line.includes("id:'legend'")&&line.includes("cost:330,level:15")),
+ 'The golden glowing legend frame must be a Level-15 purchase in standalone Chemverse too');
+assert(localItems.some(line=>line.includes("id:'frost'")&&line.includes("level:12"))&&
+       localItems.some(line=>line.includes("id:'lava'")&&line.includes("level:13")),
+ 'Absolute Null and Reaktor-Kern must have matching Level-12/13 gates in Chemverse');
+assert(js.includes('legendLevel15MigrationV1')&&js.includes('state.purchased.legend=true'),
+ 'Players who legitimately owned the old free Level-5 legendary frame must keep it');
+
 const studyTs=fs.readFileSync('src/app/app.ts','utf8');
 assert.match(studyTs,/if\(item\.drop==='global'\)return this\.level>=\(item\.level\|\|1\)/,
  'Profile level gate applies only to global items');
@@ -99,7 +138,7 @@ assert.doesNotMatch(studyTs,/if\(this\.level<\(item\.level\|\|1\)\)return false/
 const studyHtml=fs.readFileSync('src/app/app.html','utf8');
 assert.doesNotMatch(studyHtml,/item\.drop!=='global' && item\.level/,
  'Do not show obsolete subject-drop profile level requirements');
-console.log('STUDYVERSE shop gate tests passed: 55 subject cosmetics require only learning progress; 35 global items use profile levels.');
+console.log('STUDYVERSE shop gate tests passed: 52 verse cosmetics and 37 carefully spaced global level items.');
 
 // Ensure the standalone trainer and global shop retain the same title ID, name and description.
 const shopCatalog=fs.readFileSync('src/app/shop-items.ts','utf8');
