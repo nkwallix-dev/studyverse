@@ -91,7 +91,7 @@ body[data-banner="parallel_pulse"] .hero{background:repeating-linear-gradient(12
 /* Equipped effects are decorative foreground elements across ALL trainers. */
 .verse-fx{position:fixed;inset:0;pointer-events:none;z-index:30;display:none;overflow:hidden}
 body[data-fx]:not([data-fx="none"]) .verse-fx{display:block}
-.verse-fx i{position:absolute;font-style:normal;left:calc(7% + 11% * var(--i));top:calc(13% + 8% * (var(--i) % 4));font-size:20px;opacity:.62;animation:verse-fx-drift 5s ease-in-out infinite alternate;animation-delay:calc(-.7s * var(--i));filter:drop-shadow(0 0 11px #bbdfff)}
+.verse-fx i{position:absolute;font-style:normal;left:calc(7% + 11% * var(--i));top:calc(8% + 8% * var(--i));font-size:20px;opacity:.62;animation:verse-fx-drift 5s ease-in-out infinite alternate;animation-delay:calc(-.7s * var(--i));filter:drop-shadow(0 0 11px #bbdfff)}
 body[data-fx="pulse_rings"] .verse-fx i{border:2px solid #d1b5ff;width:70px;height:70px;border-radius:50%;font-size:0;box-shadow:0 0 0 14px #a4dcfc25,0 0 0 28px #b79aff14;opacity:.55}
 body[data-fx="effect_coinrain"] .verse-fx i{animation:verse-fx-fall 6s linear infinite}
 body[data-fx="thread_sparks"] .verse-fx i,body[data-fx="neural_spark"] .verse-fx i{color:#7ffff2;font-size:27px;animation:verse-fx-drift 3.5s ease-in-out infinite alternate}
