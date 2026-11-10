@@ -556,6 +556,8 @@ export class App implements OnInit,OnDestroy {
    if(item.id==='effect_coinrain')return '🪙';
    if(item.id==='effect_discoin')return '🪩';
    if(item.id==='dsai_fx')return '✧';
+   if(item.id==='g_thread_sparks')return '⚡';
+   if(item.id==='g_pulse_rings')return '◯';
    return '🎊';
  }
  get previewParticleSlots(){return [0,1,2,3,4,5,6,7,8,9,10,11];}
