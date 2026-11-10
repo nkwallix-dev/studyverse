@@ -82,7 +82,7 @@ export const SHOP_ITEMS:ShopItem[]=[
 {id:'dsai_fx',kind:'extra',icon:'✨',name:'Neural Spark',cost:290,desc:'Neuronenfunkeln bei deinen Panels.',group:'fx',equip:'neural_spark',drop:'dsai-test-01',requirement:{metric:'boss',value:80}},
 {id:'g_soft_frame',kind:'frame',icon:'◽',name:'Soft Border',cost:145,desc:'Sanfte abgerundete Rahmen für jedes Verse.',group:'frame',equip:'soft',drop:'global',level:9},
 {id:'g_font_compact',kind:'font',icon:'🔠',name:'Compact UI',cost:120,desc:'Platzsparender Font für lange Lernsessionen.',group:'font',equip:'compact',drop:'global',level:11},
-{id:'g_cloud_banner',kind:'banner',icon:'☁️',name:'Cloudy Sky',cost:155,desc:'Ruhiger Himmel über deinem Dashboard.',group:'banner',equip:'cloud',drop:'global',level:17},
+{id:'g_cloud_banner',kind:'banner',icon:'☁️',name:'Cloudy Sky',cost:155,desc:'Dein erstes entspanntes Himmel-Banner – schon ab Profil-Level 5.',group:'banner',equip:'cloud',drop:'global',level:5},
 {id:'g_dotted_atm',kind:'atm',icon:'🔹',name:'Dots & Lines',cost:180,desc:'Ein dezentes Punkte-Raster auf allen Seiten.',group:'atm',equip:'dots',drop:'global',level:13},
 
 // SHARPVERSE DROP · first practical assessment
