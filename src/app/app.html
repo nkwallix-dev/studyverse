@@ -79,6 +79,15 @@
   <div class="banner-scene scene-parallel"><div class="parallel-grid"></div><span class="parallel-signal a">●</span><span class="parallel-signal b">●</span><span class="parallel-signal c">●</span><span class="parallel-symbol">♯</span></div>
 </div><div class="planet-stage"><div class="planet-glow"></div><div class="planet-orbit orbit-1"></div><div class="planet-orbit orbit-2"></div><div class="planet"><span>✦</span></div><div class="orbit-spark s1">✧</div><div class="orbit-spark s2">✦</div></div>
           </div>
+          <section class="level-card dashboard-level" aria-label="Dein Level-Fortschritt">
+            <div class="level-summary"><strong>LEVEL <span>{{level}}</span></strong><small>{{title}}</small></div>
+            <div class="level-meter">
+              <div class="progress-caption"><span>{{profile.xp-levelBegin}} / {{levelEnd-levelBegin}} XP</span><b>{{levelProgress}}%</b></div>
+              <div class="progress-track" role="progressbar" aria-label="Fortschritt zum nächsten Level" [attr.aria-valuenow]="levelProgress" aria-valuemin="0" aria-valuemax="100"><i [style.width.%]="levelProgress"></i></div>
+              <small>Noch {{levelEnd-profile.xp}} XP bis Level {{level+1}}</small>
+            </div>
+            <button class="rail-button" (click)="go('profile')">Deinen Fortschritt ansehen ↗</button>
+          </section>
           <section class="stats">
             <div class="stat"><div class="stat-icon purple">⚡</div><div><small>GESAMTE ERFAHRUNG</small><strong>{{profile.xp | number}} <span>XP</span></strong><p>Level {{level}} Explorer</p></div></div>
             <div class="stat"><div class="stat-icon gold">◉</div><div><small>DEINE TOKENS</small><strong>{{profile.tokens | number}}</strong><p>Im Item-Shop ausgeben ↗</p></div></div>
@@ -96,13 +105,6 @@
               <p class="dashboard-no-active" *ngIf="activeSubjects.length===0">Noch keine Lernwelt verfügbar. Schau unter „Lernwelten“ nach neuen Tests.</p>
             </section>
             <aside class="right-rail">
-              <div class="level-card">
-                <div class="eyebrow">DEIN FORTSCHRITT</div><div class="large-level">LEVEL <strong>{{level}}</strong></div><p>{{title}}</p>
-                <div class="progress-caption"><span>{{profile.xp-levelBegin}} / {{levelEnd-levelBegin}} XP</span><b>{{levelProgress}}%</b></div>
-                <div class="progress-track"><i [style.width.%]="levelProgress"></i></div>
-                <small>Noch {{levelEnd-profile.xp}} XP bis Level {{level+1}}</small>
-                <button class="rail-button" (click)="go('profile')">Deinen Fortschritt ansehen ↗</button>
-              </div>
               <div class="loot-card"><span>🎁</span><div class="eyebrow">DEIN INVENTAR</div><h3>Loot collected!</h3><p>Du besitzt {{claimed}} kosmetische Items. Zeit für einen frischen Style?</p><button (click)="go('shop')">Zum Item-Shop ↗</button></div>
               <div class="activity-card achievements-preview"><div class="eyebrow">🏆 ACHIEVEMENTS</div><h3>{{achievementTotals.done}} / {{achievementTotals.total}} gemeistert</h3><p>Deine Erfolge aus allen Tests an einem Ort.</p><button class="rail-button" (click)="go('achievements')">Alle Achievements ↗</button></div>
               <div class="activity-card"><div class="eyebrow">LETZTE AKTIVITÄTEN</div><div class="activity" *ngFor="let a of profile.activity.slice(0,3)"><span>✦</span>{{a.label}} <b>{{a.amount&&a.amount>0?'+':''}}{{a.amount||''}}</b></div><p *ngIf="!profile.activity.length">Noch keine Aktivität. Erkunde deine erste Lernwelt!</p></div>
