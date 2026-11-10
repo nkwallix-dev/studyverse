@@ -554,3 +554,74 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .shop-owned-toggle small{font-size:11px;color:var(--muted);font-weight:600}
 .shop-owned-empty{border:1px dashed var(--accent);padding:18px;border-radius:12px;color:var(--muted)}
 @media(prefers-reduced-motion:reduce){.universe[data-atm="nodes"],.universe[data-atm="atom_orbit"]{animation:none!important}}
+
+
+/* === SHARPVERSE COSMETICS / VICTORY SOLITAIRE & PINK PARADISE === */
+/* Scenes are identical for the actual dashboard and the live item-shop preview. */
+.universe[data-banner="solitaire"] :is(.scene-solitaire),
+.universe[data-banner="pink_paradise"] :is(.scene-pink),
+.universe[data-banner="parallel_pulse"] :is(.scene-parallel){display:block}
+.universe[data-banner="solitaire"] .hero:has(.banner-scenery){
+ background:radial-gradient(ellipse at 84% 70%,#267a4fb8,transparent 45%),linear-gradient(118deg,#102e32 5%,#155a43 55%,#278563)!important;
+ border-color:#6ae7b184;
+}
+.universe[data-banner="solitaire"] .hero:has(.banner-scenery) .hero-badge{background:#103e3b85;border-color:#9affc86e;color:#dbffee}
+.universe[data-banner="solitaire"] .hero:has(.banner-scenery) .btn.primary{background:linear-gradient(115deg,#aef8c7,#f4ffb3);color:#123322}
+.scene-solitaire .sol-table{position:absolute;right:1%;top:6%;width:50%;height:90%;border-radius:30px;transform:rotate(-8deg);background:repeating-linear-gradient(130deg,#f7df9322 0 1px,transparent 1px 21px);box-shadow:inset 0 0 100px #dcf4a711}
+.scene-solitaire .sol-card{position:absolute;top:20%;right:12%;width:clamp(58px,7vw,104px);height:clamp(86px,10.4vw,146px);background:linear-gradient(143deg,#fff,#e9efff);color:#263148;border:3px solid #fff;border-radius:11px;box-shadow:0 10px 16px #092d2680,0 0 0 1px #d5def7;display:flex;justify-content:space-between;flex-direction:column;padding:9px;font:900 clamp(19px,2vw,31px)/1 Georgia,serif;animation:sharp-solitaire-fall 3.9s ease-in-out infinite alternate}
+.scene-solitaire .sol-card b{text-align:center;font-size:clamp(39px,5vw,70px);font-weight:400;line-height:1.1}
+.scene-solitaire .sol-card.c1{right:9%;top:-7%;transform:rotate(23deg);animation-delay:0s}
+.scene-solitaire .sol-card.c2{right:20%;top:28%;color:#d83c6a;transform:rotate(-22deg);animation-delay:-1.1s}
+.scene-solitaire .sol-card.c3{right:4%;top:53%;color:#d83c6a;transform:rotate(13deg);animation-delay:-2.7s}
+.scene-solitaire .sol-card.c4{right:38%;top:5%;transform:rotate(-9deg);animation-delay:-1.8s}
+.scene-solitaire .sol-card.c5{right:34%;top:52%;color:#cf3e68;transform:rotate(16deg);animation-delay:-3.5s}
+.scene-solitaire .sol-star{position:absolute;right:5%;top:15%;color:#fff4ae;font-size:34px;text-shadow:0 0 20px #c9ffe6;animation:sharp-spark 2.8s ease-in-out infinite alternate}
+.scene-solitaire .sol-star.s2{right:47%;top:60%;font-size:22px;animation-delay:-1.4s}
+@keyframes sharp-solitaire-fall{0%{translate:0 -14px;filter:brightness(1)}50%{translate:9px 17px;filter:brightness(1.06)}100%{translate:0 -3px;filter:brightness(1)}}
+@keyframes sharp-spark{0%{opacity:.28;scale:.75}100%{opacity:1;scale:1.25}}
+.universe[data-banner="pink_paradise"] .hero:has(.banner-scenery){
+ background:radial-gradient(ellipse at 88% 26%,#ffd7f7af,transparent 44%),radial-gradient(ellipse at 35% 99%,#f7a4d375,transparent 50%),linear-gradient(110deg,#69305f 0%,#bb5e99 52%,#ffc4de 100%)!important;
+ border-color:#ffd0e8bb;box-shadow:inset 0 0 40px #ffd1e43c,0 15px 38px #de85c123
+}
+.universe[data-banner="pink_paradise"] .hero:has(.banner-scenery) .hero-badge{background:#66325d80;border-color:#ffd5eb9c;color:#ffe6f6}
+.universe[data-banner="pink_paradise"] .hero:has(.banner-scenery) .btn.primary{background:linear-gradient(115deg,#ffcfef,#ffe7ad);color:#6e315a}
+.scene-pink .pink-cloud{position:absolute;width:250px;height:170px;border-radius:50%;filter:blur(24px);background:#ffb6d88e;right:2%;top:15%;animation:sharp-spark 8s ease-in-out infinite alternate}
+.scene-pink .pink-cloud.p2{width:170px;height:140px;background:#ffe1f3aa;right:37%;top:50%;animation-delay:-4s}
+.scene-pink .pink-heart{position:absolute;right:10%;top:20%;font:900 clamp(60px,10vw,158px)/1 Georgia,serif;color:#ffeff9;text-shadow:0 11px 26px #a52c86,0 0 45px #ffb6ed;animation:sharp-pink-float 5s ease-in-out infinite alternate}
+.scene-pink .pink-heart.h2{right:34%;top:48%;font-size:clamp(30px,5vw,81px);color:#ffe2f4;animation-delay:-1.5s}
+.scene-pink .pink-heart.h3{right:3%;top:70%;font-size:clamp(25px,4vw,64px);color:#f8a2d1;animation-delay:-2.7s}
+.scene-pink .pink-heart.h4{right:44%;top:3%;font-size:clamp(25px,4.6vw,69px);color:#fbd8ff;animation-delay:-3.5s}
+.scene-pink .pink-spark{position:absolute;right:7%;top:3%;font-size:40px;color:#fff8ff;text-shadow:0 0 18px #fff;animation:sharp-spark 2.2s ease-in-out infinite alternate}
+.scene-pink .pink-spark.p2{right:46%;top:65%;font-size:23px;animation-delay:-.7s}
+.scene-pink .pink-spark.p3{right:28%;top:14%;font-size:29px;animation-delay:-1.2s}
+@keyframes sharp-pink-float{from{translate:0 10px;rotate:-7deg}to{translate:0 -14px;rotate:8deg}}
+.universe[data-banner="parallel_pulse"] .hero:has(.banner-scenery){background:radial-gradient(circle at 70% 40%,#bb83ff40,transparent 45%),repeating-linear-gradient(122deg,#172043 0 15px,#213e60 16px 17px,#161d3d 18px 37px)!important;border-color:#7df8dc79}
+.scene-parallel .parallel-grid{position:absolute;inset:0 0 0 43%;background:repeating-linear-gradient(0deg,transparent 0 40px,#6fe5da2b 41px 43px),repeating-linear-gradient(90deg,transparent 0 48px,#eea9ff20 49px 51px);transform:perspective(280px) rotateY(-12deg)}
+.scene-parallel .parallel-signal{position:absolute;right:6%;top:32%;color:#83ffe3;font-size:45px;text-shadow:0 0 35px #77f8e5;animation:sharp-signal 4s linear infinite}
+.scene-parallel .parallel-signal.b{right:24%;top:52%;animation-delay:-1.3s;color:#e3baff}
+.scene-parallel .parallel-signal.c{right:40%;top:18%;animation-delay:-2.7s}
+.scene-parallel .parallel-symbol{position:absolute;right:17%;top:0;font:900 clamp(170px,20vw,280px)/1 Georgia,serif;color:#ce8fff33}
+@keyframes sharp-signal{0%{translate:-40px 0;opacity:.2}50%{opacity:1}100%{translate:40px 0;opacity:.2}}
+/* Two actual globally equipped VFX instead of decorative item descriptions. */
+.universe[data-fx="thread_sparks"] .topbar{background-image:repeating-linear-gradient(111deg,transparent 0 80px,#b5b2ff17 81px,#83ffe427 83px,transparent 87px)}
+.universe[data-fx="thread_sparks"] .hero:has(.banner-scenery):before,
+.universe[data-fx="thread_sparks"] .hero:not(:has(.banner-scenery)):before{content:"✦  ·  ✧  ·  ⚡  ·  ✦  ·  ✧";position:absolute;right:5%;top:2%;color:#b7ffe9;font-size:23px;letter-spacing:16px;text-shadow:0 0 14px #6af2ff,0 0 26px #c7aaff;opacity:.6;animation:sharp-signal 5s ease-in-out infinite alternate;pointer-events:none;z-index:4}
+.universe[data-fx="pulse_rings"] .hero{box-shadow:inset 0 0 0 1px #b6a2ff66,0 0 0 7px #b7a7ff14,0 0 0 14px #7be9da0b}
+.universe[data-fx="pulse_rings"] .hero:before{content:"";position:absolute;width:220px;height:220px;right:5%;top:8%;z-index:2;pointer-events:none;border:2px solid #cbabff88;border-radius:50%;box-shadow:0 0 0 23px #89f2e324,0 0 0 50px #bb9dff16,0 0 35px #a9e9fd55;animation:sharp-rings 3.8s ease-in-out infinite alternate}
+@keyframes sharp-rings{from{scale:.7;opacity:.25}to{scale:1.3;opacity:.8}}
+/* Stylish rounded-wide comic-futurist typography; not monospace/terminal. */
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800&display=swap');
+.universe[data-font="velvet_voltage"]{font-family:"Unbounded","Trebuchet MS","Century Gothic",sans-serif;letter-spacing:-.35px}
+.universe[data-font="velvet_voltage"] :is(.hero h1,.page-title,.section-heading h2,.shop-live-hero-copy strong){font-weight:800;letter-spacing:-1.6px}
+.universe[data-theme="sharp_theme"]{--bg:#100d24;--sidebar:#190f2e;--card:#241937;--card2:#1b142c;--border:#634474;--accent:#f09bda;--accent2:#8ceee2;--glow:#bf5de2;--text:#fbf0ff;--muted:#d4b8dd}
+.sidebar-live-course.sharpverse{background:linear-gradient(120deg,#44316135,#da89dc12);border-color:#a990ef38}
+.sidebar-live-course.sharpverse .course-icon{font-size:28px;font-weight:900;font-family:Georgia,serif;color:#d1b4ff}
+@media(max-width:650px){
+ .scene-solitaire .sol-card{width:56px;height:79px;padding:6px;border-width:2px;border-radius:7px;font-size:16px}
+ .scene-solitaire .sol-card b{font-size:35px}
+ .scene-pink .pink-heart.h1{right:5%;top:36%;font-size:78px}
+ .scene-pink .pink-heart.h2{right:35%;top:50%;font-size:42px}
+ .scene-solitaire .sol-table,.scene-pink .pink-cloud{opacity:.55}
+ .universe[data-fx="pulse_rings"] .hero:before{right:-20%;opacity:.35}
+}
+@media(prefers-reduced-motion:reduce){.scene-solitaire .sol-card,.scene-solitaire .sol-star,.scene-pink .pink-heart,.scene-pink .pink-spark,.scene-parallel .parallel-signal,.universe[data-fx="thread_sparks"] .hero:before,.universe[data-fx="pulse_rings"] .hero:before{animation:none!important}}
