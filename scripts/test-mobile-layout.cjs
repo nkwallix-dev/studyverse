@@ -126,7 +126,7 @@ async function main(){
      assert((await page.locator('.item-name-type').count())>0,
       'Product names should visibly include the cosmetic kind');
      await select.selectOption('global');
-     assert((await page.locator('.shop-current-drop').innerText()).includes('GLOBAL'),
+     assert((await page.locator('.shop-current-drop').innerText()).includes('STUDYVERSE'),
       'Dropdown must update selected collection and items');
      const layout=await page.evaluate(()=>{
       const head=document.querySelector('.shop-items-heading-main h2').getBoundingClientRect();
