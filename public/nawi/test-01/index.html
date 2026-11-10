@@ -178,6 +178,7 @@ body[data-frame="pixel"] :is(.panel,.hero){border:3px solid #b78aff!important;bo
 }
 
 </style>
+<link rel="stylesheet" href="../../shared/verse-cosmetics.css">
 </head>
 <body data-theme="base">
 <div class="app"><aside class="sidebar" id="sidebar">
@@ -873,5 +874,6 @@ function startUpV3(){ensureCosmeticState();let gained=grantLevelRewards(true);sa
 function init(){ensureCosmeticState();updateDay();updateTop();renderNav();renderPage();if(location.hash==='#quiz'||location.hash==='#boss'){activatePage(location.hash.slice(1));history.replaceState(null,'',location.pathname+location.search)}$('#menuBtn').onclick=()=>$('#sidebar').classList.toggle('open');document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#sidebar').classList.remove('open')});checkAchievements()}
 init();
 </script>
+<script src="../../shared/verse-cosmetics.js"></script>
 </body>
 </html>
