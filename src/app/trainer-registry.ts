@@ -46,6 +46,25 @@ export const TRAINERS: TrainerDef[] = [
       {id:'combo8',icon:'🔥',title:'No Miss Streak',description:'8 richtige Antworten in Folge',metric:'combo',target:8,reward:240},
       {id:'boss',icon:'👑',title:'Artificial Legend',description:'Mindestens 80 % im AI-Bosskampf',metric:'boss',target:80,reward:800}
     ]
+  },
+  {
+    id:'pos-pa-01',subjectId:'pos',title:'Sharpverse 1. PA',
+    subtitle:'C# · 20 Lektionen · 44 Code- und Transferfragen · 8 Schreibaufgaben · Threading-Labor & Boss',
+    path:'pos/pa-01/index.html',saveKey:'sharpverse_pa01_v1',
+    achievements:[
+      {id:'hello',icon:'♯',title:'Hello, Sharpverse!',description:'Erste praktische Codefrage gemeistert',metric:'draw',target:1,reward:180},
+      {id:'code10',icon:'🧩',title:'Syntax-Tamer',description:'10 Code-/Transferaufgaben gemeistert',metric:'draw',target:10,reward:280},
+      {id:'code25',icon:'🧠',title:'Concurrency Mind',description:'25 Code-/Transferaufgaben gemeistert',metric:'draw',target:25,reward:430},
+      {id:'code44',icon:'🚀',title:'PA-Vorbereitungsmaschine',description:'Alle 44 Code-/Transferaufgaben gemeistert',metric:'draw',target:44,reward:700},
+      {id:'write1',icon:'✍️',title:'Erster echter C#-Satz',description:'Erste C#-Schreibübung geschafft',metric:'pipeline',target:1,reward:180},
+      {id:'write8',icon:'⌨️',title:'Schreibmaschinen-Modus',description:'Alle acht C#-Schreibaufgaben gemeistert',metric:'pipeline',target:8,reward:400},
+      {id:'learn5',icon:'📘',title:'Fundament gegossen',description:'Fünf Grundlagenlektionen abgeschlossen',metric:'learn',target:5,reward:240},
+      {id:'learn12',icon:'🧵',title:'Thread-Flüsterer',description:'Zwölf Lektionen abgeschlossen',metric:'learn',target:12,reward:430},
+      {id:'learn20',icon:'🎓',title:'Sharp Scholar',description:'Alle 20 Lernlektionen abgeschlossen',metric:'learn',target:20,reward:710},
+      {id:'combo6',icon:'🔥',title:'No Data Race',description:'Sechs richtige Antworten in Folge',metric:'combo',target:6,reward:260},
+      {id:'boss80',icon:'👾',title:'PA überlebt',description:'Mindestens 80 % im PA-Bosskampf',metric:'boss',target:80,reward:680},
+      {id:'boss100',icon:'👑',title:'Spermanns Albtraum',description:'100 % im PA-Bosskampf',metric:'boss',target:100,reward:1100}
+    ]
   }
 ];
 
