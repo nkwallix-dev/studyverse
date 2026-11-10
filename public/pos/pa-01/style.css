@@ -81,3 +81,6 @@ em{font-style:normal;color:var(--mint)}
 .studyverse-back:hover{border-color:var(--mint);color:var(--mint)}
 @media(max-width:700px){.studyverse-back{padding:5px 8px;font-size:12px}.studyverse-back span:last-child{display:none}}
 @media(max-width:385px){.breadcrumbs{display:none}.topbar{gap:6px}.top-info{gap:5px}.studyverse-back{padding:4px 8px}.profile-link{font-size:9px}}
+
+/* Three top-right controls plus mobile menu cannot share the 390px header with breadcrumbs. */
+@media(max-width:420px){.topbar .breadcrumbs{display:none}.topbar{gap:7px;padding-inline:12px}.top-info{gap:5px;min-width:0}}
