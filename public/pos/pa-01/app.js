@@ -271,7 +271,7 @@ function bossPage(){
  '<p class="exam-note">Der Boss prüft Transfer und Codeverständnis. 100 % schalten den exklusive Shop-Titel frei – der eigentliche C#-Programmiernachweis passiert weiterhin in Visual Studio.</p>';
 }
 function render(){
- const main=document.getElementById('main');if(!main)return;
+ // Initial entry only contains #app; #main is created by this first render.
  let page='';
  switch(view){
   case 'academy':page=academy();break;case 'vs':page=academy(true);break;
