@@ -22,6 +22,23 @@ for(const q of Q){
  assert(Number.isInteger(q.answer)&&q.answer>=0&&q.answer<4,'Valid answer '+q.id);
  assert(q.explain&&q.explain.length>10,'Explanation needed '+q.id);
 }
+
+// Every NumPy question using the variable "a" must be independently answerable,
+// including when the student jumps straight to an unfinished problem.
+const arrayQuestions=Q.filter(q=>/^print\(a(?:\.|\[)/m.test(q.code||''));
+assert.equal(arrayQuestions.length,7,'All seven NumPy print(a...) questions are covered');
+for(const q of arrayQuestions){
+ assert.match(q.code,/a = np\.array\(\[/,
+  q.id+': the original array must be visible above its operation');
+ assert.match(q.code,/\[2, 3, 2, 4\][\s\S]*\[3, 4, 9, 3\][\s\S]*\[4, 0, 1, 4\]/,
+  q.id+': the complete original 3x4 array must be shown');
+}
+const numpySlice=Q.find(q=>q.id==='q79');
+assert.equal(numpySlice.choices[numpySlice.answer],'[2,9,1]',
+ 'a[:,2] must select the full third column from the visible array');
+assert(app.includes('${esc(p.code)}'),
+ 'Show the full input array alongside the operation in Code-Detective');
+
 assert.equal(C.sort.length,23);assert.equal(C.pipelines.length,3);
 assert(page.includes('src="data.js"')&&page.includes('src="questions.js"')&&page.includes('src="app.js"'));
 assert(css.includes('.sidebar')&&css.includes('data-atm'));
