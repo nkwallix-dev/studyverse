@@ -196,6 +196,22 @@ async function main(){
     await context.close();
    }
   }
+  // 1440 × 900 desktop: profile settings should fit without scrolling.
+  const desktop=await browser.newContext({viewport:{width:1440,height:900}});
+  const desktopPage=await desktop.newPage();
+  await desktopPage.goto(base,{waitUntil:'load'});
+  await desktopPage.locator('.top-profile-link').click();
+  await desktopPage.locator('.profile-view').waitFor();
+  const profileHeight=await desktopPage.evaluate(()=>({
+   scroll:document.documentElement.scrollHeight,
+   viewport:document.documentElement.clientHeight,
+   controls:document.querySelectorAll('.profile-view input,.profile-view button,.profile-view select').length
+  }));
+  assert(profileHeight.controls>=5,'Profile settings must keep all interactive controls');
+  assert(profileHeight.scroll-profileHeight.viewport<=12,
+   'Desktop profile should not require scrolling: '+JSON.stringify(profileHeight));
+  await desktopPage.screenshot({path:path.join(screenshots,'studyverse-profil-desktop.png'),fullPage:true});
+  await desktop.close();
  }finally{
   await browser.close();
   await new Promise(resolve=>server.close(resolve));
