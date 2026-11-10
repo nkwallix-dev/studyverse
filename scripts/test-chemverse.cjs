@@ -74,8 +74,8 @@ console.log('CHEMVERSE tests passed: syntax, daily caps, Boss scoring, repeat ch
 // Drop gate regression: learning worlds must NEVER require global profile levels.
 const catalog=fs.readFileSync('src/app/shop-items.ts','utf8');
 const items=catalog.split('\n').filter(line=>line.startsWith("{id:"));
-assert.equal(items.length,77,'Expected 77 cosmetics including new DSAIVERSE items');
-let global=0,chem=0,dsai=0;
+assert.equal(items.length,90,'Expected 90 cosmetics after adding the Sharpverse drop and two global effects');
+let global=0,chem=0,dsai=0,sharp=0;
 for(const item of items){
  if(item.includes("drop:'global'")){
    global++;
@@ -84,12 +84,13 @@ for(const item of items){
  }else{
    if(item.includes("drop:'nawi-test-01'"))chem++;
    else if(item.includes("drop:'dsai-test-01'"))dsai++;
+    else if(item.includes("drop:'pos-pa-01'"))sharp++;
    else throw new Error('Unknown shop drop '+item);
    assert.match(item,/,requirement:/,'Verse item must require actual study progress');
    assert.doesNotMatch(item,/,level:\d+/,'Verse item MUST NOT have global level lock');
  }
 }
-assert.equal(global,33);assert.equal(chem,27);assert.equal(dsai,17);
+assert.equal(global,35);assert.equal(chem,27);assert.equal(dsai,17);assert.equal(sharp,11);
 const studyTs=fs.readFileSync('src/app/app.ts','utf8');
 assert.match(studyTs,/if\(item\.drop==='global'\)return this\.level>=\(item\.level\|\|1\)/,
  'Profile level gate applies only to global items');
@@ -98,7 +99,7 @@ assert.doesNotMatch(studyTs,/if\(this\.level<\(item\.level\|\|1\)\)return false/
 const studyHtml=fs.readFileSync('src/app/app.html','utf8');
 assert.doesNotMatch(studyHtml,/item\.drop!=='global' && item\.level/,
  'Do not show obsolete subject-drop profile level requirements');
-console.log('STUDYVERSE shop gate tests passed: 27 subject cosmetics require only learning progress; 29 global items use profile levels.');
+console.log('STUDYVERSE shop gate tests passed: 55 subject cosmetics require only learning progress; 35 global items use profile levels.');
 
 // Ensure the standalone trainer and global shop retain the same title ID, name and description.
 const shopCatalog=fs.readFileSync('src/app/shop-items.ts','utf8');
