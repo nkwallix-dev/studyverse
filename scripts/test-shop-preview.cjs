@@ -36,7 +36,7 @@ assert(h.includes('COMING SOON'),'Unavailable subject label should be obvious');
 assert(h.includes('{{subjectCountLabel(s.id)}}'),'Available labels derive from registry, not hardcoded subject ids');
 assert(t.includes("choose(id:string){if(!this.subjectHasTrainer(id))return;"),'Direct navigation to a locked subject must be guarded');
 assert(t.includes('subjectHasTrainer(id:string):boolean{return TRAINERS.some'),'Subjects must unlock based on a trainer registry entry');
-for(const [subject,path] of [['nawi','public/nawi/test-01/index.html'],['dsai','public/dsai/test-01/index.html']]){
+for(const [subject,path] of [['nawi','public/nawi/test-01/index.html'],['dsai','public/dsai/test-01/index.html'],['pos','public/pos/pa-01/index.html']]){
  assert(registry.includes("subjectId:'"+subject+"'"),'Live subject not in trainer registry: '+subject);
  assert(fs.existsSync(path),'Registered trainer is not deployable: '+path);
 }
@@ -58,13 +58,15 @@ assert(c.includes('.drop-item .item-art.drop-item-art.panda-art .big-item-icon')
 console.log('PASS: clean item art; statuses next to titles; enlarged panda in catalog and inventory.');
 
 const newShop=fs.readFileSync('src/app/shop-items.ts','utf8');
-assert(h.includes('class="sidebar-live-courses"'),'Both playable trainer shortcuts should appear in top-left sidebar');
-assert(h.includes("openTrainer('nawi-test-01')")&&h.includes("openTrainer('dsai-test-01')"),'Both subject shortcuts must launch their own trainer');
+assert(h.includes('class="sidebar-live-courses"'),'All playable trainer shortcuts should appear in top-left sidebar');
+assert(h.includes('*ngFor="let trainer of trainers"')&&h.includes('openTrainer(trainer.id)'),
+ 'Sidebar shortcuts must derive from registry so all verses, including future ones, appear automatically');
 const bannerCount=(h.match(/class="banner-scenery"/g)||[]).length;
 assert.equal(bannerCount,2,'Both home and shop preview need full scene-based banners');
-for(const banner of ['gold','warning','galaxy','molecule','flow','curve','cloud']){
+for(const banner of ['gold','warning','galaxy','molecule','flow','curve','cloud','solitaire','pink_paradise','parallel_pulse']){
  assert(c.includes('.universe[data-banner="'+banner+'"] .hero:has(.banner-scenery)'),banner+' needs its own full hero design');
- assert(h.includes('scene-'+banner),banner+' needs actual thematic scenery');
+ const scene=({pink_paradise:'pink',parallel_pulse:'parallel'})[banner]||banner;
+ assert(h.includes('scene-'+scene),banner+' needs actual thematic scenery');
 }
 assert(h.includes('<div class="drop-price" *ngIf="!owns(item)"'),'Owned cosmetics should not show cost in store');
 assert(h.includes('<p class="preview-cost" *ngIf="!owns(item)"'),'Owned cosmetics should not show cost in preview popup');
@@ -102,3 +104,14 @@ for(const path of ['src/app/app.html','src/app/trainer-registry.ts','src/app/sho
   path+' must display Dsaiverse in consistent title case');
 }
 console.log('PASS: active dashboard worlds, C# third, achievements sorting, verse names and quiet Chemverse.');
+
+const sharpTeacher=newShop.split('\n').find(x=>x.includes("id:'sharp_title_spermann'"));
+const pinkBanner=newShop.split('\n').find(x=>x.includes("id:'sharp_pink'"));
+const solitaireBanner=newShop.split('\n').find(x=>x.includes("id:'sharp_solitaire'"));
+assert(sharpTeacher?.includes("name:'Professor Spermann'")&&sharpTeacher?.includes("metric:'boss',value:100"),
+ 'Professor Spermann requires a perfect 1. PA boss run');
+assert(pinkBanner?.includes("equip:'pink_paradise'"),'Pink Paradise must be a real purchasable banner');
+assert(solitaireBanner?.includes("equip:'solitaire'"),'Solitaire Cascade must be a real purchasable banner');
+assert(h.includes('scene-solitaire')&&h.includes('scene-pink'),'Both banners must render in main and live preview');
+assert(newShop.includes("id:'g_thread_sparks'")&&newShop.includes("id:'g_pulse_rings'"),
+ 'Two new VFX must be available by profile level 7');
