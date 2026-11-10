@@ -28,8 +28,13 @@
 
   <div class="workspace">
     <header class="topbar">
-      <div class="breadcrumbs"><span>✧</span> STUDYVERSE <span class="slash">/</span>
-        <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='earn'?'TastyTokens verdienen':'Item-Shop'):view==='achievements'?'Achievements':'Mein Profil'}}</strong>
+      <div class="topbar-left">
+        <div class="breadcrumbs"><span>✧</span><span class="top-brand-name">STUDYVERSE</span><span class="slash">/</span>
+          <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='earn'?'TastyTokens verdienen':'Item-Shop'):view==='achievements'?'Achievements':view==='friends'?'Freunde':'Mein Profil'}}</strong>
+        </div>
+        <button type="button" class="top-friends-link" [class.active]="view==='friends'" (click)="go('friends')" aria-label="Freunde und Spielerliste öffnen" title="Alle Spieler anzeigen">
+          <span>👥</span><span class="top-friends-text">Freunde</span>
+        </button>
       </div>
       <div class="top-pills">
         <div class="top-pill lev"><span>⚡</span> Level {{level}} <div class="tiny-track"><i [style.width.%]="levelProgress"></i></div></div>
@@ -305,7 +310,32 @@
           </ng-container>
         </ng-container>
 
+
+        <ng-container *ngSwitchCase="'friends'">
+          <section class="friends-page">
+            <div class="eyebrow">STUDYVERSE COMMUNITY · SPIELERLISTE</div>
+            <div class="friends-heading">
+              <div><h1 class="page-title">Deine <span>Freunde.</span></h1>
+                <p class="page-subtitle">Alle Studyverse-Spieler auf einen Blick – nur Anzeigename und Level, ohne Freundschaftsanfragen.</p>
+              </div>
+              <button type="button" class="btn secondary friends-refresh" [disabled]="friendsLoading" (click)="refreshFriends()">↻ Aktualisieren</button>
+            </div>
+            <div class="friends-summary"><strong>👥 {{publicPlayers.length}} Spieler</strong><span>Nach Level sortiert · Kein Login-Name und kein privater Spielstand</span></div>
+            <div class="friends-loading" *ngIf="friendsLoading">⏳ Spielerliste wird geladen …</div>
+            <div class="friends-message" *ngIf="friendsError && !friendsLoading">{{friendsError}}</div>
+            <div class="friends-list" *ngIf="!friendsLoading && !friendsError && publicPlayers.length">
+              <article class="friend-card" *ngFor="let player of publicPlayers; let i=index" [class.friend-self]="isOwnPlayer(player)">
+                <span class="friend-rank">#{{i+1}}</span>
+                <div class="friend-monogram">{{player.nickname.slice(0,1).toLocaleUpperCase('de')}}</div>
+                <div class="friend-name"><strong>{{player.nickname}}</strong><small *ngIf="isOwnPlayer(player)">Das bist du ✦</small></div>
+                <div class="friend-level"><small>LEVEL</small><strong>{{player.level}}</strong></div>
+              </article>
+            </div>
+            <div class="friends-empty" *ngIf="!friendsLoading && !friendsError && !publicPlayers.length">Noch keine veröffentlichten Spielerprofile. Sobald sich Spieler nach dem Update anmelden, erscheinen sie hier.</div>
+          </section>
+        </ng-container>
         <ng-container *ngSwitchCase="'profile'">
+          <section class="profile-view">
           <div class="eyebrow">PLAYER PROFILE</div><h1 class="page-title">Dein <span>Profil.</span></h1>
           <p class="page-subtitle">Globale XP, Items und alle Lernwelten an einem Ort. {{cloudConfigured?'Dein Fortschritt wird über dein Onlinekonto synchronisiert.':'Bis zur Firebase-Aktivierung wird weiterhin lokal gespeichert.'}}</p>
           <div class="profile-grid"><div class="profile-panel"><div class="profile-avatar-wrap">
@@ -358,6 +388,7 @@
               <p class="small muted">Beim Import eines Studyverse-Backups wird dein aktueller Stand nach Bestätigung ersetzt und danach mit deinem Onlinekonto synchronisiert. Nutze das nur, wenn du wirklich einen alten Stand wiederherstellen möchtest.</p>
             </div>
           </details></div></div>
+          </section>
         </ng-container>
       </ng-container>
     </main>
@@ -464,7 +495,7 @@
         </div>
       </div>
       <div class="preview-visual" *ngIf="item.group==='avatar'||item.group==='title'" [style.background]="themeStyle(item)"><span>{{item.icon}}</span><i>✦</i></div>
-      <div class="eyebrow">LIVE-VORSCHAU · {{item.drop==='global'?'STUDYVERSE GLOBAL':item.drop==='dsai-test-01'?'Dsaiverse DROP':'CHEMVERSE DROP'}}</div>
+      <div class="eyebrow">LIVE-VORSCHAU · {{item.drop==='global'?'STUDYVERSE GLOBAL':item.drop==='dsai-test-01'?'Dsaiverse DROP':item.drop==='pos-pa-01'?'Sharpverse DROP':'CHEMVERSE DROP'}}</div>
       <h2 class="preview-item-name">{{item.name}}<span class="preview-item-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></h2><p>{{item.desc}}</p>
       <div class="preview-requirement" [class.ready]="itemProgressPercent(item)===100">
         {{itemProgressPercent(item)===100?'✓ Lernziel erfüllt':'⏳ Lernziel in Arbeit'}} · {{requirementLabel(item)}}
