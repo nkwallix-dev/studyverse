@@ -626,3 +626,48 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .universe[data-fx="pulse_rings"] .hero:before{right:-20%;opacity:.35}
 }
 @media(prefers-reduced-motion:reduce){.scene-solitaire .sol-card,.scene-solitaire .sol-star,.scene-pink .pink-heart,.scene-pink .pink-spark,.scene-parallel .parallel-signal,.universe[data-fx="thread_sparks"] .hero:before,.universe[data-fx="pulse_rings"] .hero:before{animation:none!important}}
+
+
+/* COSMETIC CATEGORY SIGNATURES — these accents live only on catalog/inventory
+   cards and the preview header. Equipping an actual panel frame is unaffected. */
+:is(.drop-item,.inventory-item,.shop-preview-modal)[data-category="theme"] {--cosmetic-kind:#cbb4ff}
+:is(.drop-item,.inventory-item,.shop-preview-modal)[data-category="atm"] {--cosmetic-kind:#8ed7f4}
+:is(.drop-item,.inventory-item,.shop-preview-modal)[data-category="frame"] {--cosmetic-kind:#ffdc8b}
+:is(.drop-item,.inventory-item,.shop-preview-modal)[data-category="avatar"] {--cosmetic-kind:#95f3bf}
+:is(.drop-item,.inventory-item,.shop-preview-modal)[data-category="title"] {--cosmetic-kind:#ffacd4}
+:is(.drop-item,.inventory-item,.shop-preview-modal)[data-category="font"] {--cosmetic-kind:#ffbd91}
+:is(.drop-item,.inventory-item,.shop-preview-modal)[data-category="banner"] {--cosmetic-kind:#99baff}
+:is(.drop-item,.inventory-item,.shop-preview-modal)[data-category="fx"] {--cosmetic-kind:#9ce9e5}
+
+:is(.drop-item,.inventory-item)[data-category] {
+  --cosmetic-kind:var(--accent);
+  border-top:3px solid var(--cosmetic-kind);
+  background-image:linear-gradient(155deg,color-mix(in srgb,var(--cosmetic-kind) 9%,transparent),transparent 52%);
+}
+:is(.drop-item,.inventory-item)[data-category] .item-art.drop-item-art {
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cosmetic-kind) 38%,transparent);
+}
+:is(.drop-item,.inventory-item)[data-category] .item-kind {
+  color:var(--cosmetic-kind);
+}
+:is(.drop-item,.inventory-item) .item-title-row .item-name {
+  font-size:clamp(16px,1.25vw,18px);
+  line-height:1.38;
+  letter-spacing:-.15px;
+}
+:is(.drop-item,.inventory-item) .item-title-row .item-name-type {
+  color:var(--cosmetic-kind);
+  font-weight:900;
+  white-space:normal;
+}
+.shop-preview-modal .preview-item-name {
+  line-height:1.3;
+}
+.shop-preview-modal .preview-item-type {
+  color:var(--cosmetic-kind,var(--accent));
+  font-weight:900;
+}
+/* Category frames are strictly static presentation, not a cosmetic slot. */
+@media(max-width:660px) {
+  :is(.drop-item,.inventory-item) .item-title-row .item-name{font-size:17px}
+}
