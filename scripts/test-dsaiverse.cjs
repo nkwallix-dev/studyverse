@@ -26,7 +26,7 @@ for(const q of Q){
 // Every NumPy question using the variable "a" must be independently answerable,
 // including when the student jumps straight to an unfinished problem.
 const arrayQuestions=Q.filter(q=>/^print\(a(?:\.|\[)/m.test(q.code||''));
-assert.equal(arrayQuestions.length,7,'All seven NumPy print(a...) questions are covered');
+assert.equal(arrayQuestions.length,8,'All eight NumPy print(a...) questions are covered');
 for(const q of arrayQuestions){
  assert.match(q.code,/a = np\.array\(\[/,
   q.id+': the original array must be visible above its operation');
