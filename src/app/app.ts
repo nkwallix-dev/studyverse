@@ -220,6 +220,11 @@ export class App implements OnInit,OnDestroy {
        this.cloudHydrating=true;
        const remote=await this.cloud.load();
        if(remote)this.useCloudSnapshot(remote);
+       if(this.profile.nickname==='Explorer'&&this.cloud.session?.username){
+         this.profile.nickname=this.cloud.session.username;
+         this.nicknameEdit=this.profile.nickname;
+         write(KEY,JSON.stringify(this.profile));
+       }
        this.cloudMaySave=true;
        this.cloudHydrating=false;
      }
@@ -250,8 +255,10 @@ export class App implements OnInit,OnDestroy {
        authenticated=true;
        this.cloudStage='Spielstand wird online gespeichert …';
        this.changeDetector.markForCheck();
-       // Login usernames must never be copied into the PUBLIC display nickname.
-       // The user can choose an independent nickname in Mein Profil.
+       // New accounts default to their SHORT Studyverse username (e.g. "test"),
+       // never the synthetic Firebase email. Custom display names remain editable.
+       if(this.profile.nickname==='Explorer'&&this.cloud.session?.username)
+         this.profile.nickname=this.cloud.session.username;
        this.nicknameEdit=this.profile.nickname;
        this.intro=false;write(INTRO,'1');
        await this.cloud.save(this.cloudSnapshot());
@@ -273,6 +280,12 @@ export class App implements OnInit,OnDestroy {
          }
          await this.cloud.save(this.cloudSnapshot());
        }
+     }
+     if(this.profile.nickname==='Explorer'&&this.cloud.session?.username){
+       this.profile.nickname=this.cloud.session.username;
+       this.nicknameEdit=this.profile.nickname;
+       write(KEY,JSON.stringify(this.profile));
+       await this.cloud.save(this.cloudSnapshot());
      }
      this.cloudMaySave=true;this.cloudStatus='✓ Online gespeichert';this.cloudPin='';this.cloudUsername='';
      void this.publishPlayerProfile();
