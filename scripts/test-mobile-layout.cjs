@@ -135,6 +135,20 @@ async function main(){
      });
      assert(layout.selectLeft>=layout.headRight-4||Math.abs(layout.selectTop-layout.headingBottom)<48,
       'Drop selector should be in same header row on mobile '+width+'px: '+JSON.stringify(layout));
+     if(width===390){
+      const dotsCard=page.locator('.drop-item').filter({hasText:'Dots & Lines'}).first();
+      await dotsCard.locator('.drop-preview-btn').click();
+      const preview=page.locator('.shop-live-stage[data-atm="dots"]');
+      await preview.waitFor();
+      const dotsVisual=await preview.evaluate(el=>{
+       const rule=getComputedStyle(el,'::after');
+       return {content:rule.content,bg:rule.backgroundImage,z:Number(rule.zIndex),opacity:Number(rule.opacity)};
+      });
+      assert(dotsVisual.content!=='none'&&dotsVisual.bg.includes('radial-gradient')&&dotsVisual.bg.includes('linear-gradient')&&dotsVisual.z>=6&&dotsVisual.opacity>=.65,
+       'Dots & Lines must be visibly rendered ABOVE the shop preview cards: '+JSON.stringify(dotsVisual));
+      await page.screenshot({path:path.join(screenshots,'studyverse-dots-preview-390.png')});
+      await page.locator('.shop-preview-modal .btn.secondary.full').click();
+     }
      await select.selectOption('nawi-test-01');
      await check(page,'Studyverse Shop-Drop-Selector '+width);
     }
@@ -195,6 +209,56 @@ async function main(){
     assert(!errors.length,world+' script errors at '+width+': '+errors.join('; '));
     await context.close();
    }
+  }
+  // Global equipment must actually render inside EACH standalone trainer, not
+  // merely appear on the Studyverse dashboard where it was equipped.
+  for(const [world,url] of [
+   ['Chemverse','nawi/test-01/'],
+   ['Dsaiverse','dsai/test-01/'],
+   ['Sharpverse','pos/pa-01/']]){
+   const equipped=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+   const cosmeticPage=await equipped.newPage();
+   await cosmeticPage.addInitScript(()=>{
+    localStorage.setItem('studyverse_profile_v1',JSON.stringify({
+     equipped:{theme:'sharp_cutline',atm:'dots',frame:'legend',font:'serif',
+      banner:'pink_paradise',fx:'thread_sparks',avatar:'🐑',title:'sharp_title_spermann'}
+    }));
+   });
+   const issues=[];cosmeticPage.on('pageerror',e=>issues.push(e.message));
+   await cosmeticPage.goto(base+url,{waitUntil:'load'});
+   await cosmeticPage.locator('.verse-banner span').first().waitFor({timeout:10000});
+   const appearance=await cosmeticPage.evaluate(()=>{
+    const body=document.body;
+    const backdrop=document.querySelector('.verse-atmosphere');
+    const card=document.querySelector('.panel,.stat,.mode-card,.lesson-card,.challenge-card');
+    return {
+     theme:body.dataset.theme,atm:body.dataset.atm,frame:body.dataset.frame,
+     font:body.dataset.font,banner:body.dataset.banner,fx:body.dataset.fx,
+     backdropOpacity:Number(getComputedStyle(backdrop).opacity),
+     background:getComputedStyle(backdrop).backgroundImage,
+     cards:document.querySelectorAll('.verse-banner span').length,
+     effectCount:document.querySelectorAll('.verse-fx i').length,
+     cardBorder:card?getComputedStyle(card).borderTopColor:'',
+     title:document.querySelector('.verse-equipped-title')?.textContent||'',
+     avatar:document.querySelector('.profile-link .avatar,#avatar,#levelAvatar')?.textContent||''
+    };
+   });
+   for(const [key,val] of Object.entries({theme:'sharp_cutline',atm:'dots',frame:'legend',
+     font:'serif',banner:'pink_paradise',fx:'thread_sparks'})){
+    assert.equal(appearance[key],val,world+' must apply the globally equipped '+key);
+   }
+   assert(appearance.backdropOpacity>=.5&&appearance.background.includes('radial-gradient'),
+    world+' must show the equipped Dots & Lines atmosphere');
+   assert(appearance.cards>=3&&appearance.effectCount===9,
+    world+' must render the equipped banner and 9 effect particles');
+   assert(appearance.title.includes('Professor Spermann'),world+' must display equipped title');
+   assert(appearance.avatar.includes('🐑'),world+' must display equipped avatar');
+   assert(!issues.length,world+' cosmetics caused JS errors: '+issues.join('; '));
+   if(world==='Sharpverse')assert(await cosmeticPage.locator('.studyverse-back').isVisible(),
+    'Sharpverse must have a top-right back button just like Chemverse and Dsaiverse');
+   await check(cosmeticPage,world+' global equipment');
+   await cosmeticPage.screenshot({path:path.join(screenshots,world.toLowerCase()+'-global-cosmetics-390.png'),fullPage:true});
+   await equipped.close();
   }
   // 1440 × 900 desktop: profile settings should fit without scrolling.
   const desktop=await browser.newContext({viewport:{width:1440,height:900}});
