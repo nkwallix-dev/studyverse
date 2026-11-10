@@ -91,16 +91,23 @@ async function main(){
    const cardLayout=await page.evaluate(()=>{
     const bounds=selector=>document.querySelector(selector).getBoundingClientRect();
     const rail=bounds('.dashboard-grid .right-rail');
-    const level=bounds('.dashboard-grid .right-rail>.level-card');
+    const level=bounds('.dashboard-level');
+    const hero=bounds('main .hero');
+    const stats=bounds('main .stats');
     const inventory=bounds('.dashboard-grid .right-rail>.loot-card');
     const achievements=bounds('.dashboard-grid .right-rail>.achievements-preview');
     const activity=bounds('.dashboard-grid .right-rail>.activity-card:last-child');
-    return {railWidth:rail.width,levelWidth:level.width,
+    return {railWidth:rail.width,levelWidth:level.width,statsWidth:stats.width,
+      heroBottom:hero.bottom,levelTop:level.top,levelBottom:level.bottom,statsTop:stats.top,levelHeight:level.height,
       inventoryTop:inventory.top,achievementsTop:achievements.top,
       activityWidth:activity.width};
    });
-   assert(cardLayout.levelWidth >= cardLayout.railWidth-4,
-    'Level XP bar should span both dashboard info-grid columns at '+width+'px');
+   assert(Math.abs(cardLayout.levelWidth-cardLayout.statsWidth)<=4,
+    'Level XP bar should match the statistics row width at '+width+'px');
+   assert(cardLayout.levelTop>=cardLayout.heroBottom && cardLayout.levelBottom<=cardLayout.statsTop,
+    'Level XP bar should sit between the hero and statistics at '+width+'px');
+   assert(cardLayout.levelHeight<=160,
+    'Level XP bar should remain compact at '+width+'px');
    assert(cardLayout.activityWidth >= cardLayout.railWidth-4,
     'Activity history should fill both dashboard info-grid columns at '+width+'px');
    if(width>=360){
