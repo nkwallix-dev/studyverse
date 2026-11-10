@@ -12,6 +12,7 @@ export interface CloudSnapshot{
   daily?:unknown;
   bridge?:unknown;
 }
+export interface PublicPlayer {uid:string;nickname:string;level:number}
 interface CloudConfig{apiKey:string;projectId:string}
 export interface CloudSession{uid:string;username:string;idToken:string;refreshToken:string;expiresAt:number}
 interface AuthResult{localId:string;idToken:string;refreshToken:string;expiresIn:string}
@@ -133,4 +134,59 @@ export class StudyverseCloud{
       throw Error(result.error?.message||'Cloud konnte nicht speichern ('+response.status+').');
     }
   }
+  // Separate, minimal directory: NEVER expose the private /users/{uid} save
+  // or the Firebase Authentication login username. Only the editable display
+  // nickname and public level are published.
+  private publicProfileEndpoint():string{
+    if(!this.session)throw Error('Bitte zuerst anmelden.');
+    return 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(this.settings.projectId)+
+      '/databases/(default)/documents/publicProfiles';
+  }
+  async publishPublicProfile(nickname:string,level:number):Promise<void>{
+    if(!this.session)throw Error('Bitte zuerst anmelden.');
+    const safeNickname=nickname.trim();
+    if(safeNickname.length<1||safeNickname.length>24||/[\u0000-\u001f\u007f]/.test(safeNickname))
+      throw Error('Der Anzeigename ist ungültig.');
+    if(!Number.isInteger(level)||level<1||level>100000)throw Error('Level ist ungültig.');
+    const url=this.publicProfileEndpoint()+'/'+encodeURIComponent(this.session.uid)+
+      '?updateMask.fieldPaths=nickname&updateMask.fieldPaths=level&updateMask.fieldPaths=updatedAt';
+    const response=await fetchCloud(url,{
+      method:'PATCH',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await this.token()},
+      body:JSON.stringify({fields:{
+        nickname:{stringValue:safeNickname},
+        level:{integerValue:String(level)},
+        updatedAt:{timestampValue:new Date().toISOString()}
+      }})
+    });
+    if(!response.ok){
+      const result=await response.json() as {error?:{message?:string}};
+      throw Error(result.error?.message||'Spielerprofil konnte nicht veröffentlicht werden ('+response.status+').');
+    }
+  }
+  async listPublicProfiles():Promise<PublicPlayer[]>{
+    if(!this.session)throw Error('Bitte zuerst anmelden.');
+    const players:PublicPlayer[]=[];
+    let next='';
+    // Firestore lists documents in pages; do not limit the UI to the first page.
+    for(let page=0;page<50;page++){
+      const url=this.publicProfileEndpoint()+'?pageSize=100'+(next?'&pageToken='+encodeURIComponent(next):'');
+      const response=await fetchCloud(url,{headers:{Authorization:'Bearer '+await this.token()}});
+      const body=await response.json() as {documents?:Array<{name?:string;fields?:{
+        nickname?:{stringValue?:string};level?:{integerValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
+      if(!response.ok)throw Error(body.error?.message||'Spielerliste konnte nicht geladen werden ('+response.status+').');
+      for(const doc of body.documents||[]){
+        const uid=doc.name?.split('/').pop()||'';
+        const nickname=doc.fields?.nickname?.stringValue?.trim()||'';
+        const level=Number(doc.fields?.level?.integerValue||0);
+        if(uid&&nickname&&nickname.length<=24&&Number.isInteger(level)&&level>=1&&level<=100000){
+          players.push({uid,nickname,level});
+        }
+      }
+      next=body.nextPageToken||'';
+      if(!next)break;
+      if(page===49)throw Error('Spielerliste ist zu groß. Bitte erneut versuchen.');
+    }
+    return players.sort((a,b)=>b.level-a.level||a.nickname.localeCompare(b.nickname,'de'));
+  }
+
 }
