@@ -17,9 +17,8 @@ assert(rules.includes('allow get, list: if request.auth != null'),
  'Only authenticated players may read the public directory');
 assert(/if\(this\.cloud\.session&&this\.cloudMaySave\)\s*\{\s*(?:\/\/[^\n]*\n\s*)*void this\.publishPlayerProfile\(\);/.test(angular),
  'Existing accounts must auto-publish their display name and level on session hydration, without new progress');
-assert(angular.includes("this.profile.nickname=this.cloud.session.username")&&
- angular.includes("this.profile.nickname=this.cloud.session!.username"),
- 'New accounts and returning Explorer accounts should default to the short Studyverse username, not Explorer');
+assert((angular.match(/this\.profile\.nickname=this\.cloud\.session\.username/g)||[]).length>=3,
+ 'Registration, manual sign-in and restored sessions must default Explorer to the short Studyverse account username');
 assert(!angular.includes("this.cloud.session!.email")&&!angular.includes("test@studyverse"),
  'Never publish the synthetic Firebase Authentication email address as a display name');
 assert(template.includes('class="top-friends-link"')&&template.includes("(click)=\"go('friends')\""),
