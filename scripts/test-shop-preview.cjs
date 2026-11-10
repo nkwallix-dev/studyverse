@@ -72,10 +72,10 @@ assert(h.includes('<div class="drop-price" *ngIf="!owns(item)"'),'Owned cosmetic
 assert(h.includes('<p class="preview-cost" *ngIf="!owns(item)"'),'Owned cosmetics should not show cost in preview popup');
 const weber=newShop.split('\n').find(x=>x.includes("id:'dsai_title_weber'"));
 const fischer=newShop.split('\n').find(x=>x.includes("id:'title_chaos'"));
-const radical=newShop.split('\n').find(x=>x.includes("id:'chem_radical'"));
+const removedCosmetics=['chem_radical','title','chem_reactor','ocean','avatar_atom','avatar_dragon'];
 assert(weber.includes("requirement:{metric:'boss',value:100}"),'Professorin Weber requires a perfect DSAI boss');
 assert(fischer.includes("requirement:{metric:'boss',value:100}"),'Professor Fischer requires a perfect Chemistry boss');
-assert(radical.includes("requirement:{metric:'academy',value:12}"),'Former prestige Radikal-Master swapped to academy');
+for(const id of removedCosmetics)assert(!newShop.includes("id:'"+id+"'"),'Removed cosmetic must not exist: '+id);
 console.log('Full-scene banner previews, prestige teachers, hidden owned prices and top-left courses verified.');
 
 
@@ -114,4 +114,13 @@ assert(pinkBanner?.includes("equip:'pink_paradise'"),'Pink Paradise must be a re
 assert(solitaireBanner?.includes("equip:'solitaire'"),'Solitaire Cascade must be a real purchasable banner');
 assert(h.includes('scene-solitaire')&&h.includes('scene-pink'),'Both banners must render in main and live preview');
 assert(newShop.includes("id:'g_thread_sparks'")&&newShop.includes("id:'g_pulse_rings'"),
- 'Two new VFX must be available by profile level 7');
+ 'Two new VFX must remain available, even though Thread Sparks moves to Sharpverse');
+
+const styles=fs.readFileSync('src/styles.scss','utf8');
+assert(styles.includes('.shop-live-stage.universe[data-atm="dots"]::after') &&
+ styles.includes('.universe[data-atm="dots"]::after'),
+ 'Dots & Lines should show a visible layered network on both the account and the live item preview');
+assert(newShop.includes("id:'g_dotted_atm'")&&newShop.includes("equip:'dots'"),
+ 'Dots & Lines must still equip the dots background');
+assert(newShop.includes("id:'g_cloud_banner'")&&newShop.includes("level:5"),
+ 'Cloudy Sky must be moved under Level 10');
