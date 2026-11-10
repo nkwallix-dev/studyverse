@@ -255,9 +255,10 @@ export class App implements OnInit,OnDestroy {
        authenticated=true;
        this.cloudStage='Spielstand wird online gespeichert …';
        this.changeDetector.markForCheck();
-       // New accounts default to their SHORT Studyverse username (e.g. "test"),
-       // never the synthetic Firebase email. Custom display names remain editable.
-       if(this.profile.nickname==='Explorer'&&this.cloud.session?.username)
+       // Every NEW cloud account gets its short Studyverse login name as the
+       // initial public display nickname. Existing accounts' chosen names stay.
+       // Use session.username (e.g. "test"), NEVER test@studyverse.invalid.
+       if(this.cloud.session?.username)
          this.profile.nickname=this.cloud.session.username;
        this.nicknameEdit=this.profile.nickname;
        this.intro=false;write(INTRO,'1');
