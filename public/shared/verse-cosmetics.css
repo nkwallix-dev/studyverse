@@ -69,6 +69,8 @@ body[data-font="velvet_voltage"]{font-family:"Unbounded","Trebuchet MS",sans-ser
 /* Equipped banners are rendered as actual media inside dynamic trainer heroes. */
 .hero{isolation:isolate}
 .hero > :not(.verse-banner){position:relative;z-index:2}
+/* Sharpverse's oversized C# emblem must remain an absolute background accent. */
+.hero > .hero-emblem{position:absolute;z-index:0}
 .verse-banner{position:absolute;inset:0;z-index:1;display:none;pointer-events:none;overflow:hidden;border-radius:inherit}
 body[data-banner]:not([data-banner="default"]):not([data-banner="none"]) .hero .verse-banner{display:block}
 .verse-banner span{position:absolute;display:block;line-height:1;font-size:clamp(32px,7vw,88px);filter:drop-shadow(0 6px 18px #0004);animation:verse-float 6s ease-in-out infinite alternate}
