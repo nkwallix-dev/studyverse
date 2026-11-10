@@ -3,9 +3,9 @@ import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angula
 import { FormsModule } from '@angular/forms';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
-import { StudyverseCloud, CloudSnapshot, CLOUD_DAILY_KEY, cloudError } from './cloud';
+import { StudyverseCloud, CloudSnapshot, PublicPlayer, CLOUD_DAILY_KEY, cloudError } from './cloud';
 
-type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements';
+type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements' | 'friends';
 interface Subject { id:string; short:string; name:string; icon:string; group:string; color:string; desc:string; }
 interface Activity {label:string;date:string;amount?:number}
 interface Profile {
@@ -60,6 +60,7 @@ export class App implements OnInit,OnDestroy {
  cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
  cloudMode:'register'|'login'='register'; cloudUsername=''; cloudPin=''; cloudMessage=''; cloudStage='';
  cloudStatus='Lokal'; private cloudTimer:ReturnType<typeof setTimeout>|null=null;
+ publicPlayers:PublicPlayer[]=[]; friendsLoading=false; friendsError=''; private publicProfileStamp='';
  private cloudWrites:Promise<void>=Promise.resolve();
  achievementSubject='Alle';achievementTest='Alle';achievementSort:'open'|'done'|'progress'|'reward'|'title'='open';
  profile:Profile=this.load(); public today=new Date();
@@ -107,6 +108,45 @@ export class App implements OnInit,OnDestroy {
  private alert(message:string){this.info=message;}
 
  get cloudUser(){return this.cloud.session?.username||'';}
+ // Directory cards use only the editable Studyverse nickname & calculated level.
+ // Do not use cloudUser: that belongs to Authentication, not the public directory.
+ private async publishPlayerProfile():Promise<void>{
+   const uid=this.cloud.session?.uid;
+   if(!uid||!this.cloudMaySave)return;
+   const stamp=uid+'|'+this.profile.nickname.trim()+'|'+this.level;
+   if(stamp===this.publicProfileStamp)return;
+   try{
+     await this.cloud.publishPublicProfile(this.profile.nickname,this.level);
+     if(this.cloud.session?.uid===uid)this.publicProfileStamp=stamp;
+   }catch{
+     // Incomplete directory permissions must never affect private cloud saves.
+   }
+ }
+ async refreshFriends():Promise<void>{
+   const uid=this.cloud.session?.uid;
+   if(!uid||!this.cloudConfigured){
+     this.publicPlayers=[];this.friendsLoading=false;
+     this.friendsError='Melde dich mit deinem Studyverse-Cloudkonto an, um alle Spieler zu sehen.';
+     this.changeDetector.markForCheck();return;
+   }
+   this.friendsLoading=true;this.friendsError='';
+   this.changeDetector.markForCheck();
+   try{
+     await this.publishPlayerProfile();
+     const entries=await this.cloud.listPublicProfiles();
+     if(this.cloud.session?.uid===uid){this.publicPlayers=entries;this.friendsError='';}
+   }catch(error){
+     if(this.cloud.session?.uid===uid){
+       this.publicPlayers=[];
+       const explanation=cloudError(error);
+       this.friendsError=/PERMISSION_DENIED|403|Berechtigung|blockiert|permissions/i.test(String(error)+' '+explanation)
+         ?'Die öffentliche Spielerliste ist noch nicht in den Firestore-Sicherheitsregeln freigeschaltet. Private Spielstände bleiben geschützt.'
+         :explanation;
+     }
+   }finally{this.friendsLoading=false;this.changeDetector.markForCheck();}
+ }
+ isOwnPlayer(player:PublicPlayer):boolean{return player.uid===this.cloud.session?.uid;}
+
  private cloudSnapshot():CloudSnapshot{
    const trainers:Record<string,Record<string,unknown>>={...(this.profile.trainerSaves||{})};
    for(const trainer of TRAINERS){
@@ -161,6 +201,8 @@ export class App implements OnInit,OnDestroy {
    this.cloudWrites=this.cloudWrites.catch(()=>{}).then(async()=>{
      if(this.cloud.session?.uid!==uid)return;
      await this.cloud.save(snapshot);
+     // Minimal public directory writes must never block the private save.
+     void this.publishPlayerProfile();
      this.cloudStatus='✓ Online gespeichert';
      this.changeDetector.markForCheck();
    }).catch(error=>{
@@ -227,6 +269,7 @@ export class App implements OnInit,OnDestroy {
        }
      }
      this.cloudMaySave=true;this.cloudStatus='✓ Online gespeichert';this.cloudPin='';this.cloudUsername='';
+     void this.publishPlayerProfile();
      this.cloudMessage='';
    }catch(e){
      this.cloudMessage=cloudError(e);
@@ -260,7 +303,7 @@ export class App implements OnInit,OnDestroy {
      this.alert('Cloud-Speicherung fehlgeschlagen. Exportiere zur Sicherheit ein Backup und versuche es erneut, bevor du dich abmeldest.');
      return;
    }
-   this.cloud.signOut();this.cloudMaySave=false;this.clearDeviceProgress();
+   this.cloud.signOut();this.cloudMaySave=false;this.publicPlayers=[];this.publicProfileStamp='';this.friendsError='';this.clearDeviceProgress();
    this.profile=initial();this.nicknameEdit=this.profile.nickname;
    this.cloudMode='login';this.cloudStatus='Abgemeldet';this.cloudMessage='';
    this.view='dashboard';this.intro=false;write(INTRO,'1');
@@ -522,7 +565,7 @@ export class App implements OnInit,OnDestroy {
    }
    this.avatarPickerOpen=false;this.save();this.alert('🖌️ Avatar aktualisiert!');
  }
- go(page:View){if(page==='achievements'||page==='shop')this.syncTrainer();this.view=page;this.selected=null;this.previewed=null;if(page==='shop')this.shopTab='catalog';window.scrollTo({top:0,behavior:'smooth'});}
+ go(page:View){if(page==='achievements'||page==='shop')this.syncTrainer();this.view=page;this.selected=null;this.previewed=null;if(page==='shop')this.shopTab='catalog';if(page==='friends')void this.refreshFriends();window.scrollTo({top:0,behavior:'smooth'});}
  choose(id:string){if(!this.subjectHasTrainer(id))return;this.selected=id;this.view='subjects';window.scrollTo({top:0,behavior:'smooth'});}
  startImport(){this.intro=false;this.importOpen=true;write(INTRO,'1');}
  skipIntro(){this.intro=false;write(INTRO,'1');}
