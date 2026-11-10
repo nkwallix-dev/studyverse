@@ -223,12 +223,12 @@
             <p class="shop-owned-empty" *ngIf="filteredItems.length===0">🎒 Hier ist gerade alles in deinem Inventar. Deaktiviere den Filter, um deine gekauften Items wiederzusehen.</p>
 
             <div class="item-grid drop-item-grid">
-              <article class="item drop-item" *ngFor="let item of filteredItems" [class.locked]="!isUnlocked(item)" [class.owned]="owns(item)">
+              <article class="item drop-item" *ngFor="let item of filteredItems" [attr.data-category]="item.group" [class.locked]="!isUnlocked(item)" [class.owned]="owns(item)">
                 <div class="item-art drop-item-art" [class.avatar-art]="item.group==='avatar'" [class.panda-art]="item.id==='dsai_panda'" [style.background]="themeStyle(item)">
                   <span class="item-spark one">✦</span><span class="big-item-icon">{{item.icon}}</span><span class="item-spark two">✧</span>
                 </div>
                 <div class="item-meta"><span class="item-kind">{{groupLabel(item.group)}}</span></div>
-                <h3 class="item-title-row"><span class="item-name">{{item.name}}</span>
+                <h3 class="item-title-row"><span class="item-name">{{item.name}}<span class="item-name-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></span>
                   <span class="item-inline-status owned" *ngIf="owns(item)">✓ OWNED</span>
                   <span class="item-inline-status locked-status" *ngIf="!owns(item) && !isUnlocked(item)">🔒 LOCKED</span>
                 </h3><p>{{item.desc}}</p>
@@ -269,13 +269,13 @@
             </div>
             <div class="inventory-results"><strong>{{inventoryItems.length}} Items</strong><span>in deiner Auswahl</span></div>
             <div class="item-grid drop-item-grid inventory-item-grid" *ngIf="inventoryItems.length">
-              <article class="item inventory-item" *ngFor="let item of inventoryItems" [class.equipped]="active(item)">
+              <article class="item inventory-item" *ngFor="let item of inventoryItems" [attr.data-category]="item.group" [class.equipped]="active(item)">
                 <div class="item-art drop-item-art" [class.avatar-art]="item.group==='avatar'" [class.panda-art]="item.id==='dsai_panda'" [style.background]="themeStyle(item)">
                   <span class="item-spark one">✦</span><span class="big-item-icon">{{item.icon}}</span>
                   <span class="item-spark two">✧</span>
                 </div>
                 <div class="inventory-item-detail"><small>{{dropLabel(item.drop)}} · {{groupLabel(item.group)}}</small>
-                  <h3 class="item-title-row"><span class="item-name">{{item.name}}</span>
+                  <h3 class="item-title-row"><span class="item-name">{{item.name}}<span class="item-name-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></span>
                     <span class="item-inline-status equipped-status" *ngIf="active(item)">✓ Ausgerüstet</span>
                   </h3><p>{{item.desc}}</p>
                 </div>
@@ -334,7 +334,7 @@
   <label for="profile-title-select">Dein Titel</label>
   <select id="profile-title-select" class="profile-title-select" [ngModel]="profile.equipped['title'] || ''" (ngModelChange)="setProfileTitle($event)">
     <option value="">✦ Weltenentdecker (Standard)</option>
-    <option *ngFor="let item of unlockedTitles" [value]="item.id">{{item.icon}} {{item.name}}</option>
+    <option *ngFor="let item of unlockedTitles" [value]="item.id">{{item.icon}} {{itemDisplayName(item)}}</option>
   </select>
   <small>Nur freigeschaltete Titel · Wird direkt gespeichert</small>
 </div>
@@ -386,7 +386,7 @@
       <div class="avatar-pick-grid">
         <button type="button" class="avatar-pick-item" [class.picked]="currentAvatar==='🧪'" (click)="selectProfileAvatar('default')"><span>🧪</span><b>Standard</b><small>{{currentAvatar==='🧪'?'✓ Ausgewählt':'Gratis'}}</small></button>
         <button type="button" class="avatar-pick-item" *ngFor="let item of unlockedAvatars" [class.picked]="currentAvatar===item.icon" (click)="selectProfileAvatar(item.id)">
-          <span>{{item.icon}}</span><b>{{item.name}}</b><small>{{currentAvatar===item.icon?'✓ Ausgewählt':'Ausrüsten'}}</small>
+          <span>{{item.icon}}</span><b>{{itemDisplayName(item)}}</b><small>{{currentAvatar===item.icon?'✓ Ausgewählt':'Ausrüsten'}}</small>
         </button>
       </div>
       <p *ngIf="unlockedAvatars.length===0" class="avatar-picker-hint">Weitere Avatare findest du in den Drops des Item-Shops.</p>
@@ -479,7 +479,7 @@
       </div>
       <div class="preview-visual" *ngIf="item.group==='avatar'||item.group==='title'" [style.background]="themeStyle(item)"><span>{{item.icon}}</span><i>✦</i></div>
       <div class="eyebrow">LIVE-VORSCHAU · {{item.drop==='global'?'STUDYVERSE GLOBAL':item.drop==='dsai-test-01'?'Dsaiverse DROP':'CHEMVERSE DROP'}}</div>
-      <h2>{{item.name}}</h2><p>{{item.desc}}</p>
+      <h2 class="preview-item-name">{{item.name}}<span class="preview-item-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></h2><p>{{item.desc}}</p>
       <div class="preview-requirement" [class.ready]="itemProgressPercent(item)===100">
         {{itemProgressPercent(item)===100?'✓ Lernziel erfüllt':'⏳ Lernziel in Arbeit'}} · {{requirementLabel(item)}}
       </div>
