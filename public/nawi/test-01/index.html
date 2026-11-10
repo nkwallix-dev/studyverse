@@ -352,11 +352,10 @@ const SHOP=[
 {id:'neon',kind:'theme',icon:'🟢',name:'Toxic Neon',cost:160,desc:'Grün-violette Labornacht. Leuchtet schon beim Anschauen.',group:'theme',bg:'linear-gradient(125deg,#2f104d,#85ff50)'},
 {id:'pizza',kind:'theme',icon:'🍕',name:'Lehrer-Pizza',cost:230,desc:'Goldgelbe Cheeseboard-Hölle. Wer bestellt den Stoff?',group:'theme',bg:'linear-gradient(125deg,#773420,#ffc778)'},
 {id:'cosmic',kind:'theme',icon:'🌌',name:'Galaxy',cost:350,desc:'Galaktisches Design mit dunklem Violett, leuchtenden Nebeln und Sternen.',group:'theme',bg:'radial-gradient(circle at 70% 40%,#f872e8,#190852 45%,#03031c)'},
-{id:'gold',kind:'theme',icon:'👑',name:'Professor Prestige',cost:520,level:10,desc:'Schwarzes Goldlabor mit Luxus-Rahmen.',group:'theme',bg:'linear-gradient(125deg,#15100a,#ab7e27)'},
 {id:'ocean',kind:'theme',icon:'🌊',name:'Tiefsee-Labor',cost:220,desc:'Petrol, Unterwasser-Ringe und Aquarium-Vibes.',group:'theme',bg:'linear-gradient(125deg,#00273d,#4de6c8)'},
-{id:'arcade',kind:'theme',icon:'🕹️',name:'1987 Arcade',cost:310,level:12,desc:'Cyberpink und Spielfeldraster aus dem Automaten.',group:'theme',bg:'linear-gradient(125deg,#4d125f,#ff32c1,#00dabe)'},
-{id:'lava',kind:'theme',icon:'🌋',name:'Reaktor-Kern',cost:270,desc:'Lava, heiße Flammenfarben, viel zu gefährlich fürs Labor.',group:'theme',bg:'linear-gradient(125deg,#160408,#ff6d21)'},
-{id:'frost',kind:'theme',icon:'❄️',name:'Absolute Null',cost:260,desc:'Kalte Eiswelt aus Blau und Silber.',group:'theme',bg:'linear-gradient(125deg,#071e41,#9aeaff)'},
+{id:'arcade',kind:'theme',icon:'🕹️',name:'1987 Arcade',cost:310,level:15,desc:'Cyberpink und Spielfeldraster aus dem Automaten.',group:'theme',bg:'linear-gradient(125deg,#4d125f,#ff32c1,#00dabe)'},
+{id:'lava',kind:'theme',icon:'🌋',name:'Reaktor-Kern',cost:270,level:13,desc:'Vulkanisches Reaktor-Theme · ab Level 13.',group:'theme',bg:'linear-gradient(125deg,#160408,#ff6d21)'},
+{id:'frost',kind:'theme',icon:'❄️',name:'Absolute Null',cost:260,level:12,desc:'Kalte Eiswelt aus Blau und Silber · ab Level 12.',group:'theme',bg:'linear-gradient(125deg,#071e41,#9aeaff)'},
 {id:'sakura',kind:'theme',icon:'🌸',name:'Kawaii Chemie',cost:290,level:7,desc:'Pastellrosa und sanfte Rosé-Akzente.',group:'theme',bg:'linear-gradient(125deg,#391132,#ffa9df)'},
 {id:'matrix',kind:'theme',icon:'💾',name:'Matrix.EXE',cost:320,level:8,desc:'Tiefschwarz, Giftgrün, laufende Code-Atmosphäre.',group:'theme',bg:'linear-gradient(125deg,#010a03,#198d39)'},
 {id:'sunset',kind:'theme',icon:'🌅',name:'Vaporwave Sunset',cost:340,level:9,desc:'Sonnenuntergang mit Neon-Himmel und Retro-Energie.',group:'theme',bg:'linear-gradient(125deg,#47115e,#e56d77,#ffbd64)'},
@@ -367,20 +366,20 @@ const SHOP=[
 {id:'stars',kind:'atm',icon:'✨',name:'Sternenhimmel',cost:100,desc:'Funkelnde Sternpunkte über deiner gesamten App.',group:'atm'},
 {id:'grid',kind:'atm',icon:'📊',name:'Laser-Gitter',cost:110,level:4,desc:'Transparentes Sci-Fi-Gitter hinter allen Seiten.',group:'atm'},
 {id:'snow',kind:'atm',icon:'🌨️',name:'Chemie-Schnee',cost:125,desc:'Langsam gleitende Schneeflocken, auch im November.',group:'atm'},
-{id:'bubbles',kind:'atm',icon:'🫧',name:'Reagenzglas-Blasen',cost:115,level:3,desc:'Aufsteigende, halbtransparente Bläschen.',group:'atm'},
-{id:'laser',kind:'atm',icon:'🔦',name:'Laserkäfig',cost:175,level:5,desc:'Bewegliche schräge Lichtbahnen durchs Labor.',group:'atm'},
+{id:'bubbles',kind:'atm',icon:'🫧',name:'Reagenzglas-Blasen',cost:115,level:5,desc:'Aufsteigende, halbtransparente Bläschen.',group:'atm'},
+{id:'laser',kind:'atm',icon:'🔦',name:'Laserkäfig',cost:175,level:13,desc:'Bewegliche schräge Lichtbahnen durchs Labor.',group:'atm'},
 {id:'sparkles',kind:'atm',icon:'💫',name:'Zauberpartikel',cost:210,level:12,desc:'Sternstaub im gesamten Hintergrund.',group:'atm'},
 {id:'confetti',kind:'atm',icon:'🎊',name:'Partyraum',cost:150,desc:'Konfetti als permanente Bildschirmkulisse.',group:'atm'},
 {id:'glow',kind:'frame',icon:'💡',name:'Neon-Rahmen',cost:110,desc:'Leuchtende Kanten an allen Karten.',group:'frame'},
-{id:'goldframe',kind:'frame',icon:'🏆',name:'Goldrand',cost:150,level:4,desc:'Vergoldete Premium-Panel-Umrandungen.',group:'frame',equip:'gold'},
+{id:'goldframe',kind:'frame',icon:'🏆',name:'Goldrand',cost:150,level:14,desc:'Vergoldete Premium-Panel-Umrandungen.',group:'frame',equip:'gold'},
 {id:'pixel',kind:'frame',icon:'👾',name:'Pixel-Ecken',cost:155,desc:'Hartkantiges Retro-Gaming statt Soft-UI.',group:'frame'},
 {id:'dashed',kind:'frame',icon:'📝',name:'Skriptum-Style',cost:120,desc:'Gestrichelte Notiz-Umrandungen.',group:'frame'},
 {id:'prism',kind:'frame',icon:'💎',name:'Regenbogenprisma',cost:215,level:6,desc:'Farbverläufe an den Kartenkanten.',group:'frame'},
-{id:'legend',kind:'frame',icon:'⚜️',name:'LEGENDEN-RAHMEN',cost:0,level:5,desc:'Gratis-Belohnung für Level 5: goldene Ränder.',group:'frame'},
+{id:'legend',kind:'frame',icon:'⚜️',name:'Legenden-Rahmen',cost:330,level:15,desc:'Goldglühender Prestige-Rahmen, jetzt als Level-15-Belohnung kaufbar. Frühere Besitzer behalten ihn.',group:'frame'},
 {id:'avatar_pizza',kind:'avatar',icon:'🍕',name:'Pizza-Gehirn',cost:60,desc:'Pizza als Profilkopf. Wissenschaft.',group:'avatar'},
-{id:'avatar_alien',kind:'avatar',icon:'👽',name:'Alien-Genie',cost:90,level:4,desc:'Lerne organische Chemie intergalaktisch.',group:'avatar'},
-{id:'avatar_frog',kind:'avatar',icon:'🐟',name:'Laborfisch',cost:75,level:2,desc:'Der Fisch weiß Bescheid.',group:'avatar'},
-{id:'avatar_dragon',kind:'avatar',icon:'🐉',name:'Chemie-Drache',cost:180,level:5,desc:'Prüfungsboss-Level in einem einzigen Avatar.',group:'avatar'},
+{id:'avatar_alien',kind:'avatar',icon:'👽',name:'Alien-Genie',cost:90,level:16,desc:'Lerne organische Chemie intergalaktisch.',group:'avatar'},
+{id:'avatar_frog',kind:'avatar',icon:'🐟',name:'Laborfisch',cost:75,level:5,desc:'Der Fisch weiß Bescheid.',group:'avatar'},
+{id:'avatar_dragon',kind:'avatar',icon:'🐉',name:'Chemie-Drache',cost:180,level:10,desc:'Prüfungsboss-Level in einem einzigen Avatar.',group:'avatar'},
 {id:'avatar_brain',kind:'avatar',icon:'🧠',name:'Galaxy-Brain',cost:105,level:11,desc:'Sichtbarer Intelligenz-Bonus (nur optisch).',group:'avatar'},
 {id:'avatar_atom',kind:'avatar',icon:'⚛️',name:'Atom-Champion',cost:0,level:2,desc:'Dein kostenloses Level-2-Abzeichen.',group:'avatar'},
 {id:'avatar_crown',kind:'avatar',icon:'👑',name:'Goldkrone',cost:220,level:8,desc:'König aller Kohlenwasserstoffe.',group:'avatar'},
@@ -392,9 +391,9 @@ const SHOP=[
 {id:'font_mono',kind:'font',icon:'⌨️',name:'Terminal-Schrift',cost:95,level:2,desc:'Alles sieht aus wie ein Hackerterminal.',group:'font',equip:'mono'},
 {id:'font_serif',kind:'font',icon:'📚',name:'Akademie-Schrift',cost:95,level:3,desc:'Edles Lehrbuch-Feeling.',group:'font',equip:'serif'},
 {id:'font_comic',kind:'font',icon:'😂',name:'Comic-Katastrophe',cost:155,desc:'Ja, wir machen Chemie im Comic-Stil.',group:'font',equip:'comic'},
-{id:'font_wide',kind:'font',icon:'🖋️',name:'Designer-Typo',cost:125,level:6,desc:'Klarere breite Schrift, viel Premium-Gefühl.',group:'font',equip:'wide'},
+{id:'font_wide',kind:'font',icon:'🖋️',name:'Designer-Typo',cost:125,level:14,desc:'Klarere breite Schrift, viel Premium-Gefühl.',group:'font',equip:'wide'},
 {id:'banner_gold',kind:'banner',icon:'🎖️',name:'Gold-Command',cost:140,level:11,desc:'Goldene Hero-Kommandozentrale.',group:'banner',equip:'gold'},
-{id:'banner_warning',kind:'banner',icon:'⚠️',name:'Gefahrenlabor',cost:150,level:5,desc:'Labor-Warnstreifen im Dashboard.',group:'banner',equip:'warning'},
+{id:'banner_warning',kind:'banner',icon:'⚠️',name:'Gefahrenlabor',cost:150,level:16,desc:'Labor-Warnstreifen im Dashboard.',group:'banner',equip:'warning'},
 {id:'banner_galaxy',kind:'banner',icon:'🌠',name:'Galaxie-Portal',cost:190,level:7,desc:'Space-Portal als riesiges Dashboard-Banner.',group:'banner',equip:'galaxy'},
 {id:'effects',kind:'extra',icon:'🎉',name:'Confetti Overdrive',cost:90,desc:'Buntes Konfetti bei richtigen Aufgaben.',group:'fx'},
 {id:'effect_coinrain',kind:'extra',icon:'🪙',name:'Coin-Regen',cost:100,level:10,desc:'Nach jeder XP-Belohnung fallen Goldmünzen über den Bildschirm.',group:'fx'},
@@ -712,7 +711,7 @@ function renderShop(){let groups=[['all','🛍️ Alle'],['theme','🎨 Themes']
  <div class="panel shop-stats"><div><div class="kicker">🪙 DEIN WALLET</div><div class="num" style="color:var(--gold)">${state.coins} TastyTokens</div><div class="small muted">${nOwned}/${SHOP.length} Items im Inventar · Level ${currentLevel()}</div></div>
  <div class="btnrow">${button('⚡ TastyTokens farmen','go:quiz','btn secondary')}<button class="btn ghost" id="shopResetLook">🎨 Outfit zurücksetzen</button></div></div>
  <div class="level-claim"><div><div class="kicker" style="color:var(--gold)">🎁 LEVEL-UP-LOOT</div><h2 style="margin:4px 0">Level-Boni & neue Shop-Items</h2><p class="small muted" style="margin:0">Einmalige Coin-Boni pro erreichtem Level bleiben erhalten. Ab bestimmten Levels kommen neue kaufbare Shop-Items dazu. Nächster Coin-Bonus bei Level ${next}: <b>+${levelBounty(next)} TastyTokens</b>.</p></div><span class="tag gold">🎖️ ${Object.keys(state.claimedLevels||{}).length} Stufen</span></div>
- <div class="panel" style="margin-top:16px;margin-bottom:16px"><div class="kicker">🔓 LEVEL-SHOP · NEUE ANGEBOTE</div><h2 style="margin:7px 0 10px">Level aufsteigen → neue Items kaufen</h2><p class="small muted" style="margin:0 0 13px">Deine TastyTokens bleiben deine Entscheidung: Ein Level schaltet neue kaufbare Items frei, es verschenkt sie nicht. Gratis-Meilensteine (Level 2–5) bleiben geschenkt. Was du bereits besitzt, bleibt auch bei nachträglichen Level-Grenzen deins.</p><div class="shop-roadmap">${Object.entries(roadmap).map(([lv,items])=>`<div class="shop-milestone ${Number(lv)<=currentLevel()?'reached':''}"><div class="shop-milestone-level">${Number(lv)<=currentLevel()?'✓':'🔒'} LV ${lv}</div><div class="small">${items.map(s=>`${s.icon} ${h(s.name)}`).join(' · ')}</div><div class="small muted">${Number(lv)<=currentLevel()?'Im Shop kaufbar':'Noch '+Math.max(0,Number(lv)-currentLevel())+' Level'}</div></div>`).join('')}</div></div>
+ <div class="panel" style="margin-top:16px;margin-bottom:16px"><div class="kicker">🔓 LEVEL-SHOP · NEUE ANGEBOTE</div><h2 style="margin:7px 0 10px">Level aufsteigen → neue Items kaufen</h2><p class="small muted" style="margin:0 0 13px">Deine TastyTokens bleiben deine Entscheidung: Ein Level schaltet neue kaufbare Items frei, es verschenkt sie nicht. Gratis-Meilensteine (Level 2–4) bleiben geschenkt. Was du bereits besitzt, bleibt auch bei nachträglichen Level-Grenzen deins.</p><div class="shop-roadmap">${Object.entries(roadmap).map(([lv,items])=>`<div class="shop-milestone ${Number(lv)<=currentLevel()?'reached':''}"><div class="shop-milestone-level">${Number(lv)<=currentLevel()?'✓':'🔒'} LV ${lv}</div><div class="small">${items.map(s=>`${s.icon} ${h(s.name)}`).join(' · ')}</div><div class="small muted">${Number(lv)<=currentLevel()?'Im Shop kaufbar':'Noch '+Math.max(0,Number(lv)-currentLevel())+' Level'}</div></div>`).join('')}</div></div>
  ${preview}<div class="shop-tabs">${groups.map(([k,label])=>`<button class="${shopFilter===k?'sel':''}" data-shop-group="${k}">${label}</button>`).join('')}</div>
  <div class="grid">${list.map(s=>{let owned=shopOwned(s),locked=!owned&&((s.level&&currentLevel()<s.level)||!shopUnlocked(s)),active=shopIsActive(s),isPrev=shopPreview?.id===s.id;return `<article class="panel span4 shop-card ${locked?'locked':''}" data-item="${s.id}"><div class="art" style="${s.bg?'background:'+s.bg:''}">${s.icon}</div><div class="row-mini"><span class="tag ${s.level?'gold':'good'}">${s.level?'🔓 LEVEL '+s.level:s.requirement?'👹 BOSS '+s.requirement.value+'%':s.group.toUpperCase()}</span><span class="tag ${owned?'good':locked?'warn':'gold'}">${owned?'✓ IM INVENTAR':locked?(s.requirement?'🔒 BOSS '+s.requirement.value+'%':'🔒 AB LEVEL '+s.level):s.cost===0?'🎁 GRATIS':'🪙 '+s.cost}</span></div><h3>${h(s.name)}</h3><p>${h(s.desc)}</p><div class="actions"><button class="btn ${owned?'secondary':''}" data-buy="${s.id}" ${locked||(!owned&&state.coins<s.cost)?'disabled':''}>${locked?(s.requirement?'🔒 Boss '+s.requirement.value+'% nötig':'🔒 Level '+s.level+' · '+s.cost+' 🪙'):!owned?'🪙 '+s.cost+' · Kaufen':active?'✓ Aktiv · Ablegen':'✨ Anziehen'}</button><button class="btn ghost" data-preview="${s.id}" aria-label="Vorschau ${h(s.name)}">${isPrev?'✕':'👁️'}</button></div></article>`}).join('')}</div><div class="notice" style="margin-top:17px">🌌 <b>Dein Besitz bleibt erhalten.</b> Auch bereits gekaufte Items mit neuen Level-Voraussetzungen darfst du weiter verwenden. Level-Belohnungen mit 0 TastyTokens bleiben gratis; neue Level-Shop-Angebote kaufst du bei Erreichen des Levels mit TastyTokens.</div>`);
  $$('[data-shop-group]').forEach(b=>b.onclick=()=>{shopFilter=b.dataset.shopGroup;renderShop()});$$('[data-buy]').forEach(b=>b.onclick=()=>buyItem(b.dataset.buy));$$('[data-preview]').forEach(b=>b.onclick=()=>previewItem(b.dataset.preview));let c=$('#shopClosePreview');if(c)c.onclick=()=>{shopPreview=null;updateTop();renderShop()};$('#shopResetLook').onclick=()=>{state.theme='base';state.loadout={...DEFAULT().loadout};state.effects=false;state.title=false;shopPreview=null;save();renderShop()};wireActions()}
@@ -854,6 +853,9 @@ function openLesson(id){if(!LEARNPATH.some(l=>l.id===id))return;lessonSession.id
 // LEVEL-REWARDS V3 · retroaktive, einmalige Claims; niemals XP abziehen.
 function levelBounty(level){return 60+(level-1)*60}
 function ensureCosmeticState(){if(!state.purchased||typeof state.purchased!=='object')state.purchased={};
+ // Legacy Level-5 players already owned the once-free legend frame: protect that entitlement.
+ // On a fresh profile the marker is set at Level 1, so reaching Level 5 later never skips the new Level-15 gate.
+ if(!state.legendLevel15MigrationV1){if(currentLevel()>=5)state.purchased.legend=true;state.legendLevel15MigrationV1=true;}
  if(!state.loadout||typeof state.loadout!=='object')state.loadout={...DEFAULT().loadout};
 if(state.loadout.avatar==='🐸')state.loadout.avatar='🐟'; // Existing avatar_frog owners keep their purchased item
  state.loadout={...DEFAULT().loadout,...state.loadout};
