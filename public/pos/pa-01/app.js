@@ -72,6 +72,24 @@ function show(next,detail){
  if(next==='boss')startBoss();
  render();window.scrollTo(0,0);
 }
+
+// Same progress-first completion pattern as DSAIVERSE and Chemverse.
+function sharpPending(mode){
+ if(mode==='academy')return D.lessons.filter(x=>!s.courseDone[x.id]);
+ if(mode==='writing')return WRITING.filter(x=>!s.writingDone[x.id]);
+ return questionsFor(mode).filter(x=>!s.solved['d'+x.id]);
+}
+function sharpFinishControl(mode){
+ const left=sharpPending(mode).length;
+ return left?choice('🎯 Fertig stellen ('+left+')','finish:'+mode,'secondary'):'<span class="tag">✓ Alles erledigt</span>';
+}
+function finishSharpMode(mode){
+ const pending=sharpPending(mode);
+ if(!pending.length){toast('Alle Aufgaben in diesem Bereich erledigt! 🏆');return}
+ if(mode==='academy'){show('lesson',pending[0].id);return}
+ if(mode==='writing'){show('writing');writeMode(pending[0].id);return}
+ show(mode);playQuestion(pending[0].id);
+}
 function progress(){return {lessons:count(s.courseDone),code:D.challenges.filter(x=>x.kind==='code'&&s.solved['d'+x.id]).length,transfer:D.challenges.filter(x=>x.kind==='transfer'&&s.solved['d'+x.id]).length,writing:count(s.writingDone)};}
 function questionsFor(mode){
  if(mode==='code')return D.challenges.filter(q=>q.kind==='code');
@@ -172,6 +190,7 @@ function home(){
  '<div class="hero-actions">'+choice('📘 Lernpfad starten','view:academy','primary')+choice('⚡ Threading simulieren','view:lab','secondary')+'</div>'+
  '<div class="hero-emblem">C<span>#</span></div></section>'+
  '<section class="stats">'+stat('LERNLEKTIONEN',p.lessons+'/'+D.lessons.length,'Theorie plus Code','📘')+stat('CODE ERKANNT',p.code+'/'+D.challenges.filter(q=>q.kind==='code').length,'Code-Detective','🧩')+stat('TRANSFER',p.transfer+'/'+D.challenges.filter(q=>q.kind==='transfer').length,'Neue Kontexte','🧠')+stat('BOSS-REKORD',s.bestBoss+' %','100 % → Professor Spermann','👑')+'</section>'+
+ '<div class="actions">'+sharpFinishControl('academy')+sharpFinishControl('code')+sharpFinishControl('transfer')+sharpFinishControl('writing')+'</div>'+ 
  '<div class="section-heading"><h2>Deine Missionen <span>✦</span></h2><small>Wissen → Code → Transfer</small></div>'+
  '<div class="mode-grid">'+featured.map(([mode,icon,name,desc])=>'<button class="mode-card" data-action="view:'+mode+'"><span class="mode-icon">'+icon+'</span><strong>'+h(name)+'</strong><p>'+h(desc)+'</p><span class="arrow">Ansehen ↗</span></button>').join('')+'</div>'+
  '<section class="notice"><b>🎯 So läuft die 1. PA</b><p>In euren Übungsangaben stecken Counter, Primzahlen, Philosophen, Drei Raucher, Kreuzung, Achterbahn, ImageRotator und FloodFill. Der Kontext kann sich ändern – die Regeln für Thread-Sicherheit nicht. Extra Extensions sind berücksichtigt.</p></section>';
@@ -182,6 +201,7 @@ function academy(filter){
  return '<div class="eyebrow">'+(filter?'MICRO-ONBOARDING':'THEORIE → BEGREIFEN → CODE ANWENDEN')+'</div>'+
  '<h1 class="page-title">'+(filter?'Visual Studio <em>Survival.</em>':'Deine <em>Lernakademie.</em>')+'</h1>'+
  '<p class="subtitle">Keine 300 unverbundenen PowerPoint-Fakten. Die Theorie ist in 20 aufeinander aufbauende Lektionen zerlegt – mit Beispielcode und Transferwarnungen.</p>'+
+ '<div class="actions">'+sharpFinishControl('academy')+'</div>'+ 
  '<section class="notice"><b>🗺️ Lernroute</b><p>1. Visual Studio → 2. C# Basics → 3. Multithreading → 4. WPF. Du darfst jede Lektion direkt öffnen. Vergessene Grundbegriffe kannst du jederzeit nachholen.</p></section>'+
  groups.filter(g=>filtered.some(l=>l.group===g)).map(g=>{
  const arr=filtered.filter(l=>l.group===g),done=arr.filter(l=>s.courseDone[l.id]).length;
@@ -207,7 +227,7 @@ function challengePage(){
  const fb=lastFeedback&&lastFeedback.id===q.id?lastFeedback:null;
  return '<div class="eyebrow">'+caption+' · EIGENE DENKLEISTUNG</div><h1 class="page-title">'+(isExtra?'Die <em>Extra Extensions.</em>':challengeMode==='code'?'Code <em>lesen & reparieren.</em>':'Neue Situationen. <em>Gleiche Regeln.</em>')+'</h1>'+
  '<p class="subtitle">Alles, was du zum Lösen brauchst, steht in der Aufgabenstellung. Kein unsichtbarer Code, keine vorherige Aufgabe auswendig lernen.</p>'+
- '<div class="challenge-progress"><strong>'+achieved+' / '+pool.length+' gemeistert</strong>'+progressBar(achieved,pool.length)+'</div>'+
+ '<div class="challenge-progress"><strong>'+achieved+' / '+pool.length+' gemeistert</strong>'+progressBar(achieved,pool.length)+'</div><div class="actions">'+sharpFinishControl(challengeMode)+'</div>'+
  '<div class="challenge-layout"><section class="challenge-card"><div class="eyebrow">'+h(q.topic)+' · '+(pool.indexOf(q)+1)+'/'+pool.length+'</div><h2>'+h(q.title)+'</h2>'+
  escCode(q.code)+
  '<div class="answers">'+q.answers.map((a,i)=>'<button class="answer '+(fb?(i===q.right?'correct':i===fb.pick?'wrong':''):'')+'" data-action="answer:'+h(q.id)+':'+i+'" '+(fb?'disabled':'')+'><span>'+String.fromCharCode(65+i)+'</span>'+h(a)+'</button>').join('')+'</div>'+
@@ -218,7 +238,7 @@ function challengePage(){
 function writingPage(){
  const t=WRITING.find(x=>x.id===selectedWriting)||WRITING[0];const fb=lastFeedback&&lastFeedback.id===t.id?lastFeedback:null;
  return '<div class="eyebrow">MINI-PRAXIS · NICHT NUR ANKLICKEN</div><h1 class="page-title">Schreib den <em>Code selbst.</em></h1><p class="subtitle">Kleine Syntaxaufgaben als Brücke zur echten PA. Hier wird dein Text anhand bekannter Muster geprüft – das ist kein C#-Compiler. Für komplexe Aufgaben nutzt du Visual Studio.</p>'+
- '<div class="challenge-progress"><strong>'+count(s.writingDone)+' / '+WRITING.length+' geschrieben</strong>'+progressBar(count(s.writingDone),WRITING.length)+'</div>'+
+ '<div class="challenge-progress"><strong>'+count(s.writingDone)+' / '+WRITING.length+' geschrieben</strong>'+progressBar(count(s.writingDone),WRITING.length)+'</div><div class="actions">'+sharpFinishControl('writing')+'</div>'+
  '<div class="writing-layout"><div class="writing-card"><div class="eyebrow">'+h(t.name)+'</div><h2>'+h(t.prompt)+'</h2>'+escCode(t.before)+'<label class="field-label" for="writing-answer">Deine C#-Antwort</label><textarea id="writing-answer" spellcheck="false" autocapitalize="off" placeholder="Tippe hier C#-Code..."></textarea>'+
  '<div class="actions">'+choice('Code prüfen ✓','check-writing','primary')+choice('Nächste Aufgabe','next-writing','secondary')+'</div>'+
  (fb?'<div class="feedback '+(fb.correct?'right':'wrong')+'"><b>'+(fb.correct?'✅ Muster erkannt!':'⚠️ Das passt noch nicht.')+'</b><p>'+h(fb.correct?'Sauber. Vergleiche trotzdem mit Visual Studio, wenn du komplexere Varianten programmierst.':t.hint)+'</p><details><summary>Beispielantwort anzeigen</summary>'+escCode(t.sample)+'</details></div>':'')+
@@ -292,6 +312,7 @@ document.addEventListener('click',function(e){
  const el=e.target.closest('[data-action]');if(!el)return;
  const action=el.getAttribute('data-action');
  if(action==='menu'){menuOpen=!menuOpen;render();return;}
+ if(action.startsWith('finish:'))return finishSharpMode(action.slice(7));
  menuOpen=false;
  if(action.startsWith('view:'))return show(action.slice(5));
  if(action.startsWith('lesson:'))return show('lesson',action.slice(7));

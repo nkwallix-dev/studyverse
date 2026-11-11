@@ -1,5 +1,5 @@
 'use strict';
-// Public player directory regression: only display nickname + level, never login identity or private saves.
+// Public player directory regression: display safe cosmetics, never login identity or private saves.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const ts=require('typescript');
 const source=fs.readFileSync('src/app/cloud.ts','utf8');
@@ -11,7 +11,7 @@ const shopCss=fs.readFileSync('src/styles.scss','utf8');
 
 assert(rules.includes('match /users/{userId}')&&rules.includes('request.auth.uid == userId'),
  'Original private save must remain owner-only');
-assert(rules.includes('match /publicProfiles/{userId}')&&rules.includes("['nickname', 'level', 'updatedAt']"),
+assert(rules.includes('match /publicProfiles/{userId}')&&rules.includes("['nickname', 'level', 'avatar', 'title', 'updatedAt']"),
  'Public players must have a distinct collection with an exact field allowlist');
 assert(rules.includes('allow get, list: if request.auth != null'),
  'Only authenticated players may read the public directory');
@@ -21,6 +21,7 @@ assert((angular.match(/this\.profile\.nickname=this\.cloud\.session\.username/g)
  'Registration, manual sign-in and restored sessions must default Explorer to the short Studyverse account username');
 assert(!angular.includes("this.cloud.session!.email")&&!angular.includes("test@studyverse"),
  'Never publish the synthetic Firebase Authentication email address as a display name');
+assert(template.includes('player.avatar')&&template.includes('player.title'),'Friends cards must display equipped avatar and title');
 assert(template.includes('class="top-friends-link"')&&template.includes("(click)=\"go('friends')\""),
  'Friends button must be in the main topbar');
 assert(template.includes('*ngSwitchCase="\'friends\'"')&&template.includes('player.nickname')&&template.includes('player.level'),
@@ -65,14 +66,16 @@ const {StudyverseCloud}=mod.exports;
 (async()=>{
  const cloud=new StudyverseCloud();
  await cloud.initialize();
- await cloud.publishPublicProfile('Niki',8);
+ await cloud.publishPublicProfile('Niki',8,'🧪','Weltenentdecker');
  const patch=requests.find(x=>x.method==='PATCH');
- assert(patch.url.endsWith('/publicProfiles/firebase-user-123?updateMask.fieldPaths=nickname&updateMask.fieldPaths=level&updateMask.fieldPaths=updatedAt'),
-  'Write only to current user public doc with three explicit update masks');
+ assert(patch.url.endsWith('/publicProfiles/firebase-user-123?updateMask.fieldPaths=nickname&updateMask.fieldPaths=level&updateMask.fieldPaths=avatar&updateMask.fieldPaths=title&updateMask.fieldPaths=updatedAt'),
+  'Write only to current user public doc with five explicit update masks');
  const body=JSON.parse(patch.body);
- assert.deepEqual(Object.keys(body.fields).sort(),['level','nickname','updatedAt']);
+ assert.deepEqual(Object.keys(body.fields).sort(),['avatar','level','nickname','title','updatedAt']);
  assert.equal(body.fields.nickname.stringValue,'Niki');
  assert.equal(body.fields.level.integerValue,'8');
+ assert.equal(body.fields.avatar.stringValue,'🧪');
+ assert.equal(body.fields.title.stringValue,'Weltenentdecker');
  assert(!JSON.stringify(body).includes('db_login_name')&&!JSON.stringify(body).includes('token-123'),
   'Public document must never include Auth usernames or tokens');
  const entries=await cloud.listPublicProfiles();
@@ -80,5 +83,5 @@ const {StudyverseCloud}=mod.exports;
  assert.deepEqual(entries.map(x=>x.nickname).join(','),'Niki,Kogi,Gwendi','Sort by level, descending');
  assert.deepEqual(entries.map(x=>x.level).join(','),'8,5,3','Display exact level from documents');
  assert(requests.filter(x=>x.url.includes('/publicProfiles')&&x.method==='GET').length===2,'Both pages read');
- console.log('PASS: public player directory publishes nickname+level only, paginates, sorts and protects private cloud saves.');
+ console.log('PASS: public player directory publishes safe cosmetics with nickname/level, paginates, sorts and protects private saves.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
