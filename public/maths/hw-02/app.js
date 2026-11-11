@@ -305,29 +305,97 @@
  document.addEventListener('click',event=>{
   const key=event.target.closest('[data-math-key]');
   if(key&&key.dataset?.mathKey){
-   const input=$('#'+key.dataset.mathTarget);
+   const input=key.dataset.mathTarget==='mathcad-active'?
+    $('#pad-input-'+padActive):$('#'+key.dataset.mathTarget);
    if(!input)return;
    const start=Number.isInteger(input.selectionStart)?input.selectionStart:input.value.length;
    const end=Number.isInteger(input.selectionEnd)?input.selectionEnd:start;
    const result=K.apply(input.value,start,end,key.dataset.mathKey);
-   input.value=result.value;
-   input.focus?.();
-   input.setSelectionRange?.(result.caret,result.caret);
-   if(input.id==='builder-entry')builderDraft=result.value;
-   const preview=$('[data-preview="'+key.dataset.mathTarget+'"]');
-   if(preview)preview.innerHTML=K.pretty(result.value);
+   input.value=result.value;input.focus?.();input.setSelectionRange?.(result.caret,result.caret);
+   if(input.dataset?.padInput){
+    const region=padRegions.find(r=>r.id===input.dataset.padInput);
+    if(region)region.text=result.value.slice(0,240);
+    padPersist(false);
+    const preview=$('[data-pad-preview="'+input.dataset.padInput+'"]');
+    if(preview)preview.innerHTML=K.pretty(result.value);
+   }else{
+    if(input.id==='builder-entry')builderDraft=result.value;
+    const preview=$('[data-preview="'+input.id+'"]');
+    if(preview)preview.innerHTML=K.pretty(result.value);
+   }
    return;
   }
   const button=event.target.closest('[data-action]');
-  if(!button||!button.dataset?.action)return;
-  route(button.dataset.action);
+  if(button?.dataset?.action){route(button.dataset.action);return}
+  const sheet=event.target.closest('.mathcad-sheet');
+  if(sheet&&screen==='practice'&&labMode==='builder'&&!event.target.closest('.mathcad-region')){
+   const point=C.position(event.clientX,event.clientY,sheet.getBoundingClientRect());
+   padAdd(point.x,point.y);
+  }
  });
  document.addEventListener('input',event=>{
   const input=event.target;
+  if(input?.dataset?.padInput){
+   const region=padRegions.find(r=>r.id===input.dataset.padInput);
+   if(!region)return;
+   region.text=String(input.value||'').slice(0,240);
+   padActive=region.id;padFeedback=null;
+   padPersist(false);
+   const preview=$('[data-pad-preview="'+region.id+'"]');
+   if(preview)preview.innerHTML=K.pretty(region.text);
+   return;
+  }
   if(!['builder-entry','math-entry','boss-entry'].includes(input?.id))return;
   if(input.id==='builder-entry')builderDraft=input.value;
   const preview=$('[data-preview="'+input.id+'"]');
   if(preview)preview.innerHTML=K.pretty(input.value);
+ });
+ document.addEventListener('focusin',event=>{
+  const id=event.target?.dataset?.padInput;
+  if(!id)return;
+  padActive=id;
+  const node=$('.mathcad-dock-title small');
+  if(node)node.textContent='Aktiv: '+id+' · Mathe-Tastatur schreibt hier hinein';
+ });
+ document.addEventListener('focusout',event=>{
+  if(event.target?.dataset?.padInput)padPersist();
+ });
+ document.addEventListener('keydown',event=>{
+  if(event.key!=='Enter'||screen!=='practice'||labMode!=='builder')return;
+  const id=event.target?.dataset?.padInput;
+  if(id){
+   event.preventDefault?.();
+   const region=padRegions.find(r=>r.id===id);
+   padAdd(region?.x??8,(region?.y??65)+145);
+  }else if(event.target?.classList?.contains?.('mathcad-sheet')){
+   event.preventDefault?.();padAdd();
+  }
+ });
+ document.addEventListener('pointerdown',event=>{
+  if(screen!=='practice'||labMode!=='builder')return;
+  const handle=event.target.closest?.('[data-pad-drag]');
+  const sheet=handle?.closest?.('.mathcad-sheet');
+  const region=handle&&padRegions.find(r=>r.id===handle.dataset.padDrag);
+  if(!region||!sheet)return;
+  const rect=sheet.getBoundingClientRect();
+  padDrag={id:region.id,px:event.clientX,py:event.clientY,x:region.x,y:region.y,width:Math.max(1,rect.width),moved:false};
+  handle.setPointerCapture?.(event.pointerId);
+  event.preventDefault?.();
+ });
+ document.addEventListener('pointermove',event=>{
+  if(!padDrag)return;
+  const region=padRegions.find(r=>r.id===padDrag.id);
+  if(!region)return;
+  region.x=Math.max(0,Math.min(80,Math.round((padDrag.x+(event.clientX-padDrag.px)/padDrag.width*100)*10)/10));
+  region.y=Math.max(10,Math.min(6000,Math.round(padDrag.y+event.clientY-padDrag.py)));
+  padDrag.moved=true;
+  const element=$('[data-pad-region="'+region.id+'"]');
+  if(element){element.style.setProperty('--pad-x',region.x+'%');element.style.top=region.y+'px'}
+ });
+ document.addEventListener('pointerup',()=>{
+  if(!padDrag)return;
+  const moved=padDrag.moved;padDrag=null;
+  if(moved){padPersist();render()}
  });
  document.addEventListener('submit',event=>{
   if(event.target.id==='answer-form'){event.preventDefault();checkPractice($('#math-entry')?.value||'')}
