@@ -203,18 +203,19 @@
           <p class="shop-test-explainer" id="shop-test-explainer">🎨 Jeder Test hat eigene Cosmetics. Wähle rechts deinen Test im Dropdown, um seine Items zu sehen. Die <strong>STUDYVERSE Essentials</strong> gelten für alle Tests.</p>
           <p class="shop-drop-hint" *ngIf="shopDrop==='global'">⚡ Maximal 2 neue Level-Items pro Stufe · ❄️ Absolute Null: Lv 12 · 🌋 Reaktor-Kern: Lv 13 · ⚜️ Legenden-Rahmen: Lv 15</p>
           <p class="shop-drop-hint" *ngIf="selectedDrop.status==='upcoming'">✧ Diese Kollektion ist noch nicht spielbar. Wähle einen anderen Drop.</p>
+          <div class="chips shop-category-chips">
+            <button type="button" *ngFor="let g of shopCategories" [class.selected]="shopGroup===g" (click)="shopGroup=g">
+              {{g==='Alle'?'Alle':groupLabel(g)}} <small *ngIf="g==='Alle'">({{dropItems.length}})</small>
+            </button>
+          </div>
           <ng-container *ngIf="selectedDrop.status==='live'">
-            <div class="chips shop-category-chips">
-              <button type="button" *ngFor="let g of shopCategories" [class.selected]="shopGroup===g" (click)="shopGroup=g">
-                {{g==='Alle'?'Alle':groupLabel(g)}} <small *ngIf="g==='Alle'">({{dropItems.length}})</small>
-              </button>
-            </div>
             <label class="shop-owned-toggle">
               <input type="checkbox" [(ngModel)]="hideOwnedItems">
               <span>✓ Bereits im Besitz ausblenden</span>
               <small>{{filteredItems.length}} Items angezeigt</small>
             </label>
-            <p class="shop-owned-empty" *ngIf="filteredItems.length===0">🎒 Hier ist gerade alles in deinem Inventar. Deaktiviere den Filter, um deine gekauften Items wiederzusehen.</p>
+            <p class="shop-owned-empty" *ngIf="filteredItems.length===0 && !selectedCategoryHasItems">✧ In {{selectedDrop.title}} gibt es aktuell keine {{groupLabel(shopGroup)}}. Du kannst die Kategorie trotzdem in einem anderen Test auswählen.</p>
+            <p class="shop-owned-empty" *ngIf="filteredItems.length===0 && selectedCategoryHasItems">🎒 In dieser Auswahl sind keine Items sichtbar. <span *ngIf="hideOwnedItems">Deaktiviere „Bereits im Besitz ausblenden“, um gekaufte Items wiederzusehen.</span></p>
 
             <div class="item-grid drop-item-grid">
               <article class="item drop-item" *ngFor="let item of filteredItems" [attr.data-category]="item.group" [class.locked]="!isUnlocked(item)" [class.owned]="owns(item)">
