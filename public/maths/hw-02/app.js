@@ -232,15 +232,28 @@
   const [verb,...rest]=action.split(':'),arg=rest.join(':');
   if(verb==='view'){screen=arg;render();return}
    if(verb==='mode'&&['understand','builder','test'].includes(arg)){labMode=arg;feedback='';solutionOpen=false;render();return}
-   if(verb==='builder-hint'){workHint=true;render();return}
+   if(verb==='builder-hint'){workHint=!workHint;render();return}
    if(verb==='builder-solution'){solutionOpen=!solutionOpen;render();return}
-   if(verb==='builder-back'){if(workIndex>0){workIndex--;const removed=workHistory.pop();builderDraft=removed?.written?removed.line:'';workHint=false;feedback='';phase=0}render();return}
-   if(verb==='builder-generate'){
-    const row=W.steps(current().id)[workIndex];if(!row)return;
-    workHistory.push({...row,written:false});workIndex++;workHint=false;builderDraft='';
-    feedback='Beispielschritt eingeblendet. Das Endergebnis musst du weiterhin selbst eingeben.';render();return;
+   if(verb==='pad-add'){padAdd();return}
+   if(verb==='pad-check'){padCheck(arg,false);return}
+   if(verb==='pad-result'){padCheck(arg,true);return}
+   if(verb==='pad-note'){
+    const region=padRegions.find(r=>r.id===arg);
+    if(region&&['draft','note'].includes(region.kind)){
+     region.kind='note';padActive=arg;padFeedback={ok:true,message:'Zwischenrechnung gespeichert. Du kannst sie jederzeit weiter bearbeiten.'};padPersist();render();padFocus(arg);
+    }
+    return;
    }
-  if(verb==='group'){group=arg;const first=filtered()[0];if(first)setTask(first.id);return}
+   if(verb==='pad-remove'){
+    const region=padRegions.find(r=>r.id===arg);
+    if(region&&['draft','note'].includes(region.kind)){
+     padRegions=padRegions.filter(r=>r.id!==arg);
+     if(padActive===arg)padActive=null;
+     padFeedback=null;padPersist();render();
+    }
+    return;
+   }
+   if(verb==='group'){group=arg;const first=filtered()[0];if(first)setTask(first.id);return}
   if(verb==='academy-group'){academyGroup=arg;academyFocus=null;render();return}
   if(verb==='academy-task'){academyFocus=arg;render();return}
   if(verb==='academy-for'){const t=D.tasks.find(x=>x.id===arg);if(t){academyGroup=t.group;academyFocus=t.id;screen='academy';render()}return}
@@ -262,22 +275,6 @@
    boss.index++;if(boss.index>=boss.ids.length)finishBoss();
    render();return;
   }
- }
- function checkBuilder(input){
-  const t=current(),row=W.steps(t.id)[workIndex];
-  if(!row)return;
-  builderDraft=input;
-  const result=W.compare(input,row);
-  if(result.ok){
-   workHistory.push({...row,written:true,line:input});workIndex++;
-   builderDraft='';workHint=false;attempts=0;
-   // A correct final handwritten answer already completes the exercise.
-   if(workIndex>=W.steps(t.id).length&&E.check(t,input).ok){checkPractice(input);return}
-   feedback=workIndex>=W.steps(t.id).length?
-    '✅ Alle Schritte stimmen! Gib jetzt noch das Endergebnis ein.':
-    '✅ Passt! Dein Schritt steht im Rechenheft. Weiter mit dem nächsten.';
-  }else{attempts++;feedback=result.message}
-  render();
  }
  function checkPractice(input){
   const t=current(),res=E.check(t,input);
@@ -334,7 +331,6 @@
  });
  document.addEventListener('submit',event=>{
   if(event.target.id==='answer-form'){event.preventDefault();checkPractice($('#math-entry')?.value||'')}
-   if(event.target.id==='builder-form'){event.preventDefault();checkBuilder($('#builder-entry')?.value||'')}
   if(event.target.id==='boss-form'){event.preventDefault();checkBoss($('#boss-entry')?.value||'')}
  });
  // Hash-based shortcuts let Studyverse route directly to individual trainers.
