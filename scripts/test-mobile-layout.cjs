@@ -199,13 +199,19 @@ async function main(){
      path:path.join(screenshots,world.toLowerCase()+'-390.png'),fullPage:true
     });
     if(width<=430){
-     const menu=page.locator(world==='Chemverse'?'#menuBtn':world==='Dsaiverse'?'#mobileMenu':'.mobile-menu');
-     await menu.click();
-     const drawer=page.locator(world==='Sharpverse'?'.sidebar':'#sidebar');
-     await page.waitForTimeout(120);
-     assert(await drawer.evaluate(e=>e.classList.contains('open')),
-      'Mobile navigation drawer must open in '+world);
-     if(world==='Dsaiverse'||world==='Sharpverse'){
+     if(world==='Chemverse'){
+      assert.equal(await page.locator('#menuBtn').count(),0,'Chemverse no longer uses a burger button');
+      const nav=page.locator('#nav');
+      assert(await nav.isVisible(),'Chemverse mobile learning tabs must remain accessible');
+      await nav.locator('[data-nav="academy"]').click();
+      await check(page,'Chemverse Academy '+width);
+     }else{
+      const menu=page.locator(world==='Dsaiverse'?'#mobileMenu':'.mobile-menu');
+      await menu.click();
+      const drawer=page.locator(world==='Sharpverse'?'.sidebar':'#sidebar');
+      await page.waitForTimeout(120);
+      assert(await drawer.evaluate(e=>e.classList.contains('open')),
+       'Mobile navigation drawer must open in '+world);
       await page.locator(world==='Dsaiverse'?'#nav button[data-nav="academy"]':'.nav-link[data-action="view:academy"]').click();
       await page.waitForTimeout(120);
       assert(!await drawer.evaluate(e=>e.classList.contains('open')),
@@ -291,9 +297,13 @@ async function main(){
     assert(layers.z<layers.appZ,world+' atmosphere must stay behind content');
     assert(atm==='none'?layers.opacity===0:layers.opacity>0,world+' should apply '+atm);
    }
-   // Sources are reachable through each trainer menu and contain no old settings.
-   const menu=cosmeticPage.locator(world==='Chemverse'?'#menuBtn':world==='Dsaiverse'?'#mobileMenu':'.mobile-menu');
-   await menu.click();
+   // Sources are reachable through each trainer navigation and contain no old settings.
+   if(world!=='Chemverse'){
+    const menu=cosmeticPage.locator(world==='Dsaiverse'?'#mobileMenu':'.mobile-menu');
+    await menu.click();
+   }else{
+    assert.equal(await cosmeticPage.locator('#menuBtn').count(),0,'Chemverse has no burger');
+   }
    const sourceNav=cosmeticPage.locator(world==='Sharpverse'?'[data-action="view:sources"]':'[data-nav="sources"]');
    await sourceNav.click();
    await cosmeticPage.locator('.sources-list').waitFor();
