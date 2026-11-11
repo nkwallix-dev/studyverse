@@ -95,7 +95,7 @@ assert.equal(saved().xp,before,'Repeating the same solution must not farm XP');
 assert(!elements['#app'].innerHTML.includes('class="token"'),'Keep standalone trainer wallet out of top header');
 click('view:boss');let bossCount=0;
 for(let i=0;i<10;i++){
- const task=D.tasks.find(t=>elements['#app'].innerHTML.includes(taskMath(t)));
+ const task=D.tasks.find(t=>elements['#app'].innerHTML.includes(t.id.replace('1.100-','1.100 / ')+' · '+t.group));
  assert(task,'Boss task must be displayed at step '+i);
  elements['#boss-entry'].value=task.answer;
  submit('boss-form');click('boss-next');bossCount++;
@@ -103,5 +103,4 @@ for(let i=0;i<10;i++){
 assert.equal(bossCount,10);
 assert.equal(saved().bestBoss,100,'Perfect boss result must be saved');
 assert(elements['#app'].innerHTML.includes('100 %'),'Boss result displayed');
-function taskMath(t){return String(t.math).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 console.log('MATHSVERSE PASS: 18 official tasks, 4 fully worked chapters, equivalent-input math checker, 3-step practice, persistent rewards, boss and cloud/trainer integration.');
