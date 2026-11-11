@@ -324,7 +324,7 @@
               <button type="button" class="btn secondary friends-refresh" [disabled]="friendsLoading" (click)="refreshFriends()">↻ Aktualisieren</button>
             </div>
             <div class="friends-summary"><strong>👥 {{publicPlayers.length}} Spieler</strong><span>Nach Level sortiert · Kein Login-Name und kein privater Spielstand</span></div>
-            <p class="friends-directory-note">Schon länger registriert? Bestehende Spieler erscheinen automatisch, sobald sie Studyverse mit der aktuellen Version erneut öffnen. Anzeigename und Level kommen aus „Mein Profil“.</p>
+            <p class="friends-directory-note">Schon länger registriert? Bestehende Spieler erscheinen automatisch, sobald sie Studyverse mit der aktuellen Version erneut öffnen. Anzeigename, Level, ausgerüsteter Character und ausgewählter Titel kommen aus „Mein Profil“.</p>
             <div class="friends-loading" *ngIf="friendsLoading">⏳ Spielerliste wird geladen …</div>
             <div class="friends-message" *ngIf="friendsError && !friendsLoading">{{friendsError}}</div>
             <div class="friends-list" *ngIf="!friendsLoading && !friendsError && publicPlayers.length">
