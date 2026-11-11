@@ -1,19 +1,20 @@
 'use strict';
 (function(){
- const D=window.MATHSVERSE_DATA,E=window.MATHSVERSE_MATH,W=window.MATHSVERSE_WORKBOOK,G=window.MATHSVERSE_GRAPHS,K=window.MATHSVERSE_KEYBOARD;
- if(!W||!G||!K)throw Error('MathsVerse: Rechenheft, Graphen oder Mathe-Tastatur fehlen.');
+ const D=window.MATHSVERSE_DATA,E=window.MATHSVERSE_MATH,W=window.MATHSVERSE_WORKBOOK,G=window.MATHSVERSE_GRAPHS,K=window.MATHSVERSE_KEYBOARD,C=window.MATHSVERSE_CANVAS;
+ if(!W||!G||!K||!C)throw Error('MathsVerse: Rechenheft, Graphen oder Mathe-Tastatur fehlen.');
  if(!D||!E)throw Error('MathsVerse: Aufgaben oder Rechenkern fehlen.');
  const KEY='mathsverse_hw02_v1',PROFILE='studyverse_profile_v1';
  const $=s=>document.querySelector(s),money=n=>new Intl.NumberFormat('de-AT').format(n);
  const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const icon={'Stammfunktionen':'∫','Bestimmte Integrale':'∑','Flächen':'▱','Drohnenaufgabe':'🚁'};
  const read=key=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
- const initial={xp:0,coins:0,solved:{},learned:{},earned:{},bestBoss:0,attempts:0};
+ const initial={xp:0,coins:0,solved:{},learned:{},earned:{},worksheets:{},bestBoss:0,attempts:0};
  const old=read(KEY);const s={...initial,...(old&&typeof old==='object'?old:{}),
-  solved:{...(old?.solved||{})},learned:{...(old?.learned||{})},earned:{...(old?.earned||{})}};
+  solved:{...(old?.solved||{})},learned:{...(old?.learned||{})},earned:{...(old?.earned||{})},worksheets:{...(old?.worksheets||{})}};
  let screen='home',group='Alle',academyGroup=D.groups[0].name,academyFocus=null,selectedId=D.tasks[0].id;
  let phase=0,attempts=0,feedback='',solutionOpen=false,builderDraft='';
  let labMode='builder',workIndex=0,workHistory=[],workHint=false;
+ let padRegions=[],padActive=null,padFeedback=null,padDrag=null;
  let boss=null,noticeTimer=null;
  function save(){
   localStorage.setItem(KEY,JSON.stringify(s));
@@ -98,7 +99,53 @@
  function resetTrainer(){
   phase=0;attempts=0;feedback='';solutionOpen=false;workIndex=0;workHistory=[];workHint=false;builderDraft='';
  }
- function setTask(id){if(!D.tasks.some(t=>t.id===id))return;selectedId=id;resetTrainer();screen='practice';render();}
+ function setTask(id){if(!D.tasks.some(t=>t.id===id))return;selectedId=id;resetTrainer();padRestore();screen='practice';render();}
+ function padPersist(sync=true){
+  s.worksheets[selectedId]=padRegions;
+  localStorage.setItem(KEY,JSON.stringify(s));
+  if(sync&&typeof window.studyverseCloudTouch==='function')window.studyverseCloudTouch();
+ }
+ function padRestore(){
+  padRegions=C.restore(s.worksheets[selectedId]);padActive=padRegions.find(r=>r.kind==='draft')?.id||null;padFeedback=null;
+  workIndex=C.countSteps(padRegions,W.steps(selectedId).length);
+  workHistory=padRegions.filter(r=>r.kind==='checked'||r.kind==='example');
+  if(s.solved['q'+selectedId]&&padRegions.some(r=>r.kind==='result'))phase=3;
+ }
+ function padFocus(id){$('#pad-input-'+id)?.focus?.()}
+ function padAdd(x,y){
+  const last=padRegions.at(-1);
+  const region=C.create(padRegions,x??(last?.x??8),y??(last?last.y+145:65));
+  if(!region){padFeedback={ok:false,message:'Das Blatt hat bereits 45 Felder. Entferne unbenutzte Felder, um weiterzuschreiben.'};render();return}
+  padActive=region.id;padFeedback=null;padPersist();render();padFocus(region.id);
+ }
+ function padCheck(id,asResult=false){
+  const region=padRegions.find(r=>r.id===id);
+  if(!region||!['draft','note'].includes(region.kind))return;
+  padActive=id;
+  const input=region.text.trim();
+  if(!input){padFeedback={ok:false,message:'Schreib zuerst deinen Rechenausdruck ins Feld.'};render();padFocus(id);return}
+  const t=current(),rows=W.steps(t.id);
+  const index=C.countSteps(padRegions,rows.length);
+  if(asResult){
+   const result=E.check(t,input);
+   if(result.ok){
+    region.kind='result';region.step=null;padFeedback={ok:true,message:'✓ Das Endergebnis stimmt! Dein Rechenblatt bleibt gespeichert.'};
+    padPersist();checkPractice(input);return;
+   }
+   padFeedback={ok:false,message:result.message};render();padFocus(id);return;
+  }
+  if(index>=rows.length){
+   padFeedback={ok:false,message:'Alle geführten Schritte erledigt. Klicke auf „Ergebnis prüfen“, um die Aufgabe abzuschließen.'};render();padFocus(id);return;
+  }
+  const result=W.compare(input,rows[index]);
+  if(!result.ok){padFeedback={ok:false,message:result.message+' Du kannst die Rechnung auch als Zwischenrechnung behalten oder direkt das Endergebnis prüfen.'};render();padFocus(id);return}
+  region.kind='checked';region.step=index;workIndex=index+1;
+  padFeedback={ok:true,message:'✓ Rechenschritt '+workIndex+' korrekt. Dein eigenes Feld bleibt auf dem Blatt.'};
+  padPersist();
+  if(workIndex===rows.length&&E.check(t,input).ok){checkPractice(input);return}
+  const next=C.create(padRegions,region.x,region.y+145);
+  padActive=next?.id||null;padPersist();render();if(next)padFocus(next.id);
+ }
  function filtered(){return D.tasks.filter(t=>group==='Alle'||t.group===group)}
  function modeBar(){
   return '<div class="lab-modes" role="group" aria-label="Lernmodus wählen">'+
@@ -218,7 +265,7 @@
    if(!s.learned[academyGroup]){s.learned[academyGroup]=true;award('lesson:'+academyGroup,25,12);toast('📘 Kapitel geschafft! +25 XP +12 TT');}
    render();return;
   }
-  if(verb==='filter'){group=arg;if(!filtered().some(t=>t.id===selectedId)){selectedId=filtered()[0]?.id||selectedId;resetTrainer()}render();return}
+  if(verb==='filter'){group=arg;if(!filtered().some(t=>t.id===selectedId)){selectedId=filtered()[0]?.id||selectedId;resetTrainer();padRestore()}render();return}
   if(verb==='train'){setTask(arg);return}
   if(verb==='hint'){solutionOpen=true;render();return}
   if(verb==='next'){
@@ -311,5 +358,5 @@
  if(location.hash==='#practice')screen='practice';
  else if(location.hash==='#boss')screen='boss';
  else if(location.hash==='#academy')screen='academy';
- resetTrainer();render();
+ resetTrainer();padRestore();render();
 })();
