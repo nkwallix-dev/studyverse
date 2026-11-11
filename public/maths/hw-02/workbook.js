@@ -92,6 +92,9 @@ window.MATHSVERSE_WORKBOOK=(function(){
  };
  function steps(id){return R[id]||[]}
  function compare(input,row){
+  const parsed=window.MATHSVERSE_INPUT?.parse(input);
+  if(parsed&&parsed.kind!=='math')return {ok:false,message:window.MATHSVERSE_INPUT.simpleHint(null,parsed,false)};
+  if(parsed)input=parsed.expression;
   if(!row?.expected)return {ok:false,message:'Für diese Zeile gibt es keine prüfbare Eingabe.'};
   const E=window.MATHSVERSE_MATH;
   try{
