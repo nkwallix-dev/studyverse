@@ -186,7 +186,7 @@
    (answered?'<div class="feedback '+(answered.ok?'good':'warn')+'">'+(answered.ok?'✅ Richtig!':'❌ Nicht ganz.')+' '+esc(t.steps[t.steps.length-1])+'</div>'+
     '<button class="primary" data-action="boss-next">'+(boss.index+1===boss.ids.length?'Auswertung ansehen 🏆':'Nächste Aufgabe →')+'</button>':
     '<form id="boss-form" class="answer-form"><label for="boss-entry">Deine '+(t.kind==='number'?'Zahl':'Stammfunktion')+'</label><input id="boss-entry" autocomplete="off" spellcheck="false" placeholder="Ergebnis ohne Einheit eingeben" required>'+
-    '<button class="primary" type="submit">Antwort abgeben</button></form>')+'</article>';
+    K.render('boss-entry')+'<button class="primary" type="submit">Antwort abgeben</button></form>')+'</article>';
  }
  function startBoss(){
   const indices=shuffle(D.tasks.map(t=>t.id));
@@ -204,12 +204,11 @@
    if(verb==='mode'&&['understand','builder','test'].includes(arg)){labMode=arg;feedback='';solutionOpen=false;render();return}
    if(verb==='builder-hint'){workHint=true;render();return}
    if(verb==='builder-solution'){solutionOpen=!solutionOpen;render();return}
-   if(verb==='builder-back'){if(workIndex>0){workIndex--;workHistory.pop();workHint=false;feedback='';phase=0}render();return}
+   if(verb==='builder-back'){if(workIndex>0){workIndex--;const removed=workHistory.pop();builderDraft=removed?.written?removed.line:'';workHint=false;feedback='';phase=0}render();return}
    if(verb==='builder-generate'){
-    const row=W.steps(current().id)[workIndex],rule=$('#rule-select')?.value||'';
-    if(!row)return;
-    if(rule!==row.rule){feedback='Wähle zuerst die passende Rechenregel – überleg, welcher Schritt hier gemacht wird.';render();return}
-    workHistory.push({...row,written:false});workIndex++;workHint=false;feedback='Zeile eingeblendet. Für XP musst du am Ende die Gesamtaufgabe selbst lösen.';render();return;
+    const row=W.steps(current().id)[workIndex];if(!row)return;
+    workHistory.push({...row,written:false});workIndex++;workHint=false;builderDraft='';
+    feedback='Beispielschritt eingeblendet. Das Endergebnis musst du weiterhin selbst eingeben.';render();return;
    }
   if(verb==='group'){group=arg;const first=filtered()[0];if(first)setTask(first.id);return}
   if(verb==='academy-group'){academyGroup=arg;academyFocus=null;render();return}
@@ -221,13 +220,6 @@
   }
   if(verb==='filter'){group=arg;if(!filtered().some(t=>t.id===selectedId)){selectedId=filtered()[0]?.id||selectedId;resetTrainer()}render();return}
   if(verb==='train'){setTask(arg);return}
-  if(verb==='method'||verb==='step'){
-   const t=current(),order=verb==='method'?methodOrder:stepOrder,right=verb==='method'?t.methodRight:t.stepRight;
-   const actual=order[Number(arg)];
-   if(actual===right){phase++;attempts=0;feedback='✅ Genau! Weiter zum nächsten Schritt.';solutionOpen=false;}
-   else{attempts++;feedback='Noch nicht. Schau auf die Aufgabenstellung und versuch die passende Regel zu erkennen.';}
-   render();return;
-  }
   if(verb==='hint'){solutionOpen=true;render();return}
   if(verb==='next'){
    const all=filtered(),i=all.findIndex(t=>t.id===selectedId);
@@ -242,12 +234,19 @@
   }
  }
  function checkBuilder(input){
-  const row=W.steps(current().id)[workIndex],rule=$('#rule-select')?.value||'';
+  const t=current(),row=W.steps(t.id)[workIndex];
   if(!row)return;
-  if(rule!==row.rule){feedback='Wähle erst die korrekte Regel für deine Rechenzeile.';render();return}
+  builderDraft=input;
   const result=W.compare(input,row);
-  if(result.ok){workHistory.push({...row,written:true,line:input});workIndex++;workHint=false;feedback=result.message}
-  else{attempts++;feedback=result.message}
+  if(result.ok){
+   workHistory.push({...row,written:true,line:input});workIndex++;
+   builderDraft='';workHint=false;attempts=0;
+   // A correct final handwritten answer already completes the exercise.
+   if(workIndex>=W.steps(t.id).length&&E.check(t,input).ok){checkPractice(input);return}
+   feedback=workIndex>=W.steps(t.id).length?
+    '✅ Alle Schritte stimmen! Gib jetzt noch das Endergebnis ein.':
+    '✅ Passt! Dein Schritt steht im Rechenheft. Weiter mit dem nächsten.';
+  }else{attempts++;feedback=result.message}
   render();
  }
  function checkPractice(input){
