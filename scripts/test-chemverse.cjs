@@ -185,6 +185,7 @@ console.log('Item-Shop rename, module summary removal and Professor Fischer nami
 // Regression: completion shortcut must jump straight to unsolved reaction IDs.
 assert(js.includes("case'reactionfinish':startReactionFinish()"),'Dashboard finish button must route to unfinished reactions');
 assert(js.includes('data-rxjump'),'Missing reactions must be directly selectable');
+assert(js.includes("$('[data-rxjump]').forEach"), 'Reaction Finish must wire every pending experiment button, not call forEach on a single DOM element');
 assert(js.includes("if(reactionSession.onlyMissing&&!pending.length)"),'Completed reaction focus mode needs a success screen');
 const reactionSource=extract('function remainingReactions(){','function renderReactions(){');
 const reactionFactory=new Function('REACTIONS','state','reactionSession','toast','activatePage',
