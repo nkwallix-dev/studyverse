@@ -5,6 +5,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const dir='public/maths/hw-02/';
 const data=fs.readFileSync(dir+'data.js','utf8'),
  engine=fs.readFileSync(dir+'math-engine.js','utf8'),
+ mathInput=fs.readFileSync(dir+'math-input.js','utf8'),
  workbook=fs.readFileSync(dir+'workbook.js','utf8'),
  graphs=fs.readFileSync(dir+'graphs.js','utf8'),
  keyboard=fs.readFileSync(dir+'math-keyboard.js','utf8'),
@@ -12,18 +13,19 @@ const data=fs.readFileSync(dir+'data.js','utf8'),
  app=fs.readFileSync(dir+'app.js','utf8'),
  page=fs.readFileSync(dir+'index.html','utf8'),
  css=fs.readFileSync(dir+'style.css','utf8');
-new Function(data);new Function(engine);new Function(workbook);new Function(graphs);new Function(keyboard);new Function(canvas);new Function(app);
-for(const script of ['data.js','math-engine.js','graphs.js','workbook.js','math-keyboard.js','math-canvas.js','app.js','../../shared/cloud-progress.js','../../shared/verse-cosmetics.js']){
+new Function(data);new Function(engine);new Function(mathInput);new Function(workbook);new Function(graphs);new Function(keyboard);new Function(canvas);new Function(app);
+for(const script of ['data.js','math-engine.js','math-input.js','graphs.js','workbook.js','math-keyboard.js','math-canvas.js','app.js','../../shared/cloud-progress.js','../../shared/verse-cosmetics.js']){
  assert(page.includes('src="'+script+'"'),'Trainer must load '+script);
 }
 assert(css.includes('@media(max-width:520px)')&&css.includes('@media(max-width:770px)'),'MathsVerse must fit phone screens');
 const bundle={};vm.runInNewContext(data,{window:bundle});
 vm.runInNewContext(engine,{window:bundle});
+vm.runInNewContext(mathInput,{window:bundle});
 vm.runInNewContext(workbook,{window:bundle});
 vm.runInNewContext(graphs,{window:bundle});
 vm.runInNewContext(keyboard,{window:bundle});
 vm.runInNewContext(canvas,{window:bundle});
-const D=bundle.MATHSVERSE_DATA,E=bundle.MATHSVERSE_MATH,W=bundle.MATHSVERSE_WORKBOOK,G=bundle.MATHSVERSE_GRAPHS,K=bundle.MATHSVERSE_KEYBOARD,C=bundle.MATHSVERSE_CANVAS;
+const D=bundle.MATHSVERSE_DATA,E=bundle.MATHSVERSE_MATH,W=bundle.MATHSVERSE_WORKBOOK,G=bundle.MATHSVERSE_GRAPHS,K=bundle.MATHSVERSE_KEYBOARD,C=bundle.MATHSVERSE_CANVAS,M=bundle.MATHSVERSE_INPUT;
 assert.equal(D.exam,'2. Hausübungswiederholung','Explicitly the SECOND homework revision');
 assert.equal(D.tasks.length,18,'All original tasks and only selected subparts');
 assert.equal(new Set(D.tasks.map(q=>q.id)).size,18,'No duplicate exercises');
@@ -53,6 +55,11 @@ for(const [id,input] of [
  assert(E.check(D.tasks.find(t=>t.id===id),input).ok,'Equivalent solution rejected for '+id);
 }
 assert(!E.check(D.tasks.find(t=>t.id==='1.55a'),'x^3').ok,'Wrong primitive must not earn rewards');
+assert.equal(M.parse('F(x)=x^4-1,5x^2+x').expression,'x^4-1,5x^2+x','Conventional antiderivative assignment must be parsed');
+assert.equal(M.parse('Integral aus 4x^3 - 3x + 1 dx').kind,'integral','Handwritten integral problem is a note, not an invalid mathematical expression');
+assert(E.check(D.tasks.find(t=>t.id==='1.55a'),'F(x)=x^4-1,5x^2+x').ok,'Complete antiderivative with F(x)= must be accepted');
+const mistaken=E.check(D.tasks.find(t=>t.id==='1.55a'),'F(x)=x^4-1,5x^2-x');
+assert(!mistaken.ok&&mistaken.message.includes('Vorzeichen'),'Wrong F(x) must get meaningful sign feedback, not parser error');
 assert(!E.check(D.tasks.find(t=>t.id==='1.100-1'),'0.0012*t³-0.09*t²+2.25*t').ok,'Drohne needs v(0)=3');
 assert.throws(()=>E.evaluate('window.alert(1)'),/kann ich nicht lesen|Unbekannt/,'Parser must not run user code');
 const registry=fs.readFileSync('src/app/trainer-registry.ts','utf8');
@@ -94,6 +101,8 @@ assert(!elements['#app'].innerHTML.includes('rule-select'),'No rule naming');
 assert(elements['#app'].innerHTML.includes('MATHE-TASTATUR'),'Math keypad stays available');
 assert.equal(K.apply('x',1,1,'square').value,'x^2','Power key');
 assert.equal(K.apply('',0,0,'root').value,'sqrt()','Root key');
+assert.equal(K.apply('',0,0,'integral').value,'∫() dx','Integral button must insert an integral template');
+assert(K.render('mathcad-active').includes('data-math-key="integral"'),'Integral key must appear on the keyboard');
 assert.equal(K.apply('x+1',0,3,'fraction').value,'(x+1)/()','Fraction template');
 assert(K.pretty('<img src=x>').includes('&lt;img'),'Preview must escape HTML');
 assert(!C.render([{id:'r1',x:5,y:20,text:'<img>',kind:'draft',step:null}],null,3,0,false,null).includes('value="<img>'),'Canvas must escape user input');
@@ -134,6 +143,22 @@ click('pad-add');
 const repeat=saved().worksheets['1.55a'].find(x=>x.kind==='draft');
 enterPad(repeat.id,'x^4-1.5*x^2+x');click('pad-result:'+repeat.id);
 assert.equal(saved().xp,before,'A repeat of the correct answer must never farm XP');
+
+click('train:1.55b');
+handlers.click({target:blankTarget,clientX:90,clientY:90});
+enterPad('r1','Integral aus a*t+b dt');click('pad-check:r1');
+assert.equal(saved().worksheets['1.55b'][0].kind,'note','Original integral statement must be saved as a note instead of raising a parsing error');
+assert(saved().worksheets['1.55b'].some(r=>r.kind==='draft'),'Saving a handwritten integral must create a new free input field');
+click('train:1.55a');
+click('pad-add');
+const scratch=saved().worksheets['1.55a'].find(r=>r.kind==='draft');
+assert(scratch,'A new free expression field must be available');
+enterPad(scratch.id,'F(x)=x^4-1,5x^2-x');click('pad-result:'+scratch.id);
+assert(elements['#app'].innerHTML.includes('Vorzeichen'),'Mis-signed handwritten F(x)= should receive correct feedback');
+enterPad(scratch.id,'F(x)=x^4-1,5x^2+x');click('pad-result:'+scratch.id);
+assert.equal(saved().worksheets['1.55a'].find(r=>r.id===scratch.id).kind,'result','Correct F(x)= answer must be marked as result');
+assert.equal(saved().xp,before,'A valid F(x)= repeat must not award coins or XP again');
+
 click('train:1.98a');click('mode:test');
 assert(elements['#app'].innerHTML.includes('Nur die Angabe'),'Exam mode should not provide method choices');
 assert(!elements['#app'].innerHTML.includes('id="rule-select"'),'Exam mode must hide builder controls');
@@ -156,4 +181,4 @@ for(let i=0;i<10;i++){
 assert.equal(bossCount,10);
 assert.equal(saved().bestBoss,100,'Perfect boss result must be saved');
 assert(elements['#app'].innerHTML.includes('100 %'),'Boss result displayed');
-console.log('MATHSVERSE PASS: 18 task graphs, click-to-create Mini-Mathcad free sheet, editable steps, saved positions, safe math input, XP, exam mode and boss.');
+console.log('MATHSVERSE PASS: 18 graphs, Mini-Mathcad sheet, handwritten integral notes, F(x)= checking, integral keyboard, meaningful sign feedback, cloud XP, exam and boss.');
