@@ -22,6 +22,12 @@ for(const q of D.challenges){
  assert(Number.isInteger(q.right)&&q.right>=0&&q.right<4,'Correct answer index: '+q.id);
  assert(q.code&&q.explain&&q.source,'Self-contained question, explanation and source: '+q.id);
 }
+const poolQuestion=D.challenges.find(q=>q.id==='t21');
+assert(poolQuestion&&poolQuestion.kind==='transfer'&&poolQuestion.title.includes('WPF-Bildverarbeitung'),
+ 'ThreadPool question must clearly describe a concrete WPF image-processing scenario');
+assert.equal(poolQuestion.right,2,'ThreadPool solution must point to the Task/Dispatcher approach');
+assert(poolQuestion.answers[2].includes('begrenzter Parallelität')&&poolQuestion.explain.includes('ThreadPool-Threads'),
+ 'ThreadPool answer must explain bounded parallelism, thread reuse and the Dispatcher');
 assert(D.challenges.some(q=>q.source.includes('Drei Raucher EXTRA')),'Must cover Three Smokers EXTRA Extension');
 assert(D.challenges.some(q=>q.source.includes('Kreuzung EXTRA')),'Must cover intersection EXTRA Extension');
 const shop=fs.readFileSync('src/app/shop-items.ts','utf8');
@@ -87,14 +93,29 @@ click('lab:semaphore');
 assert(elements.app.innerHTML.includes('SemaphoreSlim(2, 2)'),'Semaphore controls must run');
 click('capacity-plus');
 assert(elements.app.innerHTML.includes('SemaphoreSlim(3, 3)'),'Semaphore capacity is interactive');
-click('view:boss');
-for(let i=0;i<12;i++){
- const q=D.challenges.find(x=>elements.app.innerHTML.includes(x.title.replace(/&/g,'&amp;').replace(/</g,'&lt;')));
- assert(q,'A unique complete Boss question should be displayed at step '+(i+1));
- click('boss-answer:'+q.right);
- click('boss-next');
+// Every boss has 12 questions and exactly 3 correct answers in each slot.
+// The correct button is discovered from the rendered text, not the JSON index.
+const encode=v=>String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+for(let run=0;run<4;run++){
+ click('view:boss');
+ const histogram=[0,0,0,0];
+ for(let i=0;i<12;i++){
+  const q=D.challenges.find(x=>elements.app.innerHTML.includes(encode(x.title)));
+  assert(q,'A unique complete Boss question should be displayed at step '+(i+1));
+  const buttons=elements.app.innerHTML.split('data-action="boss-answer:').slice(1).map(fragment=>({
+   index:Number(fragment.split('"')[0]),
+   label:fragment.split('</span>')[1].split('</button>')[0]
+  }));
+  assert.equal(buttons.length,4,'Boss must show exactly four answer buttons for '+q.id);
+  const correct=buttons.find(x=>x.label===encode(q.answers[q.right]));
+  assert(correct,'Correct answer text must be available after option shuffling: '+q.id);
+  histogram[correct.index]++;
+  click('boss-answer:'+correct.index);
+  click('boss-next');
+ }
+ assert.deepEqual(histogram,[3,3,3,3],'Every 12-question boss must balance A/B/C/D correctly (run '+run+')');
+ assert.equal(state().bestBoss,100,'Correct displayed answers must give perfect 12/12 Boss');
+ assert(elements.app.innerHTML.includes('Professor Spermann'),'Perfect result should announce title unlock');
 }
-assert.equal(state().bestBoss,100,'Perfect 12/12 Boss must save the 100% achievement prerequisite');
-assert(elements.app.innerHTML.includes('Professor Spermann'),'Perfect result should announce title unlock');
 assert(cloudTouches>=3,'Sharpverse must request shared account cloud sync after progress updates');
-console.log('SHARPVERSE PASS: 20 lessons, 44 grounded questions, C# writing, interactive threading labs, cloud saves and perfect Boss.');
+console.log('SHARPVERSE PASS: 20 lessons, 44 grounded questions, clearer ThreadPool exercise, balanced/shuffled boss answers, C# writing, threading labs, cloud saves and perfect Boss.');
