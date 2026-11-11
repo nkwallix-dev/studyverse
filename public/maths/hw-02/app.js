@@ -114,7 +114,7 @@
  function padFocus(id){$('#pad-input-'+id)?.focus?.()}
  function padAdd(x,y){
   const last=padRegions.at(-1);
-  const region=C.create(padRegions,x??(last?.x??8),y??(last?last.y+145:65));
+  const region=C.create(padRegions,x??(last?.x??8),y??(last?last.y+235:65));
   if(!region){padFeedback={ok:false,message:'Das Blatt hat bereits 45 Felder. Entferne unbenutzte Felder, um weiterzuschreiben.'};render();return}
   padActive=region.id;padFeedback=null;padPersist();render();padFocus(region.id);
  }
@@ -143,7 +143,7 @@
   padFeedback={ok:true,message:'✓ Rechenschritt '+workIndex+' korrekt. Dein eigenes Feld bleibt auf dem Blatt.'};
   padPersist();
   if(workIndex===rows.length&&E.check(t,input).ok){checkPractice(input);return}
-  const next=C.create(padRegions,region.x,region.y+145);
+  const next=C.create(padRegions,region.x,region.y+235);
   padActive=next?.id||null;padPersist();render();if(next)padFocus(next.id);
  }
  function filtered(){return D.tasks.filter(t=>group==='Alle'||t.group===group)}
@@ -366,7 +366,7 @@
   if(id){
    event.preventDefault?.();
    const region=padRegions.find(r=>r.id===id);
-   padAdd(region?.x??8,(region?.y??65)+145);
+   padAdd(region?.x??8,(region?.y??65)+235);
   }else if(event.target?.classList?.contains?.('mathcad-sheet')){
    event.preventDefault?.();padAdd();
   }
