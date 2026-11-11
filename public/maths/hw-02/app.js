@@ -1,7 +1,7 @@
 'use strict';
 (function(){
- const D=window.MATHSVERSE_DATA,E=window.MATHSVERSE_MATH,W=window.MATHSVERSE_WORKBOOK,G=window.MATHSVERSE_GRAPHS;
- if(!W||!G)throw Error('MathsVerse: Rechenbaukasten oder Graphen fehlen.');
+ const D=window.MATHSVERSE_DATA,E=window.MATHSVERSE_MATH,W=window.MATHSVERSE_WORKBOOK,G=window.MATHSVERSE_GRAPHS,K=window.MATHSVERSE_KEYBOARD;
+ if(!W||!G||!K)throw Error('MathsVerse: Rechenheft, Graphen oder Mathe-Tastatur fehlen.');
  if(!D||!E)throw Error('MathsVerse: Aufgaben oder Rechenkern fehlen.');
  const KEY='mathsverse_hw02_v1',PROFILE='studyverse_profile_v1';
  const $=s=>document.querySelector(s),money=n=>new Intl.NumberFormat('de-AT').format(n);
@@ -12,7 +12,7 @@
  const old=read(KEY);const s={...initial,...(old&&typeof old==='object'?old:{}),
   solved:{...(old?.solved||{})},learned:{...(old?.learned||{})},earned:{...(old?.earned||{})}};
  let screen='home',group='Alle',academyGroup=D.groups[0].name,academyFocus=null,selectedId=D.tasks[0].id;
- let phase=0,methodOrder=[0,1,2],stepOrder=[0,1,2],attempts=0,feedback='',solutionOpen=false;
+ let phase=0,attempts=0,feedback='',solutionOpen=false,builderDraft='';
  let labMode='builder',workIndex=0,workHistory=[],workHint=false;
  let boss=null,noticeTimer=null;
  function save(){
@@ -96,14 +96,10 @@
    '<div class="actions"><button class="primary" data-action="train:'+esc(task.id)+'">✍️ Dieses Beispiel selbst rechnen</button></div></article></div>';
  }
  function resetTrainer(){
-  phase=0;attempts=0;feedback='';solutionOpen=false;workIndex=0;workHistory=[];workHint=false;
-  methodOrder=shuffle([0,1,2]);stepOrder=shuffle([0,1,2]);
+  phase=0;attempts=0;feedback='';solutionOpen=false;workIndex=0;workHistory=[];workHint=false;builderDraft='';
  }
  function setTask(id){if(!D.tasks.some(t=>t.id===id))return;selectedId=id;resetTrainer();screen='practice';render();}
  function filtered(){return D.tasks.filter(t=>group==='Alle'||t.group===group)}
- function showOptions(options,right,order,action){
-  return '<div class="answer-options">'+order.map((original,i)=>'<button type="button" class="option" data-action="'+action+':'+i+'"><span>'+String.fromCharCode(65+i)+'</span>'+esc(options[original])+'</button>').join('')+'</div>';
- }
  function modeBar(){
   return '<div class="lab-modes" role="group" aria-label="Lernmodus wählen">'+
    [['understand','📖 1 · Verstehen'],['builder','✍️ 2 · Rechenbaukasten'],['test','⏱️ 3 · Testmodus']].map(([key,label])=>
