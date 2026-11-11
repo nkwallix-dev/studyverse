@@ -597,3 +597,10 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
  .dashboard-level .level-summary>small,.dashboard-level .level-meter>small{font-size:10px}
  .dashboard-level+.stats{margin-top:13px}
 }
+
+/* Test-specific cosmetic collection onboarding and player cosmetics. */
+.shop-test-explainer{max-width:650px;margin:7px 0 0;color:var(--muted);font-size:11px;line-height:1.55}
+.shop-test-explainer strong{color:var(--text)}
+.friend-character{font-size:27px;line-height:1}
+.friend-equipped-title{display:block;color:var(--accent2);font-size:11px;font-weight:750;line-height:1.5;overflow-wrap:anywhere}
+@media(max-width:700px){.shop-test-explainer{font-size:10px}.friend-character{font-size:24px}}
