@@ -1,7 +1,7 @@
 'use strict';
 (function(){
- const D=window.MATHSVERSE_DATA,E=window.MATHSVERSE_MATH,W=window.MATHSVERSE_WORKBOOK,G=window.MATHSVERSE_GRAPHS,K=window.MATHSVERSE_KEYBOARD,C=window.MATHSVERSE_CANVAS;
- if(!W||!G||!K||!C)throw Error('MathsVerse: Rechenheft, Graphen oder Mathe-Tastatur fehlen.');
+ const D=window.MATHSVERSE_DATA,E=window.MATHSVERSE_MATH,W=window.MATHSVERSE_WORKBOOK,G=window.MATHSVERSE_GRAPHS,K=window.MATHSVERSE_KEYBOARD,C=window.MATHSVERSE_CANVAS,M=window.MATHSVERSE_INPUT;
+ if(!W||!G||!K||!C||!M)throw Error('MathsVerse: Rechenheft, Eingabeprüfung, Graphen oder Tastatur fehlen.');
  if(!D||!E)throw Error('MathsVerse: Aufgaben oder Rechenkern fehlen.');
  const KEY='mathsverse_hw02_v1',PROFILE='studyverse_profile_v1';
  const $=s=>document.querySelector(s),money=n=>new Intl.NumberFormat('de-AT').format(n);
@@ -122,29 +122,52 @@
   const region=padRegions.find(r=>r.id===id);
   if(!region||!['draft','note'].includes(region.kind))return;
   padActive=id;
-  const input=region.text.trim();
-  if(!input){padFeedback={ok:false,message:'Schreib zuerst deinen Rechenausdruck ins Feld.'};render();padFocus(id);return}
-  const t=current(),rows=W.steps(t.id);
+  const input=region.text.trim(),t=current(),rows=W.steps(t.id),parsed=M.parse(input);
+  const fail=message=>{padFeedback={ok:false,message};render();padFocus(id)};
+  if(parsed.kind==='empty'){fail('Schreib zuerst deine Rechnung oder Angabe ins Feld.');return}
+  if(parsed.kind!=='math'){
+   if(asResult){fail(M.simpleHint(t,parsed,true));return}
+   // Original integral text or an equation is valid worksheet content even
+   // though it cannot be verified as a computed antiderivative.
+   region.kind='note';
+   padFeedback={ok:true,message:'📝 Angabe/Zwischenrechnung gespeichert. Rechne in einem neuen Feld weiter.'};
+   padPersist();
+   const next=C.create(padRegions,region.x,region.y+235);
+   padActive=next?.id||null;
+   padPersist();render();if(next)padFocus(next.id);
+   return;
+  }
+  const expression=parsed.expression;
+  const complete=E.check(t,expression);
+  // Any correct complete answer can finish the task right away, regardless
+  // of the supplied (optional) worked-example steps or the "F(x)=" prefix.
+  if(complete.ok){
+   region.kind='result';region.step=null;
+   padFeedback={ok:true,message:'✓ Die gesamte Rechnung stimmt. Dein Rechenblatt bleibt gespeichert.'};
+   padPersist();checkPractice(expression);return;
+  }
+  if(asResult||parsed.label){
+   fail(complete.message);return;
+  }
   const index=C.countSteps(padRegions,rows.length);
-  if(asResult){
-   const result=E.check(t,input);
-   if(result.ok){
-    region.kind='result';region.step=null;padFeedback={ok:true,message:'✓ Das Endergebnis stimmt! Dein Rechenblatt bleibt gespeichert.'};
-    padPersist();checkPractice(input);return;
-   }
-   padFeedback={ok:false,message:result.message};render();padFocus(id);return;
-  }
   if(index>=rows.length){
-   padFeedback={ok:false,message:'Alle geführten Schritte erledigt. Klicke auf „Ergebnis prüfen“, um die Aufgabe abzuschließen.'};render();padFocus(id);return;
+   fail('Die Übungsschritte sind erledigt. Prüfe das Endergebnis im Feld mit „Ergebnis prüfen“.');return;
   }
-  const result=W.compare(input,rows[index]);
-  if(!result.ok){padFeedback={ok:false,message:result.message+' Du kannst die Rechnung auch als Zwischenrechnung behalten oder direkt das Endergebnis prüfen.'};render();padFocus(id);return}
-  region.kind='checked';region.step=index;workIndex=index+1;
-  padFeedback={ok:true,message:'✓ Rechenschritt '+workIndex+' korrekt. Dein eigenes Feld bleibt auf dem Blatt.'};
+  // A free worksheet need not follow the exact suggested step ordering.
+  // Verify against any unsolved, mathematically equivalent worked line.
+  const used=new Set(padRegions.filter(r=>r.kind==='checked'&&r.step!==null).map(r=>r.step));
+  const options=[index,...rows.map((_,i)=>i).filter(i=>i!==index)];
+  const matched=options.find(i=>!used.has(i)&&W.compare(expression,rows[i]).ok);
+  if(matched===undefined){
+   fail('Dein Term ist lesbar, aber passt noch nicht zu einem geprüften Zwischenschritt. Überprüfe Vorzeichen und Potenzen, speichere die Rechnung als Notiz oder prüfe das Endergebnis.');return;
+  }
+  region.kind='checked';region.step=matched;
+  workIndex=C.countSteps(padRegions,rows.length);
+  padFeedback={ok:true,message:'✓ Rechenschritt korrekt! Deine Eingabe bleibt genau hier stehen.'};
   padPersist();
-  if(workIndex===rows.length&&E.check(t,input).ok){checkPractice(input);return}
   const next=C.create(padRegions,region.x,region.y+235);
-  padActive=next?.id||null;padPersist();render();if(next)padFocus(next.id);
+  padActive=next?.id||null;
+  padPersist();render();if(next)padFocus(next.id);
  }
  function filtered(){return D.tasks.filter(t=>group==='Alle'||t.group===group)}
  function modeBar(){
