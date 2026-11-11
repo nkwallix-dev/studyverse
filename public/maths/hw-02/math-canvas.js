@@ -24,13 +24,13 @@ window.MATHSVERSE_CANVAS=(function(){
   const max=regions.reduce((value,r)=>Math.max(value,Number(r.id.slice(1))||0),0);
   let yy=clamp(y,14,6000);
   for(let tries=0;tries<10;tries++){
-   if(!regions.some(r=>Math.abs(r.y-yy)<95&&Math.abs(r.x-x)<44))break;
-   yy=Math.min(6000,yy+140);
+   if(!regions.some(r=>Math.abs(r.y-yy)<195&&Math.abs(r.x-x)<44))break;
+   yy=Math.min(6000,yy+235);
   }
   const region={id:'r'+(max+1),x:clamp(x,0,80),y:yy,text:'',kind:'draft',step:null};
   regions.push(region);return region;
  }
- function height(regions){return Math.max(490,...regions.map(r=>r.y+168))+95}
+ function height(regions){return Math.max(490,...regions.map(r=>r.y+230))+95}
  function position(clientX,clientY,rect){
   const width=Math.max(1,rect.width||1);
   const x=clamp((clientX-rect.left)/width*100,0,80);
