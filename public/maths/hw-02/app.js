@@ -109,7 +109,7 @@
   padRegions=C.restore(s.worksheets[selectedId]);padActive=padRegions.find(r=>r.kind==='draft')?.id||null;padFeedback=null;
   workIndex=C.countSteps(padRegions,W.steps(selectedId).length);
   workHistory=padRegions.filter(r=>r.kind==='checked'||r.kind==='example');
-  if(s.solved['q'+selectedId]&&padRegions.some(r=>r.kind==='result'))phase=3;
+  if(s.solved['q'+selectedId]&&(padRegions.some(r=>r.kind==='result')||workIndex===W.steps(selectedId).length))phase=3;
  }
  function padFocus(id){$('#pad-input-'+id)?.focus?.()}
  function padAdd(x,y){
