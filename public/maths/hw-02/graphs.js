@@ -89,7 +89,7 @@ window.MATHSVERSE_GRAPHS=(function(){
    (definition.shade?'<span><i class="area-swatch"></i>'+ (definition.shade.between?'Eingeschlossene Fläche':'Integralintervall')+'</span>':'')+'</div>'+
    (definition.note?'<p class="graph-note">'+safe(definition.note)+'</p>':'')+'</section>';
  }
- function render(task){
+ function render(task,examMode=false){
   if(task.group==='Drohnenaufgabe'){
    const chosen=task.id==='1.100-1'?0:task.id==='1.100-4'?2:1;
    const titles=['Beschleunigung a(t)','Geschwindigkeit v(t)','Strecke s(t)'];
@@ -97,13 +97,14 @@ window.MATHSVERSE_GRAPHS=(function(){
    return '<div class="graph-stack"><div class="drone-chain"><b>DROHNEN-PROZESSKETTE</b><span>a(t) → integrieren → v(t) → integrieren → s(t)</span></div>'+
     [0,1,2].map((i)=>{
      const spec={range:[0,25],xlabel:'t (Sekunden)',curves:[[DRONE[['a','v','s'][i]],titles[i]+' ['+units[i]+']']],
-      shade:task.id==='1.100-3'&&i===0?{from:0,to:25}:task.id==='1.100-4'&&i===1?{from:0,to:14.4098445789603}:null,
-      marks:task.id==='1.100-4'&&i===2?[14.4098445789603]:task.id==='1.100-2'&&i===1?[25]:[],
-      note:i===2?'Bei t≈14,41 s erreicht die Drohne 200 m.':''};
+      shade:!examMode&&task.id==='1.100-3'&&i===0?{from:0,to:25}:!examMode&&task.id==='1.100-4'&&i===1?{from:0,to:14.4098445789603}:null,
+      marks:examMode?[]:task.id==='1.100-4'&&i===2?[14.4098445789603]:task.id==='1.100-2'&&i===1?[25]:[],
+      note:!examMode&&i===2?'Bei t≈14,41 s erreicht die Drohne 200 m.':''};
      return '<div class="drone-graph '+(i===chosen?'drone-graph-main':'')+'">'+card(titles[i],i===chosen?'Aktueller Rechenschritt':'Aus derselben Bewegung abgeleitet',spec)+'</div>';
     }).join('')+'</div>';
   }
-  const x=spec(task.id);return x?card('Graph zu '+task.id,task.group,x):'';
+  const x=spec(task.id);const drawing=examMode&&x?{...x,shade:null,marks:[],note:''}:x;
+  return drawing?card('Graph zu '+task.id,task.group,drawing):'';
  }
  return {render,spec,graphSvg};
 })();
