@@ -108,15 +108,15 @@ export class App implements OnInit,OnDestroy {
  private alert(message:string){this.info=message;}
 
  get cloudUser(){return this.cloud.session?.username||'';}
- // Directory cards use only the editable Studyverse nickname & calculated level.
+ // Only the editable nickname, level and equipped cosmetics enter the public directory.
  // Do not use cloudUser: that belongs to Authentication, not the public directory.
  private async publishPlayerProfile():Promise<void>{
    const uid=this.cloud.session?.uid;
    if(!uid||!this.cloudMaySave)return;
-   const stamp=uid+'|'+this.profile.nickname.trim()+'|'+this.level;
+   const stamp=uid+'|'+this.profile.nickname.trim()+'|'+this.level+'|'+this.currentAvatar+'|'+this.title;
    if(stamp===this.publicProfileStamp)return;
    try{
-     await this.cloud.publishPublicProfile(this.profile.nickname,this.level);
+     await this.cloud.publishPublicProfile(this.profile.nickname,this.level,this.currentAvatar,this.title);
      if(this.cloud.session?.uid===uid)this.publicProfileStamp=stamp;
    }catch{
      // Incomplete directory permissions must never affect private cloud saves.
