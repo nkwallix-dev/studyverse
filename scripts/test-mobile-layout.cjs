@@ -240,7 +240,13 @@ async function main(){
    await check(maths,'MathsVerse Worked Examples '+width);
    await maths.locator('.nav [data-action="view:practice"]').click();
    await maths.locator('[data-action="train:1.55a"]').click();
-   await maths.locator('#builder-entry').waitFor();
+   await maths.locator('.mathcad-sheet').waitFor();
+    await maths.locator('.mathcad-sheet').click({position:{x:50,y:145}});
+    await maths.locator('.mathcad-input').first().waitFor();
+    await maths.locator('.mathcad-input').first().fill('x^4');
+    await maths.locator('[data-action="pad-check:r1"]').click();
+    await maths.locator('.mathcad-verified').first().waitFor();
+    assert(await maths.locator('.mathcad-region').count()>=2,'New step must create the next editable math region '+width);
     assert(await maths.locator('.math-keyboard .math-key').count()>=25,'MathsVerse math keyboard must be present on mobile '+width);
     assert(await maths.locator('.maths-graph-svg').count()>=1,'MathsVerse graph visible on mobile '+width);
     assert(await maths.locator('.lab-mode').count()===3,'MathsVerse must expose all three learning modes '+width);
