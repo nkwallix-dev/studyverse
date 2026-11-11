@@ -55,8 +55,16 @@ jobs:
       - name: Test public friends directory and responsive shop/profile UI
         run: node scripts/test-public-profiles.cjs
 
+      - name: Test Firebase web config injection
+        run: node scripts/test-build-cloud-config.cjs
+
       - name: Build Angular for GitHub Pages
         run: npm run build -- --base-href /studyverse/ --output-path dist/site
+
+      - name: Inject Firebase config into generated Pages artifact
+        env:
+          FIREBASE_WEB_API_KEY: ${{ secrets.APIKEYFIREBASEDB || vars.APIKEYFIREBASEDB }}
+        run: node scripts/inject-cloud-config.cjs dist/site/browser/cloud-config.json
 
       - name: SPA fallback for deep links
         run: cp dist/site/browser/index.html dist/site/browser/404.html

@@ -1,24 +1,17 @@
 # STUDYVERSE – Onlinekonten aktivieren
 
-Der Login ist bereits im Angular-Frontend, Chemverse, DSAIVERSE und der Daily Arena integriert. Er bleibt absichtlich **deaktiviert**, solange in `public/cloud-config.json` keine echte Firebase-Webkonfiguration steht. Bis dahin bleiben die bisherigen lokalen Spielstände funktionsfähig.
+Der Login ist bereits im Angular-Frontend, Chemverse, DSAIVERSE und der Daily Arena integriert. **GitHub Pages erhält den Firebase-Web-API-Key erst während des Deployments** aus GitHub Actions. Die im Repository versionierte `public/cloud-config.json` enthält absichtlich keinen Key; ohne injizierte Konfiguration bleibt der Login lokal deaktiviert, während lokale Spielstände weiterhin funktionieren.
 
 ## Einmalige Einrichtung für den Betreiber
 
 1. Öffne [Firebase Console](https://console.firebase.google.com/) und erstelle ein Projekt, z. B. `studyverse-klasse`. **Keinen Service-Account-Schlüssel** ins GitHub-Repository laden.
 2. **Authentication → Sign-in method → Email/Password aktivieren.** Studyverse wandelt einen Nutzernamen intern in eine synthetische E-Mail-Adresse unter `@accounts.studyverse.example.com` um; die Benutzer müssen keine E-Mail angeben. Daher gibt es **keine automatische PIN-Zurücksetzung per Mail**.
 3. **Cloud Firestore** anlegen. **Firestore Database → Rules** öffnen, den Inhalt aus `firebase/firestore.rules` einfügen und **Publish** klicken. Nur der angemeldete Eigentümer darf sein eigenes Dokument `users/{uid}` lesen oder schreiben.
-4. **Project settings → Your apps → Web app** registrieren. Im angezeigten `firebaseConfig` stehen u. a. `apiKey` und `projectId`. Genau diese beiden *öffentlichen Web-Konfigurationswerte* in `public/cloud-config.json` eintragen:
-
-   ```json
-   {
-     "apiKey": "AIza...",
-     "projectId": "studyverse-klasse-..."
-   }
-   ```
+4. **Project settings → Your apps → Web app:** Die `projectId` bleibt in `public/cloud-config.json` hinterlegt, das Feld `apiKey` bleibt dort **leer**. Trage den **Firebase-Web-API-Key** unter **GitHub → Repository → Settings → Secrets and variables → Actions → Variables** als `APIKEYFIREBASEDB` ein. Du kannst stattdessen ein **Repository Secret** mit demselben Namen verwenden; Secrets werden beim Deployment bevorzugt. Der GitHub-Actions-Build fügt den Key nach dem Angular-Build ausschließlich in `dist/site/browser/cloud-config.json` ein (nicht in die Git-Quelldatei). Ohne Variable/Secret **schlägt das Deployment bewusst fehl**, statt eine kaputte Login-Konfiguration zu veröffentlichen.
 
 5. GitHub Actions baut und veröffentlicht nach dem Commit die Website neu. Danach sollte die Registrierung auf der Startseite angezeigt werden. Einmal mit einem **Testaccount** Registrierung, Login, Level/TT, einen Trainer, Logout und Login auf einem anderen Browser testen.
 
-**Wichtig:** Firebase-Web-API-Key und Project-ID sind keine geheimen Admin-Credentials; ihre Veröffentlichung ist bei Firebase-Webapps üblich. Die Firestore-Regeln sind hingegen unbedingt erforderlich. Setze in der Google Cloud Console nach Möglichkeit API-Key-Beschränkungen. **Keine** Service-Account-Datei, Refresh-Token oder echte PIN ins Repository committen.
+**Wichtig:** Der Firebase-Web-API-Key ist auch nach dem Injizieren im **öffentlich auslieferbaren** `cloud-config.json` und in Browser-Netzwerkanfragen sichtbar; die GitHub-Variable ist keine Zugangskontrolle. Die **Firestore Security Rules** und möglichst **Firebase App Check** sichern die Daten und erschweren missbräuchliche Zugriffe. Begrenze den Web-Key in Google Cloud auf die benötigten Firebase-APIs und überprüfe passende App-/HTTP-Referrer-Einschränkungen sowie Auth-Kontingente. Der zuvor im öffentlichen Repository eingecheckte Key bleibt in der Git-Historie; falls du ihn ersetzen willst, rotiere den Key kontrolliert in Firebase/Google Cloud und aktualisiere `APIKEYFIREBASEDB`. **Keine** Service-Account-Datei, Refresh-Token oder echte PIN ins Repository committen.
 
 ## Bedienung für deine Klasse
 
@@ -43,7 +36,9 @@ Der Login ist bereits im Angular-Frontend, Chemverse, DSAIVERSE und der Daily Ar
 - `src/app/cloud.ts` – Authentifizierung und Firestore REST, Token-Erneuerung
 - `src/app/app.ts`, `app.html`, `app.scss` – Login, Session, Accountwechsel, Cloudstatus
 - `public/shared/cloud-progress.js` – Cloudspiegelung der Standalone-Lernwelten
-- `public/cloud-config.json` – öffentliche Firebase-Webprojektkonfiguration
+- `public/cloud-config.json` – versionierte Konfiguration ohne Key (enthält die öffentliche Projekt-ID)
+- `.github/workflows/deploy.yml` – liest `APIKEYFIREBASEDB` aus GitHub Actions
+- `scripts/inject-cloud-config.cjs` – injiziert den Key nur in das fertige GitHub-Pages-Artefakt
 - `firebase/firestore.rules` – Zugriffsschutz
 
-Wenn `cloud-config.json` leer bleibt, funktioniert die Website wie zuvor lokal. Es werden keine neuen Onlinekonten angelegt.
+Bleibt der Key in der **lokalen** `cloud-config.json` leer, funktioniert die Website weiterhin ohne Onlinekonten. Die **veröffentlichte** GitHub-Pages-Website erhält den Key automatisch im Deploy-Artefakt.
