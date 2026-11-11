@@ -88,3 +88,65 @@ button.primary,button.secondary{border-radius:11px;padding:10px 15px;font-size:1
  .math-keyboard-head span{display:none}
  .math-live-preview{font-size:16px}
 }
+
+/* MathsVerse Mini-Mathcad: clickable dotted coordinate paper and drag-adjustable equation tiles. */
+.mathcad-next{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;background:#bda8ff13;border:1px solid #bda8ff58;border-radius:13px;padding:12px 15px;margin:14px 0;color:#d9cff7}
+.mathcad-next strong{font-size:14px;color:#dbf5f2}
+.mathcad-next span{font-size:11px;color:var(--muted)}
+.mathcad-workspace{min-width:0;margin:18px 0 22px}
+.mathcad-toolbar{display:flex;align-items:center;justify-content:space-between;gap:15px;background:#202646;border:1px solid #a7aceb63;border-radius:16px 16px 0 0;padding:16px 17px}
+.mathcad-toolbar h3{margin:4px 0;font-size:18px}
+.mathcad-toolbar p{font-size:11px!important;color:var(--muted)!important;margin:0;max-width:650px}
+.mathcad-toolbar button{flex:0 0 auto}
+.mathcad-progress{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#121a33;border-left:1px solid #a7aceb63;border-right:1px solid #a7aceb63;padding:9px 17px;color:#bfccec;font-size:11px}
+.mathcad-progress span:first-child{font-weight:850;color:var(--aqua)}
+.mathcad-progress strong{color:#b3f8da}
+.mathcad-sheet{position:relative;min-width:0;border:1px solid #a7aceb70;border-top:0;border-radius:0 0 15px 15px;background-color:#131b35;background-image:linear-gradient(#9dc9ff12 1px,transparent 1px),linear-gradient(90deg,#9dc9ff12 1px,transparent 1px),radial-gradient(circle at 70% 28%,#9f8bec14,transparent 50%);background-size:24px 24px,24px 24px,auto;cursor:crosshair;isolation:isolate}
+.mathcad-sheet:focus-visible{outline:2px solid var(--aqua);outline-offset:3px}
+.mathcad-sheet-hint{position:absolute;top:28px;right:26px;color:#b3b3d185;font-size:11px;font-weight:700;text-align:right;pointer-events:none;user-select:none;max-width:220px}
+.mathcad-region{position:absolute;left:clamp(11px,var(--pad-x),max(11px,calc(100% - 360px)));width:min(350px,calc(100% - 22px));min-height:96px;z-index:1;cursor:auto;background:#222849f5;border:1px solid #9c9eca90;border-radius:12px;box-shadow:0 5px 20px #06091765;transition:border-color .12s,box-shadow .12s}
+.mathcad-region.mathcad-active,.mathcad-region:focus-within{border-color:#8ef5db;box-shadow:0 0 0 2px #8ef5db25,0 8px 30px #0007;z-index:4}
+.mathcad-region.mathcad-verified{border-color:#87e6bd91;background:#1a3340f2}
+.mathcad-region.mathcad-example{border-color:#e2bf8499;background:#40352af2}
+.mathcad-region-title{display:flex;align-items:center;gap:7px;padding:5px 8px;background:#ffffff09;border-bottom:1px solid #ffffff14;border-radius:11px 11px 0 0;font-size:10px;font-weight:850;color:#cfe9f4}
+.mathcad-region-title>span:nth-child(2){flex:1}
+.mathcad-region-state{font-size:8px;letter-spacing:.4px;color:#8cedcb}
+.mathcad-grab{font-size:19px;line-height:1;padding:1px 6px;border:0;background:#ffffff0c;color:#c4b5ff;border-radius:6px;cursor:grab;touch-action:none;user-select:none}
+.mathcad-grab:active{cursor:grabbing}
+.mathcad-remove{border:0;background:transparent;color:#ffb0c9;font-size:22px;line-height:1;padding:1px 5px}
+.mathcad-input{width:calc(100% - 20px);min-height:42px;min-width:0;display:block;margin:10px auto 5px;border:1px solid #9e99c88c;border-radius:7px;background:#11162f;color:#f8f6ff;padding:10px;font:600 16px/1.4 Consolas,"Courier New",monospace;outline:none}
+.mathcad-input:focus{border-color:#a1ffe1;box-shadow:0 0 0 2px #89e9d337}
+.mathcad-expression-preview{overflow-x:auto;min-height:28px;margin:0 10px 8px;padding:1px 3px;white-space:nowrap;color:#e6fcf5;font:650 17px/1.5 Cambria,Georgia,serif}
+.mathcad-expression-preview sup,.mathcad-fixed-expression sup{font-size:.65em}
+.mathcad-fixed-expression{padding:12px;overflow-wrap:anywhere;font:700 19px/1.6 Cambria,Georgia,serif;color:#e0f6ea;min-height:58px}
+.mathcad-region-actions{display:flex;flex-wrap:wrap;gap:5px;padding:7px 9px 9px}
+.mathcad-region-actions button{flex:1 1 auto;min-height:34px;border-radius:7px;border:1px solid #807cb7;background:#303963;color:#f8f6ff;padding:4px 6px;font-size:10px;font-weight:800}
+.mathcad-region-actions button:first-child{border-color:#91edc8;background:#2a655b;color:white}
+.mathcad-region-actions button:hover{filter:brightness(1.16)}
+.mathcad-dock{position:sticky;bottom:10px;z-index:12;margin:12px 0 0;padding:11px;border:1px solid #a6c2f7a0;border-radius:15px;background:#1e2344f7;box-shadow:0 12px 35px #0009;backdrop-filter:blur(12px)}
+.mathcad-dock-title{display:flex;align-items:baseline;justify-content:space-between;gap:10px;color:var(--aqua);font-size:10px}
+.mathcad-dock-title small{color:var(--muted)}
+.mathcad-dock .math-keyboard{margin-top:8px;background:#1a2442;border-color:#a6c2f744}
+.mathcad-dock .math-keyboard-head{display:none}
+.mathcad-dock .math-keyboard-tip{display:none}
+.mathcad-dock .math-key{display:grid!important;justify-self:stretch!important}
+.mathcad-dock .math-keyboard-row{grid-template-columns:repeat(7,minmax(0,1fr))}
+.mathcad-dock .math-keyboard .math-key{min-height:35px;padding:3px 1px;background:#30375c;color:var(--ink);border:1px solid #7e80b3;border-radius:7px;font:700 16px/1.2 Cambria,Georgia,serif;touch-action:manipulation}
+.mathcad-dock .math-keyboard .math-key:hover{background:#4b4c83;border-color:var(--aqua)}
+.mathcad-dock .math-keyboard .math-key-clear{font:800 10px/1.2 "Segoe UI",sans-serif;color:#ffc3db}
+@media(max-width:770px){
+ .mathcad-toolbar{padding:12px;gap:7px;flex-wrap:wrap}
+ .mathcad-toolbar button{font-size:11px}
+ .mathcad-region{left:11px!important;width:calc(100% - 22px)}
+ .mathcad-sheet-hint{right:14px;top:12px;max-width:170px}
+ .mathcad-dock{bottom:4px;padding:7px}
+}
+@media(max-width:520px){
+ .mathcad-dock-title small{font-size:9px}
+ .mathcad-region-actions button{font-size:9px;min-height:33px}
+ .mathcad-dock .math-keyboard{padding:6px;gap:4px}
+ .mathcad-dock .math-keyboard-row{gap:4px}
+ .mathcad-dock .math-keyboard .math-key{font-size:14px;min-height:32px}
+ .mathcad-dock .math-keyboard .math-key-clear{font-size:9px}
+ .mathcad-toolbar h3{font-size:16px}
+}
