@@ -38,7 +38,7 @@ export const SUBJECTS:Subject[]=[
   {id:'bwm',short:'BWM',name:'Betriebswirtschaft',icon:'📊',group:'Wirtschaft',color:'#ffd18d',desc:'Unternehmen, Märkte und wirtschaftliche Entscheidungen.'},
   {id:'ggp',short:'GGP',name:'Geschichte',icon:'🏛️',group:'Gesellschaft',color:'#ffbca9',desc:'Geschichte, Politik und Gesellschaft.'},
   {id:'pos',short:'POS',name:'C# Programmieren',icon:'💻',group:'Informatik',color:'#9dc3ff',desc:'C#, WPF, Algorithmen und Softwareentwicklung.'},
-  {id:'mat',short:'MAT',name:'Mathematik',icon:'🧮',group:'Naturwissenschaften',color:'#d7abff',desc:'Integralrechnung, Flächen und Anwendungen – 2. Hausübungswiederholung.'},
+  {id:'mat',short:'AM',name:'Mathematik',icon:'🧮',group:'Naturwissenschaften',color:'#d7abff',desc:'Integralrechnung, Flächen und Anwendungen – 2. Hausübungswiederholung.'},
   {id:'dbi',short:'DBI',name:'Datenbanken',icon:'🗄️',group:'Informatik',color:'#88e4eb',desc:'SQL, T-SQL, Datenmodelle und Abfragen.'},
   {id:'nscs',short:'NSCS',name:'Netzwerktechnik',icon:'🌐',group:'Informatik',color:'#a9dcff',desc:'Netzwerke, Routing, Firewall und Security.'},
   {id:'dsai',short:'DSAI',name:'Data Science & AI',icon:'🤖',group:'Informatik',color:'#c5a2ff',desc:'Data Science, künstliche Intelligenz und Machine Learning.'},

@@ -49,7 +49,7 @@ const html=fs.readFileSync('src/app/app.html','utf8');
 const shop=fs.readFileSync('src/app/shop-items.ts','utf8');
 const sync=fs.readFileSync('public/shared/cloud-progress.js','utf8');
 assert(registry.includes("id:'maths-hw-02',subjectId:'mat'")&&registry.includes("saveKey:'mathsverse_hw02_v1'"),'Trainer must be registered');
-assert(host.includes("id:'mat',short:'MAT'"),'Math must be a playable StudyVerse subject');
+assert(host.includes("id:'mat',short:'AM'"),'Math must be a playable StudyVerse subject');
 assert(html.includes("trainer.subjectId==='mat'?'MathsVerse'"),'MathsVerse must appear in live sidebar');
 assert(shop.includes("id:'maths-hw-02'")&&shop.includes("id:'maths_avatar_pi'"),'MathsVerse must have its own cosmetic drop');
 assert(sync.includes("'maths-hw-02':'mathsverse_hw02_v1'"),'Cloud snapshot must mirror MathsVerse progress');
