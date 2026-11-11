@@ -240,7 +240,9 @@ async function main(){
    await check(maths,'MathsVerse Worked Examples '+width);
    await maths.locator('.nav [data-action="view:practice"]').click();
    await maths.locator('[data-action="train:1.55a"]').click();
-   await maths.locator('.answer-options button').first().waitFor();
+   await maths.locator('#rule-select').waitFor();
+    assert(await maths.locator('.maths-graph-svg').count()>=1,'MathsVerse graph visible on mobile '+width);
+    assert(await maths.locator('.lab-mode').count()===3,'MathsVerse must expose all three learning modes '+width);
    await check(maths,'MathsVerse Exercise '+width);
    if(width===390)await maths.screenshot({
     path:path.join(screenshots,'mathsverse-390.png'),fullPage:true
