@@ -81,6 +81,9 @@ window.MATHSVERSE_MATH=(function(){
   return Number.isFinite(actual)&&Number.isFinite(wanted)&&Math.abs(actual-wanted)<=Math.max(absolute,Math.abs(wanted)*0.004);
  }
  function check(task,input){
+  const parsed=window.MATHSVERSE_INPUT?.parse(input);
+  if(parsed&&parsed.kind!=='math')return {ok:false,message:window.MATHSVERSE_INPUT.simpleHint(task,parsed,true)};
+  if(parsed)input=parsed.expression;
   if(!String(input||'').trim())return {ok:false,message:'Trag zuerst deine Rechnung ein.'};
   try{
    if(task.kind==='number'){
@@ -99,7 +102,7 @@ window.MATHSVERSE_MATH=(function(){
     const slope=(evaluate(input,plus)-evaluate(input,minus))/(2*h);
     const target=evaluate(task.integrand,values);
     if(!close(slope,target,0.012))
-     return {ok:false,message:'Die Ableitung deiner Eingabe stimmt noch nicht mit der Ausgangsfunktion überein.'};
+     return {ok:false,message:task.id==='1.55a'?'Deine Stammfunktion ist lesbar, aber das Vorzeichen beim letzten x stimmt nicht: Aus +1 wird beim Integrieren +x (nicht −x).':'Die Eingabe ist lesbar, aber beim Ableiten entsteht noch nicht die Ausgangsfunktion. Prüfe Vorzeichen, Exponenten und Vorfaktoren.'};
    }
    if(task.kind==='velocity'){
     const v0=evaluate(input,{t:0,x:0,a:2,b:3});
