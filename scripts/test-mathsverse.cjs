@@ -19,10 +19,10 @@ const D=bundle.MATHSVERSE_DATA,E=bundle.MATHSVERSE_MATH;
 assert.equal(D.exam,'2. Hausübungswiederholung','Explicitly the SECOND homework revision');
 assert.equal(D.tasks.length,18,'All original tasks and only selected subparts');
 assert.equal(new Set(D.tasks.map(q=>q.id)).size,18,'No duplicate exercises');
-assert.deepEqual(D.groups.map(g=>D.tasks.filter(t=>t.group===g.name).length),[6,6,2,4]);
+assert.deepEqual(Array.from(D.groups,g=>D.tasks.filter(t=>t.group===g.name).length),[6,6,2,4]);
 const required=['1.55a','1.55b','1.56a','1.56b','1.57a','1.57b','1.58a','1.58b','1.66a','1.67a',
  '1.98a','1.98b','1.98c','1.98d','1.100-1','1.100-2','1.100-3','1.100-4'];
-assert.deepEqual(D.tasks.map(t=>t.id).sort(),required.sort(),'Exercise scope exactly matches submitted pages');
+assert.deepEqual(Array.from(D.tasks,t=>t.id).sort(),required.sort(),'Exercise scope exactly matches submitted pages');
 for(const task of D.tasks){
  assert.equal(task.methodOptions.length,3,'Three method choices: '+task.id);
  assert.equal(task.stepOptions.length,3,'Three intermediate choices: '+task.id);
