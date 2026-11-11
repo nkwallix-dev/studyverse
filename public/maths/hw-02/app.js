@@ -165,7 +165,7 @@
    '<article class="exercise-panel"><div class="task-header"><span class="eyebrow">'+esc(taskLabel(t))+' · '+esc(t.group)+'</span>'+
    '<span class="tag">'+(done?'✓ Schon gemeistert':'Noch offen')+'</span></div>'+
    '<h2>'+esc(t.prompt)+'</h2><div class="formula">'+esc(t.math)+'</div>'+
-   G.render(t)+(labMode==='understand'?understandView(t):labMode==='test'?testView(t):builderView(t))+
+   G.render(t,labMode==='test')+(labMode==='understand'?understandView(t):labMode==='test'?testView(t):builderView(t))+
    '<div class="actions exercise-actions"><button class="secondary" data-action="academy-for:'+esc(t.id)+'">📖 Original-Lösungsweg im Kurs</button></div></article></div>';
  }
  function renderBoss(){
