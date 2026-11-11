@@ -8,11 +8,12 @@ const data=fs.readFileSync(dir+'data.js','utf8'),
  workbook=fs.readFileSync(dir+'workbook.js','utf8'),
  graphs=fs.readFileSync(dir+'graphs.js','utf8'),
  keyboard=fs.readFileSync(dir+'math-keyboard.js','utf8'),
+ canvas=fs.readFileSync(dir+'math-canvas.js','utf8'),
  app=fs.readFileSync(dir+'app.js','utf8'),
  page=fs.readFileSync(dir+'index.html','utf8'),
  css=fs.readFileSync(dir+'style.css','utf8');
-new Function(data);new Function(engine);new Function(workbook);new Function(graphs);new Function(keyboard);new Function(app);
-for(const script of ['data.js','math-engine.js','graphs.js','workbook.js','math-keyboard.js','app.js','../../shared/cloud-progress.js','../../shared/verse-cosmetics.js']){
+new Function(data);new Function(engine);new Function(workbook);new Function(graphs);new Function(keyboard);new Function(canvas);new Function(app);
+for(const script of ['data.js','math-engine.js','graphs.js','workbook.js','math-keyboard.js','math-canvas.js','app.js','../../shared/cloud-progress.js','../../shared/verse-cosmetics.js']){
  assert(page.includes('src="'+script+'"'),'Trainer must load '+script);
 }
 assert(css.includes('@media(max-width:520px)')&&css.includes('@media(max-width:770px)'),'MathsVerse must fit phone screens');
@@ -21,7 +22,8 @@ vm.runInNewContext(engine,{window:bundle});
 vm.runInNewContext(workbook,{window:bundle});
 vm.runInNewContext(graphs,{window:bundle});
 vm.runInNewContext(keyboard,{window:bundle});
-const D=bundle.MATHSVERSE_DATA,E=bundle.MATHSVERSE_MATH,W=bundle.MATHSVERSE_WORKBOOK,G=bundle.MATHSVERSE_GRAPHS,K=bundle.MATHSVERSE_KEYBOARD;
+vm.runInNewContext(canvas,{window:bundle});
+const D=bundle.MATHSVERSE_DATA,E=bundle.MATHSVERSE_MATH,W=bundle.MATHSVERSE_WORKBOOK,G=bundle.MATHSVERSE_GRAPHS,K=bundle.MATHSVERSE_KEYBOARD,C=bundle.MATHSVERSE_CANVAS;
 assert.equal(D.exam,'2. Hausübungswiederholung','Explicitly the SECOND homework revision');
 assert.equal(D.tasks.length,18,'All original tasks and only selected subparts');
 assert.equal(new Set(D.tasks.map(q=>q.id)).size,18,'No duplicate exercises');
@@ -81,37 +83,57 @@ click('view:academy');assert(elements['#app'].innerHTML.includes('Vorgerechnet')
 click('lesson-done');assert(saved().learned['Stammfunktionen'],'Chapter completion saved');
 click('lesson-done');assert.equal(saved().xp,25,'Chapter XP must only be paid once');
 click('train:1.55a');
-assert(elements['#app'].innerHTML.includes('DEIN RECHENHEFT'),'Notebook must open by default');
-assert(elements['#app'].innerHTML.includes('maths-graph-svg'),'Practice mode must show real graph');
-assert(!elements['#app'].innerHTML.includes('data-action="method:'),'Old multiple-choice gate must be gone');
+assert(elements['#app'].innerHTML.includes('MINI-MATHCAD'),'Mini-Mathcad must be default worksheet');
+assert(elements['#app'].innerHTML.includes('maths-graph-svg'),'Practice still shows function graph');
+assert(!elements['#app'].innerHTML.includes('id="builder-entry"'),'Old rigid line input must be gone');
 click('mode:understand');
-assert(elements['#app'].innerHTML.includes('Die Rechnung nachvollziehen'),'Understanding mode explains the calculation without requiring rule names');
+assert(elements['#app'].innerHTML.includes('Die Rechnung nachvollziehen'),'Understand mode still shows explanations');
 click('mode:builder');
-assert(elements['#app'].innerHTML.includes('Dein nächster Rechenschritt'),'Builder must ask for the next calculation');
-assert(!elements['#app'].innerHTML.includes('rule-select'),'Builder must never ask students to name a rule');
-assert(elements['#app'].innerHTML.includes('MATHE-TASTATUR'),'Builder must show the math symbol keyboard');
-const rows=W.steps('1.55a');
-assert.equal(K.apply('x',1,1,'square').value,'x^2','Powers must insert at cursor');
-assert.equal(K.apply('',0,0,'root').value,'sqrt()','Root template must be inserted');
-assert.equal(K.apply('x+1',0,3,'fraction').value,'(x+1)/()','Selected numerator must become fraction');
-assert(K.pretty('<img src=x>').includes('&lt;img'),'Typed math cannot inject HTML');
-elements['#builder-entry'].value='x^3';submit('builder-form');
-assert(elements['#app'].innerHTML.includes('value="x^3"'),'Wrong step must remain editable');
-for(const row of rows){
- elements['#builder-entry'].value=row.expected;
- submit('builder-form');
+assert(elements['#app'].innerHTML.includes('Freie Rechenfläche'),'Builder must be a free math sheet');
+assert(!elements['#app'].innerHTML.includes('rule-select'),'No rule naming');
+assert(elements['#app'].innerHTML.includes('MATHE-TASTATUR'),'Math keypad stays available');
+assert.equal(K.apply('x',1,1,'square').value,'x^2','Power key');
+assert.equal(K.apply('',0,0,'root').value,'sqrt()','Root key');
+assert.equal(K.apply('x+1',0,3,'fraction').value,'(x+1)/()','Fraction template');
+assert(K.pretty('<img src=x>').includes('&lt;img'),'Preview must escape HTML');
+assert(!C.render([{id:'r1',x:5,y:20,text:'<img>',kind:'draft',step:null}],null,3,0,false,null).includes('value="<img>'),'Canvas must escape user input');
+assert.equal(C.restore([{id:'r4',x:200,y:-500,text:'a'.repeat(300),kind:'draft'}])[0].text.length,240,'Saved text must be length-limited');
+assert(C.position(150,200,{left:50,top:100,width:500}).x===20,'Click position must map to sheet coordinates');
+const fakeSheet={getBoundingClientRect(){return {left:0,top:0,width:600,height:490}}};
+const blankTarget={closest(selector){return selector==='.mathcad-sheet'?fakeSheet:null}};
+handlers.click({target:blankTarget,clientX:90,clientY:90});
+assert(elements['#app'].innerHTML.includes('id="pad-input-r1"'),'Clicking free paper must spawn a math input at that position');
+assert.equal(saved().worksheets['1.55a'][0].x,15,'Region must preserve where it was clicked');
+function enterPad(id,value){
+ handlers.input({target:{id:'pad-input-'+id,dataset:{padInput:id},value}});
 }
-assert(elements['#app'].innerHTML.includes('DEIN ERGEBNIS'),'Builder must end in an independently checked result');
-elements['#math-entry'].value='x^4-1.5x^2+x+C';submit('answer-form');
-assert(saved().solved['q1.55a'],'Solved original task must save');
+function freshPad(){
+ const entries=saved().worksheets['1.55a'];
+ const result=entries.find(x=>x.kind==='draft');
+ assert(result,'Expected an editable new calculation region');
+ return result.id;
+}
+enterPad('r1','x^3');click('pad-check:r1');
+assert.equal(saved().worksheets['1.55a'][0].text,'x^3','Incorrect calculation must remain editable');
+assert.equal(saved().worksheets['1.55a'][0].kind,'draft','Incorrect calculation cannot be marked correct');
+const rows=W.steps('1.55a');
+enterPad('r1',rows[0].expected);click('pad-check:r1');
+assert.equal(saved().worksheets['1.55a'][0].kind,'checked','Right next line becomes a checked worksheet card');
+assert(elements['#app'].innerHTML.includes('✓ Schritt 1'),'Accepted calculation stays in its original position');
+for(let i=1;i<rows.length;i++){
+ const id=freshPad();enterPad(id,rows[i].expected);click('pad-check:'+id);
+}
+const lastId=freshPad();
+enterPad(lastId,'x^4-1.5*x^2+x+C');click('pad-result:'+lastId);
+assert(saved().solved['q1.55a'],'A correct result in any math region must save progress and award XP');
+assert(saved().worksheets['1.55a'].some(x=>x.kind==='result'),'Worksheet must retain submitted result');
 const before=saved().xp;
 click('train:1.55a');
-for(const row of rows){
- click('builder-generate');
-}
-assert(elements['#app'].innerHTML.includes('DEIN ERGEBNIS'),'Generated rows must not bypass the final answer');
-elements['#math-entry'].value='x^4-1.5x^2+x';submit('answer-form');
-assert.equal(saved().xp,before,'Repeating the same solution must not farm XP');
+assert(elements['#app'].innerHTML.includes('Aufgabe erfolgreich selbst gerechnet'),'Returning to a solved task restores the worksheet');
+click('pad-add');
+const repeat=saved().worksheets['1.55a'].find(x=>x.kind==='draft');
+enterPad(repeat.id,'x^4-1.5*x^2+x');click('pad-result:'+repeat.id);
+assert.equal(saved().xp,before,'A repeat of the correct answer must never farm XP');
 click('train:1.98a');click('mode:test');
 assert(elements['#app'].innerHTML.includes('Nur die Angabe'),'Exam mode should not provide method choices');
 assert(!elements['#app'].innerHTML.includes('id="rule-select"'),'Exam mode must hide builder controls');
@@ -134,4 +156,4 @@ for(let i=0;i<10;i++){
 assert.equal(bossCount,10);
 assert.equal(saved().bestBoss,100,'Perfect boss result must be saved');
 assert(elements['#app'].innerHTML.includes('100 %'),'Boss result displayed');
-console.log('MATHSVERSE PASS: 18 task graphs, free-form line checking, cursor math keyboard, calculation notebook, exam mode, boss and cloud progress.');
+console.log('MATHSVERSE PASS: 18 task graphs, click-to-create Mini-Mathcad free sheet, editable steps, saved positions, safe math input, XP, exam mode and boss.');
