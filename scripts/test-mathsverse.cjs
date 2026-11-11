@@ -129,11 +129,10 @@ const rows=W.steps('1.55a');
 enterPad('r1',rows[0].expected);click('pad-check:r1');
 assert.equal(saved().worksheets['1.55a'][0].kind,'checked','Right next line becomes a checked worksheet card');
 assert(elements['#app'].innerHTML.includes('✓ Schritt 1'),'Accepted calculation stays in its original position');
-for(let i=1;i<rows.length;i++){
- const id=freshPad();enterPad(id,rows[i].expected);click('pad-check:'+id);
-}
-const lastId=freshPad();
-enterPad(lastId,'x^4-1.5*x^2+x+C');click('pad-result:'+lastId);
+// A complete correct antiderivative may finish the task without forcing
+// the student through an unnecessary derivative-check or duplicate final field.
+const completeId=freshPad();
+enterPad(completeId,'F(x)='+rows[1].expected);click('pad-check:'+completeId);
 assert(saved().solved['q1.55a'],'A correct result in any math region must save progress and award XP');
 assert(saved().worksheets['1.55a'].some(x=>x.kind==='result'),'Worksheet must retain submitted result');
 const before=saved().xp;
