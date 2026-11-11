@@ -5,17 +5,21 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const dir='public/maths/hw-02/';
 const data=fs.readFileSync(dir+'data.js','utf8'),
  engine=fs.readFileSync(dir+'math-engine.js','utf8'),
+ workbook=fs.readFileSync(dir+'workbook.js','utf8'),
+ graphs=fs.readFileSync(dir+'graphs.js','utf8'),
  app=fs.readFileSync(dir+'app.js','utf8'),
  page=fs.readFileSync(dir+'index.html','utf8'),
  css=fs.readFileSync(dir+'style.css','utf8');
-new Function(data);new Function(engine);new Function(app);
-for(const script of ['data.js','math-engine.js','app.js','../../shared/cloud-progress.js','../../shared/verse-cosmetics.js']){
+new Function(data);new Function(engine);new Function(workbook);new Function(graphs);new Function(app);
+for(const script of ['data.js','math-engine.js','graphs.js','workbook.js','app.js','../../shared/cloud-progress.js','../../shared/verse-cosmetics.js']){
  assert(page.includes('src="'+script+'"'),'Trainer must load '+script);
 }
 assert(css.includes('@media(max-width:520px)')&&css.includes('@media(max-width:770px)'),'MathsVerse must fit phone screens');
 const bundle={};vm.runInNewContext(data,{window:bundle});
 vm.runInNewContext(engine,{window:bundle});
-const D=bundle.MATHSVERSE_DATA,E=bundle.MATHSVERSE_MATH;
+vm.runInNewContext(workbook,{window:bundle});
+vm.runInNewContext(graphs,{window:bundle});
+const D=bundle.MATHSVERSE_DATA,E=bundle.MATHSVERSE_MATH,W=bundle.MATHSVERSE_WORKBOOK,G=bundle.MATHSVERSE_GRAPHS;
 assert.equal(D.exam,'2. Hausübungswiederholung','Explicitly the SECOND homework revision');
 assert.equal(D.tasks.length,18,'All original tasks and only selected subparts');
 assert.equal(new Set(D.tasks.map(q=>q.id)).size,18,'No duplicate exercises');
@@ -24,8 +28,12 @@ const required=['1.55a','1.55b','1.56a','1.56b','1.57a','1.57b','1.58a','1.58b',
  '1.98a','1.98b','1.98c','1.98d','1.100-1','1.100-2','1.100-3','1.100-4'];
 assert.deepEqual(Array.from(D.tasks,t=>t.id).sort(),required.sort(),'Exercise scope exactly matches submitted pages');
 for(const task of D.tasks){
- assert.equal(task.methodOptions.length,3,'Three method choices: '+task.id);
- assert.equal(task.stepOptions.length,3,'Three intermediate choices: '+task.id);
+ assert(W.steps(task.id).length>=1,'Handwritten recipe missing: '+task.id);
+ assert(G.render(task).includes('class="maths-graph-svg"'),'Task graph missing: '+task.id);
+ for(const row of W.steps(task.id)){
+  assert(W.rules.includes(row.rule),'Unknown calculation rule: '+task.id);
+  assert(W.compare(row.expected,row).ok,'Invalid worked calculation: '+task.id+' / '+row.prompt);
+ }
  assert(task.steps.length>=3,'Fully worked example: '+task.id);
  assert(E.check(task,task.answer).ok,'Official answer must pass for '+task.id);
 }
@@ -54,7 +62,7 @@ assert(html.includes("trainer.subjectId==='mat'?'MathsVerse'"),'MathsVerse must 
 assert(shop.includes("id:'maths-hw-02'")&&shop.includes("id:'maths_avatar_pi'"),'MathsVerse must have its own cosmetic drop');
 assert(sync.includes("'maths-hw-02':'mathsverse_hw02_v1'"),'Cloud snapshot must mirror MathsVerse progress');
 
-const elements={'#app':{innerHTML:''},'#toast':{textContent:'',classList:{add(){},remove(){}}},'#math-entry':{value:''},'#boss-entry':{value:''}};
+const elements={'#app':{innerHTML:''},'#toast':{textContent:'',classList:{add(){},remove(){}}},'#math-entry':{value:''},'#boss-entry':{value:''},'#rule-select':{value:''},'#builder-entry':{value:''}};
 const handlers={},storage={};
 const browser={
  window:bundle,
@@ -71,27 +79,39 @@ click('view:academy');assert(elements['#app'].innerHTML.includes('Vorgerechnet')
 click('lesson-done');assert(saved().learned['Stammfunktionen'],'Chapter completion saved');
 click('lesson-done');assert.equal(saved().xp,25,'Chapter XP must only be paid once');
 click('train:1.55a');
-assert(elements['#app'].innerHTML.includes('Schritt 1'),'Guided trainer starts at method');
-const answers=D.tasks.find(t=>t.id==='1.55a');
-function solveChoice(prefix,options,right,needle){
- const h=elements['#app'];
- const escape=v=>String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
- const s=h.innerHTML;
- const found=[...s.matchAll(new RegExp('data-action="'+prefix+':(\\d+)"[^>]*>\\s*<span>[A-C]<\\/span>([^<]*)<\\/button>','g'))];
- const pick=found.find(a=>a[2]===escape(options[right]));
- assert(pick,'Correct '+prefix+' choice must be shown');
- click(prefix+':'+pick[1]);assert(elements['#app'].innerHTML.includes(needle));
+assert(elements['#app'].innerHTML.includes('DEIN RECHENHEFT'),'Notebook must open by default');
+assert(elements['#app'].innerHTML.includes('maths-graph-svg'),'Practice mode must show real graph');
+assert(!elements['#app'].innerHTML.includes('data-action="method:'),'Old multiple-choice gate must be gone');
+click('mode:understand');
+assert(elements['#app'].innerHTML.includes('Jede Zeile erklärt'),'Understanding mode explains each rule');
+click('mode:builder');
+assert(elements['#app'].innerHTML.includes('Schreibe'),'Builder must ask for handwritten term');
+const rows=W.steps('1.55a');
+for(const row of rows){
+ elements['#rule-select'].value=row.rule;
+ elements['#builder-entry'].value=row.expected;
+ submit('builder-form');
 }
-solveChoice('method',answers.methodOptions,answers.methodRight,'Schritt 2');
-solveChoice('step',answers.stepOptions,answers.stepRight,'Schritt 3');
+assert(elements['#app'].innerHTML.includes('DEIN FINALES ERGEBNIS'),'Builder must end in an independently checked result');
 elements['#math-entry'].value='x^4-1.5x^2+x+C';submit('answer-form');
 assert(saved().solved['q1.55a'],'Solved original task must save');
 const before=saved().xp;
 click('train:1.55a');
-solveChoice('method',answers.methodOptions,answers.methodRight,'Schritt 2');
-solveChoice('step',answers.stepOptions,answers.stepRight,'Schritt 3');
+for(const row of rows){
+ elements['#rule-select'].value=row.rule;
+ click('builder-generate');
+}
+assert(elements['#app'].innerHTML.includes('DEIN FINALES ERGEBNIS'),'Generated rows must not bypass the final answer');
 elements['#math-entry'].value='x^4-1.5x^2+x';submit('answer-form');
 assert.equal(saved().xp,before,'Repeating the same solution must not farm XP');
+click('train:1.98a');click('mode:test');
+assert(elements['#app'].innerHTML.includes('Nur die Angabe'),'Exam mode should not provide method choices');
+assert(!elements['#app'].innerHTML.includes('id="rule-select"'),'Exam mode must hide builder controls');
+elements['#math-entry'].value='48';submit('answer-form');
+assert(saved().solved['q1.98a'],'Exam mode must verify and reward self-written answers');
+assert(G.render(D.tasks.find(t=>t.id==='1.66a')).includes('polygon'),'Area task must shade integral interval');
+assert(G.render(D.tasks.find(t=>t.id==='1.67a')).includes('Schnittpunkten'),'Curve intersection task must show bounded area');
+assert((G.render(D.tasks.find(t=>t.id==='1.100-4')).match(/maths-graph-svg/g)||[]).length===3,'Drone task must show acceleration, speed and distance');
 assert(!elements['#app'].innerHTML.includes('class="token"'),'Keep standalone trainer wallet out of top header');
 click('view:boss');let bossCount=0;
 for(let i=0;i<10;i++){
@@ -103,4 +123,4 @@ for(let i=0;i<10;i++){
 assert.equal(bossCount,10);
 assert.equal(saved().bestBoss,100,'Perfect boss result must be saved');
 assert(elements['#app'].innerHTML.includes('100 %'),'Boss result displayed');
-console.log('MATHSVERSE PASS: 18 official tasks, 4 fully worked chapters, equivalent-input math checker, 3-step practice, persistent rewards, boss and cloud/trainer integration.');
+console.log('MATHSVERSE PASS: 18 task graphs, checked handwritten recipes, understand/builder/exam modes, persistent rewards, boss and cloud integration.');
