@@ -191,7 +191,6 @@
             <div class="shop-items-heading-main">
               <h2>Alle Items <span>✦</span></h2>
               <small class="shop-current-drop">{{selectedDrop.icon}} {{dropOwned}} / {{dropItems.length}} · {{selectedDrop.title}}</small>
-              <p class="shop-test-explainer" id="shop-test-explainer">🎨 Jeder Test hat eigene Cosmetics. Wähle rechts deinen Test im Dropdown, um seine Items zu sehen. Die <strong>STUDYVERSE Essentials</strong> gelten für alle Tests.</p>
             </div>
             <label class="shop-drop-picker">
               <span>WÄHLE DEINEN TEST</span>
@@ -201,6 +200,7 @@
               </select>
             </label>
           </div>
+          <p class="shop-test-explainer" id="shop-test-explainer">🎨 Jeder Test hat eigene Cosmetics. Wähle rechts deinen Test im Dropdown, um seine Items zu sehen. Die <strong>STUDYVERSE Essentials</strong> gelten für alle Tests.</p>
           <p class="shop-drop-hint" *ngIf="shopDrop==='global'">⚡ Maximal 2 neue Level-Items pro Stufe · ❄️ Absolute Null: Lv 12 · 🌋 Reaktor-Kern: Lv 13 · ⚜️ Legenden-Rahmen: Lv 15</p>
           <p class="shop-drop-hint" *ngIf="selectedDrop.status==='upcoming'">✧ Diese Kollektion ist noch nicht spielbar. Wähle einen anderen Drop.</p>
           <ng-container *ngIf="selectedDrop.status==='live'">
