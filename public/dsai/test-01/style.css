@@ -21,7 +21,7 @@ body[data-theme="ocean"],body[data-theme="blueprint"]{--bg:#061b2a;--side:#0d273
 body[data-theme="lava"]{--bg:#241010;--side:#261217;--panel:#3b2327;--border:#793d37;--accent:#ffb078;--aqua:#ffdf83}
 body[data-theme="frost"],body[data-theme="hologram"]{--bg:#081d30;--side:#102b43;--panel:#19384a;--border:#36718a;--accent:#b8e4ff;--aqua:#74eedd}
 body[data-theme="matrix"]{--bg:#04140b;--side:#0a1c10;--panel:#142f1d;--border:#376747;--accent:#a4ff7b;--aqua:#78f5a0}
-body[data-theme="sakura"],body[data-theme="sunset"]{--bg:#221126;--side:#2a1930;--panel:#402341;--border:#784971;--accent:#ff9ed9;--aqua:#ffd1b8}
+body[data-theme="sakura"]{--bg:#2b0e28;--side:#401532;--panel:#602448;--border:#b56396;--accent:#ff91cc;--aqua:#ffd2e9}body[data-theme="sunset"]{--bg:#221126;--side:#2a1930;--panel:#402341;--border:#784971;--accent:#ff9ed9;--aqua:#ffd1b8}
 body[data-theme="arcade"]{--bg:#180c28;--side:#270e3c;--panel:#382050;--border:#7b3c9c;--accent:#fc81f4;--aqua:#87f5ff}
 body[data-theme="paper"]{--bg:#e5d7bb;--side:#ddd0b3;--panel:#fbf0dc;--border:#a89472;--ink:#2b2632;--muted:#65594b;--accent:#7d3e1f;--aqua:#296e60}
 body[data-frame="gold"] .question-card,body[data-frame="gold"] .lesson-card,body[data-frame="gold"] .panel{border-color:#f0c46b}body[data-frame="legend"] .question-card,body[data-frame="legend"] .panel{border:2px solid #f4c45c;box-shadow:0 0 17px #edc55a33}body[data-frame="pixel"] .panel,body[data-frame="pixel"] .question-card{border-radius:1px}

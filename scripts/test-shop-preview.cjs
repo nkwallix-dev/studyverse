@@ -19,6 +19,27 @@ assert(h.indexOf('class="chips shop-category-chips"')<h.indexOf('<ng-container *
 assert(h.includes('!selectedCategoryHasItems'),
  'Empty categories should explain that the selected test has no such cosmetics');
 
+
+// Kawaii has a vivid pink palette in the dashboard and all three trainer worlds.
+// The optional banner must keep its own scenery rather than be replaced by the theme.
+const mainPalette=fs.readFileSync('src/app/app.scss','utf8');
+const versePalette=fs.readFileSync('public/shared/verse-cosmetics.css','utf8');
+const chemPalette=fs.readFileSync('public/nawi/test-01/index.html','utf8');
+const dsaiPalette=fs.readFileSync('public/dsai/test-01/style.css','utf8');
+assert(mainPalette.includes('.universe[data-theme="sakura"]{--bg:#2b0e28;'),
+ 'Kawaii dashboard must use the strawberry-pink background');
+assert(mainPalette.includes('.planet{background:radial-gradient(circle at 26% 23%,#ffe1f1'),
+ 'Kawaii planet should use pinks instead of the original purple');
+assert(versePalette.includes('body[data-theme="sakura"]{--bg:#2b0e28;'),
+ 'Kawaii trainer worlds should share the dashboard pink background');
+assert(chemPalette.includes('body[data-theme="sakura"]{--bg:#2b0e28;')&&
+ dsaiPalette.includes('body[data-theme="sakura"]{--bg:#2b0e28;'),
+ 'Chemverse and Dsaiverse should initialize the Kawaii palette consistently');
+assert(items.includes("name:'Kawaii'")&&items.includes('linear-gradient(125deg,#541336,#ed54ab 52%,#ffd0ea)'),
+ 'Kawaii store swatch must preview the new vibrant pink colors');
+assert(versePalette.includes('body[data-theme="sakura"]:is([data-banner="none"],[data-banner="default"]) .hero'),
+ 'Kawaii should not overwrite an equipped banner');
+
 assert(preview.includes('class="universe shop-live-stage"'),'A live mini-universe must be in the popup');
 assert(preview.includes("item.group!=='avatar' && item.group!=='title'"),'Avatar/title should retain their current simple preview');
 for(const group of ['theme','atm','frame','font','banner','fx']){

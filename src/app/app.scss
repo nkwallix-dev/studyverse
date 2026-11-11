@@ -7,7 +7,17 @@
 .universe[data-theme="ocean"]{--bg:#071b29;--sidebar:#0a2332;--card:#123047;--card2:#0d2738;--border:#2e6074;--accent:#71f0ce;--accent2:#71c0f9;--glow:#2cabc2}
 .universe[data-theme="lava"]{--bg:#1d1016;--sidebar:#271419;--card:#352027;--card2:#27161b;--border:#6d3c40;--accent:#ff9a69;--accent2:#ffd479;--glow:#e85f43}
 .universe[data-theme="frost"]{--bg:#0a1627;--sidebar:#0e1d33;--card:#192d46;--card2:#11233b;--border:#355575;--accent:#a9ddff;--accent2:#a3ffee;--glow:#85a9e7}
-.universe[data-theme="sakura"]{--bg:#1b1020;--sidebar:#251528;--card:#37213a;--card2:#29172e;--border:#754d72;--accent:#ffb5e9;--accent2:#ffd3cd;--glow:#d67cba}
+/* Kawaii: vibrant bubblegum, strawberry milk and rose, with light text for contrast. */
+.universe[data-theme="sakura"]{--bg:#2b0e28;--sidebar:#411433;--card:#602448;--card2:#481939;--border:#b56396;--text:#fff2f9;--muted:#f0bdd7;--accent:#ff91cc;--accent2:#ffd2e9;--glow:#f45ba8}
+.universe[data-theme="sakura"] .ambient.b{background:radial-gradient(circle,#ff70b955,transparent 67%)}
+.universe[data-theme="sakura"]:is([data-banner="none"],[data-banner="default"]) .hero{background:radial-gradient(circle at 78% 39%,#ff99cb88,transparent 39%),linear-gradient(115deg,#5a1b46,#9a3a75 58%,#512047)}
+.universe[data-theme="sakura"] .hero h1 span{background:linear-gradient(90deg,#fff0fa,#ff97cd);background-clip:text;color:transparent}
+.universe[data-theme="sakura"] .hero p{color:#ffe0f0}
+.universe[data-theme="sakura"] .planet-glow{background:#ff6eba8c}
+.universe[data-theme="sakura"] .planet{background:radial-gradient(circle at 26% 23%,#ffe1f1,#ffa0d0 25%,#e85fa9 57%,#70264f 100%);box-shadow:inset -22px -18px 35px #6d1b4cc9,0 0 50px #f77cbb88,0 0 100px #ff93ca44}
+.universe[data-theme="sakura"] .planet-orbit{border-color:#ffcae79c}
+.universe[data-theme="sakura"] .brand-icon{background:linear-gradient(135deg,#ffc7e3,#fb79b7);color:#481631}
+
 .universe[data-theme="matrix"]{--bg:#070e0a;--sidebar:#0b160e;--card:#11251a;--card2:#0a1a10;--border:#2b5836;--accent:#77ef93;--accent2:#c3ff96;--glow:#4aaf63}
 .universe[data-theme="arcade"]{--bg:#190c24;--sidebar:#230d32;--card:#321944;--card2:#251333;--border:#6c3779;--accent:#ff7ddd;--accent2:#81eff9;--glow:#cf42c9}
 .universe[data-theme="sunset"]{--bg:#1b0e24;--sidebar:#2a1831;--card:#38253d;--card2:#2b1b36;--border:#774967;--accent:#ffb982;--accent2:#ff91c7;--glow:#d17898}

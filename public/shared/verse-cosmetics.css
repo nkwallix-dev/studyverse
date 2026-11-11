@@ -12,7 +12,7 @@ body[data-theme="pizza"]{--bg:#25130c;--side:#28160e;--card:#3e271c;--card2:#302
 body[data-theme="cosmic"]{--bg:#090c24;--side:#11143d;--card:#22234a;--card2:#191b3b;--panel:#22234a;--border:#6256a7;--accent:#d3a6ff;--aqua:#8cf0f9}
 body[data-theme="lava"]{--bg:#210c13;--side:#31131b;--card:#3f2226;--card2:#331b20;--panel:#3f2226;--border:#95473f;--accent:#ffbf86;--aqua:#ffd69b}
 body[data-theme="frost"]{--bg:#071b29;--side:#0e2a3d;--card:#183c53;--card2:#102d42;--panel:#183c53;--border:#36748e;--accent:#beefff;--aqua:#84ffe9}
-body[data-theme="sakura"]{--bg:#29132b;--side:#371b37;--card:#48243f;--card2:#392038;--panel:#48243f;--border:#98567e;--accent:#ffc0e4;--aqua:#e9b4ff}
+body[data-theme="sakura"]{--bg:#2b0e28;--bg2:#38112e;--side:#401532;--sidebar-bg:#401532;--card:#602448;--card2:#481939;--panel:#602448;--surface:#602448;--surface2:#742c58;--surface3:#8b3c68;--border:#b56396;--ink:#fff2f9;--text:#fff2f9;--muted:#f0bdd7;--accent:#ff91cc;--accent2:#ffd2e9;--aqua:#ffd2e9;--mint:#ffd2e9;--violet:#ffc2e5;--pink:#ff78b9;--glow:#f45ba8}
 body[data-theme="matrix"]{--bg:#05170b;--side:#092213;--card:#193c25;--card2:#112b1a;--panel:#193c25;--border:#488658;--accent:#91ff9a;--aqua:#91ff9a}
 body[data-theme="arcade"]{--bg:#180d2b;--side:#271542;--card:#382455;--card2:#2b1c44;--panel:#382455;--border:#8d53b6;--accent:#ff99ef;--aqua:#a2f5ff}
 body[data-theme="sunset"]{--bg:#2a1225;--side:#351a32;--card:#46243f;--card2:#361b36;--panel:#46243f;--border:#a76091;--accent:#ffc591;--aqua:#ffb3d1}
@@ -21,7 +21,14 @@ body[data-theme="hologram"]{--bg:#071d29;--side:#0d2f3d;--card:#1b3c4b;--card2:#
 body[data-theme="blueprint"]{--bg:#071527;--side:#112b44;--card:#19334d;--card2:#122940;--panel:#19334d;--border:#3677a1;--accent:#a3eaff;--aqua:#a3eaff}
 body[data-theme="dsai_neural"] .hero,body[data-theme="sharp_theme"] .hero{background:radial-gradient(circle at 80% 28%,#c88cff64,transparent 43%),linear-gradient(120deg,#1c153d,#5b327c)!important}
 body[data-theme="sharp_cutline"] .hero,body[data-theme="dsai_terminal"] .hero{background:radial-gradient(circle at 79% 50%,#29d5da55,transparent 48%),linear-gradient(120deg,#09172b,#26456a)!important}
-body[data-theme="sakura"] .hero{background:radial-gradient(circle at 75% 42%,#ffbddd77,transparent 48%),linear-gradient(115deg,#452142,#bd7197)!important}
+body[data-theme="sakura"]:is([data-banner="none"],[data-banner="default"]) .hero{background:radial-gradient(circle at 75% 42%,#ffadd78a,transparent 45%),linear-gradient(115deg,#64214d,#b54883 67%,#e67eb8)!important}
+/* Respect equipped scene banners while turning the entire surrounding UI candy pink. */
+body[data-theme="sakura"] .sidebar{background:linear-gradient(175deg,#491936,#321128)!important;border-color:var(--border)}
+body[data-theme="sakura"] .topbar{background:color-mix(in srgb,var(--bg),transparent 10%);border-color:var(--border)}
+body[data-theme="sakura"] .workspace{background:radial-gradient(ellipse 70% 36% at 70% 0%,#f15da02b,transparent 72%),var(--bg)}
+body[data-theme="sakura"] .profile-link{background:var(--card2);border-color:var(--border)}
+body[data-theme="sakura"] .nav-link.active{background:linear-gradient(100deg,#ff9bca30,#e84b9120);border-color:#ffb0d17a;color:#ffe6f4}
+
 body[data-theme="frost"] .hero{background:linear-gradient(115deg,#113b59,#509cb0)!important}
 body[data-theme="lava"] .hero{background:linear-gradient(115deg,#401b25,#b94d32)!important}
 body[data-theme="cosmic"] .hero{background:radial-gradient(circle at 85% 34%,#ac82ff82,transparent 37%),linear-gradient(115deg,#14103d,#4f2c88)!important}
