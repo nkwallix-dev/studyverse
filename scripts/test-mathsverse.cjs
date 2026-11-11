@@ -107,6 +107,9 @@ assert.equal(saved().xp,before,'Repeating the same solution must not farm XP');
 click('train:1.98a');click('mode:test');
 assert(elements['#app'].innerHTML.includes('Nur die Angabe'),'Exam mode should not provide method choices');
 assert(!elements['#app'].innerHTML.includes('id="rule-select"'),'Exam mode must hide builder controls');
+assert(!G.render(D.tasks.find(t=>t.id==='1.66a'),true).includes('<polygon'),'Exam graphs must not disclose shaded answers');
+assert(!G.render(D.tasks.find(t=>t.id==='1.100-4'),true).includes('14,41 s'),'Drone exam graph must not spoil the distance answer');
+
 elements['#math-entry'].value='48';submit('answer-form');
 assert(saved().solved['q1.98a'],'Exam mode must verify and reward self-written answers');
 assert(G.render(D.tasks.find(t=>t.id==='1.66a')).includes('polygon'),'Area task must shade integral interval');
