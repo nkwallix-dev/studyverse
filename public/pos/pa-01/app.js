@@ -116,19 +116,35 @@ function nextQuestion(){
  const next=pool.slice(i+1).find(q=>!s.solved['d'+q.id])||pool.slice(0,i+1).find(q=>!s.solved['d'+q.id])||pool[(i+1)%pool.length];
  if(next){selectedQuestion=next.id;lastFeedback='';render();}
 }
+// Fisher-Yates avoids the biased random-sort comparator previously used for boss questions.
+function shuffleBoss(array){
+ const shuffled=[...array];
+ for(let i=shuffled.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];
+ }
+ return shuffled;
+}
 function startBoss(){
  const pool=D.challenges.filter(q=>q.kind==='transfer'&&q.level===2);
  const advanced=D.challenges.filter(q=>q.kind==='transfer'&&q.level!==2);
  const code=D.challenges.filter(q=>q.kind==='code');
- const randomize=arr=>[...arr].sort(()=>Math.random()-.5);
- const items=[...randomize(pool).slice(0,2),...randomize(advanced).slice(0,7),...randomize(code).slice(0,3)];
- boss={items:randomize(items),at:0,right:0,answered:false,choice:-1,finished:false,percent:0};
+ const items=shuffleBoss([...shuffleBoss(pool).slice(0,2),...shuffleBoss(advanced).slice(0,7),...shuffleBoss(code).slice(0,3)]);
+ // 12 rounds: exactly three correct answers in each of A, B, C and D.
+ // The slots vary for each run, so a fixed-letter strategy cannot win.
+ const correctPositions=shuffleBoss(items.map((_,index)=>index%4));
+ const orders=items.map((q,index)=>{
+  const distractors=shuffleBoss(q.answers.map((_,i)=>i).filter(i=>i!==q.right));
+  distractors.splice(correctPositions[index],0,q.right);
+  return distractors;
+ });
+ boss={items,orders,at:0,right:0,answered:false,choice:-1,finished:false,percent:0};
 }
 function answerBoss(pick){
  if(!boss||boss.answered||boss.finished)return;
  const q=boss.items[boss.at];
  boss.answered=true;boss.choice=Number(pick);
- if(boss.choice===q.right)boss.right++;
+ if(boss.orders[boss.at][boss.choice]===q.right)boss.right++;
  render();
 }
 function nextBoss(){
@@ -283,10 +299,10 @@ function bossPage(){
   '<p>'+boss.right+'/'+boss.items.length+' richtige Antworten. Dein Bestwert: '+s.bestBoss+' %. '+(perfect?'Du hast den Kauf des Prestige-Titels „Professor Spermann“ freigeschaltet!':'Für den Titel „Professor Spermann“ brauchst du einen perfekten Durchlauf. Du kannst jederzeit nochmal trainieren.')+'</p>'+
   '<div class="actions">'+choice('Bosskampf wiederholen','view:boss','primary')+choice('Zur Kommandozentrale','view:home','secondary')+'</div></div>';
  }
- const q=boss.items[boss.at],answered=boss.answered,correct=answered&&boss.choice===q.right;
+ const q=boss.items[boss.at],order=boss.orders[boss.at],answered=boss.answered,correct=answered&&order[boss.choice]===q.right;
  return '<div class="eyebrow">👑 1. PA · PROFESSOR SPERMANN</div><h1 class="page-title">Der <em>Endgegner.</em></h1><div class="challenge-progress"><strong>AUFGABE '+(boss.at+1)+' / '+boss.items.length+'</strong>'+progressBar(boss.at,boss.items.length)+'<small>'+boss.right+' bisher richtig</small></div>'+
  '<div class="boss-card"><div class="eyebrow">'+h(q.topic)+' · UNBEKANNTER KONTEXT</div><h2>'+h(q.title)+'</h2>'+escCode(q.code)+
- '<div class="answers">'+q.answers.map((a,i)=>'<button class="answer '+(answered?(i===q.right?'correct':i===boss.choice?'wrong':''):'')+'" '+(answered?'disabled':'')+' data-action="boss-answer:'+i+'"><span>'+String.fromCharCode(65+i)+'</span>'+h(a)+'</button>').join('')+'</div>'+
+ '<div class="answers">'+order.map((original,i)=>'<button class="answer '+(answered?(original===q.right?'correct':i===boss.choice?'wrong':''):'')+'" '+(answered?'disabled':'')+' data-action="boss-answer:'+i+'"><span>'+String.fromCharCode(65+i)+'</span>'+h(q.answers[original])+'</button>').join('')+'</div>'+
  (answered?'<div class="feedback '+(correct?'right':'wrong')+'"><b>'+(correct?'✅ Richtig!':'❌ Leider falsch.')+'</b><p>'+h(q.explain)+'</p></div><div class="actions">'+choice(boss.at+1===boss.items.length?'Ergebnis ansehen 🏁':'Nächste Aufgabe →','boss-next','primary')+'</div>':'')+'</div>'+
  '<p class="exam-note">Der Boss prüft Transfer und Codeverständnis. 100 % schalten den exklusive Shop-Titel frei – der eigentliche C#-Programmiernachweis passiert weiterhin in Visual Studio.</p>';
 }
