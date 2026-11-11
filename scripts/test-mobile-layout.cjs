@@ -223,6 +223,31 @@ async function main(){
     await context.close();
    }
   }
+  // MathsVerse has no dummy burger: its course is fully navigable on phones.
+  for(const width of [320,360,390,430,768]){
+   const context=await browser.newContext({
+    viewport:{width,height:800},deviceScaleFactor:1,isMobile:true,hasTouch:true
+   });
+   const maths=await context.newPage();
+   const errors=[];maths.on('pageerror',e=>errors.push(e.message));
+   await maths.goto(base+'maths/hw-02/',{waitUntil:'load'});
+   await maths.locator('.hero').waitFor({timeout:12000});
+   assert(await maths.locator('.top-links a').first().isVisible(),
+    'MathsVerse must provide a visible back link at '+width);
+   await check(maths,'MathsVerse Dashboard '+width);
+   await maths.locator('[data-action="view:academy"]').click();
+   await maths.locator('.solution-steps li').first().waitFor();
+   await check(maths,'MathsVerse Worked Examples '+width);
+   await maths.locator('[data-action="view:practice"]').click();
+   await maths.locator('[data-action="train:1.55a"]').click();
+   await maths.locator('.answer-options button').first().waitFor();
+   await check(maths,'MathsVerse Exercise '+width);
+   if(width===390)await maths.screenshot({
+    path:path.join(screenshots,'mathsverse-390.png'),fullPage:true
+   });
+   assert(!errors.length,'MathsVerse JavaScript error '+width+': '+errors.join('; '));
+   await context.close();
+  }
   // Global equipment must actually render inside EACH standalone trainer, not
   // merely appear on the Studyverse dashboard where it was equipped.
   for(const [world,url] of [
