@@ -109,38 +109,43 @@
   return '<div class="worked maths-worked"><b>Vollständiger Rechenweg</b><ol>'+
    t.steps.map(step=>'<li>'+esc(step)+'</li>').join('')+'</ol></div>';
  }
+ function inputPad(id,value){
+  return '<div class="math-entry-tools"><div class="math-live-preview" data-preview="'+id+'" aria-live="off">'+K.pretty(value||'')+'</div>'+K.render(id)+'</div>';
+ }
  function builderView(t){
   const rows=W.steps(t.id),row=rows[workIndex],finished=workIndex>=rows.length;
-  const history='<div class="notebook"><div class="notebook-top"><span>📒 DEIN RECHENHEFT</span><span>'+workIndex+' / '+rows.length+' Zeilen</span></div>'+
-   (workHistory.length?workHistory.map((h,i)=>'<div class="notebook-line"><span class="notebook-number">'+String(i+1).padStart(2,'0')+'</span><div><small>'+esc(h.rule)+' · '+(h.written?'Selbst gerechnet':'Vorlage verwendet')+'</small><strong>'+esc(h.line)+'</strong><p>'+esc(h.why)+'</p></div></div>').join(''):'<div class="notebook-empty">Noch leer – beginne mit der ersten Umformung.</div>')+
-   '</div>';
-  const controls=finished?'<div class="lab-final"><span class="eyebrow">DEIN FINALES ERGEBNIS</span><h3>Jetzt die gesamte Aufgabe ohne Abschreiben lösen</h3>'+
-   '<p>'+esc(t.kind==='number'?'Gib das Endergebnis ein. Einheiten kannst du weglassen.':'Schreibe die vollständige Stammfunktion bzw. Geschwindigkeitsfunktion. +C ist optional.')+'</p>'+
-   '<form id="answer-form" class="answer-form"><label for="math-entry">Endergebnis</label><input id="math-entry" autocomplete="off" spellcheck="false" required placeholder="z. B. 48, 98/3 oder x^4-1.5*x^2+x"><button class="primary" type="submit">✅ Ergebnis prüfen</button></form>'+
-   '</div>':
-   '<section class="lab-step"><div class="lab-step-title"><span class="tag">ZEILE '+(workIndex+1)+' / '+rows.length+'</span><h3>'+esc(row.prompt)+'</h3></div>'+
-   '<div class="lab-rule-picker"><label for="rule-select">1 · Passende Regel wählen</label>'+
-   '<select id="rule-select" aria-label="Regel für diese Rechenzeile wählen"><option value="">Regel auswählen …</option>'+
-   W.rules.map(rule=>'<option value="'+esc(rule)+'">'+esc(rule)+'</option>').join('')+'</select></div>'+
-   '<div class="lab-choice-actions"><button class="secondary" data-action="builder-generate">✨ Nächste Zeile erzeugen</button>'+
-   '<button class="secondary" data-action="builder-hint">💡 Tipp</button></div>'+
-   (workHint?'<div class="lab-hint">💡 '+esc(row.why)+'</div>':'')+
-   '<form id="builder-form" class="answer-form"><label for="builder-entry">2 · Nächste Zeile selbst schreiben (rechte Seite als Term/Zahl)</label>'+
-   '<input id="builder-entry" autocomplete="off" spellcheck="false" required placeholder="z. B. x^3/3+2*x^2-x">'+
-   '<button class="primary" type="submit">🧮 Meine Zeile prüfen</button></form>'+
-   '<div class="entry-help">Mathe-Eingabe: x^2, t^3, 3/5, sqrt(10), ln(abs(x)), e^(2*x), pi. Dezimalkomma ist erlaubt. Schreibe nur den Term rechts von „=“.</div></section>';
-  return history+(phase===3?'<div class="success"><strong>🎉 Aufgabe selbst gelöst!</strong><p>Dein Fortschritt ist gespeichert.</p></div>'+
+  const history='<div class="notebook"><div class="notebook-top"><span>📒 DEIN RECHENHEFT</span><span>'+workIndex+' / '+rows.length+' Schritte</span></div>'+
+   (workHistory.length?workHistory.map((h,i)=>'<div class="notebook-line"><span class="notebook-number">'+String(i+1).padStart(2,'0')+'</span><div>'+
+    '<small>'+(h.written?'✓ Selbst gerechnet':'👀 Beispielschritt angezeigt')+'</small>'+
+    '<strong class="notebook-expression">'+(h.written?K.pretty(h.line):esc(h.line))+'</strong></div></div>').join(''):'<div class="notebook-empty">Schreib deinen ersten Schritt – jede richtige Zeile erscheint anschließend hier.</div>')+'</div>';
+  const controls=finished?'<div class="lab-final"><span class="eyebrow">DEIN ERGEBNIS</span>'+
+   '<h3>Letzter Schritt: Jetzt das Ergebnis selbst eingeben.</h3>'+
+   '<p>'+esc(t.kind==='number'?'Gib den fertigen Wert ein.':'Schreib die fertige Stammfunktion bzw. Geschwindigkeitsfunktion. + C darfst du weglassen.')+'</p>'+
+   '<form id="answer-form" class="answer-form"><label for="math-entry">Dein Ergebnis</label>'+
+   '<input id="math-entry" autocomplete="off" spellcheck="false" required placeholder="z. B. 48 oder x^4-1.5*x^2+x">'+
+   inputPad('math-entry','')+'<button class="primary" type="submit">✅ Ergebnis prüfen</button></form></div>':
+   '<section class="lab-step"><div class="lab-step-title"><span class="tag">SCHRITT '+(workIndex+1)+' / '+rows.length+'</span>'+
+   '<h3>'+esc(row.prompt)+'</h3></div>'+
+   '<p class="lab-instruction">Gib einfach deine nächste Rechnung ein. Du musst keine Regeln auswählen oder benennen.</p>'+
+   '<form id="builder-form" class="answer-form"><label for="builder-entry">Dein nächster Rechenschritt</label>'+
+   '<input id="builder-entry" autocomplete="off" spellcheck="false" required value="'+esc(builderDraft)+'" placeholder="Schreibe den Term nach dem =">'+
+   inputPad('builder-entry',builderDraft)+'<button class="primary" type="submit">✅ Rechenschritt prüfen</button></form>'+
+   '<div class="entry-help">Normal tippen oder die Mathe-Tastatur benutzen. Gib nur den Term rechts von „=“ ein, z. B. <code>x^3/3+2*x^2-x</code>.</div>'+
+   '<div class="lab-choice-actions"><button class="secondary" data-action="builder-hint">💡 Kleiner Tipp</button>'+
+   '<button class="secondary" data-action="builder-generate">👀 Schritt anzeigen</button></div>'+
+   (workHint?'<div class="lab-hint">💡 '+esc(row.why)+'</div>':'')+'</section>';
+  return history+(phase===3?'<div class="success"><strong>🎉 Aufgabe selbst gelöst!</strong><p>Dein Rechenweg ist im Heft sichtbar. Dein Fortschritt ist gespeichert.</p></div>'+
    '<div class="actions"><button class="primary" data-action="next">Nächste offene Aufgabe →</button></div>':controls)+
    (feedback?'<div class="feedback '+(phase===3?'good':'warn')+'" role="status">'+esc(feedback)+'</div>':'')+
-   (workIndex>0&&phase!==3?'<button class="back-step" data-action="builder-back">← Eine Zeile zurück</button>':'')+
+   (workIndex>0&&phase!==3?'<button class="back-step" data-action="builder-back">← Letzten Schritt korrigieren</button>':'')+
    '<div class="lab-help-actions"><button class="secondary" data-action="builder-solution">'+(solutionOpen?'Lösung verbergen':'📖 Komplette Lösung zeigen')+'</button></div>'+
    (solutionOpen?solutionList(t):'');
  }
  function understandView(t){
-  return '<div class="understand-panel"><div class="eyebrow">MODUS 1 · VERSTEHEN</div><h3>Jede Zeile erklärt</h3>'+
-   '<p>Hier siehst du die Rechnung mit Regel und Begründung. Danach kannst du sie im Baukasten selbst durchgehen.</p>'+
+  return '<div class="understand-panel"><div class="eyebrow">MODUS 1 · VERSTEHEN</div><h3>Die Rechnung nachvollziehen</h3>'+
+   '<p>Hier siehst du die fertigen Schritte und die Erklärung dazu. Die Namen der Rechenregeln musst du nicht lernen.</p>'+
    '<ol class="explain-steps">'+W.steps(t.id).map((row,i)=>
-    '<li><span class="step-number">'+String(i+1).padStart(2,'0')+'</span><div><small>'+esc(row.rule)+'</small>'+
+    '<li><span class="step-number">'+String(i+1).padStart(2,'0')+'</span><div>'+
     '<strong>'+esc(row.line)+'</strong><p>'+esc(row.why)+'</p></div></li>').join('')+'</ol>'+
    solutionList(t)+'<div class="actions"><button class="primary" data-action="mode:builder">✍️ Jetzt selbst rechnen</button></div></div>';
  }
@@ -149,7 +154,7 @@
    '<h3>Nur die Angabe. Keine Regelvorgabe.</h3><p>Rechne den Weg selbst auf Papier oder im Kopf und trage dein Endergebnis ein. Der Graph dient nur zur Orientierung.</p>'+
    '<form id="answer-form" class="answer-form"><label for="math-entry">Dein Endergebnis</label>'+
    '<input id="math-entry" autocomplete="off" spellcheck="false" required placeholder="Antwort als mathematischen Term eingeben">'+
-   '<button class="primary" type="submit">📋 Abgeben und prüfen</button></form>'+
+   inputPad('math-entry','')+'<button class="primary" type="submit">📋 Abgeben und prüfen</button></form>'+
    (feedback?'<div class="feedback '+(phase===3?'good':'warn')+'" role="status">'+esc(feedback)+'</div>':'')+
    (phase===3?'<div class="actions"><button class="primary" data-action="next">Nächste offene Aufgabe →</button></div>':'')+'</div>';
  }
