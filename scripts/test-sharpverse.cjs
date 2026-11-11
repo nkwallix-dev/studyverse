@@ -7,6 +7,10 @@ const html=fs.readFileSync('public/pos/pa-01/index.html','utf8');
 new Function(dataJS);new Function(appJS);
 assert(html.includes('src="app.js"')&&html.includes('src="../../shared/cloud-progress.js"'),'Sharpverse must load the trainer and shared cloud sync');
 assert(css.includes('@media(max-width:520px)')&&css.includes('.writing-layout'),'Sharpverse needs responsive screens and a real writing trainer');
+assert(!appJS.includes('class="token"'),'Sharpverse top header should no longer display a Token balance');
+assert(appJS.includes('s.coins+=tt'),'Token rewards must still accumulate in the Sharpverse save');
+assert(appJS.includes('class="studyverse-back"')&&appJS.includes('class="profile-link"'),
+ 'Sharpverse keeps Studyverse back and profile navigation after removing the Token pill');
 const w={};
 vm.runInNewContext(dataJS,{window:w});
 const D=w.SHARPVERSE_DATA;

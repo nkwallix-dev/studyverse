@@ -260,6 +260,8 @@ assert(settingsTs.includes("window.location.hash==='#profile'"),
  'Standalone learning worlds must open the central account page via #profile');
 const chemverseHeader=fs.readFileSync('public/nawi/test-01/index.html','utf8');
 const dsaiverseHeader=fs.readFileSync('public/dsai/test-01/index.html','utf8');
+assert(!chemverseHeader.includes('id="menuBtn"')&&!chemverseHeader.includes("$('#menuBtn')"),
+ 'Chemverse topbar must not include the unused burger button or dangling click handler');
 for(const [name,html] of [['Chemverse',chemverseHeader],['Dsaiverse',dsaiverseHeader]]){
  assert(html.includes('href="../../#profile"') && html.includes('Mein Profil</span>'),
   name+' should show the same account navigation with visible label');
