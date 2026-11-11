@@ -235,10 +235,10 @@ async function main(){
    assert(await maths.locator('.top-links a').first().isVisible(),
     'MathsVerse must provide a visible back link at '+width);
    await check(maths,'MathsVerse Dashboard '+width);
-   await maths.locator('[data-action="view:academy"]').click();
+   await maths.locator('.nav [data-action="view:academy"]').click();
    await maths.locator('.solution-steps li').first().waitFor();
    await check(maths,'MathsVerse Worked Examples '+width);
-   await maths.locator('[data-action="view:practice"]').click();
+   await maths.locator('.nav [data-action="view:practice"]').click();
    await maths.locator('[data-action="train:1.55a"]').click();
    await maths.locator('.answer-options button').first().waitFor();
    await check(maths,'MathsVerse Exercise '+width);
