@@ -10,7 +10,7 @@ window.MATHSVERSE_KEYBOARD=(function(){
   ],[
    ['1','1'],['2','2'],['3','3'],['+','+'],['−','-'],['π','pi']
   ],[
-   ['0','0'],[',','.'],['x²','square'],['x³','cube'],['xⁿ','power'],['√','root']
+   ['0','0'],[',','.'],['x²','square'],['x³','cube'],['xⁿ','power'],['√','root'],['∫','integral']
   ],[
    ['∛','cuberoot'],['a⁄b','fraction'],['ln','ln'],['eˣ','exp'],['|x|','abs'],['⌫','backspace'],['Leeren','clear']
   ]
@@ -20,7 +20,7 @@ window.MATHSVERSE_KEYBOARD=(function(){
   return '<div class="math-keyboard" role="group" aria-label="Mathematik-Tastatur">'+
    '<div class="math-keyboard-head"><b>⌨️ MATHE-TASTATUR</b><span>Symbole antippen oder normal tippen</span></div>'+
    groups.map(row=>'<div class="math-keyboard-row">'+row.map(([label,key])=>
-    '<button type="button" class="math-key '+(key==='clear'?'math-key-clear':'')+'" data-math-target="'+esc(inputId)+'" data-math-key="'+key+'" aria-label="'+esc(label==='a⁄b'?'Bruch eingeben':label==='xⁿ'?'Beliebige Potenz eingeben':label==='√'?'Quadratwurzel eingeben':label==='∛'?'Kubikwurzel eingeben':label==='⌫'?'Rückschritt':label==='Leeren'?'Eingabe löschen':label)+'">'+esc(label)+'</button>'
+    '<button type="button" class="math-key '+(key==='clear'?'math-key-clear':'')+'" data-math-target="'+esc(inputId)+'" data-math-key="'+key+'" aria-label="'+esc(label==='a⁄b'?'Bruch eingeben':label==='xⁿ'?'Beliebige Potenz eingeben':label==='√'?'Quadratwurzel eingeben':label==='∛'?'Kubikwurzel eingeben':label==='∫'?'Integral eingeben':label==='⌫'?'Rückschritt':label==='Leeren'?'Eingabe löschen':label)+'">'+esc(label)+'</button>'
    ).join('')+'</div>').join('')+
    '<div class="math-keyboard-tip">Beispiele: <code>x^2</code>, <code>sqrt(9)</code>, <code>(x+1)/(x-2)</code>. Der Cursor bleibt an der richtigen Stelle.</div></div>';
  }
@@ -45,6 +45,9 @@ window.MATHSVERSE_KEYBOARD=(function(){
   }else if(key==='fraction'){
    insert=chosen?'('+chosen+')/()':'()/()';
    offset=chosen?insert.length-1:1;
+  }else if(key==='integral'){
+   insert='∫('+chosen+') d'+(chosen&&/\bt\b/.test(chosen)?'t':'x');
+   offset=chosen?insert.length:2;
   }else if(['root','cuberoot','ln','abs','exp'].includes(key)){
    const head={root:'sqrt(',cuberoot:'cbrt(',ln:'ln(',abs:'abs(',exp:'e^('}[key];
    insert=head+chosen+')';
@@ -63,6 +66,8 @@ window.MATHSVERSE_KEYBOARD=(function(){
   if(!raw)return '<span class="math-placeholder">Hier erscheint dein Term …</span>';
   // Escape first; preserve no user-supplied HTML. This is a preview, never a solver.
   let text=esc(raw);
+  // Keep handwritten integral statements readable instead of marking them invalid.
+  text=text.replace(/^Integral aus\s+(.+?)\s+d([xt])$/i,(_,expr,variable)=>'∫ ('+expr+') d'+variable);
   text=text.replace(/\bpi\b/g,'π')
    .replace(/\bsqrt\(/gi,'√(').replace(/\bcbrt\(/gi,'∛(')
    .replace(/\*/g,' · ').replace(/\/(?=\S)/g,' / ')
