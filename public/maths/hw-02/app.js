@@ -160,32 +160,15 @@
   return '<div class="math-entry-tools"><div class="math-live-preview" data-preview="'+id+'" aria-live="off">'+K.pretty(value||'')+'</div>'+K.render(id)+'</div>';
  }
  function builderView(t){
-  const rows=W.steps(t.id),row=rows[workIndex],finished=workIndex>=rows.length;
-  const history='<div class="notebook"><div class="notebook-top"><span>📒 DEIN RECHENHEFT</span><span>'+workIndex+' / '+rows.length+' Schritte</span></div>'+
-   (workHistory.length?workHistory.map((h,i)=>'<div class="notebook-line"><span class="notebook-number">'+String(i+1).padStart(2,'0')+'</span><div>'+
-    '<small>'+(h.written?'✓ Selbst gerechnet':'👀 Beispielschritt angezeigt')+'</small>'+
-    '<strong class="notebook-expression">'+(h.written?K.pretty(h.line):esc(h.line))+'</strong></div></div>').join(''):'<div class="notebook-empty">Schreib deinen ersten Schritt – jede richtige Zeile erscheint anschließend hier.</div>')+'</div>';
-  const controls=finished?'<div class="lab-final"><span class="eyebrow">DEIN ERGEBNIS</span>'+
-   '<h3>Letzter Schritt: Jetzt das Ergebnis selbst eingeben.</h3>'+
-   '<p>'+esc(t.kind==='number'?'Gib den fertigen Wert ein.':'Schreib die fertige Stammfunktion bzw. Geschwindigkeitsfunktion. + C darfst du weglassen.')+'</p>'+
-   '<form id="answer-form" class="answer-form"><label for="math-entry">Dein Ergebnis</label>'+
-   '<input id="math-entry" autocomplete="off" spellcheck="false" required placeholder="z. B. 48 oder x^4-1.5*x^2+x">'+
-   inputPad('math-entry','')+'<button class="primary" type="submit">✅ Ergebnis prüfen</button></form></div>':
-   '<section class="lab-step"><div class="lab-step-title"><span class="tag">SCHRITT '+(workIndex+1)+' / '+rows.length+'</span>'+
-   '<h3>'+esc(row.prompt)+'</h3></div>'+
-   '<p class="lab-instruction">Gib einfach deine nächste Rechnung ein. Du musst keine Regeln auswählen oder benennen.</p>'+
-   '<form id="builder-form" class="answer-form"><label for="builder-entry">Dein nächster Rechenschritt</label>'+
-   '<input id="builder-entry" autocomplete="off" spellcheck="false" required value="'+esc(builderDraft)+'" placeholder="Schreibe den Term nach dem =">'+
-   inputPad('builder-entry',builderDraft)+'<button class="primary" type="submit">✅ Rechenschritt prüfen</button></form>'+
-   '<div class="entry-help">Normal tippen oder die Mathe-Tastatur benutzen. Gib nur den Term rechts von „=“ ein, z. B. <code>x^3/3+2*x^2-x</code>.</div>'+
-   '<div class="lab-choice-actions"><button class="secondary" data-action="builder-hint">💡 Kleiner Tipp</button>'+
-   '<button class="secondary" data-action="builder-generate">👀 Schritt anzeigen</button></div>'+
-   (workHint?'<div class="lab-hint">💡 '+esc(row.why)+'</div>':'')+'</section>';
-  return history+(phase===3?'<div class="success"><strong>🎉 Aufgabe selbst gelöst!</strong><p>Dein Rechenweg ist im Heft sichtbar. Dein Fortschritt ist gespeichert.</p></div>'+
-   '<div class="actions"><button class="primary" data-action="next">Nächste offene Aufgabe →</button></div>':controls)+
-   (feedback?'<div class="feedback '+(phase===3?'good':'warn')+'" role="status">'+esc(feedback)+'</div>':'')+
-   (workIndex>0&&phase!==3?'<button class="back-step" data-action="builder-back">← Letzten Schritt korrigieren</button>':'')+
-   '<div class="lab-help-actions"><button class="secondary" data-action="builder-solution">'+(solutionOpen?'Lösung verbergen':'📖 Komplette Lösung zeigen')+'</button></div>'+
+  const rows=W.steps(t.id),index=C.countSteps(padRegions,rows.length),next=rows[index];
+  return '<div class="mathcad-next">'+(phase===3?
+   '<strong>🎉 Aufgabe erfolgreich selbst gerechnet!</strong><span>Deine Notizen und Rechenfelder bleiben gespeichert.</span>':
+   '<strong>∑ Dein Arbeitsblatt</strong><span>'+(next?'Tipp: Du kannst jederzeit einen nächsten Schritt prüfen – oder direkt dein Endergebnis abgeben.':'Alle geführten Schritte sind durch. Prüfe jetzt dein Endergebnis im Blatt.')+'</span>')+'</div>'+
+   C.render(padRegions,padActive,rows.length,index,phase===3,padFeedback)+
+   (phase===3?'<div class="actions"><button class="primary" data-action="next">Nächste offene Aufgabe →</button></div>':'')+
+   '<div class="lab-help-actions"><button class="secondary" data-action="builder-hint">💡 '+(workHint?'Tipp verbergen':'Tipp zum nächsten Schritt')+'</button>'+
+   '<button class="secondary" data-action="builder-solution">'+(solutionOpen?'Lösung verbergen':'📖 Komplette Lösung zeigen')+'</button></div>'+
+   (workHint&&next?'<div class="lab-hint"><b>'+esc(next.prompt)+'</b><p>'+esc(next.why)+'</p></div>':'')+
    (solutionOpen?solutionList(t):'');
  }
  function understandView(t){
