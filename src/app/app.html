@@ -7,11 +7,11 @@
     </button>
     <div class="menu-label sidebar-live-label">SPIELBARE KURSE <span class="live-indicator">● LIVE</span></div>
     <div class="sidebar-live-courses">
-      <button class="sidebar-live-course" [class.chemistry]="trainer.subjectId==='nawi'" [class.datascience]="trainer.subjectId==='dsai'" [class.sharpverse]="trainer.subjectId==='pos'"
+      <button class="sidebar-live-course" [class.chemistry]="trainer.subjectId==='nawi'" [class.datascience]="trainer.subjectId==='dsai'" [class.sharpverse]="trainer.subjectId==='pos'" [class.mathsverse]="trainer.subjectId==='mat'"
               *ngFor="let trainer of trainers" (click)="openTrainer(trainer.id)">
-        <span class="course-icon">{{trainer.subjectId==='nawi'?'🧪':trainer.subjectId==='dsai'?'🤖':'♯'}}</span>
-        <span class="course-text"><strong>{{trainer.subjectId==='nawi'?'Chemverse':trainer.subjectId==='dsai'?'Dsaiverse':'Sharpverse'}}</strong>
-        <small>{{trainer.subjectId==='pos'?'1. PA · C#':trainer.subjectId==='nawi'?'1. TEST · CHEMIE':'1. TEST · DATA SCIENCE'}}</small></span><span class="course-arrow">↗</span>
+        <span class="course-icon">{{trainer.subjectId==='nawi'?'🧪':trainer.subjectId==='dsai'?'🤖':trainer.subjectId==='mat'?'🧮':'♯'}}</span>
+        <span class="course-text"><strong>{{trainer.subjectId==='nawi'?'Chemverse':trainer.subjectId==='dsai'?'Dsaiverse':trainer.subjectId==='mat'?'MathsVerse':'Sharpverse'}}</strong>
+        <small>{{trainer.subjectId==='mat'?'2. HAUSÜBUNGSWIEDERHOLUNG':trainer.subjectId==='pos'?'1. PA · C#':trainer.subjectId==='nawi'?'1. TEST · CHEMIE':'1. TEST · DATA SCIENCE'}}</small></span><span class="course-arrow">↗</span>
       </button>
     </div>
     <div class="menu-label">DEIN UNIVERSUM</div>
@@ -124,7 +124,7 @@
             <button class="back" (click)="selected=null">← Alle Fächer</button>
             <div class="subject-heading" *ngIf="selectedSubject as s" [style.--tilecolor]="s.color"><div class="subject-icon">{{s.icon}}</div><div><span class="eyebrow">{{s.short}} / LERNWELT</span><h2>{{s.name}}</h2><p>{{s.desc}}</p></div></div>
             <div class="section-heading lower"><h2>Deine Tests</h2></div>
-            <article class="test-row" *ngFor="let trainer of getTrainerForSubject(selected || '')"><div class="test-ico">{{trainer.subjectId==='pos'?'♯':trainer.subjectId==='dsai'?'🤖':'🧪'}}</div><div><small>{{trainer.subjectId==='pos'?'1. PA · C# & THREADING':trainer.subjectId==='dsai'?'1. TEST · DATA SCIENCE & AI':'1. TEST · CHEMIE'}}</small><h3>{{trainer.title}}</h3><p>{{trainer.subtitle}}</p><span class="pill ready">● SPIELBEREIT</span></div><button class="btn primary" (click)="openTrainer(trainer.id)">Spielen ↗</button></article>
+            <article class="test-row" *ngFor="let trainer of getTrainerForSubject(selected || '')"><div class="test-ico">{{trainer.subjectId==='mat'?'🧮':trainer.subjectId==='pos'?'♯':trainer.subjectId==='dsai'?'🤖':'🧪'}}</div><div><small>{{trainer.subjectId==='mat'?'2. HAUSÜBUNGSWIEDERHOLUNG':trainer.subjectId==='pos'?'1. PA · C# & THREADING':trainer.subjectId==='dsai'?'1. TEST · DATA SCIENCE & AI':'1. TEST · CHEMIE'}}</small><h3>{{trainer.title}}</h3><p>{{trainer.subtitle}}</p><span class="pill ready">● SPIELBEREIT</span></div><button class="btn primary" (click)="openTrainer(trainer.id)">Spielen ↗</button></article>
             <div class="empty-tests" *ngIf="getTrainerForSubject(selected || '').length===0"><span>🪐</span><h3>Diese Lernwelt wartet auf ihren ersten Test.</h3><p>Hier können wir später für jeden Test einen eigenen Angular- oder HTML-Trainer hinzufügen.</p><span class="pill">IN VORBEREITUNG</span></div>
           </ng-template>
         </ng-container>

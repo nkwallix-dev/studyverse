@@ -11,6 +11,19 @@ export interface TrainerDef {
 /** Add one entry for each new test. XP/coins are synced per trainer, not per subject. */
 export const TRAINERS: TrainerDef[] = [
   {
+    id:'maths-hw-02',subjectId:'mat',title:'MathsVerse · 2. Hausübungswiederholung',
+    subtitle:'18 Buchteilaufgaben · vollständige Lösungswege · Rechentrainer · Bosskampf',
+    path:'maths/hw-02/index.html',saveKey:'mathsverse_hw02_v1',examDate:'2026-11-12',
+    achievements:[
+      {id:'first',icon:'∑',title:'Erster Integralschritt',description:'Erste Aufgabe selbst gelöst',metric:'quiz',target:1,reward:180},
+      {id:'five',icon:'🧠',title:'Potenregel-Profi',description:'5 Originalbeispiele gemeistert',metric:'quiz',target:5,reward:260},
+      {id:'ten',icon:'✍️',title:'Integrationsmaschine',description:'10 Originalbeispiele gemeistert',metric:'quiz',target:10,reward:420},
+      {id:'eighteen',icon:'🎓',title:'Hausübungswiederholung gemeistert',description:'Alle 18 Teilaufgaben gelöst',metric:'quiz',target:18,reward:650},
+      {id:'academy',icon:'📚',title:'Alle Regeln gelernt',description:'Alle vier Lernkapitel gelesen',metric:'learn',target:4,reward:250},
+      {id:'boss',icon:'👑',title:'Mathe-Endgegner',description:'Mindestens 80 % im Übungsboss',metric:'boss',target:80,reward:550}
+    ]
+  },
+  {
     id:'nawi-test-01',subjectId:'nawi',title:'Chemverse 1. Test',
     subtitle:'Chemie · Lernakademie, Quiz, Formeln & Bosskampf',
     path:'nawi/test-01/index.html',saveKey:'chemverse_niklas_v1',examDate:'2026-11-10',

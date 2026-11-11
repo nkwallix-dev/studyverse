@@ -40,6 +40,9 @@ jobs:
       - name: Test Sharpverse first PA, writing lab and threading simulations
         run: node scripts/test-sharpverse.cjs
 
+      - name: Test Mathsverse homework revision, exact integrals and boss
+        run: node scripts/test-mathsverse.cjs
+
       - name: Verify STUDYVERSE backup transfer (old and new saves)
         run: node scripts/test-save-transfer.cjs
 
