@@ -276,8 +276,31 @@
   shell(content);
  }
  document.addEventListener('click',event=>{
-  const button=event.target.closest('[data-action]');if(!button)return;
+  const key=event.target.closest('[data-math-key]');
+  if(key&&key.dataset?.mathKey){
+   const input=$('#'+key.dataset.mathTarget);
+   if(!input)return;
+   const start=Number.isInteger(input.selectionStart)?input.selectionStart:input.value.length;
+   const end=Number.isInteger(input.selectionEnd)?input.selectionEnd:start;
+   const result=K.apply(input.value,start,end,key.dataset.mathKey);
+   input.value=result.value;
+   input.focus?.();
+   input.setSelectionRange?.(result.caret,result.caret);
+   if(input.id==='builder-entry')builderDraft=result.value;
+   const preview=$('[data-preview="'+key.dataset.mathTarget+'"]');
+   if(preview)preview.innerHTML=K.pretty(result.value);
+   return;
+  }
+  const button=event.target.closest('[data-action]');
+  if(!button||!button.dataset?.action)return;
   route(button.dataset.action);
+ });
+ document.addEventListener('input',event=>{
+  const input=event.target;
+  if(!['builder-entry','math-entry','boss-entry'].includes(input?.id))return;
+  if(input.id==='builder-entry')builderDraft=input.value;
+  const preview=$('[data-preview="'+input.id+'"]');
+  if(preview)preview.innerHTML=K.pretty(input.value);
  });
  document.addEventListener('submit',event=>{
   if(event.target.id==='answer-form'){event.preventDefault();checkPractice($('#math-entry')?.value||'')}
