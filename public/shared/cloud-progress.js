@@ -1,5 +1,5 @@
 /*
- * Lightweight cloud upload for standalone Chemverse, Dsaiverse, Sharpverse and daily arena.
+ * Lightweight cloud upload for standalone Chemverse, Dsaiverse, Sharpverse, MathsVerse and daily arena.
  * On every local game save we mirror the WHOLE account snapshot, including the
  * pending trainer bridge. The Angular home page later applies XP deltas once.
  * Credentials are Firebase session tokens, never the user's six-digit PIN.
@@ -10,7 +10,7 @@
   const PROFILE='studyverse_profile_v1';
   const BRIDGE='studyverse_trainer_launch_v2';
   const DAILY='studyverse_shared_daily_v1';
-  const TRAINERS={'nawi-test-01':'chemverse_niklas_v1','dsai-test-01':'dsai_studyverse_v1','pos-pa-01':'sharpverse_pa01_v1'};
+  const TRAINERS={'nawi-test-01':'chemverse_niklas_v1','dsai-test-01':'dsai_studyverse_v1','pos-pa-01':'sharpverse_pa01_v1','maths-hw-02':'mathsverse_hw02_v1'};
   const script=document.currentScript;
   const configUrl=new URL('../cloud-config.json',script&&script.src?script.src:document.baseURI).href;
   const configPromise=fetch(configUrl,{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null);
