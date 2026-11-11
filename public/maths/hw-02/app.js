@@ -1,6 +1,7 @@
 'use strict';
 (function(){
- const D=window.MATHSVERSE_DATA,E=window.MATHSVERSE_MATH;
+ const D=window.MATHSVERSE_DATA,E=window.MATHSVERSE_MATH,W=window.MATHSVERSE_WORKBOOK,G=window.MATHSVERSE_GRAPHS;
+ if(!W||!G)throw Error('MathsVerse: Rechenbaukasten oder Graphen fehlen.');
  if(!D||!E)throw Error('MathsVerse: Aufgaben oder Rechenkern fehlen.');
  const KEY='mathsverse_hw02_v1',PROFILE='studyverse_profile_v1';
  const $=s=>document.querySelector(s),money=n=>new Intl.NumberFormat('de-AT').format(n);
@@ -12,6 +13,7 @@
   solved:{...(old?.solved||{})},learned:{...(old?.learned||{})},earned:{...(old?.earned||{})}};
  let screen='home',group='Alle',academyGroup=D.groups[0].name,academyFocus=null,selectedId=D.tasks[0].id;
  let phase=0,methodOrder=[0,1,2],stepOrder=[0,1,2],attempts=0,feedback='',solutionOpen=false;
+ let labMode='builder',workIndex=0,workHistory=[],workHint=false;
  let boss=null,noticeTimer=null;
  function save(){
   localStorage.setItem(KEY,JSON.stringify(s));
@@ -53,7 +55,7 @@
  function tabs(){
   return '<aside class="sidebar"><a class="brand" href="../../"><span class="brand-mark">∑</span><span>MathsVerse<small>2. HAUSÜBUNGSWIEDERHOLUNG</small></span></a>'+
    '<p class="nav-label">LERN-MISSIONEN</p><nav class="nav" aria-label="MathsVerse Navigation">'+[
-    ['home','◈','Kommandozentrale'],['academy','📖','Vorgerechnet'],['practice','✍️','Rechentrainer'],['boss','👑','Prüfungssimulation']
+    ['home','◈','Kommandozentrale'],['academy','📖','Verstehen'],['practice','✍️','Rechenbaukasten'],['boss','👑','Testmodus · Boss']
    ].map(([id,ico,title])=>'<button type="button" class="'+(screen===id?'selected':'')+'" data-action="view:'+id+'"><span>'+ico+'</span>'+title+'</button>').join('')+
    '</nav><div class="side-foot"><span>🧮 18 Teilaufgaben</span><small>Deine Buchbeispiele · ohne zusätzliche Themen</small><a href="../../">↩ Zur StudyVerse-Zentrale</a></div></aside>';
  }
@@ -64,7 +66,7 @@
  function renderHome(){
   const done=count('Alle'),all=total('Alle');
   return '<section class="hero"><div class="eyebrow">MATHSVERSE · DEIN MATHE-COME­BACK</div><h1>Mathe verstehen.<br><em>Bosskampf gewinnen.</em></h1>'+
-   '<p>2. Hausübungswiederholung · 18 ausgewählte Buchaufgaben. Erst den Lösungsweg kapieren, dann selbst rechnen, dann ohne Hilfen abliefern.</p>'+
+   '<p>2. Hausübungswiederholung · 18 Buchaufgaben mit echten Graphen, eigenem Rechenheft, überprüfbaren Zwischenschritten und Testmodus.</p>'+
    '<div class="actions"><button class="primary" data-action="view:academy">📖 Lösungen lernen</button><button class="secondary" data-action="view:practice">✍️ Jetzt rechnen</button></div>'+
    '<div class="hero-art" aria-hidden="true">∫<span>π</span><span>x²</span></div></section>'+
    '<section class="stats"><div class="stat"><small>BEISPIELE</small><strong>'+all+'</strong><span>aus deinen Screenshots</span></div>'+
@@ -89,12 +91,12 @@
    '<section class="lesson-intro"><span class="lesson-big">'+g.icon+'</span><div><span class="eyebrow">MERKREGEL</span><h2>'+esc(g.name)+'</h2><p>'+esc(g.rule)+'</p></div><button type="button" class="'+(s.learned[g.name]?'secondary':'primary')+'" data-action="lesson-done">'+(s.learned[g.name]?'✓ Kapitel gelesen':'✓ Kapitel verstanden')+'</button></section>'+
    '<div class="training-layout"><aside class="task-rail"><div class="eyebrow">ALLE BUCHBEISPIELE</div>'+lessons.map(t=>'<button class="rail-task '+(t.id===task.id?'active':'')+'" data-action="academy-task:'+esc(t.id)+'"><b>'+esc(taskLabel(t))+'</b><small>'+esc(t.math)+'</small></button>').join('')+'</aside>'+
    '<article class="solution-panel"><div class="eyebrow">'+esc(taskLabel(task))+' · VORGERECHNET</div><h2>'+esc(task.prompt)+'</h2>'+
-   '<div class="formula">'+esc(task.math)+'</div><ol class="solution-steps">'+task.steps.map((step,i)=>'<li><span>'+String(i+1).padStart(2,'0')+'</span><p>'+esc(step)+'</p></li>').join('')+'</ol>'+
+   '<div class="formula">'+esc(task.math)+'</div>'+G.render(task)+'<ol class="solution-steps">'+task.steps.map((step,i)=>'<li><span>'+String(i+1).padStart(2,'0')+'</span><p>'+esc(step)+'</p></li>').join('')+'</ol>'+
    '<div class="answer-key">✅ <b>Ergebnis:</b> '+esc(task.kind==='number'?task.steps[task.steps.length-1]:task.steps.find(x=>x.includes('F('))||task.steps[task.steps.length-1])+'</div>'+
    '<div class="actions"><button class="primary" data-action="train:'+esc(task.id)+'">✍️ Dieses Beispiel selbst rechnen</button></div></article></div>';
  }
  function resetTrainer(){
-  phase=0;attempts=0;feedback='';solutionOpen=false;
+  phase=0;attempts=0;feedback='';solutionOpen=false;workIndex=0;workHistory=[];workHint=false;
   methodOrder=shuffle([0,1,2]);stepOrder=shuffle([0,1,2]);
  }
  function setTask(id){if(!D.tasks.some(t=>t.id===id))return;selectedId=id;resetTrainer();screen='practice';render();}
@@ -102,27 +104,69 @@
  function showOptions(options,right,order,action){
   return '<div class="answer-options">'+order.map((original,i)=>'<button type="button" class="option" data-action="'+action+':'+i+'"><span>'+String.fromCharCode(65+i)+'</span>'+esc(options[original])+'</button>').join('')+'</div>';
  }
+ function modeBar(){
+  return '<div class="lab-modes" role="group" aria-label="Lernmodus wählen">'+
+   [['understand','📖 1 · Verstehen'],['builder','✍️ 2 · Rechenbaukasten'],['test','⏱️ 3 · Testmodus']].map(([key,label])=>
+   '<button type="button" class="lab-mode '+(labMode===key?'active':'')+'" data-action="mode:'+key+'" aria-pressed="'+(labMode===key)+'">'+label+'</button>').join('')+'</div>';
+ }
+ function solutionList(t){
+  return '<div class="worked maths-worked"><b>Vollständiger Rechenweg</b><ol>'+
+   t.steps.map(step=>'<li>'+esc(step)+'</li>').join('')+'</ol></div>';
+ }
+ function builderView(t){
+  const rows=W.steps(t.id),row=rows[workIndex],finished=workIndex>=rows.length;
+  const history='<div class="notebook"><div class="notebook-top"><span>📒 DEIN RECHENHEFT</span><span>'+workIndex+' / '+rows.length+' Zeilen</span></div>'+
+   (workHistory.length?workHistory.map((h,i)=>'<div class="notebook-line"><span class="notebook-number">'+String(i+1).padStart(2,'0')+'</span><div><small>'+esc(h.rule)+' · '+(h.written?'Selbst gerechnet':'Vorlage verwendet')+'</small><strong>'+esc(h.line)+'</strong><p>'+esc(h.why)+'</p></div></div>').join(''):'<div class="notebook-empty">Noch leer – beginne mit der ersten Umformung.</div>')+
+   '</div>';
+  const controls=finished?'<div class="lab-final"><span class="eyebrow">DEIN FINALES ERGEBNIS</span><h3>Jetzt die gesamte Aufgabe ohne Abschreiben lösen</h3>'+
+   '<p>'+esc(t.kind==='number'?'Gib das Endergebnis ein. Einheiten kannst du weglassen.':'Schreibe die vollständige Stammfunktion bzw. Geschwindigkeitsfunktion. +C ist optional.')+'</p>'+
+   '<form id="answer-form" class="answer-form"><label for="math-entry">Endergebnis</label><input id="math-entry" autocomplete="off" spellcheck="false" required placeholder="z. B. 48, 98/3 oder x^4-1.5*x^2+x"><button class="primary" type="submit">✅ Ergebnis prüfen</button></form>'+
+   '</div>':
+   '<section class="lab-step"><div class="lab-step-title"><span class="tag">ZEILE '+(workIndex+1)+' / '+rows.length+'</span><h3>'+esc(row.prompt)+'</h3></div>'+
+   '<div class="lab-rule-picker"><label for="rule-select">1 · Passende Regel wählen</label>'+
+   '<select id="rule-select" aria-label="Regel für diese Rechenzeile wählen"><option value="">Regel auswählen …</option>'+
+   W.rules.map(rule=>'<option value="'+esc(rule)+'">'+esc(rule)+'</option>').join('')+'</select></div>'+
+   '<div class="lab-choice-actions"><button class="secondary" data-action="builder-generate">✨ Nächste Zeile erzeugen</button>'+
+   '<button class="secondary" data-action="builder-hint">💡 Tipp</button></div>'+
+   (workHint?'<div class="lab-hint">💡 '+esc(row.why)+'</div>':'')+
+   '<form id="builder-form" class="answer-form"><label for="builder-entry">2 · Nächste Zeile selbst schreiben (rechte Seite als Term/Zahl)</label>'+
+   '<input id="builder-entry" autocomplete="off" spellcheck="false" required placeholder="z. B. x^3/3+2*x^2-x">'+
+   '<button class="primary" type="submit">🧮 Meine Zeile prüfen</button></form>'+
+   '<div class="entry-help">Mathe-Eingabe: x^2, t^3, 3/5, sqrt(10), ln(abs(x)), e^(2*x), pi. Dezimalkomma ist erlaubt. Schreibe nur den Term rechts von „=“.</div></section>';
+  return history+(phase===3?'<div class="success"><strong>🎉 Aufgabe selbst gelöst!</strong><p>Dein Fortschritt ist gespeichert.</p></div>'+
+   '<div class="actions"><button class="primary" data-action="next">Nächste offene Aufgabe →</button></div>':controls)+
+   (feedback?'<div class="feedback '+(phase===3?'good':'warn')+'" role="status">'+esc(feedback)+'</div>':'')+
+   (workIndex>0&&phase!==3?'<button class="back-step" data-action="builder-back">← Eine Zeile zurück</button>':'')+
+   '<div class="lab-help-actions"><button class="secondary" data-action="builder-solution">'+(solutionOpen?'Lösung verbergen':'📖 Komplette Lösung zeigen')+'</button></div>'+
+   (solutionOpen?solutionList(t):'');
+ }
+ function understandView(t){
+  return '<div class="understand-panel"><div class="eyebrow">MODUS 1 · VERSTEHEN</div><h3>Jede Zeile erklärt</h3>'+
+   '<p>Hier siehst du die Rechnung mit Regel und Begründung. Danach kannst du sie im Baukasten selbst durchgehen.</p>'+
+   '<ol class="explain-steps">'+W.steps(t.id).map((row,i)=>
+    '<li><span class="step-number">'+String(i+1).padStart(2,'0')+'</span><div><small>'+esc(row.rule)+'</small>'+
+    '<strong>'+esc(row.line)+'</strong><p>'+esc(row.why)+'</p></div></li>').join('')+'</ol>'+
+   solutionList(t)+'<div class="actions"><button class="primary" data-action="mode:builder">✍️ Jetzt selbst rechnen</button></div></div>';
+ }
+ function testView(t){
+  return '<div class="test-panel"><div class="eyebrow">MODUS 3 · TESTMODUS</div>'+
+   '<h3>Nur die Angabe. Keine Regelvorgabe.</h3><p>Rechne den Weg selbst auf Papier oder im Kopf und trage dein Endergebnis ein. Der Graph dient nur zur Orientierung.</p>'+
+   '<form id="answer-form" class="answer-form"><label for="math-entry">Dein Endergebnis</label>'+
+   '<input id="math-entry" autocomplete="off" spellcheck="false" required placeholder="Antwort als mathematischen Term eingeben">'+
+   '<button class="primary" type="submit">📋 Abgeben und prüfen</button></form>'+
+   (feedback?'<div class="feedback '+(phase===3?'good':'warn')+'" role="status">'+esc(feedback)+'</div>':'')+
+   (phase===3?'<div class="actions"><button class="primary" data-action="next">Nächste offene Aufgabe →</button></div>':'')+'</div>';
+ }
  function renderPractice(){
   const t=current(),done=!!s.solved['q'+t.id];
-  const stage=phase===0?'<h3>Schritt 1: Welchen Ansatz verwendest du?</h3>'+showOptions(t.methodOptions,t.methodRight,methodOrder,'method'):
-   phase===1?'<h3>Schritt 2: Wähle den passenden Zwischenschritt.</h3><p>'+esc(t.stepPrompt)+'</p>'+
-     showOptions(t.stepOptions,t.stepRight,stepOrder,'step'):
-   '<h3>Schritt 3: Jetzt bist du dran.</h3><p>'+(t.kind==='number'?'Berechne das Ergebnis. Dezimalzahlen, Brüche und Ausdrücke wie sqrt(10) oder pi sind erlaubt.':'Schreibe deine eigene Stammfunktion. Es zählen auch äquivalente Formen; + C ist optional.')+'</p>'+
-   '<form id="answer-form" class="answer-form"><label for="math-entry">Dein '+(t.kind==='number'?'Ergebnis':'Term')+'</label><input id="math-entry" autocomplete="off" spellcheck="false" placeholder="'+(t.kind==='number'?'z. B. 40*sqrt(10)/3':'z. B. x^4 - 1.5*x^2 + x + C')+'" required><button class="primary" type="submit">🧮 Ergebnis prüfen</button></form>'+
-   '<div class="entry-help">Schreibweise: x^2, t^3, 3/5, sqrt(x), ln(x), sin(x), cos(x), e^(2*x), pi. Dezimalkomma geht auch.</div>';
-  return '<div class="heading"><span class="eyebrow">✍️ INTERAKTIVER RECHENTRAINER</span><h1>Selbst lösen. <em>Ohne Abschreiben.</em></h1><p>Du machst die Rechnung Schritt für Schritt. Richtige Lösungen zählen nur einmal für XP und TastyTokens.</p></div>'+
-   groupPicker('filter',group)+
-   '<div class="training-layout"><aside class="task-rail"><div class="eyebrow">AUFGABEN · '+count(group)+'/'+total(group)+'</div>'+filtered().map(t=>taskCard(t)).join('')+'</aside>'+
-   '<article class="exercise-panel"><div class="task-header"><span class="eyebrow">'+esc(taskLabel(t))+' · '+esc(t.group)+'</span><span class="tag">'+(done?'✓ Bereits gemeistert':phase+1+' / 3 Schritte')+'</span></div>'+
+  return '<div class="heading"><span class="eyebrow">✍️ DEIN RECHENLABOR</span><h1>Selbst rechnen. <em>Zeile für Zeile.</em></h1><p>Wähle Verstehen, den Rechenbaukasten oder Testmodus – ohne Multiple-Choice-Raterei. XP gibt es nur für ein selbst eingegebenes korrektes Endergebnis.</p></div>'+
+   groupPicker('filter',group)+modeBar()+
+   '<div class="training-layout"><aside class="task-rail"><div class="eyebrow">ORIGINALAUFGABEN · '+count(group)+' / '+total(group)+'</div>'+filtered().map(task=>taskCard(task)).join('')+'</aside>'+
+   '<article class="exercise-panel"><div class="task-header"><span class="eyebrow">'+esc(taskLabel(t))+' · '+esc(t.group)+'</span>'+
+   '<span class="tag">'+(done?'✓ Schon gemeistert':'Noch offen')+'</span></div>'+
    '<h2>'+esc(t.prompt)+'</h2><div class="formula">'+esc(t.math)+'</div>'+
-   '<div class="step-track"><span class="'+(phase>=0?'on':'')+'"></span><span class="'+(phase>=1?'on':'')+'"></span><span class="'+(phase>=2?'on':'')+'"></span></div>'+
-   (phase>=3?'<div class="success"><strong>🎉 Geschafft!</strong><p>Du hast alle drei Schritte gelöst. '+(done?'Der Fortschritt ist gespeichert.':'')+'</p></div>':stage)+
-   (feedback?'<div class="feedback '+(phase>=3?'good':'warn')+'">'+esc(feedback)+'</div>':'')+
-   (attempts>0&&phase<3?'<button type="button" class="hint-btn" data-action="hint">💡 Tipp zeigen</button>':'')+
-   (solutionOpen?'<div class="worked"><b>Der Lösungsweg</b><ol>'+t.steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></div>':'')+
-   '<div class="actions exercise-actions">'+
-    (phase===3?'<button class="primary" data-action="next">Nächste offene Aufgabe →</button>':'')+
-    '<button class="secondary" data-action="academy-for:'+esc(t.id)+'">📖 Vollständigen Lösungsweg ansehen</button></div></article></div>';
+   G.render(t)+(labMode==='understand'?understandView(t):labMode==='test'?testView(t):builderView(t))+
+   '<div class="actions exercise-actions"><button class="secondary" data-action="academy-for:'+esc(t.id)+'">📖 Original-Lösungsweg im Kurs</button></div></article></div>';
  }
  function renderBoss(){
   if(!boss){startBoss();}
@@ -156,6 +200,16 @@
  function route(action){
   const [verb,...rest]=action.split(':'),arg=rest.join(':');
   if(verb==='view'){screen=arg;render();return}
+   if(verb==='mode'&&['understand','builder','test'].includes(arg)){labMode=arg;feedback='';solutionOpen=false;render();return}
+   if(verb==='builder-hint'){workHint=true;render();return}
+   if(verb==='builder-solution'){solutionOpen=!solutionOpen;render();return}
+   if(verb==='builder-back'){if(workIndex>0){workIndex--;workHistory.pop();workHint=false;feedback='';phase=0}render();return}
+   if(verb==='builder-generate'){
+    const row=W.steps(current().id)[workIndex],rule=$('#rule-select')?.value||'';
+    if(!row)return;
+    if(rule!==row.rule){feedback='Wähle zuerst die passende Rechenregel – überleg, welcher Schritt hier gemacht wird.';render();return}
+    workHistory.push({...row,written:false});workIndex++;workHint=false;feedback='Zeile eingeblendet. Für XP musst du am Ende die Gesamtaufgabe selbst lösen.';render();return;
+   }
   if(verb==='group'){group=arg;const first=filtered()[0];if(first)setTask(first.id);return}
   if(verb==='academy-group'){academyGroup=arg;academyFocus=null;render();return}
   if(verb==='academy-task'){academyFocus=arg;render();return}
@@ -185,6 +239,15 @@
    boss.index++;if(boss.index>=boss.ids.length)finishBoss();
    render();return;
   }
+ }
+ function checkBuilder(input){
+  const row=W.steps(current().id)[workIndex],rule=$('#rule-select')?.value||'';
+  if(!row)return;
+  if(rule!==row.rule){feedback='Wähle erst die korrekte Regel für deine Rechenzeile.';render();return}
+  const result=W.compare(input,row);
+  if(result.ok){workHistory.push({...row,written:true,line:input});workIndex++;workHint=false;feedback=result.message}
+  else{attempts++;feedback=result.message}
+  render();
  }
  function checkPractice(input){
   const t=current(),res=E.check(t,input);
@@ -218,6 +281,7 @@
  });
  document.addEventListener('submit',event=>{
   if(event.target.id==='answer-form'){event.preventDefault();checkPractice($('#math-entry')?.value||'')}
+   if(event.target.id==='builder-form'){event.preventDefault();checkBuilder($('#builder-entry')?.value||'')}
   if(event.target.id==='boss-form'){event.preventDefault();checkBoss($('#boss-entry')?.value||'')}
  });
  // Hash-based shortcuts let Studyverse route directly to individual trainers.
