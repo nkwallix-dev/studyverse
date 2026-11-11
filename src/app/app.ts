@@ -391,8 +391,10 @@ export class App implements OnInit,OnDestroy {
    .sort((a,b)=>Number(this.owns(a))-Number(this.owns(b))
      ||this.sortRequirement(a)-this.sortRequirement(b)||a.name.localeCompare(b.name,'de'));}
  private sortRequirement(item:ShopItem){return item.drop==='global'?(item.level||1)*10:(item.requirement?.value||0);}
- get shopCategories(){return ['Alle',...new Set(this.dropItems.map(i=>i.group))];}
- chooseDrop(id:string){this.shopDrop=id;this.shopGroup='Alle';this.previewed=null;}
+ // Every test uses the same category tabs, even when it has no items in one category.
+ get shopCategories(){return ['Alle',...new Set(this.items.map(i=>i.group))];}
+ get selectedCategoryHasItems(){return this.shopGroup==='Alle'||this.dropItems.some(i=>i.group===this.shopGroup);}
+ chooseDrop(id:string){this.shopDrop=id;this.previewed=null;}
  metricProgress(drop:string,metric:ShopRequirement['metric']):number{
    const trainer=TRAINERS.find(t=>t.id===drop);if(!trainer)return 0;
    const save=this.snapshot(trainer),solved=isObj(save['solved'])?save['solved']:{};
