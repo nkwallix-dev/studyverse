@@ -61,3 +61,30 @@ button.primary,button.secondary{border-radius:11px;padding:10px 15px;font-size:1
 .maths-worked{margin-top:18px}
 @media(max-width:770px){.lab-modes{gap:6px}.lab-mode{font-size:10px;padding:11px 6px}.graph-card{padding:9px}.drone-graph:not(.drone-graph-main) .maths-graph-svg{max-height:160px}}
 @media(max-width:520px){.lab-modes{grid-template-columns:1fr}.lab-mode{font-size:12px;padding:10px}.graph-head{flex-wrap:wrap}.graph-label{font-size:8px}.graph-card{padding:7px}.lab-step,.lab-final,.understand-panel,.test-panel{padding:13px}.notebook-line{padding:11px;gap:9px}.lab-choice-actions button,.lab-help-actions button{flex:1}}
+
+/* MathsVerse 2.0: write the next calculation directly, with an on-screen symbol pad. */
+.lab-instruction{font-size:13px!important;color:#cfcce8!important;line-height:1.6;margin:0 0 15px}
+.lab-step .answer-form{margin-top:8px}
+.math-entry-tools{min-width:0;display:grid;gap:9px;margin:0 0 4px}
+.math-live-preview{min-height:45px;min-width:0;overflow-x:auto;padding:8px 12px;border-radius:11px;background:#101933;border:1px solid #89d8c65e;color:#e8f8f3;font:600 18px/1.6 Cambria,Georgia,serif;white-space:nowrap}
+.math-live-preview sup,.notebook-expression sup{font-size:.7em;line-height:0}
+.math-placeholder{font:500 12px/1.8 Inter,"Segoe UI",sans-serif;color:var(--muted)}
+.math-keyboard{min-width:0;display:grid;gap:7px;padding:12px;background:#1b2040;border:1px solid #8d8bc16b;border-radius:14px}
+.math-keyboard-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;color:var(--aqua);font-size:10px;letter-spacing:.5px}
+.math-keyboard-head span{color:var(--muted);font-size:10px;letter-spacing:0}
+.math-keyboard-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.answer-form .math-keyboard .math-key{display:grid;place-items:center;justify-self:stretch;min-height:40px;padding:5px 3px;border-radius:9px;border:1px solid #7778a9;background:#2a3157;color:#f0edff;font:700 16px/1.2 Cambria,Georgia,serif;touch-action:manipulation;user-select:none;white-space:nowrap}
+.answer-form .math-keyboard .math-key:hover{background:#4f487a;border-color:#a9f4de}
+.answer-form .math-keyboard .math-key:active{transform:translateY(1px);background:#7559a8}
+.answer-form .math-keyboard .math-key-clear{color:#ffc8d9;font:750 11px/1.2 Inter,"Segoe UI",sans-serif}
+.math-keyboard-tip{padding-top:5px;color:var(--muted);font-size:10px;overflow-wrap:anywhere}
+.math-keyboard-tip code,.entry-help code{background:#ffffff14;border-radius:4px;padding:1px 4px;color:var(--aqua)}
+.notebook-expression{white-space:normal;overflow-wrap:anywhere}
+@media(max-width:520px){
+ .math-keyboard{padding:8px;gap:5px}
+ .math-keyboard-row{gap:4px}
+ .answer-form .math-keyboard .math-key{min-height:38px;font-size:14px;padding:4px 1px}
+ .answer-form .math-keyboard .math-key-clear{font-size:9px}
+ .math-keyboard-head span{display:none}
+ .math-live-preview{font-size:16px}
+}
