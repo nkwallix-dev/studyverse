@@ -7,6 +7,18 @@ const c=fs.readFileSync('src/styles.scss','utf8');
 const registry=fs.readFileSync('src/app/trainer-registry.ts','utf8');
 const items=fs.readFileSync('src/app/shop-items.ts','utf8');
 const preview=h.slice(h.indexOf('<div class="veil shop-preview-veil"'),h.indexOf('<div class="notice"'));
+
+// Item-Shop filters have a fixed catalog-wide set and keep the selected category
+// when switching tests, including tests that do not offer that cosmetic type.
+assert(t.includes("get shopCategories(){return ['Alle',...new Set(this.items.map(i=>i.group))];}"),
+ 'Shop category tabs must be derived from ALL items, not only selected-test items');
+assert(t.includes("chooseDrop(id:string){this.shopDrop=id;this.previewed=null;}"),
+ 'Changing the test must preserve the selected category filter');
+assert(h.indexOf('class="chips shop-category-chips"')<h.indexOf('<ng-container *ngIf="selectedDrop.status===\'live\'">'),
+ 'Category tabs must not disappear when a test is unavailable');
+assert(h.includes('!selectedCategoryHasItems'),
+ 'Empty categories should explain that the selected test has no such cosmetics');
+
 assert(preview.includes('class="universe shop-live-stage"'),'A live mini-universe must be in the popup');
 assert(preview.includes("item.group!=='avatar' && item.group!=='title'"),'Avatar/title should retain their current simple preview');
 for(const group of ['theme','atm','frame','font','banner','fx']){
