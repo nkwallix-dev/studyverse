@@ -12,7 +12,7 @@ export interface CloudSnapshot{
   daily?:unknown;
   bridge?:unknown;
 }
-export interface PublicPlayer {uid:string;nickname:string;level:number}
+export interface PublicPlayer {uid:string;nickname:string;level:number;avatar:string;title:string}
 interface CloudConfig{apiKey:string;projectId:string}
 export interface CloudSession{uid:string;username:string;idToken:string;refreshToken:string;expiresAt:number}
 interface AuthResult{localId:string;idToken:string;refreshToken:string;expiresIn:string}
@@ -136,25 +136,29 @@ export class StudyverseCloud{
   }
   // Separate, minimal directory: NEVER expose the private /users/{uid} save
   // or the Firebase Authentication login username. Only the editable display
-  // nickname and public level are published.
+  // nickname, level, equipped avatar and title are published.
   private publicProfileEndpoint():string{
     if(!this.session)throw Error('Bitte zuerst anmelden.');
     return 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(this.settings.projectId)+
       '/databases/(default)/documents/publicProfiles';
   }
-  async publishPublicProfile(nickname:string,level:number):Promise<void>{
+  async publishPublicProfile(nickname:string,level:number,avatar:string,title:string):Promise<void>{
     if(!this.session)throw Error('Bitte zuerst anmelden.');
     const safeNickname=nickname.trim();
     if(safeNickname.length<1||safeNickname.length>24||/[\u0000-\u001f\u007f]/.test(safeNickname))
       throw Error('Der Anzeigename ist ungültig.');
     if(!Number.isInteger(level)||level<1||level>100000)throw Error('Level ist ungültig.');
+    if(!avatar||avatar.length>20||/[\u0000-\u001f\u007f]/.test(avatar))throw Error('Der Character ist ungültig.');
+    if(!title||title.length>80||/[\u0000-\u001f\u007f]/.test(title))throw Error('Der Titel ist ungültig.');
     const url=this.publicProfileEndpoint()+'/'+encodeURIComponent(this.session.uid)+
-      '?updateMask.fieldPaths=nickname&updateMask.fieldPaths=level&updateMask.fieldPaths=updatedAt';
+      '?updateMask.fieldPaths=nickname&updateMask.fieldPaths=level&updateMask.fieldPaths=avatar&updateMask.fieldPaths=title&updateMask.fieldPaths=updatedAt';
     const response=await fetchCloud(url,{
       method:'PATCH',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await this.token()},
       body:JSON.stringify({fields:{
         nickname:{stringValue:safeNickname},
         level:{integerValue:String(level)},
+        avatar:{stringValue:avatar},
+        title:{stringValue:title},
         updatedAt:{timestampValue:new Date().toISOString()}
       }})
     });
@@ -172,14 +176,17 @@ export class StudyverseCloud{
       const url=this.publicProfileEndpoint()+'?pageSize=100'+(next?'&pageToken='+encodeURIComponent(next):'');
       const response=await fetchCloud(url,{headers:{Authorization:'Bearer '+await this.token()}});
       const body=await response.json() as {documents?:Array<{name?:string;fields?:{
-        nickname?:{stringValue?:string};level?:{integerValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
+        nickname?:{stringValue?:string};level?:{integerValue?:string};
+        avatar?:{stringValue?:string};title?:{stringValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
       if(!response.ok)throw Error(body.error?.message||'Spielerliste konnte nicht geladen werden ('+response.status+').');
       for(const doc of body.documents||[]){
         const uid=doc.name?.split('/').pop()||'';
         const nickname=doc.fields?.nickname?.stringValue?.trim()||'';
         const level=Number(doc.fields?.level?.integerValue||0);
+        const avatar=doc.fields?.avatar?.stringValue||'🧪';
+        const title=doc.fields?.title?.stringValue||'Weltenentdecker';
         if(uid&&nickname&&nickname.length<=24&&Number.isInteger(level)&&level>=1&&level<=100000){
-          players.push({uid,nickname,level});
+          players.push({uid,nickname,level,avatar:avatar.length<=20?avatar:'🧪',title:title.length<=80?title:'Weltenentdecker'});
         }
       }
       next=body.nextPageToken||'';
