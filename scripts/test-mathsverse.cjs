@@ -7,11 +7,12 @@ const data=fs.readFileSync(dir+'data.js','utf8'),
  engine=fs.readFileSync(dir+'math-engine.js','utf8'),
  workbook=fs.readFileSync(dir+'workbook.js','utf8'),
  graphs=fs.readFileSync(dir+'graphs.js','utf8'),
+ keyboard=fs.readFileSync(dir+'math-keyboard.js','utf8'),
  app=fs.readFileSync(dir+'app.js','utf8'),
  page=fs.readFileSync(dir+'index.html','utf8'),
  css=fs.readFileSync(dir+'style.css','utf8');
-new Function(data);new Function(engine);new Function(workbook);new Function(graphs);new Function(app);
-for(const script of ['data.js','math-engine.js','graphs.js','workbook.js','app.js','../../shared/cloud-progress.js','../../shared/verse-cosmetics.js']){
+new Function(data);new Function(engine);new Function(workbook);new Function(graphs);new Function(keyboard);new Function(app);
+for(const script of ['data.js','math-engine.js','graphs.js','workbook.js','math-keyboard.js','app.js','../../shared/cloud-progress.js','../../shared/verse-cosmetics.js']){
  assert(page.includes('src="'+script+'"'),'Trainer must load '+script);
 }
 assert(css.includes('@media(max-width:520px)')&&css.includes('@media(max-width:770px)'),'MathsVerse must fit phone screens');
@@ -19,7 +20,8 @@ const bundle={};vm.runInNewContext(data,{window:bundle});
 vm.runInNewContext(engine,{window:bundle});
 vm.runInNewContext(workbook,{window:bundle});
 vm.runInNewContext(graphs,{window:bundle});
-const D=bundle.MATHSVERSE_DATA,E=bundle.MATHSVERSE_MATH,W=bundle.MATHSVERSE_WORKBOOK,G=bundle.MATHSVERSE_GRAPHS;
+vm.runInNewContext(keyboard,{window:bundle});
+const D=bundle.MATHSVERSE_DATA,E=bundle.MATHSVERSE_MATH,W=bundle.MATHSVERSE_WORKBOOK,G=bundle.MATHSVERSE_GRAPHS,K=bundle.MATHSVERSE_KEYBOARD;
 assert.equal(D.exam,'2. Hausübungswiederholung','Explicitly the SECOND homework revision');
 assert.equal(D.tasks.length,18,'All original tasks and only selected subparts');
 assert.equal(new Set(D.tasks.map(q=>q.id)).size,18,'No duplicate exercises');
@@ -62,7 +64,7 @@ assert(html.includes("trainer.subjectId==='mat'?'MathsVerse'"),'MathsVerse must 
 assert(shop.includes("id:'maths-hw-02'")&&shop.includes("id:'maths_avatar_pi'"),'MathsVerse must have its own cosmetic drop');
 assert(sync.includes("'maths-hw-02':'mathsverse_hw02_v1'"),'Cloud snapshot must mirror MathsVerse progress');
 
-const elements={'#app':{innerHTML:''},'#toast':{textContent:'',classList:{add(){},remove(){}}},'#math-entry':{value:''},'#boss-entry':{value:''},'#rule-select':{value:''},'#builder-entry':{value:''}};
+const elements={'#app':{innerHTML:''},'#toast':{textContent:'',classList:{add(){},remove(){}}},'#math-entry':{value:''},'#boss-entry':{value:''},'#builder-entry':{value:''}};
 const handlers={},storage={};
 const browser={
  window:bundle,
@@ -83,25 +85,31 @@ assert(elements['#app'].innerHTML.includes('DEIN RECHENHEFT'),'Notebook must ope
 assert(elements['#app'].innerHTML.includes('maths-graph-svg'),'Practice mode must show real graph');
 assert(!elements['#app'].innerHTML.includes('data-action="method:'),'Old multiple-choice gate must be gone');
 click('mode:understand');
-assert(elements['#app'].innerHTML.includes('Jede Zeile erklärt'),'Understanding mode explains each rule');
+assert(elements['#app'].innerHTML.includes('Die Rechnung nachvollziehen'),'Understanding mode explains the calculation without requiring rule names');
 click('mode:builder');
-assert(elements['#app'].innerHTML.includes('Schreibe'),'Builder must ask for handwritten term');
+assert(elements['#app'].innerHTML.includes('Dein nächster Rechenschritt'),'Builder must ask for the next calculation');
+assert(!elements['#app'].innerHTML.includes('rule-select'),'Builder must never ask students to name a rule');
+assert(elements['#app'].innerHTML.includes('MATHE-TASTATUR'),'Builder must show the math symbol keyboard');
 const rows=W.steps('1.55a');
+assert.equal(K.apply('x',1,1,'square').value,'x^2','Powers must insert at cursor');
+assert.equal(K.apply('',0,0,'root').value,'sqrt()','Root template must be inserted');
+assert.equal(K.apply('x+1',0,3,'fraction').value,'(x+1)/()','Selected numerator must become fraction');
+assert(K.pretty('<img src=x>').includes('&lt;img'),'Typed math cannot inject HTML');
+elements['#builder-entry'].value='x^3';submit('builder-form');
+assert(elements['#app'].innerHTML.includes('value="x^3"'),'Wrong step must remain editable');
 for(const row of rows){
- elements['#rule-select'].value=row.rule;
  elements['#builder-entry'].value=row.expected;
  submit('builder-form');
 }
-assert(elements['#app'].innerHTML.includes('DEIN FINALES ERGEBNIS'),'Builder must end in an independently checked result');
+assert(elements['#app'].innerHTML.includes('DEIN ERGEBNIS'),'Builder must end in an independently checked result');
 elements['#math-entry'].value='x^4-1.5x^2+x+C';submit('answer-form');
 assert(saved().solved['q1.55a'],'Solved original task must save');
 const before=saved().xp;
 click('train:1.55a');
 for(const row of rows){
- elements['#rule-select'].value=row.rule;
  click('builder-generate');
 }
-assert(elements['#app'].innerHTML.includes('DEIN FINALES ERGEBNIS'),'Generated rows must not bypass the final answer');
+assert(elements['#app'].innerHTML.includes('DEIN ERGEBNIS'),'Generated rows must not bypass the final answer');
 elements['#math-entry'].value='x^4-1.5x^2+x';submit('answer-form');
 assert.equal(saved().xp,before,'Repeating the same solution must not farm XP');
 click('train:1.98a');click('mode:test');
@@ -126,4 +134,4 @@ for(let i=0;i<10;i++){
 assert.equal(bossCount,10);
 assert.equal(saved().bestBoss,100,'Perfect boss result must be saved');
 assert(elements['#app'].innerHTML.includes('100 %'),'Boss result displayed');
-console.log('MATHSVERSE PASS: 18 task graphs, checked handwritten recipes, understand/builder/exam modes, persistent rewards, boss and cloud integration.');
+console.log('MATHSVERSE PASS: 18 task graphs, free-form line checking, cursor math keyboard, calculation notebook, exam mode, boss and cloud progress.');
