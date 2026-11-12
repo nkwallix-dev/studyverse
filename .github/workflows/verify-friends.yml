@@ -1,0 +1,33 @@
+name: Verify Studyverse friends UI
+
+on:
+  pull_request:
+    paths:
+      - 'src/app/app.html'
+      - 'src/app/app.ts'
+      - 'src/app/cloud.ts'
+      - 'src/app/app.scss'
+      - 'scripts/test-public-profiles.cjs'
+      - '.github/workflows/verify-friends.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Test friends, nickname, admin title and notices
+        run: |
+          node scripts/test-public-profiles.cjs
+          node scripts/test-account-warning.cjs
+      - name: Build Angular
+        run: npm run build -- --base-href /studyverse/
