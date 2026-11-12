@@ -5,7 +5,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const source=fs.readFileSync('src/app/cloud.ts','utf8');
 const app=fs.readFileSync('src/app/app.ts','utf8');
 const html=fs.readFileSync('src/app/app.html','utf8');
-const css=fs.readFileSync('src/app/app.scss','utf8');
+const css=fs.readFileSync('src/styles.scss','utf8');
 const rules=fs.readFileSync('firestore.rules','utf8');
 assert.equal(rules,fs.readFileSync('firebase/firestore.rules','utf8'),'Rules files must match');
 assert(/match \/accountNotices\/\{userId\}/.test(rules) &&
