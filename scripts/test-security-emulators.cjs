@@ -75,5 +75,38 @@ const http=async(name,token,data)=>{
   const notice=(await admin.doc('accountNotices/alice').get()).data();
   assert.equal(notice?.kind,'nickname-blocked');
   console.log('PASS: direct public profile write sanitized and notice recorded.');
+
+  // End-to-end MIGRATION SAFETY: scan must not write, owner-review manifest is
+  // mandatory, and a reviewed cap (not the attacker value) becomes canonical.
+  const {spawnSync}=require('node:child_process'),os=require('node:os'),crypto=require('node:crypto');
+  const temp=fs.mkdtempSync(path.join(os.tmpdir(),'studyverse-migration-test-'));
+  try{
+    const legacy=JSON.stringify({version:1,profile:{
+      nickname:'ReviewMe',tokens:10000000,xp:500,inventory:['alpha'],equipped:{}},trainers:{}});
+    await admin.doc('users/migrate-me').set({profile:legacy,updatedAt:new Date()});
+    const report=path.join(temp,'report.json');
+    const runMigration=(params)=>spawnSync(process.execPath,['scripts/migrate-wallets.cjs',
+      '--project',project,'--report',report,...params],{cwd:path.resolve(__dirname,'..'),
+        encoding:'utf8',env:process.env});
+    const scanned=runMigration(['--scan']);
+    assert.equal(scanned.status,0,scanned.stderr);
+    const file=JSON.parse(fs.readFileSync(report,'utf8')),entry=file.entries.find(e=>e.uid==='migrate-me');
+    assert(entry?.flags.includes('REVIEW_TOKENS_SPIKE'),'10M TT should be flagged, never auto-approved');
+    const template=JSON.parse(fs.readFileSync(report.replace(/\.json$/,'')+'.approvals.template.json','utf8'));
+    assert.equal(template.reviewed,false,'Review template must start unapproved');
+    assert.equal((await admin.doc('users/migrate-me/wallet/tokens').get()).exists,false,'Scan must never create wallets');
+    const approvals=path.join(temp,'approved.json');
+    fs.writeFileSync(approvals,JSON.stringify({project,reviewed:true,entries:[
+      {...entry,decision:'approve',tokens:7,xp:500,inventory:['alpha']}
+    ]}),{mode:0o600});
+    const applied=runMigration(['--apply','--approvals',approvals,'--confirm-reviewed']);
+    assert.equal(applied.status,0,applied.stderr);
+    const wallet=(await admin.doc('users/migrate-me/wallet/tokens').get()).data();
+    assert.equal(wallet.tokens,7,'Only owner-reviewed value may be imported');
+    assert.equal((await admin.doc('users/migrate-me').get()).data().profile,legacy,'Legacy backup must not be deleted');
+    const repeated=runMigration(['--apply','--approvals',approvals,'--confirm-reviewed']);
+    assert.notEqual(repeated.status,0,'Migration must refuse overwriting existing wallet');
+    console.log('PASS: migration scan, manual review, safe apply and no overwrites.');
+  }finally{fs.rmSync(temp,{recursive:true,force:true});}
  }finally{await env.cleanup();}
 })().catch(e=>{console.error(e);process.exitCode=1});
