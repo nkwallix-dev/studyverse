@@ -156,7 +156,12 @@ async function main(){
       await page.screenshot({path:path.join(screenshots,'studyverse-dots-preview-390.png')});
       await page.locator('.shop-preview-modal .btn.secondary.full').click();
      }
-     await select.selectOption('nawi-test-01');
+     // A new account has no learning unlocks. The test selector may only
+     // include a test once a milestone actually makes an item purchaseable.
+     const options=await select.locator('option').evaluateAll(nodes=>nodes.map(n=>n.value));
+     assert(options.includes('global'),'Essentials must always be selectable');
+     assert(!options.includes('nawi-test-01'),
+      'New user without Chemverse progress must not see locked Chemverse drop');
      await check(page,'Studyverse Shop-Drop-Selector '+width);
     }
     if(width===390&&['Item-Shop','Achievements'].includes(label))
