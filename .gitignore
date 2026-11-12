@@ -42,3 +42,11 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Never commit migration reports, approvals or Google credentials
+/security-reports/
+/wallet-review*.json
+/functions/node_modules/
+/functions/lib/
+*-service-account*.json
+/google-application-credentials.json

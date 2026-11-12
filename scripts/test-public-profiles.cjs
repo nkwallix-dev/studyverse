@@ -1,5 +1,5 @@
 'use strict';
-/* Provisional legacy levels may be DISPLAYED but never edited or trusted as verified scores. */
+/* Only admin-published verifiedProfiles levels may be ranked; legacy levels are untrusted. */
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const ts=require('typescript');
 const source=fs.readFileSync('src/app/cloud.ts','utf8');
@@ -21,10 +21,10 @@ assert(/match \/publicProfiles\/\{userId\}/.test(rules)
 assert(/match \/verifiedProfiles\/\{userId\}\s*\{[\s\S]*?allow get, list: if request.auth != null;[\s\S]*?allow create, update, delete: if false;/.test(rules),
  'The true competitive leaderboard stays server-only');
 assert(!angular.includes('publishPlayerProfile('),'No user-supplied level publishing allowed');
-assert(source.includes('documents/publicProfiles')&&!source.includes('documents/verifiedProfiles'),
- 'The friends directory must be distinct from the verified ranking system');
-assert(html.includes("player.level === null ? '–' : player.level")&&html.includes('#{{i+1}}'),
- 'Level and placement return to friends display without claiming verification');
+assert(source.includes('documents/publicProfiles')&&source.includes('/verifiedProfiles?pageSize=100'),
+ 'Friendly public cards remain separate from the server-owned verified ranking');
+assert(html.includes("player.level === null ? '–' : player.level")&&html.includes("i+1"),
+ 'Level and placement use server-confirmed rank; unverified players are unranked');
 assert(!html.includes('friends-summary')&&!html.includes('friends-directory-note')&&!html.includes('friends-refresh'),
  'Friends page removes clutter and manual refresh button');
 assert(html.includes('friends-list')&&html.includes('friend-character'),
@@ -61,6 +61,14 @@ const fetch=async(url,opts={})=>{
  const method=opts.method||'GET';
  requests.push({url,method,body:opts.body?JSON.parse(opts.body):null});
  if(url.endsWith('cloud-config.json'))return {ok:true,json:async()=>({apiKey:'public-example-key-over-fifteen',projectId:'studyverse-unit-tests'})};
+ if(url.includes('/verifiedProfiles?')){
+  return {ok:true,json:async()=>({documents:[
+    {name:'projects/t/databases/(default)/documents/verifiedProfiles/a',fields:{verified:{booleanValue:true},level:{integerValue:'3'}}},
+    {name:'projects/t/databases/(default)/documents/verifiedProfiles/b',fields:{verified:{booleanValue:true},level:{integerValue:'9'}}},
+    {name:'projects/t/databases/(default)/documents/verifiedProfiles/c',fields:{verified:{booleanValue:true},level:{integerValue:'5'}}},
+    {name:'projects/t/databases/(default)/documents/verifiedProfiles/user-123',fields:{verified:{booleanValue:true},level:{integerValue:'31'}}}
+  ]})};
+ }
  if(url.includes('/publicProfiles?')){
   const docs=page++===0?
    [doc('user-123','Korrigierter Name',31,'Cheater'),
@@ -98,13 +106,13 @@ assert(!isAllowedNickname('n*gga')&&!isAllowedNickname('n1gga')&&!isAllowedNickn
  await cloud.initialize();
  const entries=await cloud.listPublicProfiles();
  assert.equal(entries.length,4,'Show legitimate names, not one offensive entry');
- assert.equal(entries.map(x=>x.nickname).join(','),'Kogi,Korrigierter Name,Niki,Gwendi',
-  'Friends sort by historical level descending, not by nickname');
- assert.equal(entries.map(x=>x.level).join(','),'99999,31,5,3',
-  'Read existing immutable public level only; never source it from localStorage');
+ assert.equal(entries.map(x=>x.nickname).join(','),'Korrigierter Name,Kogi,Niki,Gwendi',
+  'Rank must use ONLY verifiedLevels, ignoring forged legacy 99999');
+ assert.equal(entries.map(x=>x.level).join(','),'31,9,5,3',
+  'Read trusted server leaderboard; not legacy publicProfiles.level');
  assert.equal(entries.find(x=>x.uid==='user-123').title,'Cheater',
   'Manually awarded special title must survive reopening the friends list');
- assert.equal(entries.find(x=>x.uid==='user-123').level,31,'Existing level may be shown as a provisional value');
+ assert.equal(entries.find(x=>x.uid==='user-123').level,31,'Only verified level may be shown');
  await cloud.publishFriendProfile('Altes Profil','🐱','Matheprofi');
  const update=requests.at(-1);
  assert.equal(update.method,'PATCH');
@@ -122,7 +130,8 @@ assert(!isAllowedNickname('n*gga')&&!isAllowedNickname('n1gga')&&!isAllowedNickn
  const create=requests.at(-1);
  assert.deepEqual(Object.keys(create.body.fields).sort(),['avatar','nickname','selectedTitle','updatedAt'].sort(),
   'New public cards contain no level, XP or token balances');
- assert(!requests.some(x=>x.url.includes('/verifiedProfiles')||x.url.includes('/users/')),
-  'Publishing friends never touches competitive scores or private saves');
- console.log('PASS: Friends ranking returns from immutable legacy levels; old cosmetics/admin title preserved, no new level writes.');
+ assert(!requests.some(x=>x.url.includes('/users/')) &&
+    !requests.some(x=>x.url.includes('/verifiedProfiles') && x.method!=='GET'),
+  'Verified scores are READ-ONLY, never published by the browser');
+ console.log('PASS: Only server-published levels are ranked, client cannot change scores, existing social cards preserved.');
 })().catch(e=>{console.error(e);process.exitCode=1});

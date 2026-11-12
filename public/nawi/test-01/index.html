@@ -442,7 +442,34 @@ function dailyCoinState(){
  if(!Array.isArray(state.dailyCoin.quizIds))state.dailyCoin.quizIds=[];
  return state.dailyCoin;
 }
+function isVerifiedCloudPlayer(){
+ try{
+  let session=JSON.parse(localStorage.getItem('studyverse_cloud_session_v1')||'null');
+  return !!(session?.uid&&session?.refreshToken);
+ }catch{return false}
+}
 function awardDailyQuiz(questionId){
+ if(isVerifiedCloudPlayer()){
+  let question=QUIZ.find(q=>q.id===questionId);
+  if(!question||typeof window.studyverseCallFunction!=='function'){
+   toast('⚠ Cloudbelohnung nicht verfügbar','⚠');return false;
+  }
+  // In online mode only the trusted server may add XP/TT to the wallet.
+  void window.studyverseCallFunction('submitAnswer',{
+    challengeId:'chem:'+questionId,answer:String(question.choices[question.a])
+  }).then(receipt=>{
+    if(receipt.tokensAwarded>0){
+      let daily=dailyCoinState();
+      if(!daily.quizIds.includes(questionId))daily.quizIds.push(questionId);
+      save();
+      toast('🛡️ +'+receipt.tokensAwarded+' TT · +'+receipt.xpAwarded+' XP verifiziert','🪙');
+    }else toast('Heute kein weiterer verifizierter Bonus','🛡️');
+  }).catch(error=>{
+    console.warn('Chemverse daily verification',error);
+    toast('⚠ Keine Cloudbelohnung – Frage ggf. nicht im Tagespool','⚠');
+  });
+  return true;
+ }
  let daily=dailyCoinState();
  if(daily.quizIds.includes(questionId)||daily.quizIds.length>=DAILY_QUIZ_COUNT)return false;
  if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimQuiz('chem',questionId))return false;
@@ -453,6 +480,12 @@ function awardDailyQuiz(questionId){
  return true;
 }
 function awardDailyBoss(percent){
+ if(isVerifiedCloudPlayer()){
+  // This Chemverse boss has 14 questions, not the verified 20-question
+  // daily boss required by the authoritative server (14/20 to pass).
+  if(percent>=70)toast('👑 Für +250 verifizierte TT starte den 20-Fragen-Tagesboss in der Daily Arena','🛡️');
+  return false;
+ }
  let daily=dailyCoinState();
  if(percent<70||daily.bossPaid)return false;
  if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimBoss())return false;

@@ -14,7 +14,7 @@ export interface CloudSnapshot{
 }
 export interface PublicPlayer {uid:string;nickname:string;avatar:string;title:string;level:number|null}
 /** Moderator-controlled notice. No client can write or choose who gets one. */
-export interface AccountNotice {id:string;kind:'fairplay-warning'}
+export interface AccountNotice {id:string;kind:'fairplay-warning'|'nickname-blocked'}
 
 interface CloudConfig{apiKey:string;projectId:string}
 export interface CloudSession{uid:string;username:string;idToken:string;refreshToken:string;expiresAt:number}
@@ -36,6 +36,7 @@ function publicUsername(name:string){return name.trim().toLowerCase();}
 function loginEmail(name:string){return name+'@accounts.studyverse.example.com';}
 export function cloudError(error:unknown):string{
   const raw=error instanceof Error?error.message:String(error);
+  if(/WALLET_MIGRATION_PENDING/.test(raw))return 'Dein bisheriger Spielstand benötigt eine Admin-Prüfung. Deine Tokens werden nicht gelöscht; der Online-Sync bleibt bis zur Migration pausiert.';
   if(/EMAIL_EXISTS/.test(raw))return 'Benutzername schon vergeben. Versuch einen anderen.';
   if(/INVALID_LOGIN_CREDENTIALS|INVALID_PASSWORD|EMAIL_NOT_FOUND|INVALID_EMAIL/.test(raw))return 'Benutzername oder PIN stimmt nicht.';
   if(/WEAK_PASSWORD|PASSWORD_DOES_NOT_MEET_REQUIREMENTS/.test(raw))return 'Die PIN erfüllt die Passwortregeln des Projekts nicht.';
@@ -126,29 +127,85 @@ export class StudyverseCloud{
     return 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(this.settings.projectId)+
       '/databases/(default)/documents/users/'+encodeURIComponent(this.session.uid);
   }
+  /** Canonical, read-only balance. Untrusted practice save never overrides it. */
+  async readWallet():Promise<{tokens:number;xp:number;inventory:string[]}>{
+    if(!this.session)throw Error('Bitte zuerst anmelden.');
+    const url=this.endpoint()+'/wallet/tokens';
+    const response=await fetchCloud(url,{headers:{Authorization:'Bearer '+await this.token()}});
+    if(response.status===404)throw Error('WALLET_MIGRATION_PENDING: Vorhandenes Konto muss zuerst vom Admin migriert werden.');
+    const body=await response.json() as {fields?:{
+      migrationApproved?:{booleanValue?:boolean};tokens?:{integerValue?:string};
+      xp?:{integerValue?:string};inventory?:{arrayValue?:{values?:Array<{stringValue?:string}>}};
+    };error?:{message?:string}};
+    if(!response.ok)throw Error(body.error?.message||'Wallet nicht lesbar ('+response.status+').');
+    if(body.fields?.migrationApproved?.booleanValue!==true)throw Error('WALLET_MIGRATION_PENDING: Wallet noch nicht freigegeben.');
+    const num=(value?:string)=>{const n=Number(value);return Number.isSafeInteger(n)&&n>=0?n:0;};
+    return {
+      tokens:num(body.fields.tokens?.integerValue),
+      xp:num(body.fields.xp?.integerValue),
+      inventory:(body.fields.inventory?.arrayValue?.values||[]).map(x=>x.stringValue||'').filter(Boolean)
+    };
+  }
+  /** Callable Firebase Functions; uses the Firebase Authentication idToken. */
+  private async callable<T>(name:string,data:unknown):Promise<T>{
+    if(!this.session)throw Error('Bitte zuerst anmelden.');
+    const url='https://europe-west1-'+this.settings.projectId+'.cloudfunctions.net/'+name;
+    const response=await fetchCloud(url,{method:'POST',headers:{
+      'Content-Type':'application/json',Authorization:'Bearer '+await this.token()},
+      body:JSON.stringify({data})});
+    const body=await response.json() as {result?:T;error?:{message?:string;status?:string}};
+    if(!response.ok||!('result' in body))throw Error(body.error?.message||'Cloud Function '+name+' fehlgeschlagen ('+response.status+').');
+    return body.result as T;
+  }
+  async initializeWallet():Promise<void>{
+    const result=await this.callable<{ready:boolean}>('initializeWallet',{});
+    if(!result.ready)throw Error('WALLET_MIGRATION_PENDING: Wallet noch nicht freigegeben.');
+  }
+  async purchaseItem(itemId:string):Promise<{tokens:number;inventory:string[]}>{
+    return this.callable<{tokens:number;inventory:string[]}>('purchaseItem',{itemId});
+  }
   async load():Promise<CloudSnapshot|null>{
-    const response=await fetchCloud(this.endpoint(),{headers:{Authorization:'Bearer '+await this.token()}});
-    if(response.status===404)return null;
-    const result=await response.json() as FirestoreDocument&{error?:{message?:string}};
-    if(!response.ok)throw Error(result.error?.message||'Cloud-Stand konnte nicht geladen werden ('+response.status+').');
-    const profile=result.fields?.profile?.stringValue;
-    if(!profile)return null;
-    const snapshot=parseJson<CloudSnapshot>(profile);
-    if(!snapshot||!snapshot.profile||typeof snapshot.profile!=='object'||!snapshot.trainers||typeof snapshot.trainers!=='object')
-      throw Error('Der gespeicherte Cloud-Spielstand ist ungültig.');
-    return snapshot;
+    const wallet=await this.readWallet();
+    const base=this.documentBase(),uid=encodeURIComponent(this.session!.uid);
+    let response=await fetchCloud(base+'/clientStates/'+uid,{headers:{Authorization:'Bearer '+await this.token()}});
+    let payload=await response.json() as {fields?:{practice?:{stringValue?:string}};error?:{message?:string}};
+    let stored=payload.fields?.practice?.stringValue||'';
+    if(response.status===404){
+      // One-time fallback only: legacy document remains readable but is never
+      // written again and never trusted for tokens, XP or inventory.
+      response=await fetchCloud(this.endpoint(),{headers:{Authorization:'Bearer '+await this.token()}});
+      if(response.status!==404){
+        payload=await response.json();
+        stored=(payload as {fields?:{profile?:{stringValue?:string}}}).fields?.profile?.stringValue||'';
+      }
+    }
+    if(!response.ok&&response.status!==404)throw Error(payload.error?.message||'Übungsstand konnte nicht geladen werden.');
+    const snapshot=parseJson<CloudSnapshot>(stored);
+    const profile=Object.assign({nickname:this.session?.username||'Explorer',equipped:{},claimedLevels:{},
+      activity:[],trainerSaves:{}},snapshot?.profile||{},wallet);
+    return {version:1,profile,trainers:snapshot?.trainers||{},
+      ...(snapshot?.daily===undefined?{}:{daily:snapshot.daily}),
+      ...(snapshot?.bridge===undefined?{}:{bridge:snapshot.bridge})};
   }
   async save(snapshot:CloudSnapshot):Promise<void>{
-    const text=JSON.stringify(snapshot);
-    if(text.length>700000)throw Error('Cloud-Spielstand zu groß. Exportiere zuerst ein JSON-Backup.');
-    const url=this.endpoint()+'?updateMask.fieldPaths=profile&updateMask.fieldPaths=updatedAt';
+    // All economy fields are explicitly excluded. Practice JSON is UNSIGNED
+    // and never consumed by server rewards or any competitive rank.
+    const practiceProfile={...snapshot.profile};
+    for(const key of ['tokens','xp','inventory','claimedLevels','achievementTokenClaims','shopDropMigrationV1'])
+      delete practiceProfile[key];
+    const text=JSON.stringify({...snapshot,profile:practiceProfile});
+    if(text.length>700000)throw Error('Lernstand zu groß. Exportiere zuerst ein JSON-Backup.');
+    const nickname=String(snapshot.profile['nickname']||this.session?.username||'Spieler').slice(0,24);
+    const url=this.documentBase()+'/clientStates/'+encodeURIComponent(this.session!.uid)+
+      '?updateMask.fieldPaths=practice&updateMask.fieldPaths=nickname&updateMask.fieldPaths=updatedAt';
     const response=await fetchCloud(url,{
       method:'PATCH',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await this.token()},
-      body:JSON.stringify({fields:{profile:{stringValue:text},updatedAt:{timestampValue:new Date().toISOString()}}})
+      body:JSON.stringify({fields:{practice:{stringValue:text},nickname:{stringValue:nickname},
+        updatedAt:{timestampValue:new Date().toISOString()}}})
     });
     if(!response.ok){
       const result=await response.json() as {error?:{message?:string}};
-      throw Error(result.error?.message||'Cloud konnte nicht speichern ('+response.status+').');
+      throw Error(result.error?.message||'Lernstand konnte nicht gespeichert werden ('+response.status+').');
     }
   }
   /** Read ONLY this authenticated user's moderator-assigned notice.
@@ -165,9 +222,10 @@ export class StudyverseCloud{
     };
     if(!response.ok)throw Error(body.error?.message||'Verwarnung konnte nicht geladen werden ('+response.status+').');
     const id=body.fields?.id?.stringValue||'';
-    if(body.fields?.active?.booleanValue!==true||body.fields?.kind?.stringValue!=='fairplay-warning'||
+    if(body.fields?.active?.booleanValue!==true||
+      !['fairplay-warning','nickname-blocked'].includes(body.fields?.kind?.stringValue||'')||
       !/^[a-z0-9][a-z0-9-]{4,79}$/.test(id))return null;
-    return {id,kind:'fairplay-warning'};
+    return {id,kind:body.fields!.kind!.stringValue as AccountNotice['kind']};
   }
   /** The acknowledgement is a display preference, NOT tamperproof evidence
    * that the user actually read the warning. All enforcement is manual.
@@ -203,10 +261,10 @@ export class StudyverseCloud{
     return 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(this.settings.projectId)+
       '/databases/(default)/documents';
   }
-  // Existing /publicProfiles docs contain historical, UNVERIFIED level values.
-  // Display them provisionally until the backend publishes trusted ranks.
-  // Clients NEVER publish/edit a level here; Firestore rules keep it immutable.
-  // Never trust these historical values for tokens, privileges or purchases.
+  // The friendly players directory is NOT a ranking. No XP, coins, level,
+  // total solved or numeric achievements are ever published or read here.
+  // Existing /publicProfiles docs may still contain old unverified "level" fields:
+  // ignore them completely and NEVER write them again.
   private friendDirectoryEndpoint():string{
     if(!this.session)throw Error('Bitte zuerst anmelden.');
     return 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(this.settings.projectId)+
@@ -258,7 +316,7 @@ export class StudyverseCloud{
       const body=await response.json() as {documents?:Array<{name?:string;fields?:{
         nickname?:{stringValue?:string};avatar?:{stringValue?:string};
         title?:{stringValue?:string};selectedTitle?:{stringValue?:string};
-        moderatorTitle?:{stringValue?:string};level?:{integerValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
+        moderatorTitle?:{stringValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
       if(!response.ok)throw Error(body.error?.message||'Freundesliste konnte nicht geladen werden ('+response.status+').');
       for(const doc of body.documents||[]){
         const uid=doc.name?.split('/').pop()||'';
@@ -271,19 +329,40 @@ export class StudyverseCloud{
         // exclusive "Cheater" title, without letting owner edits overwrite it.
         const customLegacy=oldTitle&&oldTitle.toLowerCase()==='cheater'?oldTitle:'';
         const title=moderatorTitle||customLegacy||selectedTitle||oldTitle||'Weltenentdecker';
-        // Read legacy public level as a provisional display value, never as verified XP.
-        const parsedLevel=Number(doc.fields?.level?.integerValue);
-        const level=doc.fields?.level?.integerValue!==undefined &&
-          Number.isSafeInteger(parsedLevel) && parsedLevel>=1?parsedLevel:null;
         if(uid&&isAllowedNickname(nickname)){
           players.push({uid,nickname,avatar:avatar.length<=20?avatar:'🧪',
-            title:title.length<=80?title:'Weltenentdecker',level});
+            title:title.length<=80?title:'Weltenentdecker',level:null});
         }
       }
       next=body.nextPageToken||'';
       if(!next)break;
       if(page===49)throw Error('Spielerliste zu groß. Bitte erneut versuchen.');
     }
+    // Published level can ONLY come from the admin-written, verified projection.
+    // Never accept historical publicProfiles.level, even if it looks plausible.
+    const verified=new Map<string,number>();
+    let cursor='';
+    for(let page=0;page<50;page++){
+      const url=this.documentBase()+'/verifiedProfiles?pageSize=100'+
+        (cursor?'&pageToken='+encodeURIComponent(cursor):'');
+      const response=await fetchCloud(url,{headers:{Authorization:'Bearer '+await this.token()}});
+      const body=await response.json() as {documents?:Array<{name?:string;fields?:{
+        verified?:{booleanValue?:boolean};level?:{integerValue?:string}}}>;
+        nextPageToken?:string;error?:{message?:string}};
+      if(!response.ok)throw Error(body.error?.message||'Verifizierte Rangliste konnte nicht geladen werden ('+response.status+').');
+      for(const doc of body.documents||[]){
+        const uid=doc.name?.split('/').pop()||'';
+        const value=doc.fields?.level?.integerValue;
+        const lvl=Number(value);
+        if(uid && doc.fields?.verified?.booleanValue===true &&
+           value!==undefined && Number.isSafeInteger(lvl) && lvl>=1 && lvl<=100000)
+          verified.set(uid,lvl);
+      }
+      cursor=body.nextPageToken||'';
+      if(!cursor)break;
+      if(page===49)throw Error('Verifizierte Rangliste zu groß.');
+    }
+    for(const player of players)player.level=verified.get(player.uid)??null;
     return players.sort((a,b)=>(b.level??-1)-(a.level??-1)||a.nickname.localeCompare(b.nickname,'de'));
   }
 

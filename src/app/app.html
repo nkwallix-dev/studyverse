@@ -323,7 +323,7 @@
             <div class="friends-message" *ngIf="friendsError && !friendsLoading">{{friendsError}}</div>
             <div class="friends-list" *ngIf="!friendsLoading && !friendsError && publicPlayers.length">
               <article class="friend-card" *ngFor="let player of publicPlayers; let i = index" [class.friend-self]="isOwnPlayer(player)">
-                <div class="friend-rank" [class.friend-rank-podium]="i < 3">#{{i+1}}</div>
+                <div class="friend-rank" [class.friend-rank-podium]="i < 3 && player.level !== null">{{player.level === null ? '–' : '#'+(i+1)}}</div>
                 <div class="friend-monogram friend-character" [attr.aria-label]="'Character: '+(player.avatar || '🧪')">{{player.avatar || '🧪'}}</div>
                 <div class="friend-name"><strong>{{player.nickname}}</strong><span class="friend-equipped-title">🏅 {{player.title || 'Weltenentdecker'}}</span><small *ngIf="isOwnPlayer(player)">Das bist du ✦</small></div>
                 <div class="friend-level"><small>LEVEL</small><strong>{{player.level === null ? '–' : player.level}}</strong></div>
@@ -505,13 +505,18 @@
        aria-describedby="fairplay-warning-description">
     <section class="modal moderation-modal" [class.moderation-preview]="noticePreview">
       <div class="moderation-symbol" aria-hidden="true">⚠️</div>
-      <div class="moderation-label">{{noticePreview?'🧪 VORSCHAU · KEINE ECHTE VERWARNUNG':'⛔ OFFIZIELLE STUDYVERSE-VERWARNUNG'}}</div>
-      <h2 id="fairplay-warning-title">Fair Play ist <span>kein optionales Feature.</span></h2>
-      <p class="moderation-body" id="fairplay-warning-description">
+      <div class="moderation-label">{{noticePreview?'🧪 VORSCHAU · KEINE ECHTE VERWARNUNG':moderationNotice?.kind==='nickname-blocked'?'🛡️ NAMENSMODERATION':'⛔ OFFIZIELLE STUDYVERSE-VERWARNUNG'}}</div>
+      <h2 id="fairplay-warning-title" *ngIf="noticePreview || moderationNotice?.kind==='fairplay-warning'">Fair Play ist <span>kein optionales Feature.</span></h2>
+      <h2 id="nickname-moderation-title" *ngIf="moderationNotice?.kind==='nickname-blocked'">Dein öffentliches Profil wurde <span>angepasst.</span></h2>
+      <p class="moderation-body" *ngIf="moderationNotice?.kind==='nickname-blocked'">
+        Dein öffentlich sichtbarer Nickname oder Titel wurde durch den automatischen Inhaltsfilter angepasst.
+        Das ist <strong>keine Cheating-Verwarnung und keine Account-Sperre</strong>. Wenn du glaubst, dass es sich um einen Fehler handelt, melde dich beim Betreiber.
+      </p>
+      <p class="moderation-body" id="fairplay-warning-description" *ngIf="noticePreview || moderationNotice?.kind==='fairplay-warning'">
         Dein StudyVerse-Spielstand wurde durch eine unerlaubte Manipulation von XP, TastyTokens oder Fortschritten verändert.
         Dein Account erhält dafür eine <strong>offizielle Verwarnung</strong>.
       </p>
-      <div class="moderation-consequence">
+      <div class="moderation-consequence" *ngIf="noticePreview || moderationNotice?.kind==='fairplay-warning'">
         <strong>🚨 Letzte Warnung</strong>
         <p>Falls du erneut deinen Spielstand manipulierst und der Verstoß durch den StudyVerse-Betreiber <strong>persönlich geprüft und bestätigt</strong> wird,
         wird dein Account dauerhaft gelöscht.
@@ -528,7 +533,7 @@
       <p class="moderation-error" *ngIf="noticeError">{{noticeError}}</p>
       <button type="button" class="btn primary full moderation-confirm" [disabled]="noticeSaving"
               (click)="acknowledgeAccountNotice()">
-        {{noticeSaving?'Bestätigung wird gespeichert …':noticePreview?'✓ Vorschau schließen':'✓ Ich habe die Verwarnung gelesen'}}
+        {{noticeSaving?'Bestätigung wird gespeichert …':noticePreview?'✓ Vorschau schließen':moderationNotice?.kind==='nickname-blocked'?'✓ Hinweis schließen':'✓ Ich habe die Verwarnung gelesen'}}
       </button>
     </section>
   </div>

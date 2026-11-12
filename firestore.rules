@@ -5,17 +5,50 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Legacy JSON is READ-ONLY. A JSON string cannot be validated field-by-field.
     match /users/{userId} {
       allow get: if request.auth != null && request.auth.uid == userId;
-      allow list: if false;
+      allow list, create, update, delete: if false;
+    }
+
+    // Non-authoritative offline practice data; never use this JSON to credit
+    // a wallet, unlock purchases, publish ranks, or validate an achievement.
+    match /clientStates/{userId} {
+      allow get: if request.auth != null && request.auth.uid == userId;
+      allow list, delete: if false;
       allow create, update: if request.auth != null
         && request.auth.uid == userId
-        && request.resource.data.keys().hasOnly(['profile', 'updatedAt'])
-        && request.resource.data.keys().hasAll(['profile', 'updatedAt'])
-        && request.resource.data.profile is string
-        && request.resource.data.profile.size() < 750000
+        && request.resource.data.keys().hasOnly(['practice', 'nickname', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['practice', 'nickname', 'updatedAt'])
+        && request.resource.data.practice is string
+        && request.resource.data.practice.size() < 750000
+        && request.resource.data.nickname is string
+        && request.resource.data.nickname.size() >= 2
+        && request.resource.data.nickname.size() <= 24
         && request.resource.data.updatedAt is timestamp;
-      allow delete: if false;
+    }
+
+    // Every real token, XP, and inventory balance is server-authoritative.
+    match /users/{userId}/wallet/{documentId} {
+      allow get: if request.auth != null && request.auth.uid == userId;
+      allow list, create, update, delete: if false;
+    }
+
+    match /users/{userId}/verifiedAttempts/{documentId} {
+      allow get, list: if request.auth != null && request.auth.uid == userId;
+      allow create, update, delete: if false;
+    }
+
+    // Question answers, shop prices and moderation audit data are not
+    // writable/readable by the browser. Admin SDK bypasses Firestore Rules.
+    match /questionBank/{id} {
+      allow read, write: if false;
+    }
+    match /shopCatalog/{id} {
+      allow read, write: if false;
+    }
+    match /moderationEvents/{uid}/events/{eventId} {
+      allow read, write: if false;
     }
 
     function validFriendProfile() {

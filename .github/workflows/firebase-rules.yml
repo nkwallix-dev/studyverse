@@ -1,20 +1,42 @@
-name: Validate and deploy Firebase rules
+name: Validate Firebase security and controlled deployment
 
 on:
   pull_request:
     paths:
       - 'firestore.rules'
-      - 'firebase/firestore.rules'
+      - 'firebase/**'
       - 'firebase.json'
-      - '.firebaserc'
+      - 'functions/**'
+      - 'scripts/test-security-emulators.cjs'
+      - 'scripts/migrate-wallets.cjs'
+      - 'scripts/stage-wallets.cjs'
+      - 'scripts/test-stage-wallets.cjs'
+      - 'scripts/test-stage-wallet-emulator.cjs'
+      - 'scripts/admin-rename-user.cjs'
+      - 'scripts/test-admin-rename.cjs'
+      - 'scripts/show-wallet-summary.cjs'
+      - 'scripts/seed-server-catalog.cjs'
+      - 'scripts/test-server-question-bank.cjs'
+      - 'scripts/test-exam-question-policy.cjs'
+      - 'public/shared/exam-question-policy.js'
+      - 'public/dsai/test-01/app.js'
+      - 'public/daily/app.js'
+      - 'public/nawi/test-01/index.html'
+      - 'scripts/test-exam-pool.cjs'
+      - 'public/shared/exam-question-policy.js'
+      - 'public/daily/questions.js'
+      - 'public/dsai/test-01/questions.js'
       - '.github/workflows/firebase-rules.yml'
   push:
     branches: [main]
     paths:
       - 'firestore.rules'
-      - 'firebase/firestore.rules'
+      - 'firebase/**'
       - 'firebase.json'
-      - '.firebaserc'
+      - 'functions/**'
+      - 'scripts/test-security-emulators.cjs'
+      - 'scripts/migrate-wallets.cjs'
+      - 'scripts/seed-server-catalog.cjs'
       - '.github/workflows/firebase-rules.yml'
   workflow_dispatch:
 
@@ -22,7 +44,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: firestore-rules-${{ github.ref }}
+  group: firebase-security-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -38,22 +60,54 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - name: Install dependencies
+      - name: Install front-end dependencies
         run: npm ci
-      - name: Check friend-list and warning contracts
+      - name: Install backend dependencies
+        run: npm install --prefix functions --no-audit --no-fund
+      - name: Build TypeScript functions
+        run: npm --prefix functions run build
+      - name: Run security policy unit tests
+        run: node --test functions/test/core.test.cjs
+      - name: Verify owner-only nickname change never modifies rewards
+        run: node scripts/test-admin-rename.cjs
+      - name: Check shadow wallet copies preserve XP, Tokens and items
+        run: node scripts/test-stage-wallets.cjs
+      - name: Validate catalog seeding (strict dry run, NO writes)
+        run: node scripts/seed-server-catalog.cjs --project demo-studyverse-rules
+      - name: Confirm trainer answers match the private server bank
+        run: node scripts/test-server-question-bank.cjs
+      - name: Reject notebook-specific facts from all exam simulations
+        run: node scripts/test-exam-question-policy.cjs
+      - name: Validate exam-only pool across Daily, Chemverse and Dsaiverse
+        run: node scripts/test-exam-pool.cjs
+      - name: Ensure both copies of Firestore rules are identical
+        run: cmp firestore.rules firebase/firestore.rules
+      - name: Run existing Studyverse regression tests
         run: |
+          node scripts/test-chemverse.cjs
+          node scripts/test-dsaiverse.cjs
+          node scripts/test-sharpverse.cjs
+          node scripts/test-mathsverse.cjs
+          node scripts/test-save-transfer.cjs
+          node scripts/test-shop-preview.cjs
+          node scripts/test-daily.cjs
+          node scripts/test-cloud-sync.cjs
           node scripts/test-public-profiles.cjs
           node scripts/test-account-warning.cjs
-      - name: Install Firebase CLI
-        run: npm install --global firebase-tools
-      - name: Compile Firestore rules in the emulator
-        run: firebase emulators:exec --only firestore --project demo-studyverse-rules "node -e \"console.log('Firestore emulator started')\""
+          node scripts/test-build-cloud-config.cjs
+      - name: Validate Angular compatibility
+        run: npm run build -- --base-href /studyverse/
+      - name: Run actual Firestore, Auth and Functions emulator integration tests
+        run: |
+          npm install --global firebase-tools
+          firebase emulators:exec --project demo-studyverse-rules --only firestore,auth,functions "node scripts/test-security-emulators.cjs && node scripts/test-stage-wallet-emulator.cjs"
 
   deploy:
     needs: validate
     if: >-
       github.event_name != 'pull_request' &&
-      github.ref == 'refs/heads/main'
+      github.ref == 'refs/heads/main' &&
+      vars.STUDYVERSE_SECURITY_CUTOVER_APPROVED == 'true'
     runs-on: ubuntu-latest
     environment: firebase-production
     permissions:
@@ -64,13 +118,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Authenticate via GitHub OIDC
+      - name: Install backend dependencies
+        run: npm install --prefix functions --no-audit --no-fund
+      - name: Build functions
+        run: npm --prefix functions run build
+      - name: Authenticate with Google Cloud OIDC (no long-lived keys)
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: projects/916949777071/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: studyverse-github-deploy@studyverse-logins.iam.gserviceaccount.com
           project_id: studyverse-logins
-      - name: Install Firebase CLI
-        run: npm install --global firebase-tools
-      - name: Publish Firestore rules only
-        run: firebase deploy --only firestore:rules --project studyverse-logins --non-interactive
+      - name: Publish server rules and callable functions
+        run: |
+          npm install --global firebase-tools
+          firebase deploy --only firestore:rules,functions --project studyverse-logins --non-interactive

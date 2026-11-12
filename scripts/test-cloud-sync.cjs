@@ -37,16 +37,19 @@ async function exercise(expired){
   for(let i=0;i<10;i++)await new Promise(resolve=>setTimeout(resolve,1));
   const upload=calls.find(x=>x.url.startsWith('https://firestore.googleapis.com'));
   assert.ok(upload,'Firestore upload must be invoked');
-  assert.ok(upload.url.includes('/users/firebase-user-123'));
+  assert.ok(upload.url.includes('/clientStates/firebase-user-123'));
+  assert.ok(!upload.url.includes('/users/'),'Legacy economy document must never be writable');
   const payload=JSON.parse(upload.options.body);
-  const snapshot=JSON.parse(payload.fields.profile.stringValue);
-  assert.equal(snapshot.profile.xp,132);
+  const snapshot=JSON.parse(payload.fields.practice.stringValue);
+  assert.equal(snapshot.profile.xp,undefined,'Canonical XP must never be in practice profile');
+  assert.equal(snapshot.profile.tokens,undefined,'Canonical tokens must never be in practice profile');
+  assert.equal(snapshot.profile.inventory,undefined,'Canonical inventory must never be in practice profile');
   assert.equal(snapshot.trainers['nawi-test-01'].xp,21);
   assert.equal(snapshot.trainers['dsai-test-01'].xp,9);
   assert.equal(snapshot.trainers['maths-hw-02'].xp,42,'MathsVerse progress must sync across devices');
   assert.equal(snapshot.bridge.xp,0);
   assert.equal(snapshot.daily.bossPaid,true);
-  assert.ok(!payload.fields.profile.stringValue.includes('refresh-123'),'Tokens must stay out of Firestore');
+  assert.ok(!payload.fields.practice.stringValue.includes('refresh-123'),'Auth credentials must stay out of Firestore');
   if(expired){
     assert.ok(calls.some(x=>x.url.startsWith('https://securetoken.googleapis.com')),'Expired session must be refreshed');
     assert.equal(JSON.parse(values.get('studyverse_cloud_session_v1')).idToken,'refreshed-access');

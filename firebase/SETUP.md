@@ -1,3 +1,10 @@
+> ⚠️ **Security migration (November 2026):** This is the historical setup guide.
+> Before publishing any new Firestore Rules or deploying the protected wallet,
+> follow [SECURITY_FIX_SUMMARY.md](../SECURITY_FIX_SUMMARY.md) and
+> [AUTO_DEPLOY.md](./AUTO_DEPLOY.md). The protected wallet rollout requires
+> owner review and a maintenance cutover. Do not copy old rules from this
+> document into production or merge the wallet PR without that review.
+
 # STUDYVERSE – Onlinekonten aktivieren
 
 Der Login ist bereits im Angular-Frontend, Chemverse, DSAIVERSE und der Daily Arena integriert. **GitHub Pages erhält den Firebase-Web-API-Key erst während des Deployments** aus GitHub Actions. Die im Repository versionierte `public/cloud-config.json` enthält absichtlich keinen Key; ohne injizierte Konfiguration bleibt der Login lokal deaktiviert, während lokale Spielstände weiterhin funktionieren.
@@ -6,7 +13,7 @@ Der Login ist bereits im Angular-Frontend, Chemverse, DSAIVERSE und der Daily Ar
 
 1. Öffne [Firebase Console](https://console.firebase.google.com/) und erstelle ein Projekt, z. B. `studyverse-klasse`. **Keinen Service-Account-Schlüssel** ins GitHub-Repository laden.
 2. **Authentication → Sign-in method → Email/Password aktivieren.** Studyverse wandelt einen Nutzernamen intern in eine synthetische E-Mail-Adresse unter `@accounts.studyverse.example.com` um; die Benutzer müssen keine E-Mail angeben. Daher gibt es **keine automatische PIN-Zurücksetzung per Mail**.
-3. **Cloud Firestore** anlegen. **Firestore Database → Rules** öffnen, den Inhalt aus `firebase/firestore.rules` einfügen und **Publish** klicken. Nur der angemeldete Eigentümer darf sein eigenes Dokument `users/{uid}` lesen oder schreiben.
+3. **Cloud Firestore** anlegen. Während der ersten Legacy-Einrichtung wurden die Rules noch manuell veröffentlicht. **Für den neuen Wallet-Umbau gilt stattdessen der kontrollierte GitHub-Actions-Workflow** (siehe `firebase/AUTO_DEPLOY.md`). Der alte `users/{uid}`-JSON-Stand wird nach dem Cutover nur noch gelesen.
 4. **Project settings → Your apps → Web app:** Die `projectId` bleibt in `public/cloud-config.json` hinterlegt, das Feld `apiKey` bleibt dort **leer**. Trage den **Firebase-Web-API-Key** unter **GitHub → Repository → Settings → Secrets and variables → Actions → Variables** als `APIKEYFIREBASEDB` ein. Du kannst stattdessen ein **Repository Secret** mit demselben Namen verwenden; Secrets werden beim Deployment bevorzugt. Der GitHub-Actions-Build fügt den Key nach dem Angular-Build ausschließlich in `dist/site/browser/cloud-config.json` ein (nicht in die Git-Quelldatei). Ohne Variable/Secret **schlägt das Deployment bewusst fehl**, statt eine kaputte Login-Konfiguration zu veröffentlichen.
 
 5. GitHub Actions baut und veröffentlicht nach dem Commit die Website neu. Danach sollte die Registrierung auf der Startseite angezeigt werden. Einmal mit einem **Testaccount** Registrierung, Login, Level/TT, einen Trainer, Logout und Login auf einem anderen Browser testen.

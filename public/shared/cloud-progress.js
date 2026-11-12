@@ -32,13 +32,33 @@
     localStorage.setItem(SESSION,JSON.stringify(session));
     return {session,token:session.idToken};
   }
+  // Firebase 2nd gen onCall: authenticated, server-priced rewards.
+  // If the server is unavailable, NEVER silently mint verified local credits.
+  window.studyverseCallFunction=async function(name,data){
+    const config=await configPromise;
+    if(!config?.apiKey||!config.projectId)throw Error('Firebase nicht konfiguriert');
+    const session=await authToken(config);
+    if(!session)throw Error('Bitte zuerst anmelden');
+    const url='https://europe-west1-'+config.projectId+'.cloudfunctions.net/'+encodeURIComponent(name);
+    const response=await fetch(url,{method:'POST',headers:{
+      'Content-Type':'application/json',Authorization:'Bearer '+session.token},
+      body:JSON.stringify({data})});
+    const body=await response.json();
+    if(!response.ok||!('result' in body))throw Error(body.error?.message||'Serveranfrage fehlgeschlagen');
+    return body.result;
+  };
   function snapshot(){
     const profile=parse(PROFILE);if(!obj(profile))return null;
     const trainers=obj(profile.trainerSaves)?{...profile.trainerSaves}:{};
     for(const [id,key] of Object.entries(TRAINERS)){
       const saved=parse(key);if(obj(saved))trainers[id]=saved;
     }
-    const data={version:1,profile:{...profile,trainerSaves:trainers},trainers};
+    // Practice snapshots contain no canonical economic fields. Trainer XP
+    // remains UNVERIFIED practice progress even when stored in this JSON.
+    const safeProfile={...profile,trainerSaves:trainers};
+    for(const field of ['tokens','xp','inventory','claimedLevels','achievementTokenClaims','shopDropMigrationV1'])
+      delete safeProfile[field];
+    const data={version:1,profile:safeProfile,trainers};
     const daily=parse(DAILY);if(daily!==null)data.daily=daily;
     const bridge=parse(BRIDGE);if(obj(bridge))data.bridge=bridge;
     return data;
@@ -52,11 +72,11 @@
     const body=JSON.stringify(data);
     if(body.length>700000)throw Error('Cloud snapshot over size limit');
     const url='https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(config.projectId)
-      +'/databases/(default)/documents/users/'+encodeURIComponent(authenticated.session.uid)
-      +'?updateMask.fieldPaths=profile&updateMask.fieldPaths=updatedAt';
+      +'/databases/(default)/documents/clientStates/'+encodeURIComponent(authenticated.session.uid)
+      +'?updateMask.fieldPaths=practice&updateMask.fieldPaths=nickname&updateMask.fieldPaths=updatedAt';
     const reply=await fetch(url,{
       method:'PATCH',headers:{'Content-Type':'application/json',Authorization:'Bearer '+authenticated.token},
-      body:JSON.stringify({fields:{profile:{stringValue:body},updatedAt:{timestampValue:new Date().toISOString()}}})
+      body:JSON.stringify({fields:{practice:{stringValue:body},nickname:{stringValue:String(data.profile.nickname||'Spieler').slice(0,24)},updatedAt:{timestampValue:new Date().toISOString()}}})
     });
     if(!reply.ok)throw Error('Cloud upload failed: '+reply.status);
   }

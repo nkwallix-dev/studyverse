@@ -22,10 +22,13 @@ function shuffledOptions(q){
  const last=read(ORDER)||{}, order=shuffle([0,1,2,3]), correct=order.indexOf(q.answer);
  if(last[q.id]===correct){const next=(correct+1+Math.floor(Math.random()*3))%4;[order[correct],order[next]]=[order[next],order[correct]]}
  last[q.id]=order.indexOf(q.answer);write(ORDER,last);
- return order.map(i=>({label:q.choices[i],correct:i===q.answer}));
+ return order.map(i=>({label:q.choices[i],correct:i===q.answer,optionIndex:i}));
 }
 let mode=(new URLSearchParams(location.search).get("mode")==="boss"?"boss":"quiz"),session=null;
 function toast(x){const e=document.getElementById("toast");e.textContent=x;e.classList.add("visible");clearTimeout(toast.timeout);toast.timeout=setTimeout(()=>e.classList.remove("visible"),2700)}
+function isCloudAccount(){
+ try{const session=read('studyverse_cloud_session_v1');return !!(session?.uid&&session?.refreshToken)}catch{return false}
+}
 function addTT(amount,label){
  const profile=read(PROFILE);
  if(!profile||typeof profile!=="object"){toast("Bitte öffne erst die STUDYVERSE-Homepage und erstelle dein Profil.");return}
@@ -38,7 +41,7 @@ function begin(newMode){
  mode=newMode;history.replaceState(null,"","?mode="+mode);
  const questions=selectPool(newMode==="boss");
  if(questions.length!==20){toast("Der Fragenpool konnte nicht geladen werden.");return}
- session={questions,pos:0,score:0,answered:false,picked:-1,options:[]};
+ session={questions,pos:0,score:0,answered:false,picked:-1,options:[],answers:[],pending:false};
  refreshOptions();render();
 }
 function refreshOptions(){if(session&&session.pos<session.questions.length)session.options=shuffledOptions(session.questions[session.pos]);session.answered=false;session.picked=-1}
@@ -64,37 +67,61 @@ function questionScreen(){
 }
 function resultScreen(){
  const percent=Math.round(100*session.score/session.questions.length);
- return '<div class="card result"><div class="emoji">'+(mode==="boss"?(percent>=70?'👑':'🤖'):'🏅')+'</div><div class="eyebrow">RUNDE ABGESCHLOSSEN</div><h1>'+session.score+'/20 <span>richtig</span></h1><h2>'+percent+' %</h2><p>'+(mode==="boss"?(percent>=70?'Boss bestanden! Ab 70 % gibt’s einmal am Tag die 250 TT.':'Noch keine 70 %. Trainier weiter, dann zerlegst du den Boss.'): 'GG! Du hast wieder Chemie und DSAI zusammen trainiert. Die TastyTokens für unterschiedliche richtige Antworten sind direkt in deinem Profil.')+'</p><div class="actions" style="justify-content:center"><button class="btn" data-action="'+mode+'">🔁 Nochmal</button><button class="btn secondary" data-action="overview">Tagesübersicht</button><a class="btn secondary" href="../">↩ STUDYVERSE</a></div></div>'+stats();
+ return '<div class="card result"><div class="emoji">'+(mode==="boss"?(percent>=70?'👑':'🤖'):'🏅')+'</div><div class="eyebrow">RUNDE ABGESCHLOSSEN</div><h1>'+session.score+'/20 <span>richtig</span></h1><h2>'+percent+' %</h2><p>'+(mode==="boss"?(percent>=70?'Boss bestanden! Ab 70 % gibt’s einmal am Tag die 250 TT.':'Noch keine 70 %. Trainier weiter, dann zerlegst du den Boss.'): 'GG! Du hast wieder Chemie und DSAI zusammen trainiert. Bei Cloud-Accounts gelten nur serverseitig bestätigte TastyTokens.')+'</p><div class="actions" style="justify-content:center"><button class="btn" data-action="'+mode+'">🔁 Nochmal</button><button class="btn secondary" data-action="overview">Tagesübersicht</button><a class="btn secondary" href="../">↩ STUDYVERSE</a></div></div>'+stats();
 }
 function render(){
  document.getElementById("quizTab").classList.toggle("active",mode==="quiz");
  document.getElementById("bossTab").classList.toggle("active",mode==="boss");
  ROOT.innerHTML=!session?startScreen():session.pos<session.questions.length?questionScreen():resultScreen();
 }
-function answer(i){
+async function answer(i){
  if(!session||session.answered||!session.options[i])return;
- session.answered=true;session.picked=i;
- if(session.options[i].correct){
-  session.score++;
+ const run=session, q=run.questions[run.pos], choice=run.options[i];
+ run.answered=true;run.picked=i;
+ run.answers.push({challengeId:q.id,answer:String(q.choices[choice.optionIndex])});
+ if(choice.correct){
+  run.score++;
   if(mode==="quiz"){
-   const q=session.questions[session.pos];
-   if(DAILY.claimQuiz(q.subject,q.id.split(":")[1]))addTT(25,"Tagesquiz · "+(q.subject==="chem"?"CHEMVERSE":"Dsaiverse"));
+   if(isCloudAccount()){
+    run.pending=true;render();
+    try{
+     const result=await window.studyverseCallFunction("submitAnswer",{
+      challengeId:q.id,answer:String(q.choices[choice.optionIndex])});
+     if(result.tokensAwarded>0){
+      DAILY.claimQuiz(q.subject,q.id.split(":")[1]);
+      toast("✅ +"+result.tokensAwarded+" TT · +"+(result.xpAwarded||0)+" XP verifiziert!");}
+     else toast(result.reason==="already-credited-today"?"Diese Frage wurde heute schon vergütet.":"Heute keine weitere Quiz-Gutschrift.");
+    }catch(error){toast("⚠ Server-Gutschrift fehlgeschlagen – keine TT gebucht.");console.warn("Verified quiz:",error)}
+    finally{run.pending=false;render();}
+   }else if(DAILY.claimQuiz(q.subject,q.id.split(":")[1])){
+    addTT(25,"Tagesquiz · "+(q.subject==="chem"?"CHEMVERSE":"Dsaiverse"));}
   }
  }
  render();
 }
-function next(){
- if(!session?.answered)return;
+async function next(){
+ if(!session?.answered||session.pending)return;
  session.pos++;
  if(session.pos>=session.questions.length){
   if(mode==="boss"){
    const p=Math.round(100*session.score/session.questions.length);
-   if(p>=70&&DAILY.claimBoss())addTT(250,"Tagesboss · CHEMVERSE & Dsaiverse");
+   if(p>=70){
+    if(isCloudAccount()){
+     session.pending=true;render();
+     try{
+      const result=await window.studyverseCallFunction("submitDailyBoss",{answers:session.answers});
+      if(result.tokensAwarded>0){DAILY.claimBoss();toast("👾 +"+result.tokensAwarded+" TT · +"+(result.xpAwarded||0)+" XP verifiziert!");}
+      else toast("Boss geschafft – heute kein weiterer Bonus.");
+     }catch(error){toast("⚠ Boss-Bonus nicht bestätigt.");console.warn("Verified boss:",error)}
+     finally{session.pending=false;}
+    }else if(DAILY.claimBoss())addTT(250,"Tagesboss · CHEMVERSE & Dsaiverse");
+   }
   }
   render();scrollTo(0,0);return;
  }
  refreshOptions();render();scrollTo(0,0);
 }
+
 ROOT.addEventListener("click",e=>{
  const target=e.target.closest("button");if(!target)return;
  if(target.dataset.answer!==undefined){answer(Number(target.dataset.answer));return}
