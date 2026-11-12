@@ -20,6 +20,12 @@
       const context=[prompt,q.code||'',...(Array.isArray(q.choices)?q.choices:[])].join(' ');
       if(ORIGINAL_DATASET.test(context))return false;
       if(/^(?:wann fand|welches jahr|welche person|wer wird|wie viele.*(?:jobs|treffer))/i.test(prompt))return false;
+      // The standalone NumPy trainer includes an input array, but several
+      // Daily Arena copies omit it. Never ask for a numeric output of an
+      // undefined array in a high-stakes boss simulation.
+      if(q.subject==='dsai' && /\\ba(?:\\[|\\.(?:sum|min|shape|size))/.test(q.code||'') &&
+         !/\\ba\\s*=\\s*np\\.array\\(/.test(q.code||'') &&
+         /^(?:was (?:liefert|ist|gibt)|welche ausgabe)/i.test(prompt))return false;
     }
     return true;
   }
