@@ -58,6 +58,9 @@ jobs:
       - name: Test public friends directory and responsive shop/profile UI
         run: node scripts/test-public-profiles.cjs
 
+      - name: Test account-specific fair-play warning and no automated bans
+        run: node scripts/test-account-warning.cjs
+
       - name: Test Firebase web config injection
         run: node scripts/test-build-cloud-config.cjs
 
