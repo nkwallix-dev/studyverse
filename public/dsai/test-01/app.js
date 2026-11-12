@@ -213,9 +213,16 @@ function bossIntro(){
  <div class="stats"><div class="stat"><b>${s.bestBoss||0}%</b><small>Bestes Ergebnis</small></div><div class="stat"><b>${s.bossRuns||0}</b><small>Bosskämpfe</small></div><div class="stat"><b>${daily().bossPaid?"✓":"250 TT"}</b><small>Täglicher Bonus</small></div><div class="stat"><b>70%</b><small>Für Tages-TT benötigt</small></div></div><div class="actions">${button("⚔️ Boss starten","start-boss")}${navbtn("Vorher lernen","academy","btn secondary")}</div></div>`;
 }
 function startBoss(){
- const primary=C.lessons.map(l=>shuffle(Q.filter(q=>q.topic===l.id))[0]).filter(Boolean);
- const chosen=shuffle([...primary,...shuffle(Q.filter(q=>!primary.includes(q))).slice(0,Math.max(0,20-primary.length))]).map(q=>q.id);
- run={mode:"boss",focus:false,items:chosen,at:0,step:0,answered:false,picked:-1,correct:false,right:0,prompt:null,bossAnswers:[]};
+ const eligible=window.STUDYVERSE_IS_EXAM_QUESTION;
+ if(typeof eligible!=="function"){toast("Prüfungsfragen werden noch geladen.");return}
+ const examPool=Q.filter(eligible);
+ // One independent question from every lesson, then 4 more from the exam pool.
+ const primary=C.lessons.map(l=>shuffle(examPool.filter(q=>q.topic===l.id))[0]).filter(Boolean);
+ if(primary.length!==C.lessons.length||examPool.length<20){
+  toast("Der Prüfungsfragen-Pool ist unvollständig.");return
+ }
+ const chosen=shuffle([...primary,...shuffle(examPool.filter(q=>!primary.includes(q))).slice(0,Math.max(0,20-primary.length))]).map(q=>q.id);
+ run={mode:"boss",focus:false,items:chosen,at:0,step:0,answered:false,picked:-1,correct:false,right:0,prompt:null};
  view="boss-run";prepare();render();window.scrollTo(0,0)
 }
 function bossPage(){
