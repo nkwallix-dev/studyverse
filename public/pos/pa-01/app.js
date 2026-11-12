@@ -176,6 +176,9 @@ function stat(title,num,detail,icon){return '<div class="stat"><span>'+icon+'</s
 function navLink(name,label,icon){
  return '<button type="button" class="nav-link'+(view===name?' active':'')+'" data-action="view:'+name+'"><span>'+icon+'</span>'+h(label)+'</button>';
 }
+function endgameLink(name,label,icon){
+ return '<button type="button" class="verse-endgame-button'+(view===name?' active':'')+'" data-action="view:'+name+'"><span class="verse-endgame-icon" aria-hidden="true">'+icon+'</span><span class="verse-endgame-label">'+h(label)+'</span></button>';
+}
 function header(){
  const p=progress(),player=(()=>{try{return JSON.parse(localStorage.getItem(PROFILE)||'{}')}catch{return {}}})();
  const avatar=player.equipped?.avatar||'🐑';
@@ -183,13 +186,13 @@ function header(){
  '<div class="top-info"><a class="studyverse-back" href="../../" title="Zur Studyverse-Homepage"><span>↩</span><span>STUDYVERSE</span></a><a class="profile-link" href="../../#profile"><span class="avatar">'+h(avatar)+'</span> Mein Profil</a></div></header>';
 }
 function sidebar(){
- const p=progress();
  return '<aside class="sidebar'+(menuOpen?' open':'')+'"><a class="brand" href="../../"><span class="logo">♯</span><span><b>Sharpverse</b><small>1. PA · C# &amp; THREADING</small></span></a>'+
  '<p class="nav-title">DEIN PROGRAMMIER-UNIVERSUM</p>'+navLink('home','Kommandozentrale','◈')+
  '<p class="nav-title">LERNEN</p>'+navLink('academy','Lernakademie','📘')+navLink('vs','Visual Studio Crashkurs','🖥️')+navLink('lab','Threading-Labor','⚡')+
  '<p class="nav-title">ANWENDEN</p>'+navLink('code','Code-Detective','🧩')+navLink('writing','Code-Schreibtrainer','✍️')+navLink('transfer','PA-Transferaufgaben','🧠')+navLink('extras','Extra Extensions','🔥')+
- '<p class="nav-title">ENDGAME</p>'+navLink('boss','1. PA · Bosskampf','👑')+navLink('sources','Quellen','📚')+
- '<div class="nav-bottom"><small>DEIN FORTSCHRITT</small><strong>'+p.lessons+' / '+D.lessons.length+' Lektionen</strong>'+progressBar(p.lessons,D.lessons.length)+'<p>☁ Spielstand mit Studyverse verbunden</p><a href="../../">↩ Studyverse</a></div></aside>';
+ '<div class="verse-endgame" aria-label="Endgame"><div class="verse-endgame-title">ENDGAME</div>'+
+ endgameLink('boss','1. PA · Bosskampf','👑')+endgameLink('sources','Quellen','📚')+
+ '</div></aside>';
 }
 function home(){
  const p=progress(),pct=p.lessons/D.lessons.length;
