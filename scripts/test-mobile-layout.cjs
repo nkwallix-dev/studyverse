@@ -228,6 +228,52 @@ async function main(){
     await context.close();
    }
   }
+  // Real Dsaiverse return regression: six lessons must reveal ALL four
+  // rewards in one 1-of-4 sequence, not across separate page visits.
+  const rewardContext=await browser.newContext({viewport:{width:430,height:800},deviceScaleFactor:1});
+  const rewardPage=await rewardContext.newPage();
+  await rewardPage.addInitScript(()=>{
+    localStorage.setItem('studyverse_import_prompt_seen_v1','1');
+    localStorage.setItem('studyverse_profile_v1',JSON.stringify({
+      xp:0,tokens:1000,nickname:'RewardTester',inventory:[],
+      equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+      claimedLevels:{},activity:[],shopDropMigrationV1:true,
+      rewardSeen:{},rewardQueue:[],rewardBatchTotal:0,rewardBatchPosition:0
+    }));
+    localStorage.setItem('dsai_studyverse_v1',JSON.stringify({
+      xp:180,coins:1000,learned:{a:true,b:true,c:true,d:true,e:true,f:true},
+      purchased:{},solved:{},earned:{}
+    }));
+    localStorage.setItem('studyverse_trainer_launch_v2',JSON.stringify({
+      id:'dsai-test-01',saveKey:'dsai_studyverse_v1',xp:0
+    }));
+  });
+  await rewardPage.goto(base,{waitUntil:'load'});
+  const rewardModal=rewardPage.locator('.reward-unlock-modal');
+  await rewardModal.waitFor({timeout:10000});
+  assert((await rewardModal.locator('.reward-counter').innerText()).includes('1 VON 4'),
+   'All four academy milestone rewards must be queued together after one Dsaiverse return');
+  assert((await rewardModal.locator('.reward-wallet').innerText()).includes('1.000'),
+   'Modal shows current TT before purchase');
+  await rewardModal.getByRole('button',{name:/Kaufen.*Ausrüsten/}).click();
+  assert((await rewardModal.locator('.reward-counter').innerText()).includes('2 VON 4'),
+   'Buying the first reward must advance directly to second, not dismiss the whole batch');
+  const afterPurchase=await rewardPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
+  assert.equal(afterPurchase.tokens,910,'Purchase deducts the existing Data-Bot 90 TT exactly once');
+  assert(afterPurchase.inventory.length>=1,'Purchased avatar enters inventory');
+  for(let i=3;i<=4;i++){
+    await rewardModal.getByRole('button',{name:/Weiter/}).click();
+    assert((await rewardModal.locator('.reward-counter').innerText()).includes(i+' VON 4'),
+      'Reward '+i+' must appear immediately, within the same modal session');
+  }
+  await rewardModal.getByRole('button',{name:/Annehmen/}).click();
+  assert.equal(await rewardPage.locator('.reward-unlock-modal').count(),0,
+   'Modal only closes after reviewing every unlocked item');
+  const final=await rewardPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
+  assert.equal(final.tokens,910,'Skipping the three remaining items must not deduct any tokens');
+  assert.equal(final.rewardQueue.length,0,'Entire reward queue acknowledged once');
+  await rewardContext.close();
+  console.log('PASS: 6 Dsaiverse lessons reveal all four cosmetics in a single buy-or-next carousel.');
   // MathsVerse remains a visible locked subject but has no deployable course.
   const subjectPage=await browser.newPage();
   // Same initialized test profile as the main mobile sweep. Otherwise the
