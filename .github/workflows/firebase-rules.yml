@@ -10,6 +10,7 @@ on:
       - 'scripts/test-security-emulators.cjs'
       - 'scripts/migrate-wallets.cjs'
       - 'scripts/seed-server-catalog.cjs'
+      - 'scripts/test-server-question-bank.cjs'
       - '.github/workflows/firebase-rules.yml'
   push:
     branches: [main]
@@ -54,6 +55,8 @@ jobs:
         run: node --test functions/test/core.test.cjs
       - name: Validate catalog seeding (strict dry run, NO writes)
         run: node scripts/seed-server-catalog.cjs --project demo-studyverse-rules
+      - name: Confirm trainer answers match the private server bank
+        run: node scripts/test-server-question-bank.cjs
       - name: Ensure both copies of Firestore rules are identical
         run: cmp firestore.rules firebase/firestore.rules
       - name: Run existing Studyverse regression tests
