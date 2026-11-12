@@ -57,9 +57,12 @@ const http=async(name,token,data)=>{
   const first=await http('submitAnswer',token,{challengeId:'chem:q1',answer:'Echte Antwort'});
   const second=await http('submitAnswer',token,{challengeId:'chem:q1',answer:'Echte Antwort'});
   assert.equal(first.tokensAwarded,25);
+  assert.equal(first.xpAwarded,10);
   assert.equal(second.tokensAwarded,0);
+  assert.equal(second.xpAwarded,0);
   const w=await admin.doc('users/'+uid+'/wallet/tokens').get();
-  assert.equal(w.data().tokens,25,'Only one server-side credit');
+  assert.equal(w.data().tokens,25,'Only one server-side token credit');
+  assert.equal(w.data().xp,10,'Only one server-side XP credit');
   console.log('PASS: callable quiz credits once per day.');
 
   await assertSucceeds(alice.firestore().doc('publicProfiles/alice').set({
