@@ -28,6 +28,7 @@ jobs:
       - name: Verify milestone-based shop and MathsVerse retirement
         run: |
           node scripts/test-reward-economy.cjs
+          node scripts/test-reward-carousel-and-ranks.cjs
           node scripts/test-shop-preview.cjs
           node scripts/test-mathsverse.cjs
       - name: Check account, transfer and friends regression tests
