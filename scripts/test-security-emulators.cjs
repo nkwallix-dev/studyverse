@@ -103,6 +103,10 @@ const http=async(name,token,data)=>{
     assert.equal(applied.status,0,applied.stderr);
     const wallet=(await admin.doc('users/migrate-me/wallet/tokens').get()).data();
     assert.equal(wallet.tokens,7,'Only owner-reviewed value may be imported');
+    const verified=(await admin.doc('verifiedProfiles/migrate-me').get()).data();
+    assert.equal(verified.verified,true,'Owner-approved wallet must publish a verified rank');
+    assert.equal(verified.level,1+Math.floor(Math.sqrt(500/110)),
+      'Verified rank must derive from reviewed XP, not old publicProfiles.level');
     assert.equal((await admin.doc('users/migrate-me').get()).data().profile,legacy,'Legacy backup must not be deleted');
     const repeated=runMigration(['--apply','--approvals',approvals,'--confirm-reviewed']);
     assert.notEqual(repeated.status,0,'Migration must refuse overwriting existing wallet');
