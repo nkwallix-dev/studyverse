@@ -12,7 +12,7 @@ export interface CloudSnapshot{
   daily?:unknown;
   bridge?:unknown;
 }
-export interface PublicPlayer {uid:string;nickname:string;avatar:string;title:string}
+export interface PublicPlayer {uid:string;nickname:string;avatar:string;title:string;level:number|null}
 /** Moderator-controlled notice. No client can write or choose who gets one. */
 export interface AccountNotice {id:string;kind:'fairplay-warning'|'nickname-blocked'}
 
@@ -331,14 +331,39 @@ export class StudyverseCloud{
         const title=moderatorTitle||customLegacy||selectedTitle||oldTitle||'Weltenentdecker';
         if(uid&&isAllowedNickname(nickname)){
           players.push({uid,nickname,avatar:avatar.length<=20?avatar:'🧪',
-            title:title.length<=80?title:'Weltenentdecker'});
+            title:title.length<=80?title:'Weltenentdecker',level:null});
         }
       }
       next=body.nextPageToken||'';
       if(!next)break;
       if(page===49)throw Error('Spielerliste zu groß. Bitte erneut versuchen.');
     }
-    return players.sort((a,b)=>a.nickname.localeCompare(b.nickname,'de'));
+    // Published level can ONLY come from the admin-written, verified projection.
+    // Never accept historical publicProfiles.level, even if it looks plausible.
+    const verified=new Map<string,number>();
+    let cursor='';
+    for(let page=0;page<50;page++){
+      const url=this.documentBase()+'/verifiedProfiles?pageSize=100'+
+        (cursor?'&pageToken='+encodeURIComponent(cursor):'');
+      const response=await fetchCloud(url,{headers:{Authorization:'Bearer '+await this.token()}});
+      const body=await response.json() as {documents?:Array<{name?:string;fields?:{
+        verified?:{booleanValue?:boolean};level?:{integerValue?:string}}}>;
+        nextPageToken?:string;error?:{message?:string}};
+      if(!response.ok)throw Error(body.error?.message||'Verifizierte Rangliste konnte nicht geladen werden ('+response.status+').');
+      for(const doc of body.documents||[]){
+        const uid=doc.name?.split('/').pop()||'';
+        const value=doc.fields?.level?.integerValue;
+        const lvl=Number(value);
+        if(uid && doc.fields?.verified?.booleanValue===true &&
+           value!==undefined && Number.isSafeInteger(lvl) && lvl>=1 && lvl<=100000)
+          verified.set(uid,lvl);
+      }
+      cursor=body.nextPageToken||'';
+      if(!cursor)break;
+      if(page===49)throw Error('Verifizierte Rangliste zu groß.');
+    }
+    for(const player of players)player.level=verified.get(player.uid)??null;
+    return players.sort((a,b)=>(b.level??-1)-(a.level??-1)||a.nickname.localeCompare(b.nickname,'de'));
   }
 
 }
