@@ -64,6 +64,37 @@ const http=async(name,token,data)=>{
   assert.equal(w.data().tokens,25,'Only one server-side token credit');
   assert.equal(w.data().xp,10,'Only one server-side XP credit');
   console.log('PASS: callable quiz credits once per day.');
+  // 20-question boss: 14/20 is the minimum, daily bonus is idempotent.
+  for(let i=0;i<20;i++){
+   await admin.doc('questionBank/boss:q'+i).set({active:true,kind:'quiz',answer:'Right'});
+  }
+  const answers=Array.from({length:20},(_,i)=>({
+   challengeId:'boss:q'+i,answer:i<14?'Right':'Wrong'
+  }));
+  const bossFirst=await http('submitDailyBoss',token,{answers});
+  const bossAgain=await http('submitDailyBoss',token,{answers});
+  assert.equal(bossFirst.passed,true,'14 of 20 must pass');
+  assert.equal(bossFirst.tokensAwarded,250,'Only one 250 TT boss reward');
+  assert.equal(bossFirst.xpAwarded,50,'One verified 50 XP reward');
+  assert.equal(bossAgain.tokensAwarded,0,'Boss replay cannot mint more TT');
+  assert.equal(bossAgain.xpAwarded,0,'Boss replay cannot mint more XP');
+  const afterBoss=(await admin.doc('users/'+uid+'/wallet/tokens').get()).data();
+  assert.equal(afterBoss.tokens,275);
+  assert.equal(afterBoss.xp,60);
+  console.log('PASS: verified daily boss awards TT+XP once, rejects replay.');
+
+  await admin.doc('shopCatalog/test_starter').set({
+   active:true,drop:'global',cost:75,level:1
+  });
+  const purchased=await http('purchaseItem',token,{itemId:'test_starter'});
+  const purchasedAgain=await http('purchaseItem',token,{itemId:'test_starter'});
+  assert.equal(purchased.tokens,200);
+  assert.equal(purchasedAgain.tokens,200,'Repeat purchases are not charged twice');
+  assert.equal(purchased.inventory.includes('test_starter'),true);
+  const afterPurchase=(await admin.doc('users/'+uid+'/wallet/tokens').get()).data();
+  assert.equal(afterPurchase.tokens,200,'Server canonical catalog price applied');
+  console.log('PASS: server catalogue purchases are atomic and idempotent.');
+
 
   await assertSucceeds(alice.firestore().doc('publicProfiles/alice').set({
    nickname:'n1gg4',avatar:'🧪',selectedTitle:'Weltenentdecker',updatedAt:new Date()
