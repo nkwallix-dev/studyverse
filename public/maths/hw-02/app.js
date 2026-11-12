@@ -3,8 +3,9 @@
    Read-only solution course. No quiz, boss, free-form calculator, or answer gating.
    Existing player save data is retained for backwards-compatible StudyVerse syncing. */
 (function(){
- const D=window.MATHSVERSE_DATA,G=window.MATHSVERSE_GRAPHS,L=window.MATHSVERSE_SOLUTIONS;
- if(!D||!G||!L)throw Error('MathsVerse: Buchaufgaben, Graphen oder ausführliche Lösungen fehlen.');
+ const D=window.MATHSVERSE_DATA,G=window.MATHSVERSE_GRAPHS,L=window.MATHSVERSE_SOLUTIONS,P=window.MATHSVERSE_PDF_MERGE;
+ if(!D||!G||!L||!P)throw Error('MathsVerse: Buchaufgaben, Graphen, PDF-Abgleich oder ausführliche Lösungen fehlen.');
+ P.install(L);
  const KEY='mathsverse_hw02_v1',PROFILE='studyverse_profile_v1';
  const $=selector=>document.querySelector(selector);
  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -47,7 +48,9 @@
    '<span class="solved-page-counter">'+String(index+1).padStart(2,'0')+' / '+String(lessonCount(getChapter())).padStart(2,'0')+'</span></div>'+
    '<h2>'+esc(task.prompt)+'</h2>'+
    '<div class="solved-given"><small>AUFGABENSTELLUNG</small><div class="solved-original">'+esc(task.math)+'</div></div>'+
-   '<p class="solved-lead">'+esc(lesson.lead)+'</p>'+
+   (lesson.pdf?'<div class="solved-pdf-source"><span>📄 MIT DER HÜ-WIEDERHOLUNGS-PDF ABGEGLICHEN · SEITE '+esc(lesson.pdf.pages)+'</span><strong>'+esc(lesson.pdf.memo)+'</strong><small>Rechenschritte wie in der PDF, ergänzt um die Erklärungen und Graphen aus MathsVerse.</small></div>':
+     '<div class="solved-extra-source">📚 Zusätzliches MathsVerse-Beispiel · nicht Teil der hochgeladenen Wiederholungs-PDF</div>')+
+    '<p class="solved-lead">'+esc(lesson.lead)+'</p>'+
    graph(task)+
    '<div class="solved-steps-header"><h3>Vollständiger Rechenweg</h3><span>'+lesson.steps.length+' erklärte Schritte</span></div>'+
    '<ol class="solved-calculation">'+lesson.steps.map((step,i)=>
@@ -56,7 +59,8 @@
     '<div class="solved-math">'+esc(step.math)+'</div>'+
     '<p>'+esc(step.why)+'</p></div></li>').join('')+'</ol>'+
    '<div class="solved-answer"><span>✓ ERGEBNIS</span><strong>'+esc(lesson.result)+'</strong></div>'+
-   (lesson.note?'<div class="solved-tip"><strong>💡 Darauf achten</strong><p>'+esc(lesson.note)+'</p></div>':'')+
+   (lesson.pdf?.notes?'<div class="solved-pdf-explainer"><strong>🧩 Warum diese Reihenfolge?</strong><p>'+esc(lesson.pdf.notes)+'</p></div>':'')+
+    (lesson.note?'<div class="solved-tip"><strong>💡 Darauf achten</strong><p>'+esc(lesson.note)+'</p></div>':'')+
    '<a class="solved-backlink" href="#kapitel-start">↑ Zur Kapitelübersicht</a>'+
    '</article>';
  }
@@ -66,7 +70,7 @@
   return '<div class="solved-chapter" id="kapitel-start">'+
    '<div class="heading"><span class="eyebrow">📖 MATHSVERSE · AUSFÜHRLICHER LERNKURS</span>'+
    '<h1>'+esc(g.icon)+' '+esc(g.name)+'</h1>'+
-   '<p>'+esc(g.description)+'. Hier wird jedes ausgewählte Buchbeispiel wirklich durchgerechnet – mit allen Zwischenschritten, Erklärungen und wo sinnvoll mit Graph.</p></div>'+
+   '<p>'+esc(g.description)+'. Die Aufgaben, die auch in deiner HÜ-Wiederholungs-PDF stehen, folgen deren vorgerechneter Reihenfolge. Die anderen behalten ihre ausführlichen MathsVerse-Musterlösungen.</p></div>'+
    '<div class="solved-chapter-intro"><span class="eyebrow">DAS BRAUCHST DU FÜR DIESE AUFGABEN</span>'+
    '<p>'+esc(g.rule)+'</p></div>'+
    '<section class="solved-index" aria-label="Beispiele in diesem Kapitel"><div class="solved-index-top"><h2>Die '+tasks.length+' Beispiele dieses Kapitels</h2>'+
