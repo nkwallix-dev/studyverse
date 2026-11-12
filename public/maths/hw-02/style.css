@@ -228,3 +228,16 @@ button.primary,button.secondary{border-radius:11px;padding:10px 15px;font-size:1
  .solved-answer{padding:14px}
  .solved-chapter-next button,.solved-chapter-bottom button{width:100%}
 }
+
+
+/* Original PDF × MathsVerse: identify matched exercises and preserve the
+   exact paper-friendly calculation order while keeping the existing graphs. */
+.solved-pdf-source{display:grid;gap:6px;margin:14px 0 16px;padding:15px 17px;border:1px solid #92e7ca99;background:linear-gradient(125deg,#173b42,#2c284e);border-radius:12px}
+.solved-pdf-source span{font-size:10px;letter-spacing:.8px;color:#a2f6d5;font-weight:900}
+.solved-pdf-source strong{color:#fcf7ff;font-size:16px;line-height:1.55}
+.solved-pdf-source small{font-size:11px;line-height:1.55;color:#d4d7ec}
+.solved-extra-source{padding:10px 13px;border:1px solid #7f7b9a6b;border-radius:9px;margin:12px 0;color:#c6c0d7;background:#ffffff08;font-size:11px;font-weight:650}
+.solved-pdf-explainer{background:#213348;border-radius:11px;border:1px solid #91d7f077;padding:14px 17px;margin:15px 0 0}
+.solved-pdf-explainer strong{font-size:12px;color:#afe8fa}
+.solved-pdf-explainer p{font-size:12px;line-height:1.72;color:#e2e9f3;margin:6px 0 0}
+@media(max-width:520px){.solved-pdf-source{padding:12px}.solved-pdf-source strong{font-size:14px}.solved-pdf-explainer{padding:11px}}
