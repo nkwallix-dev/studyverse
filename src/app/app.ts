@@ -521,7 +521,7 @@ export class App implements OnInit,OnDestroy {
    return {total,remaining,done:total-remaining,
      reward:totals.reduce((sum,t)=>sum+t.reward,0)};
  }
- get shopTotalRemainingCost(){return this.items.filter(item=>item.drop==='global'&&!this.owns(item)).reduce((sum,item)=>sum+item.cost,0);}
+ get shopTotalRemainingCost(){return this.items.filter(item=>!this.owns(item)).reduce((sum,item)=>sum+item.cost,0);}
  get shopTotalTokenGap(){return Math.max(0,this.shopTotalRemainingCost-this.profile.tokens);}
  get dailyChem(){
    // Global daily budget: 20 quiz payouts and one boss payout shared by all Ver(s)es.
@@ -545,7 +545,7 @@ export class App implements OnInit,OnDestroy {
    const count=Math.min(20,unique.size);
    return {questions:count,boss,quizRemaining:(20-count)*25,bossRemaining:boss?0:250};
  }
- get shopCollectionCost(){return this.dropItems.filter(i=>i.drop==='global'&&!this.owns(i)).reduce((n,i)=>n+i.cost,0);}
+ get shopCollectionCost(){return this.dropItems.filter(i=>!this.owns(i)).reduce((n,i)=>n+i.cost,0);}
  get shopTokenGap(){return Math.max(0,this.shopCollectionCost-this.profile.tokens);}
  goEarnTokens(mode:'quiz'|'boss'|'academy'){
    const trainer=TRAINERS.find(t=>t.id===this.shopDrop)||TRAINERS[0];
@@ -658,7 +658,11 @@ export class App implements OnInit,OnDestroy {
  acceptReward(){
   const item=this.nextReward;
   if(!item)return;
-  this.buyOrEquip(item);
+  // Accept the notification only; learning goals grant PURCHASE ELIGIBILITY,
+  // never free inventory. Existing TT, XP and cosmetics remain untouched.
+  this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
+  this.rewardPopupSuppressed=true;
+  this.save();
   this.changeDetector.markForCheck();
  }
  showRewardInShop(){
@@ -870,21 +874,19 @@ export class App implements OnInit,OnDestroy {
  priceLabel(item:ShopItem){
   if(this.owns(item))return this.active(item)?'✓ Ausgerüstet':'Ausrüsten';
   if(!this.isUnlocked(item))return item.drop==='global'?'🔒 Level '+item.level+' nötig':'🔒 Lernziel fehlt';
-  return item.drop==='global'?'◉ '+item.cost+' TT':'🎁 Gratis abholen';
+  return '◉ '+item.cost+' TT kaufen';
  }
  buyOrEquip(item:ShopItem){
   if(!this.owns(item)){
    if(!this.isUnlocked(item)){this.alert('Erst freischalten: '+this.requirementLabel(item));return;}
-   if(item.drop==='global'){
-    if(this.profile.tokens<item.cost){this.alert('Nicht genug TastyTokens, Bruder. 💀');return;}
-    this.profile.tokens-=item.cost;
-   }
+   if(this.profile.tokens<item.cost){this.alert('Nicht genug TastyTokens, Bruder. 💀');return;}
+   this.profile.tokens-=item.cost;
    this.profile.inventory=[...new Set([...this.profile.inventory,item.id])];
    this.profile.activity=[{
-    label:(item.drop==='global'?'Gekauft: ':'Lernziel-Belohnung: ')+item.name,
-    date:new Date().toISOString(),...(item.drop==='global'?{amount:-item.cost}:{})
+    label:'Gekauft: '+item.name,
+    date:new Date().toISOString(),amount:-item.cost
    },...this.profile.activity].slice(0,30);
-   this.alert(item.icon+' '+this.itemDisplayName(item)+(item.drop==='global'?' gekauft!':' gratis abgeholt!'));
+   this.alert(item.icon+' '+this.itemDisplayName(item)+' gekauft!');
    this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
   }else{
    const key=item.group,value=key==='avatar'?item.icon:(item.equip||item.id);
