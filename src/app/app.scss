@@ -630,3 +630,26 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
 
 
 @media(max-width:520px){.reward-unlock-modal{padding:20px 12px}.reward-unlock-actions{gap:8px}}
+
+/* Numbered, non-skippable-after-first-click reward reveal (Fortnite-style).
+   User always sees the whole queue; only individual next/claim dismisses. */
+.reward-unlock-veil{z-index:75}
+.reward-unlock-modal{width:min(550px,100%);text-align:center;padding:30px 28px}
+.reward-unlock-top{display:flex;align-items:center;justify-content:space-between;gap:15px;text-align:left}
+.reward-unlock-counter{white-space:nowrap;border:1px solid #b793fb88;border-radius:999px;padding:7px 12px;font-weight:850;font-size:12px;color:#e6c8ff;background:#a383fe16}
+.reward-unlock-track{width:100%;height:6px;margin-top:13px;border-radius:20px;overflow:hidden;background:#52446d}
+.reward-unlock-track i{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,#ce8aff,#79efed);transition:width .2s}
+.reward-unlock-economy{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:21px 0;text-align:left}
+.reward-unlock-economy span{display:flex;flex-direction:column;gap:5px;border:1px solid #9b89d344;background:#1b1d3e;padding:12px;border-radius:11px;color:#bfc6e1;font-size:11px}
+.reward-unlock-economy strong{font-size:20px;color:#f5d38f;font-variant-numeric:tabular-nums}
+.reward-unlock-modal h3{color:#f4d9ff}
+.reward-unlock-modal small{display:block;margin:10px 0 0;color:#bfc6e1;font-size:11px}
+.reward-unlock-actions .btn{white-space:normal;min-height:49px}
+.reward-unlock-actions .btn:disabled{opacity:.4;cursor:not-allowed}
+@media (max-width:520px){
+ .reward-unlock-modal{padding:22px 15px}
+ .reward-unlock-economy{gap:8px}
+ .reward-unlock-economy strong{font-size:16px}
+ .reward-unlock-actions{grid-template-columns:1fr;gap:8px}
+ .reward-unlock-art{width:90px;height:90px;font-size:50px;margin:14px auto}
+}
