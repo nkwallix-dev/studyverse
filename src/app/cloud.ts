@@ -12,7 +12,7 @@ export interface CloudSnapshot{
   daily?:unknown;
   bridge?:unknown;
 }
-export interface PublicPlayer {uid:string;nickname:string;level:number;avatar:string;title:string}
+export interface PublicPlayer {uid:string;nickname:string;avatar:string;title:string}
 interface CloudConfig{apiKey:string;projectId:string}
 export interface CloudSession{uid:string;username:string;idToken:string;refreshToken:string;expiresAt:number}
 interface AuthResult{localId:string;idToken:string;refreshToken:string;expiresIn:string}
@@ -43,7 +43,7 @@ export function cloudError(error:unknown):string{
   if(/Failed to fetch|NetworkError|network/i.test(raw))return 'Keine Verbindung zur Cloud. Bitte Internet prüfen.';
   return raw.length>190?raw.slice(0,190)+'…':raw;
 }
-/** UI moderation only; backend administrators MUST also approve public names.
+/** Public directory needs moderation. A client-side filter is only a first layer.
  * Restrict obvious offensive/impersonating display names but never rely on
  * this filter to establish server-authoritative scores. */
 export function isAllowedNickname(value:string):boolean{
@@ -148,42 +148,84 @@ export class StudyverseCloud{
       throw Error(result.error?.message||'Cloud konnte nicht speichern ('+response.status+').');
     }
   }
-  // Separate, minimal directory: NEVER expose the private /users/{uid} save
-  // Only server-verified profiles may ever enter the public leaderboard.
-  // A private /users save is untrusted client data, not proof of earned XP.
-  private verifiedProfilesEndpoint():string{
+  // The friendly players directory is NOT a ranking. No XP, coins, level,
+  // total solved or numeric achievements are ever published or read here.
+  // Existing /publicProfiles docs may still contain old unverified "level" fields:
+  // ignore them completely and NEVER write them again.
+  private friendDirectoryEndpoint():string{
     if(!this.session)throw Error('Bitte zuerst anmelden.');
     return 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(this.settings.projectId)+
-      '/databases/(default)/documents/verifiedProfiles';
+      '/databases/(default)/documents/publicProfiles';
+  }
+  /** Create a missing public card or update ONLY safe social fields.
+   * The default sync does not overwrite an admin-corrected public nickname.
+   * Renaming intentionally via "Mein Profil" permits updating the nickname.
+   */
+  async publishFriendProfile(nickname:string,avatar:string,title:string,rename=false):Promise<void>{
+    if(!this.session)throw Error('Bitte zuerst anmelden.');
+    if(!isAllowedNickname(nickname))return;
+    if(!avatar||avatar.length>20||/[\u0000-\u001f\u007f]/.test(avatar))throw Error('Avatar ungültig.');
+    if(!title||title.length>80||/[\u0000-\u001f\u007f]/.test(title))throw Error('Titel ungültig.');
+    const url=this.friendDirectoryEndpoint()+'/'+encodeURIComponent(this.session.uid);
+    const token=await this.token();
+    const check=await fetchCloud(url,{headers:{Authorization:'Bearer '+token}});
+    if(!check.ok&&check.status!==404){
+      const error=await check.json() as {error?:{message?:string}};
+      throw Error(error.error?.message||'Freundesprofil konnte nicht geprüft werden ('+check.status+').');
+    }
+    // With old entries, keep administrator-corrected names and custom titles.
+    // Client-supplied numeric ranks never enter this document.
+    const create=check.status===404;
+    const fields:Record<string,{stringValue?:string;timestampValue?:string}>={
+      avatar:{stringValue:avatar},
+      selectedTitle:{stringValue:title},
+      updatedAt:{timestampValue:new Date().toISOString()}
+    };
+    if(create||rename)fields['nickname']={stringValue:nickname};
+    const mask=Object.keys(fields).map(key=>'updateMask.fieldPaths='+encodeURIComponent(key)).join('&');
+    const response=await fetchCloud(url+'?'+mask,{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json',Authorization:'Bearer '+await this.token()},
+      body:JSON.stringify({fields})
+    });
+    if(!response.ok){
+      const error=await response.json() as {error?:{message?:string}};
+      throw Error(error.error?.message||'Freundesprofil konnte nicht gespeichert werden ('+response.status+').');
+    }
   }
   async listPublicProfiles():Promise<PublicPlayer[]>{
     if(!this.session)throw Error('Bitte zuerst anmelden.');
     const players:PublicPlayer[]=[];
     let next='';
-    // Firestore lists documents in pages; do not limit the UI to the first page.
     for(let page=0;page<50;page++){
-      const url=this.verifiedProfilesEndpoint()+'?pageSize=100'+(next?'&pageToken='+encodeURIComponent(next):'');
+      const url=this.friendDirectoryEndpoint()+'?pageSize=100'+(next?'&pageToken='+encodeURIComponent(next):'');
       const response=await fetchCloud(url,{headers:{Authorization:'Bearer '+await this.token()}});
       const body=await response.json() as {documents?:Array<{name?:string;fields?:{
-        nickname?:{stringValue?:string};level?:{integerValue?:string};
-        avatar?:{stringValue?:string};title?:{stringValue?:string};verified?:{booleanValue?:boolean}}}>;nextPageToken?:string;error?:{message?:string}};
-      if(!response.ok)throw Error(body.error?.message||'Spielerliste konnte nicht geladen werden ('+response.status+').');
+        nickname?:{stringValue?:string};avatar?:{stringValue?:string};
+        title?:{stringValue?:string};selectedTitle?:{stringValue?:string};
+        moderatorTitle?:{stringValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
+      if(!response.ok)throw Error(body.error?.message||'Freundesliste konnte nicht geladen werden ('+response.status+').');
       for(const doc of body.documents||[]){
         const uid=doc.name?.split('/').pop()||'';
         const nickname=doc.fields?.nickname?.stringValue?.trim()||'';
-        const level=Number(doc.fields?.level?.integerValue||0);
         const avatar=doc.fields?.avatar?.stringValue||'🧪';
-        const title=doc.fields?.title?.stringValue||'Weltenentdecker';
-        const verified=doc.fields?.verified?.booleanValue===true;
-        if(verified&&uid&&isAllowedNickname(nickname)&&Number.isInteger(level)&&level>=1&&level<=100000){
-          players.push({uid,nickname,level,avatar:avatar.length<=20?avatar:'🧪',title:title.length<=80?title:'Weltenentdecker'});
+        const oldTitle=doc.fields?.title?.stringValue||'';
+        const selectedTitle=doc.fields?.selectedTitle?.stringValue||'';
+        const moderatorTitle=doc.fields?.moderatorTitle?.stringValue||'';
+        // Preserve existing hand-assigned titles, e.g. the classmate's
+        // exclusive "Cheater" title, without letting owner edits overwrite it.
+        const customLegacy=oldTitle&&oldTitle.toLowerCase()==='cheater'?oldTitle:'';
+        const title=moderatorTitle||customLegacy||selectedTitle||oldTitle||'Weltenentdecker';
+        if(uid&&isAllowedNickname(nickname)){
+          players.push({uid,nickname,avatar:avatar.length<=20?avatar:'🧪',
+            title:title.length<=80?title:'Weltenentdecker'});
         }
       }
       next=body.nextPageToken||'';
       if(!next)break;
-      if(page===49)throw Error('Spielerliste ist zu groß. Bitte erneut versuchen.');
+      if(page===49)throw Error('Spielerliste zu groß. Bitte erneut versuchen.');
     }
-    return players.sort((a,b)=>b.level-a.level||a.nickname.localeCompare(b.nickname,'de'));
+    return players.sort((a,b)=>a.nickname.localeCompare(b.nickname,'de'));
   }
 
 }
