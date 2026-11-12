@@ -39,5 +39,25 @@ assert(code.includes('this.profile.trainerSaves=snapshots'),'A full backup must 
 assert(code.includes('this.profile.tokens')===true,'Use global TT on profile restore');
 assert(html.includes('class="profile-advanced-tools"') && html.includes('id="studyverse-backup-import"'),'Legacy backup import must remain available in collapsible advanced data tools');
 assert(html.includes('undoStudyverseRestore()'),'Undo button required');
-assert(html.includes('class="cloud-auth-import"') && html.includes('(change)="importFile($event)"'),'Legacy import must be offered during registration');
-console.log('PASS: STUDYVERSE raw export / CHEMVERSE export differentiated, backup restore and undo flow linked in UI.');
+// Offline backups remain readable, but must NEVER seed competitive cloud wallets.
+assert(code.includes('get canRestoreBackup(){return this.cloudReady&&!this.cloudConfigured&&!this.cloud.session;}'),
+ 'Imports must be disabled while Firebase setup is pending and whenever Cloud accounts exist');
+for(const path of ['importFile(event:Event)','private restoreStudyverseBackup(data:Record<string,unknown>)','private applyImport(data:unknown)','undoStudyverseRestore()']){
+ const idx=code.indexOf(path);
+ assert(idx>=0,'Import handler missing: '+path);
+ assert(code.slice(idx,idx+300).includes('rejectUnsafeBackupRestore()'),
+  'No import/undo entrypoint may bypass the Cloud guard: '+path);
+}
+assert(code.includes('this.freshCloudAccount();')&&code.includes('write(LOCAL_ARCHIVE,'),
+ 'New Cloud accounts must start at zero after keeping an offline-only archive');
+assert(code.includes('this.profile=initial();')&&code.includes('this.clearDeviceProgress();'),
+ 'New Cloud account wallet cannot copy local coins or XP');
+assert(!html.includes('class="cloud-auth-import"'),
+ 'Registration UI must not advertise editable JSON uploads');
+assert(html.includes('*ngIf="canRestoreBackup" for="studyverse-backup-import"'),
+ 'Offline restore must be explicitly hidden from Cloud users');
+assert(html.includes('exportLocalArchive()'),
+ 'Users should still be able to download previous unsynced local progress');
+assert(html.includes('type="button" class="btn secondary" (click)="exportProfile()"'),
+ 'Backup export remains available even after imports are disabled');
+console.log('PASS: legacy offline backups still parse, Cloud JSON import disabled, new accounts start clean, old local data archived.');
