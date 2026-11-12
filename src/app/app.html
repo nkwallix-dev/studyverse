@@ -505,5 +505,38 @@
       <small>Vorschau ohne Kauf: Das Item wird nur hier gezeigt. Dein aktiver Style und deine TT bleiben unverändert.</small>
     </div>
   </div>
+  <!-- Account-specific, moderator-issued notice. Never a client-driven ban. -->
+  <div class="veil moderation-veil" *ngIf="cloud.session && cloudMaySave && (moderationNotice || noticePreview)"
+       role="alertdialog" aria-modal="true" aria-labelledby="fairplay-warning-title"
+       aria-describedby="fairplay-warning-description">
+    <section class="modal moderation-modal" [class.moderation-preview]="noticePreview">
+      <div class="moderation-symbol" aria-hidden="true">⚠️</div>
+      <div class="moderation-label">{{noticePreview?'🧪 VORSCHAU · KEINE ECHTE VERWARNUNG':'⛔ OFFIZIELLE STUDYVERSE-VERWARNUNG'}}</div>
+      <h2 id="fairplay-warning-title">Fair Play ist <span>kein optionales Feature.</span></h2>
+      <p class="moderation-body" id="fairplay-warning-description">
+        Dein StudyVerse-Spielstand wurde durch eine unerlaubte Manipulation von XP, TastyTokens oder Fortschritten verändert.
+        Dein Account erhält dafür eine <strong>offizielle Verwarnung</strong>.
+      </p>
+      <div class="moderation-consequence">
+        <strong>🚨 Letzte Warnung</strong>
+        <p>Bei einem weiteren bestätigten Cheat kann dein Account dauerhaft gelöscht werden.
+        Die Entscheidung trifft ausschließlich der StudyVerse-Betreiber <strong>nach persönlicher Prüfung</strong>.
+        Es erfolgt <strong>keine automatische Sperre oder Löschung</strong>.</p>
+      </div>
+      <p class="moderation-footnote" *ngIf="!noticePreview">
+        Diese Nachricht wird nur deinem Account angezeigt. Nach der Bestätigung erscheint sie nicht erneut,
+        solange keine neue Verwarnung durch die Administration ausgestellt wird.
+      </p>
+      <p class="moderation-footnote" *ngIf="noticePreview">
+        Das ist nur deine einmalige Design-Vorschau. Dein Account bekommt dadurch keine Verwarnung;
+        es wird auch nichts in Firebase als Verstoß gespeichert.
+      </p>
+      <p class="moderation-error" *ngIf="noticeError">{{noticeError}}</p>
+      <button type="button" class="btn primary full moderation-confirm" [disabled]="noticeSaving"
+              (click)="acknowledgeAccountNotice()">
+        {{noticeSaving?'Bestätigung wird gespeichert …':noticePreview?'✓ Vorschau schließen':'✓ Ich habe die Verwarnung gelesen'}}
+      </button>
+    </section>
+  </div>
   <div class="notice" *ngIf="info"><span>{{info}}</span><button (click)="info=''">✕</button></div>
 </div>
