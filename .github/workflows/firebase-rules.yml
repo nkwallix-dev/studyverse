@@ -53,8 +53,7 @@ jobs:
     needs: validate
     if: >-
       github.event_name != 'pull_request' &&
-      github.ref == 'refs/heads/main' &&
-      true
+      github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: firebase-production
     permissions:
