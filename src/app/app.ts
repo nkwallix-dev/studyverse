@@ -71,7 +71,7 @@ export class App implements OnInit,OnDestroy {
  private noticeCheckId=0;
  achievementSubject='Alle';achievementTest='Alle';achievementSort:'open'|'done'|'progress'|'reward'|'title'='open';
  profile:Profile=this.load(); public today=new Date();
- private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.queueCloudSave();};
+ private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();void this.refreshVerifiedWallet();this.queueCloudSave();};
  ngOnInit(){
    this.nicknameEdit=this.profile.nickname;
    // Standalone Verses link to the shared player profile; resolve the hash
@@ -242,6 +242,14 @@ export class App implements OnInit,OnDestroy {
    this.intro=false;this.importOpen=false;
    this.syncTrainer();
  }
+ private async refreshVerifiedWallet(){
+   if(!this.cloud.session||!this.cloudMaySave)return;
+   try{
+     const wallet=await this.cloud.readWallet();
+     this.profile.xp=wallet.xp;this.profile.tokens=wallet.tokens;this.profile.inventory=wallet.inventory;
+     write(KEY,JSON.stringify(this.profile));this.changeDetector.markForCheck();
+   }catch(error){this.cloudMessage=cloudError(error);this.changeDetector.markForCheck();}
+ }
  private queueCloudSave(){
    if(!this.cloudReady||!this.cloud.session||this.cloudHydrating||!this.cloudMaySave)return;
    if(this.cloudTimer!==null)clearTimeout(this.cloudTimer);
@@ -336,6 +344,7 @@ export class App implements OnInit,OnDestroy {
        this.cloudStage='Account wird erstellt …';
        await this.cloud.register(this.cloudUsername,this.cloudPin);
        authenticated=true;
+       await this.cloud.initializeWallet();
        this.cloudStage='Spielstand wird online gespeichert …';
        this.changeDetector.markForCheck();
        // A new online account must not inherit altered localStorage/JSON values.
@@ -605,6 +614,7 @@ export class App implements OnInit,OnDestroy {
  private snapshot(t:TrainerDef):Record<string,unknown>{const local=parse(read(t.saveKey));if(isObj(local))return local;const saved=this.profile.trainerSaves?.[t.id];if(isObj(saved))return saved;if(t.id==='nawi-test-01'&&isObj(this.profile.chemverseSave))return this.profile.chemverseSave;return {};}
  setAchievementSubject(id:string){this.achievementSubject=id;this.achievementTest='Alle';}
  private grantAchievementTokens():number{
+   if(this.cloud.session)return 0; // Browser achievements cannot mint verified TT.
    const ledger:Record<string,boolean>=this.profile.achievementTokenClaims || {};
    let paid=0;
    for(const trainer of TRAINERS){
@@ -799,6 +809,7 @@ export class App implements OnInit,OnDestroy {
    this.alert('CHEMVERSE übertragen! '+(achievedBonus?'+ '+achievedBonus+' Achievement-TT rückwirkend! 🎉':'XP, TastyTokens und Items sind angekommen. 🎉'));
  }
  private awardGlobalLevelRewards():number {
+   if(this.cloud.session)return 0;
    let total=0;
    for(let lvl=2;lvl<=this.level;lvl++){
      const k=String(lvl);
@@ -812,6 +823,7 @@ export class App implements OnInit,OnDestroy {
    return total;
  }
  private awardLevelFreebies(){
+   if(this.cloud.session)return; // Inventory must be server-confirmed.
    const free=this.items.filter(i=>i.cost===0&&(i.level||1)<=this.level);
    this.profile.inventory=[...new Set([...this.profile.inventory,...free.map(i=>i.id)])];
  }
@@ -826,11 +838,18 @@ export class App implements OnInit,OnDestroy {
    if(!this.isUnlocked(item))return '🔒 Lernziel fehlt';
    return item.cost===0?'Kostenlos abholen':'◉ '+item.cost+' TT';
  }
- buyOrEquip(item:ShopItem){
+ async buyOrEquip(item:ShopItem):Promise<void>{
    if(!this.owns(item)){
      if(!this.isUnlocked(item)){this.alert('Erst freischalten: '+this.requirementLabel(item));return;}
-     if(this.profile.tokens<item.cost){this.alert('Nicht genug TastyTokens, Bruder. 💀');return;}
-     this.profile.tokens-=item.cost;this.profile.inventory=[...this.profile.inventory,item.id];
+     if(this.cloud.session){
+       try{
+         const receipt=await this.cloud.purchaseItem(item.id);
+         this.profile.tokens=receipt.tokens;this.profile.inventory=receipt.inventory;
+       }catch(error){this.alert('🔒 Server-Kauf nicht möglich: '+cloudError(error));return;}
+     }else{
+       if(this.profile.tokens<item.cost){this.alert('Nicht genug TastyTokens, Bruder. 💀');return;}
+       this.profile.tokens-=item.cost;this.profile.inventory=[...this.profile.inventory,item.id];
+     }
      this.profile.activity=[{label:item.name+' gekauft · '+this.selectedDrop.title,date:new Date().toISOString(),amount:-item.cost},...this.profile.activity].slice(0,30);
      this.alert(item.icon+' '+this.itemDisplayName(item)+' gehört dir! Überall in STUDYVERSE ausrüstbar.');
    }else{
@@ -838,8 +857,7 @@ export class App implements OnInit,OnDestroy {
      this.profile.equipped[key]=this.active(item)?this.equipDefault(key):value;
      this.alert(this.itemDisplayName(item)+' – Ausrüstung geändert.');
    }
-   this.previewed=null;
-   this.save();
+   this.previewed=null;this.save();
  }
  private equipDefault(k:string){return defaultEquip()[k as keyof ReturnType<typeof defaultEquip>] || 'none';}
  themeStyle(item:ShopItem){return item.bg || 'linear-gradient(130deg,#212a47,#504193)';}
@@ -895,9 +913,9 @@ export class App implements OnInit,OnDestroy {
    const state=parse(read(trainer.saveKey));
    if(!isObj(state)||typeof state['xp']!=='number'||typeof state['coins']!=='number')return;
    const gained=Math.max(0,safe(state['xp'])-safe(launch['xp']));
-   this.profile.xp+=gained;this.profile.tokens=safe(state['coins']);
+   if(!this.cloud.session){this.profile.xp+=gained;this.profile.tokens=safe(state['coins']);}
    const purchased=isObj(state['purchased'])?state['purchased']:{};
-   this.profile.inventory=[...new Set([...this.profile.inventory,...Object.entries(purchased).filter(([,v])=>!!v).map(([k])=>k)])];
+   if(!this.cloud.session)this.profile.inventory=[...new Set([...this.profile.inventory,...Object.entries(purchased).filter(([,v])=>!!v).map(([k])=>k)])];
    this.profile.trainerSaves={...(this.profile.trainerSaves||{}),[trainer.id]:state};
    if(trainer.id==='nawi-test-01')this.profile.chemverseSave=state;
    const levelBonus=this.awardGlobalLevelRewards();
@@ -905,6 +923,7 @@ export class App implements OnInit,OnDestroy {
    if(gained)this.profile.activity=[{label:trainer.title+' · Lernrunde',date:new Date().toISOString(),amount:gained},...this.profile.activity].slice(0,30);
    this.save();try{localStorage.removeItem(BRIDGE)}catch{}
    const achievementBonus=this.grantAchievementTokens();
+   if(this.cloud.session){void this.refreshVerifiedWallet();return;}
    if(gained||levelBonus||achievementBonus)this.alert('Willkommen zurück! '+(gained?'+'+gained+' XP ':'')+(levelBonus?'· +'+levelBonus+' Level-TT':'')+(achievementBonus?' · 🏆 +'+achievementBonus+' Achievement-TT':'')+' synchronisiert.');
  }
 }
