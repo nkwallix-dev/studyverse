@@ -4,8 +4,8 @@ const a={window:{}},b={window:{}};
 vm.runInNewContext(fs.readFileSync('public/daily/questions.js','utf8'),a);
 vm.runInNewContext(fs.readFileSync('public/dsai/test-01/questions.js','utf8'),b);
 const bank=a.window.STUDYVERSE_DAILY_QUESTIONS,dsai=b.window.DSAI_QUESTIONS;
-assert.equal(bank.length,164,'Canonical daily question bank must stay 164');
-assert.equal(dsai.length,106,'Dsaiverse source must stay 106');
+assert.equal(bank.length,167,'Canonical daily question bank must stay 167');
+assert.equal(dsai.length,109,'Dsaiverse source must stay 109');
 const map=new Map(bank.map(q=>[q.id,q]));
 assert.equal(map.size,bank.length,'No duplicate challenge IDs');
 for(const q of dsai){
