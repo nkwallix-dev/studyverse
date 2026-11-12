@@ -28,7 +28,7 @@ const restrictedNickname=value=>{
  if(typeof value!=='string')return false;
  const lookalikes={'а':'a','е':'e','о':'o','і':'i','ѕ':'s'};
  const name=[...value.normalize('NFKC').normalize('NFKD').toLowerCase()]
-  .map(c=>lookalikes[c]||c).join('').replace(/[\\u0300-\\u036f]/g,'')
+  .map(c=>lookalikes[c]||c).join('').replace(/[\u0300-\u036f]/g,'')
   .replace(/ß/g,'ss').replace(/[4@]/g,'a').replace(/3/g,'e')
   .replace(/[1!|]/g,'i').replace(/0/g,'o').replace(/[5$]/g,'s')
   .replace(/7/g,'t').replace(/[^a-z]/g,'');
