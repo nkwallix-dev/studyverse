@@ -24,6 +24,17 @@ const parse=raw=>{try{return JSON.parse(raw||'{}')}catch{return {}}};
 const sane=n=>Number.isSafeInteger(n)&&n>=0?n:0;
 const digest=s=>crypto.createHash('sha256').update(s).digest('hex');
 const owned=x=>Array.isArray(x)?[...new Set(x.filter(v=>typeof v==='string'&&v.length<100))]:[];
+const restrictedNickname=value=>{
+ if(typeof value!=='string')return false;
+ const lookalikes={'а':'a','е':'e','о':'o','і':'i','ѕ':'s'};
+ const name=[...value.normalize('NFKC').normalize('NFKD').toLowerCase()]
+  .map(c=>lookalikes[c]||c).join('').replace(/[\\u0300-\\u036f]/g,'')
+  .replace(/ß/g,'ss').replace(/[4@]/g,'a').replace(/3/g,'e')
+  .replace(/[1!|]/g,'i').replace(/0/g,'o').replace(/[5$]/g,'s')
+  .replace(/7/g,'t').replace(/[^a-z]/g,'');
+ return /n(?:i|e)?gg(?:a|er|ers)|heilhitler|hurensohn/.test(name);
+};
+
 const legacyState=data=>{
  const raw=typeof data?.profile==='string'?data.profile:'';
  const wrapper=parse(raw),p=wrapper?.profile;
@@ -58,11 +69,13 @@ const legacyState=data=>{
    if(record.tokens>100000||record.tokens>upperBound)flags.push('REVIEW_TOKENS_SPIKE');
    if(record.xp>1000000)flags.push('REVIEW_XP_SPIKE');
    if(record.inventory.length>400)flags.push('REVIEW_INVENTORY_SPIKE');
+   if(restrictedNickname(record.nickname))flags.push('REVIEW_NICKNAME');
    const entry={uid:doc.id,nickname:record.nickname,sourceHash:digest(record.raw),sourceUpdatedAt,
     tokens:record.tokens,xp:record.xp,inventory:record.inventory,
     ageDays:days,maxPlausibleTokensEstimate:upperBound,flags};
    entries.push(entry);
-   console.log(doc.id+' ('+record.nickname+') XP='+record.xp+' TT='+record.tokens+
+   const safeLabel=flags.includes('REVIEW_NICKNAME')?'[nickname requires review]':record.nickname;
+   console.log(doc.id+' ('+safeLabel+') XP='+record.xp+' TT='+record.tokens+
      ' inventory='+record.inventory.length+' flags='+flags.join(','));
   }
   const report={project,scannedAt:new Date().toISOString(),readOnly:true,
