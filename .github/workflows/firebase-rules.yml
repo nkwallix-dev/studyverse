@@ -1,0 +1,76 @@
+name: Validate and deploy Firebase rules
+
+on:
+  pull_request:
+    paths:
+      - 'firestore.rules'
+      - 'firebase/firestore.rules'
+      - 'firebase.json'
+      - '.firebaserc'
+      - '.github/workflows/firebase-rules.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'firestore.rules'
+      - 'firebase/firestore.rules'
+      - 'firebase.json'
+      - '.firebaserc'
+      - '.github/workflows/firebase-rules.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: firestore-rules-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install dependencies
+        run: npm ci
+      - name: Check friend-list and warning contracts
+        run: |
+          node scripts/test-public-profiles.cjs
+          node scripts/test-account-warning.cjs
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+      - name: Compile Firestore rules in the emulator
+        run: firebase emulators:exec --only firestore --project demo-studyverse-rules "node -e \"console.log('Firestore emulator started')\""
+
+  deploy:
+    needs: validate
+    if: >-
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: firebase-production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Authenticate via GitHub OIDC
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/916049777071/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: studyverse-github-deploy@studyverse-logins.iam.gserviceaccount.com
+          project_id: studyverse-logins
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+      - name: Publish Firestore rules only
+        run: firebase deploy --only firestore:rules --project studyverse-logins --non-interactive
