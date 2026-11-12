@@ -20,7 +20,8 @@ console.log('NO MIGRATION HAS BEEN EXECUTED BY THIS COMMAND');
 console.log('');
 console.log('NAME'.padEnd(26)+'TT'.padStart(12)+'XP'.padStart(12)+'  ITEMS  FLAGS');
 for(const entry of [...report.entries].sort((a,b)=>(b.tokens||0)-(a.tokens||0))){
- const label=String(entry.nickname||'(unbekannt)').replace(/[\r\n\t]/g,' ').slice(0,25);
+ const label=(entry.flags||[]).includes('REVIEW_NICKNAME')?'[Name zur Prüfung]':
+  String(entry.nickname||'(unbekannt)').replace(/[\r\n\t]/g,' ').slice(0,25);
  console.log(label.padEnd(26)+String(entry.tokens).padStart(12)+
   String(entry.xp).padStart(12)+'  '+String(entry.inventory?.length||0).padStart(5)+
   '  '+(entry.flags||[]).join(','));
