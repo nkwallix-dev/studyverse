@@ -101,8 +101,8 @@ for(const banner of ['gold','warning','galaxy','molecule','flow','curve','cloud'
  const scene=({pink_paradise:'pink',parallel_pulse:'parallel'})[banner]||banner;
  assert(h.includes('scene-'+scene),banner+' needs actual thematic scenery');
 }
-assert(h.includes('<div class="drop-price" *ngIf="item.drop===\'global\'"'),'Only Essentials show a TT price');
-assert(h.includes('<p class="preview-cost" *ngIf="!owns(item) && item.drop===\'global\'"'),'Only Essentials show TT price in preview');
+assert(h.includes('<div class="drop-price"><span>{{item.drop===\'global\'?'),'Shop shows purchase prices for Essentials AND test items');
+assert(h.includes('<p class="preview-cost" *ngIf="!owns(item)">'),'TT prices must show for every unowned item in live preview');
 const weber=newShop.split('\n').find(x=>x.includes("id:'dsai_title_weber'"));
 const fischer=newShop.split('\n').find(x=>x.includes("id:'title_chaos'"));
 const removedCosmetics=['chem_radical','title','chem_reactor','ocean','avatar_atom','avatar_dragon'];
