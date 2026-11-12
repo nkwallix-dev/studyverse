@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
 import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
-import { StudyverseCloud, CloudSnapshot, PublicPlayer, AccountNotice, CLOUD_DAILY_KEY, cloudError, isAllowedNickname } from './cloud';
+import { StudyverseCloud, CloudSnapshot, PublicPlayer, AccountNotice, CLOUD_DAILY_KEY, CLOUD_SESSION_KEY, cloudError, isAllowedNickname } from './cloud';
 
 type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements' | 'friends';
 interface Subject { id:string; short:string; name:string; icon:string; group:string; color:string; desc:string; }
@@ -73,7 +73,13 @@ export class App implements OnInit,OnDestroy {
  private noticeCheckId=0;
  achievementSubject='Alle';achievementTest='Alle';achievementSort:'open'|'done'|'progress'|'reward'|'title'='open';
  profile:Profile=this.load(); public today=new Date();
- private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.checkRewardUnlocks();this.queueCloudSave();};
+ private onReturn=()=>{
+  // A returning Cloud player must hydrate the latest remote profile FIRST;
+  // otherwise the freshly collected trainer bridge can be consumed and
+  // overwritten by older Cloud data before it is backed up.
+  if(read(CLOUD_SESSION_KEY)&&(!this.cloudReady||this.cloudHydrating))return;
+  this.syncChemverse();this.grantAchievementTokens();this.checkRewardUnlocks();this.queueCloudSave();
+ };
  ngOnInit(){
    this.nicknameEdit=this.profile.nickname;
    // Standalone Verses link to the shared player profile; resolve the hash
@@ -82,10 +88,14 @@ export class App implements OnInit,OnDestroy {
      this.view='profile';
      window.history.replaceState(null,'',window.location.pathname+window.location.search);
    }
-   this.syncChemverse();
-  this.checkRewardUnlocks();
-  const bonus=this.grantAchievementTokens();
-   if(bonus)this.alert('🏆 Deine bereits erreichten Achievements bringen dir rückwirkend +'+bonus+' TT!');
+   // Only offline profiles sync immediately. For signed-in profiles the remote
+   // save must load before the Verse bridge is consumed and rewards are queued.
+   if(!read(CLOUD_SESSION_KEY)){
+     this.syncChemverse();
+     this.checkRewardUnlocks();
+     const bonus=this.grantAchievementTokens();
+     if(bonus)this.alert('🏆 Deine bereits erreichten Achievements bringen dir rückwirkend +'+bonus+' TT!');
+   }
    window.addEventListener('pageshow',this.onReturn);
    void this.startCloud();
  }
@@ -280,6 +290,7 @@ export class App implements OnInit,OnDestroy {
        this.cloudHydrating=true;
        const remote=await this.cloud.load();
        if(remote)this.useCloudSnapshot(remote);
+       else{this.syncTrainer();this.checkRewardUnlocks();}
        if(this.profile.nickname==='Explorer'&&this.cloud.session?.username){
          this.profile.nickname=this.cloud.session.username;
          this.nicknameEdit=this.profile.nickname;
