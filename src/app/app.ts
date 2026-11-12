@@ -102,7 +102,7 @@ export class App implements OnInit,OnDestroy {
      write(KEY,JSON.stringify(restored));
    }
    // Preserve explicitly owned cosmetics while applying only legacy free rewards that do not bypass new boss achievements.
-   if(raw['shopDropMigrationV1']!==true){
+   if(raw['shopDropMigrationV1']!==true && !this.cloud.session){
      const oldLevel=levelFor(restored.xp);
      const previousRewards=[{id:'avatar_atom',level:2},{id:'ionstorm',level:3},{id:'blueprint',level:4},{id:'legend',level:5}];
      restored.inventory=[...new Set([...restored.inventory,...previousRewards.filter(x=>oldLevel>=x.level).map(x=>x.id)])];
@@ -238,15 +238,30 @@ export class App implements OnInit,OnDestroy {
      this.writeBackupSnapshot(previous);
      throw e;
    }
-   this.profile=this.load();this.nicknameEdit=this.profile.nickname;
+   this.profile=this.load();
+    this.validateEquippedOnline();this.nicknameEdit=this.profile.nickname;
    this.intro=false;this.importOpen=false;
    this.syncTrainer();
+ }
+ private validateEquippedOnline(){
+   if(!this.cloud.session)return;
+   const basics=defaultEquip();
+   const ownedItems=this.items.filter(item=>this.profile.inventory.includes(item.id));
+   for(const [slot,fallback] of Object.entries(basics)){
+     const equipped=this.profile.equipped[slot];
+     if(equipped===fallback)continue;
+     if(!ownedItems.some(item=>item.group===slot &&
+       (slot==='avatar'?item.icon:item.equip||item.id)===equipped)){
+       this.profile.equipped[slot]=fallback;
+     }
+   }
  }
  private async refreshVerifiedWallet(){
    if(!this.cloud.session||!this.cloudMaySave)return;
    try{
      const wallet=await this.cloud.readWallet();
      this.profile.xp=wallet.xp;this.profile.tokens=wallet.tokens;this.profile.inventory=wallet.inventory;
+     this.validateEquippedOnline();
      write(KEY,JSON.stringify(this.profile));this.changeDetector.markForCheck();
    }catch(error){this.cloudMessage=cloudError(error);this.changeDetector.markForCheck();}
  }
