@@ -56,7 +56,7 @@ export class App implements OnInit,OnDestroy {
  readonly subjects=SUBJECTS;
  readonly items=SHOP_ITEMS;
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
- shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'earn'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
+ shopDrop='global'; spotlightRewardId=''; rewardPopupSuppressed=false; shopTab:'catalog'|'inventory'|'earn'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  readonly cloud=new StudyverseCloud();
  cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
@@ -72,7 +72,7 @@ export class App implements OnInit,OnDestroy {
  private noticeCheckId=0;
  achievementSubject='Alle';achievementTest='Alle';achievementSort:'open'|'done'|'progress'|'reward'|'title'='open';
  profile:Profile=this.load(); public today=new Date();
- private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.checkRewardUnlocks();this.queueCloudSave();};
+ private onReturn=()=>{this.rewardPopupSuppressed=false;this.syncChemverse();this.grantAchievementTokens();this.checkRewardUnlocks();this.queueCloudSave();};
  ngOnInit(){
    this.nicknameEdit=this.profile.nickname;
    // Standalone Verses link to the shared player profile; resolve the hash
@@ -651,6 +651,7 @@ export class App implements OnInit,OnDestroy {
   this.save();this.changeDetector.markForCheck();
  }
  get nextReward():ShopItem|null{
+  if(this.rewardPopupSuppressed)return null;
   const id=this.profile.rewardQueue?.[0];
   return this.items.find(i=>i.id===id&&!this.owns(i)&&this.isUnlocked(i))||null;
  }
@@ -664,6 +665,7 @@ export class App implements OnInit,OnDestroy {
   const item=this.nextReward;
   if(!item)return;
   this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
+  this.rewardPopupSuppressed=true;
   this.go('shop');this.shopTab='catalog';this.shopGroup='Alle';this.shopDrop=item.drop;
   this.spotlightRewardId=item.id;
   this.save();this.changeDetector.markForCheck();
