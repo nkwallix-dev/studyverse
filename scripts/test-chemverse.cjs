@@ -247,7 +247,9 @@ const settingsTs=fs.readFileSync('src/app/app.ts','utf8');
 const settingsHtml=fs.readFileSync('src/app/app.html','utf8');
 const settingsSection=settingsHtml.slice(settingsHtml.indexOf('<div class="profile-panel settings">'),settingsHtml.indexOf('<h3>Dein Onlinekonto</h3>'));
 assert(settingsTs.includes('get unlockedTitles()'),'Profile must expose earned titles');
-assert(settingsTs.includes("item.group==='title'&&this.owns(item)"),'Locked titles must be excluded');
+assert(settingsTs.includes("get unlockedTitles(){return this.ownedCatalogItems.filter(item=>item.group==='title');}")&&
+ settingsTs.includes('get ownedCatalogItems(){return [...this.items,...LEGACY_OWNED_ITEMS].filter(item=>this.owns(item));}'),
+ 'Only OWNED titles may be equipped, including previously purchased retired titles');
 assert(settingsTs.includes('setProfileTitle(id:string)'),'Title selection needs persistence handler');
 assert(settingsSection.indexOf('id="profile-title-select"')>settingsSection.indexOf('id="profile-name-input"'),'Title selection must appear directly under name field');
 assert(settingsSection.includes('(ngModelChange)="setProfileTitle($event)"'),'Changing title must trigger save handler');
