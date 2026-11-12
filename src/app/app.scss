@@ -619,25 +619,3 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
 /* The friends tab is a social directory, NOT a ranking based on local XP. */
 .friend-social-tag{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;padding:6px 9px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:10px;font-weight:800}
 @media(max-width:410px){.friend-social-tag{font-size:9px;padding:5px 7px}}
-
-
-/* One-time moderation notice. The warning is administered manually in
-   Firestore and never triggers an automatic account deletion. */
-.moderation-veil{z-index:210;background:rgba(7,10,26,.91);overflow:auto;align-items:safe center;justify-items:center}
-.moderation-modal{width:min(570px,100%);border:1px solid #ffb57099;background:linear-gradient(160deg,#27213f 0%,#1a1e39 58%,#21283e 100%);box-shadow:0 22px 75px #000a;padding:clamp(23px,4vw,35px);border-radius:21px;max-height:calc(100dvh - 35px);overflow:auto}
-.moderation-symbol{display:grid;place-items:center;width:63px;height:63px;margin-bottom:14px;border:1px solid #ffd59e85;border-radius:18px;background:#f9a54c19;font-size:35px}
-.moderation-label{font-size:10px;font-weight:900;letter-spacing:1px;color:#ffcb9d}
-.moderation-modal h2{font-size:clamp(24px,4vw,32px);line-height:1.2;margin:12px 0 18px;letter-spacing:-.5px}
-.moderation-modal h2 span{color:#ffb48a}
-.moderation-body{font-size:14px;line-height:1.75;color:#eae5f5;margin:0 0 18px}
-.moderation-body strong{color:#fff8f0}
-.moderation-consequence{background:#472b368a;border:1px solid #ee9d8d85;border-radius:13px;padding:15px 17px;margin:12px 0}
-.moderation-consequence>strong{color:#ffd9bd;font-size:14px}
-.moderation-consequence p{font-size:12px;line-height:1.75;color:#f6e7e5;margin:8px 0 0}
-.moderation-footnote{font-size:11px;color:#bab8ce;line-height:1.65;margin:16px 0}
-.moderation-error{color:#ffd4b5;border-radius:8px;padding:9px 12px;background:#7c3b3b50;font-size:12px;line-height:1.6}
-.moderation-confirm{min-height:46px;font-size:13px;font-weight:900;margin-top:12px}
-.moderation-preview{border-color:#a1d5f5a6}
-.moderation-preview .moderation-label,.moderation-preview h2 span{color:#a6e7ff}
-.moderation-preview .moderation-symbol{background:#9bcefa18;border-color:#9bcefa77}
-@media(max-width:520px){.moderation-veil{padding:10px}.moderation-modal{padding:20px 17px;max-height:calc(100dvh - 20px)}.moderation-body{font-size:13px}.moderation-consequence{padding:12px}}
