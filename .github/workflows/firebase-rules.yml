@@ -9,6 +9,9 @@ on:
       - 'functions/**'
       - 'scripts/test-security-emulators.cjs'
       - 'scripts/migrate-wallets.cjs'
+      - 'scripts/stage-wallets.cjs'
+      - 'scripts/test-stage-wallets.cjs'
+      - 'scripts/test-stage-wallet-emulator.cjs'
       - 'scripts/admin-rename-user.cjs'
       - 'scripts/test-admin-rename.cjs'
       - 'scripts/show-wallet-summary.cjs'
@@ -67,6 +70,8 @@ jobs:
         run: node --test functions/test/core.test.cjs
       - name: Verify owner-only nickname change never modifies rewards
         run: node scripts/test-admin-rename.cjs
+      - name: Check shadow wallet copies preserve XP, Tokens and items
+        run: node scripts/test-stage-wallets.cjs
       - name: Validate catalog seeding (strict dry run, NO writes)
         run: node scripts/seed-server-catalog.cjs --project demo-studyverse-rules
       - name: Confirm trainer answers match the private server bank
@@ -95,7 +100,7 @@ jobs:
       - name: Run actual Firestore, Auth and Functions emulator integration tests
         run: |
           npm install --global firebase-tools
-          firebase emulators:exec --project demo-studyverse-rules --only firestore,auth,functions "node scripts/test-security-emulators.cjs"
+          firebase emulators:exec --project demo-studyverse-rules --only firestore,auth,functions "node scripts/test-security-emulators.cjs && node scripts/test-stage-wallet-emulator.cjs"
 
   deploy:
     needs: validate
