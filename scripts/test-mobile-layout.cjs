@@ -231,26 +231,25 @@ async function main(){
    const maths=await context.newPage();
    const errors=[];maths.on('pageerror',e=>errors.push(e.message));
    await maths.goto(base+'maths/hw-02/',{waitUntil:'load'});
-   await maths.locator('.hero').waitFor({timeout:12000});
+   await maths.locator('.solved-example').first().waitFor({timeout:12000});
    assert(await maths.locator('.top-links a').first().isVisible(),
     'MathsVerse must provide a visible back link at '+width);
-   await check(maths,'MathsVerse Dashboard '+width);
-   await maths.locator('.nav [data-action="view:academy"]').click();
-   await maths.locator('.solution-steps li').first().waitFor();
-   await check(maths,'MathsVerse Worked Examples '+width);
-   await maths.locator('.nav [data-action="view:practice"]').click();
-   await maths.locator('[data-action="train:1.55a"]').click();
-   await maths.locator('.mathcad-sheet').waitFor();
-    await maths.locator('.mathcad-sheet').click({position:{x:50,y:145}});
-    await maths.locator('.mathcad-input').first().waitFor();
-    await maths.locator('.mathcad-input').first().fill('x^4');
-    await maths.locator('[data-action="pad-check:r1"]').click();
-    await maths.locator('.mathcad-verified').first().waitFor();
-    assert(await maths.locator('.mathcad-region').count()>=2,'New step must create the next editable math region '+width);
-    assert(await maths.locator('.math-keyboard .math-key').count()>=25,'MathsVerse math keyboard must be present on mobile '+width);
-    assert(await maths.locator('.maths-graph-svg').count()>=1,'MathsVerse graph visible on mobile '+width);
-    assert(await maths.locator('.lab-mode').count()===3,'MathsVerse must expose all three learning modes '+width);
-   await check(maths,'MathsVerse Exercise '+width);
+   assert(await maths.locator('.solved-step').count()>=25,
+    'MathsVerse must show every worked calculation step '+width);
+   assert(await maths.locator('.nav [data-chapter]').count()===4,
+    'MathsVerse must have only the four learning chapters '+width);
+   assert(await maths.locator('.solved-example').count()===6,
+    'First chapter must show all six worked examples '+width);
+   assert(await maths.locator('.mathcad-sheet,.lab-mode,.boss-problem').count()===0,
+    'MathsVerse must not display game or calculator UI '+width);
+   await check(maths,'MathsVerse Worked Chapter '+width);
+   await maths.locator('.nav [data-chapter="2"]').click();
+   await maths.locator('[id="beispiel-1.66a"]').waitFor();
+   assert(await maths.locator('.solved-example').count()===2,
+    'Both area problems must be fully shown '+width);
+   assert(await maths.locator('.maths-graph-svg').count()>=1,
+    'Area problems must include helpful graphs '+width);
+   await check(maths,'MathsVerse Area Chapter '+width);
    if(width===390)await maths.screenshot({
     path:path.join(screenshots,'mathsverse-390.png'),fullPage:true
    });
