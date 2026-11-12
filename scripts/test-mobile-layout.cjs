@@ -223,39 +223,14 @@ async function main(){
     await context.close();
    }
   }
-  // MathsVerse has no dummy burger: its course is fully navigable on phones.
-  for(const width of [320,360,390,430,768]){
-   const context=await browser.newContext({
-    viewport:{width,height:800},deviceScaleFactor:1,isMobile:true,hasTouch:true
-   });
-   const maths=await context.newPage();
-   const errors=[];maths.on('pageerror',e=>errors.push(e.message));
-   await maths.goto(base+'maths/hw-02/',{waitUntil:'load'});
-   await maths.locator('.solved-example').first().waitFor({timeout:12000});
-   assert(await maths.locator('.top-links a').first().isVisible(),
-    'MathsVerse must provide a visible back link at '+width);
-   assert(await maths.locator('.solved-step').count()>=25,
-    'MathsVerse must show every worked calculation step '+width);
-   assert(await maths.locator('.nav [data-chapter]').count()===4,
-    'MathsVerse must have only the four learning chapters '+width);
-   assert(await maths.locator('.solved-example').count()===6,
-    'First chapter must show all six worked examples '+width);
-   assert(await maths.locator('.mathcad-sheet,.lab-mode,.boss-problem').count()===0,
-    'MathsVerse must not display game or calculator UI '+width);
-   await check(maths,'MathsVerse Worked Chapter '+width);
-   await maths.locator('.nav [data-chapter="2"]').click();
-   await maths.locator('[id="beispiel-1.66a"]').waitFor();
-   assert(await maths.locator('.solved-example').count()===2,
-    'Both area problems must be fully shown '+width);
-   assert(await maths.locator('.maths-graph-svg').count()>=1,
-    'Area problems must include helpful graphs '+width);
-   await check(maths,'MathsVerse Area Chapter '+width);
-   if(width===390)await maths.screenshot({
-    path:path.join(screenshots,'mathsverse-390.png'),fullPage:true
-   });
-   assert(!errors.length,'MathsVerse JavaScript error '+width+': '+errors.join('; '));
-   await context.close();
-  }
+  // MathsVerse remains a visible locked subject but has no deployable course.
+  const subjectPage=await browser.newPage();
+  await subjectPage.goto(base,{waitUntil:'load'});
+  await subjectPage.getByRole('button',{name:/Lernwelten/i}).first().click();
+  const matTile=subjectPage.locator('.subject-card').filter({hasText:/Mathematik/i}).first();
+  assert(await matTile.count()===1,'MathsVerse subject tile must remain visible');
+  assert(await matTile.locator('button:disabled').count()>=0,'MathsVerse cannot be opened');
+  await subjectPage.close();
   // Global equipment must actually render inside EACH standalone trainer, not
   // merely appear on the Studyverse dashboard where it was equipped.
   for(const [world,url] of [
