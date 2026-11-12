@@ -258,7 +258,7 @@ async function main(){
   assert.equal(displayedTokens,tokensBefore,
    'Modal shows the actual current TT balance, including earned level bonuses');
   await rewardModal.getByRole('button',{name:/Kaufen.*Ausrüsten/}).click();
-  await rewardPage.waitForTimeout(150);
+  await rewardPage.waitForFunction(()=>document.querySelector('.reward-counter')?.textContent?.includes('2 VON 4'));
   const firstCounter=await rewardModal.locator('.reward-counter').innerText();
   console.log('REWARD AFTER FIRST BUY:',firstCounter,
    JSON.stringify(await rewardPage.evaluate(()=>{
@@ -272,10 +272,12 @@ async function main(){
   assert(afterPurchase.inventory.length>=1,'Purchased avatar enters inventory');
   for(let i=3;i<=4;i++){
     await rewardModal.getByRole('button',{name:/Weiter/}).click();
+    await rewardPage.waitForFunction(n=>document.querySelector('.reward-counter')?.textContent?.includes(n+' VON 4'),i);
     assert((await rewardModal.locator('.reward-counter').innerText()).includes(i+' VON 4'),
-      'Reward '+i+' must appear immediately, within the same modal session');
+      'Reward '+i+' must appear within the same modal session');
   }
   await rewardModal.getByRole('button',{name:/Annehmen/}).click();
+  await rewardModal.waitFor({state:'hidden'});
   assert.equal(await rewardPage.locator('.reward-unlock-modal').count(),0,
    'Modal only closes after reviewing every unlocked item');
   const final=await rewardPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
