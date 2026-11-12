@@ -17,7 +17,7 @@ window.MATHSVERSE_GRAPHS=(function(){
   '1.57b':{range:[-0.5,6.8],curves:[['cos(x)','cos(x)']],shade:{from:0,to:2*Math.PI},marks:[0,Math.PI,2*Math.PI],xlabel:'x (Bogenmaß)'},
   '1.58a':{range:[-1.5,1.25],curves:[['5*e^(2*x)','f(x)'],['2.5*e^(2*x)','F(x)']]},
   '1.58b':{range:[-3,7],curves:[['sin(0.5*t+pi/2)','f(t)'],['-2*cos(0.5*t+pi/2)','F(t)']],xlabel:'t'},
-  '1.66a':{range:[-4,3],curves:[['x^2+6*x','f(x)']],shade:{from:-3,to:2},marks:[-3,0,2],note:'Die Teilfläche links von 0 liegt unter der x-Achse: für den Flächeninhalt ihren Betrag nehmen.'},
+  '1.66a':{range:[-7,3],curves:[['x^2+6*x','f(x)']],shade:{from:-3,to:2},marks:[-6,-3,0,2],note:'Die Teilfläche links von 0 liegt unter der x-Achse: für den Flächeninhalt ihren Betrag nehmen.'},
   '1.67a':{range:[-1.3,7.3],curves:[['x^2-3*x-2','f(x)'],['3*x-1','g(x)']],shade:{from:3-Math.sqrt(10),to:3+Math.sqrt(10),between:true},marks:[3-Math.sqrt(10),3+Math.sqrt(10)],note:'Schattiert ist der Bereich zwischen den Schnittpunkten: g(x) liegt hier oberhalb von f(x).'},
   '1.98a':{range:[0,5],curves:[['x^2+4*x-1','f(x)']],shade:{from:1,to:4},marks:[1,4]},
   '1.98b':{range:[-0.15,1.35],curves:[['e^(2*x)','e^(2x)']],shade:{from:0,to:1},marks:[0,1]},
