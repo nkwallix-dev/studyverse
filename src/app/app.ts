@@ -118,6 +118,12 @@ export class App implements OnInit,OnDestroy {
    const uid=this.cloud.session?.uid;
    if(!uid||!this.cloudMaySave)return;
    const check=++this.noticeCheckId;
+   // Preview works immediately even before the new Firestore rules are live.
+   if(new URLSearchParams(window.location.search).get('warningPreview')==='1'&&
+      read('studyverse_fairplay_preview_seen_'+uid)!=='1'){
+     this.moderationNotice=null;this.noticePreview=true;this.noticeError='';
+     this.changeDetector.markForCheck();return;
+   }
    try{
      const notice=await this.cloud.readAccountNotice();
      if(this.cloud.session?.uid!==uid||check!==this.noticeCheckId)return;
@@ -125,10 +131,6 @@ export class App implements OnInit,OnDestroy {
      if(this.cloud.session?.uid!==uid||check!==this.noticeCheckId)return;
      if(notice&&!seen){
        this.moderationNotice=notice;this.noticePreview=false;this.noticeError='';
-     }else if(new URLSearchParams(window.location.search).get('warningPreview')==='1'&&
-       read('studyverse_fairplay_preview_seen_'+uid)!=='1'){
-       // A preview is NOT a real account sanction; it never writes Firestore.
-       this.moderationNotice=null;this.noticePreview=true;this.noticeError='';
      }
    }catch(error){
      // Failing to load the optional moderation UI must not corrupt a save.
