@@ -52,6 +52,8 @@ jobs:
         run: npm --prefix functions run build
       - name: Run security policy unit tests
         run: node --test functions/test/core.test.cjs
+      - name: Validate catalog seeding (strict dry run, NO writes)
+        run: node scripts/seed-server-catalog.cjs --project demo-studyverse-rules
       - name: Ensure both copies of Firestore rules are identical
         run: cmp firestore.rules firebase/firestore.rules
       - name: Run existing Studyverse regression tests
