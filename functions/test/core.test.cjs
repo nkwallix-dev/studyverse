@@ -15,7 +15,7 @@ test('boss credit requires at least 14/20, once, and respects total cap',()=>{
  assert.equal(bossGrant({quizQuestions:0,quizTokens:0,bossTokens:0,totalTokens:600},19,20),0);
 });
 test('nickname scanner handles leet spacing and false-positive safeguards',()=>{
- for(const word of ['n1gg4','n i g g a','H3!L H!TL3R','h.u.r.e.n.s.o.h.n','administrat0r'])assert(isBlockedPublicText(word),word);
+ for(const word of ['n1gg4','n i g g a','H3!L H!TL3R','h.u.r.e.n.s.o.h.n','administrat0r','ＮＩＧＧＡ','nіggа'])assert(isBlockedPublicText(word),word);
  for(const name of ['Niki','Claudia','Karin','Matheprofi','Chemverse Legend','Astronaut'])assert(!isBlockedPublicText(name),name);
 });
 test('untrusted counters are always parsed as nonnegative integers',()=>{
