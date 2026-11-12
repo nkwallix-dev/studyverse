@@ -1,4 +1,53 @@
-# STUDYVERSE – Drops, Level-Items & Tokens
+# Studyverse — Ökonomie der Lernziele & Essentials (November 2026)
+
+## Shop / Inventar — neue verbindliche Logik
+
+- **STUDYVERSE Essentials** sind die **einzigen Items, die TastyTokens kosten**.
+  Sie bleiben durch das globale Profil-Level begrenzt, bis sie kaufbar sind.
+- **Test-Drops** (Chemverse, Dsaiverse, Sharpverse, später weitere Tests) haben
+  `cost:0`, ein **konkretes Lernziel** und werden nach dem Lernziel **gratis abgeholt**.
+  Items werden nicht automatisch verschenkt, nur weil eine Metrik erhöht wurde.
+- Bei einem **neu erreichten** Lernziel erscheint ein Popup mit dem Item:
+  **„Annehmen“** legt es gratis ins Inventar; **„Zeig's mir“** öffnet den
+  passenden Test-Drop im Shop, ohne es bereits zu besitzen.
+- Im Shop sind **niemals bereits besessene Items** sichtbar.
+  Ein Test-Drop erscheint im Dropdown erst, sobald der Account wenigstens
+  eines seiner Items freigeschaltet hat (auch wenn er es bereits besitzt).
+  Auf der Testseite erscheinen sowohl freigeschaltete, noch nicht abgeholte
+  Items als auch gesperrte Items mit Ziel und Fortschritt.
+- Das **Inventar** ist der einzige Ort, an dem besessene Items angezeigt,
+  betrachtet oder ausgerüstet werden. Bereits gekaufte Cosmetics werden **nicht
+  aus dem gespeicherten Profil gelöscht**.
+- Vor diesem Update bereits erfüllte Lernziele sind weiterhin abholbar,
+  erzeugen bei der ersten Anmeldung aber keinen Spam von alten Popups.
+  Die wartende Popup-Liste ist Teil des Cloud-Snapshots.
+
+## MathsVerse
+
+Die alte **2. Hausübungswiederholung** mit ihren bisherigen HTML- und
+JavaScript-Lektionen ist vollständig aus dem öffentlich deployten Katalog
+entfernt. **Mathematik bleibt als gesperrte Lernwelt („Coming Soon“) erhalten**,
+bis der neue Schularbeitsstoff hinzugefügt wird. Die zwei bisherigen Mathe-
+Shop-Items (`maths_avatar_pi`, `maths_title_integral`) sind nicht mehr
+im Katalog enthalten. Bestehende Lernstände/Wallet-Kopien werden nicht
+automatisch verändert oder gelöscht.
+
+## XP, TT und Sicherheitsmigration
+
+**Dieser Umbau verändert keine XP-Formel, Level-Schwellen oder bestehenden
+TT-Verdienstmöglichkeiten.** Die am 12. November erstellten zwölf inaktiven
+Shadow-Wallets werden ebenfalls nicht angerührt. Bestehende Cloud-Accounts
+nutzen vor PR #15 weiterhin das bisherige Cloud-Save-Format.
+Die Shop-Freischaltung benutzt wie bisher den lokalen oder synchronisierten
+Trainerfortschritt. **Das ist noch keine serververifizierte Anti-Cheat-
+Freischaltung.** Die spätere Wallet-Aktivierung muss dieses Belohnungssystem
+mit einem vertrauenswürdigen Backend nachziehen; PR #15 bleibt bis dahin Draft.
+
+---
+
+## Frühere Regeln und Historie
+
+# Historisches Drops-/Token-Modell (vor der Umstellung)
 
 ## Dauerhafte Regel für neue Lernwelten
 Mit **jedem neuen Test-Trainer** kommt ein neuer, eigener kosmetischer **Verse-Drop** in den globalen STUDYVERSE-Item-Shop.
