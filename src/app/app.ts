@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
+import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
 import { StudyverseCloud, CloudSnapshot, PublicPlayer, AccountNotice, CLOUD_DAILY_KEY, cloudError, isAllowedNickname } from './cloud';
 
@@ -559,7 +560,7 @@ export class App implements OnInit,OnDestroy {
 
  get categories(){return ['Alle','Informatik','Naturwissenschaften','Wirtschaft','Gesellschaft','Andere'];}
  get claimed(){return this.ownedCatalogItems.length;}
- get ownedCatalogItems(){return this.items.filter(item=>this.owns(item));}
+ get ownedCatalogItems(){return [...this.items,...LEGACY_OWNED_ITEMS].filter(item=>this.owns(item));}
  get inventoryDrops(){return ['Alle',...new Set(this.ownedCatalogItems.map(item=>item.drop))];}
  get inventoryCategories(){
    return ['Alle',...new Set(this.ownedCatalogItems.filter(item=>this.inventoryDrop==='Alle'||item.drop===this.inventoryDrop).map(item=>item.group))];
@@ -573,7 +574,7 @@ export class App implements OnInit,OnDestroy {
    ).sort((a,b)=>Number(this.active(b))-Number(this.active(a))||a.name.localeCompare(b.name,'de'));
  }
  get inventoryEquippedCount(){return this.ownedCatalogItems.filter(item=>this.active(item)).length;}
- dropLabel(id:string){return this.drops.find(drop=>drop.id===id)?.title||id;}
+ dropLabel(id:string){return this.drops.find(drop=>drop.id===id)?.title||(id==='maths-hw-02'?'MathsVerse · Archiv':id);}
  changeInventoryDrop(id:string){this.inventoryDrop=id;this.inventoryGroup='Alle';}
  setShopTab(tab:'catalog'|'inventory'|'earn'){this.shopTab=tab;this.previewed=null;window.scrollTo({top:0,behavior:'smooth'});}
  openInventory(){this.go('shop');this.setShopTab('inventory');}
@@ -674,7 +675,7 @@ export class App implements OnInit,OnDestroy {
   this.spotlightRewardId=item.id;
   this.save();this.changeDetector.markForCheck();
  }
- get title(){return this.items.find(i=>i.id===this.profile.equipped['title'])?.name || 'Weltenentdecker';}
+ get title(){return [...this.items,...LEGACY_OWNED_ITEMS].find(i=>i.id===this.profile.equipped['title'])?.name || 'Weltenentdecker';}
  get currentTheme(){return this.profile.equipped['theme'] || 'base';}
  // Keep the equipped design on the real homepage; only the modal showcases a candidate item.
  get previewTheme(){return this.currentTheme;}
@@ -692,11 +693,11 @@ export class App implements OnInit,OnDestroy {
  }
  get previewParticleSlots(){return [0,1,2,3,4,5,6,7,8,9,10,11];}
  get currentAvatar(){return this.profile.equipped['avatar'] || '🧪';}
- get unlockedAvatars(){return SHOP_ITEMS.filter(item=>item.group==='avatar'&&this.owns(item));}
- get unlockedTitles(){return SHOP_ITEMS.filter(item=>item.group==='title'&&this.owns(item));}
+ get unlockedAvatars(){return this.ownedCatalogItems.filter(item=>item.group==='avatar');}
+ get unlockedTitles(){return this.ownedCatalogItems.filter(item=>item.group==='title');}
  setProfileTitle(id:string){
    if(id){
-     const item=SHOP_ITEMS.find(x=>x.id===id&&x.group==='title');
+     const item=this.ownedCatalogItems.find(x=>x.id===id&&x.group==='title');
      if(!item||!this.owns(item)){this.alert('Diesen Titel hast du noch nicht freigeschaltet.');return;}
    }
    this.profile.equipped['title']=id||'';
@@ -710,7 +711,7 @@ export class App implements OnInit,OnDestroy {
    if(id==='default'){
      this.profile.equipped['avatar']=defaultEquip().avatar;
    } else {
-     const item=SHOP_ITEMS.find(x=>x.id===id&&x.group==='avatar');
+     const item=this.ownedCatalogItems.find(x=>x.id===id&&x.group==='avatar');
      if(!item||!this.owns(item)){this.alert('Diesen Avatar musst du erst im Item-Shop erhalten.');return;}
      this.profile.equipped['avatar']=item.icon;
    }
