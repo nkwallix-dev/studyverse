@@ -253,13 +253,15 @@ async function main(){
   await rewardModal.waitFor({timeout:10000});
   assert((await rewardModal.locator('.reward-counter').innerText()).includes('1 VON 4'),
    'All four academy milestone rewards must be queued together after one Dsaiverse return');
-  assert((await rewardModal.locator('.reward-wallet').innerText()).includes('1.000'),
-   'Modal shows current TT before purchase');
+  const tokensBefore=await rewardPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens);
+  const displayedTokens=Number((await rewardModal.locator('.reward-wallet').innerText()).replace(/[^0-9]/g,''));
+  assert.equal(displayedTokens,tokensBefore,
+   'Modal shows the actual current TT balance, including earned level bonuses');
   await rewardModal.getByRole('button',{name:/Kaufen.*Ausrüsten/}).click();
   assert((await rewardModal.locator('.reward-counter').innerText()).includes('2 VON 4'),
    'Buying the first reward must advance directly to second, not dismiss the whole batch');
   const afterPurchase=await rewardPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
-  assert.equal(afterPurchase.tokens,910,'Purchase deducts the existing Data-Bot 90 TT exactly once');
+  assert.equal(afterPurchase.tokens,tokensBefore-90,'Purchase deducts the existing Data-Bot 90 TT exactly once');
   assert(afterPurchase.inventory.length>=1,'Purchased avatar enters inventory');
   for(let i=3;i<=4;i++){
     await rewardModal.getByRole('button',{name:/Weiter/}).click();
@@ -270,7 +272,7 @@ async function main(){
   assert.equal(await rewardPage.locator('.reward-unlock-modal').count(),0,
    'Modal only closes after reviewing every unlocked item');
   const final=await rewardPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
-  assert.equal(final.tokens,910,'Skipping the three remaining items must not deduct any tokens');
+  assert.equal(final.tokens,tokensBefore-90,'Skipping the three remaining items must not deduct any tokens');
   assert.equal(final.rewardQueue.length,0,'Entire reward queue acknowledged once');
   await rewardContext.close();
   console.log('PASS: 6 Dsaiverse lessons reveal all four cosmetics in a single buy-or-next carousel.');
