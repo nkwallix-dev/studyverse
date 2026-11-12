@@ -56,6 +56,39 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+
+    // Account-specific sanctions are issued by an administrator, NEVER by
+    // another user or by locally modified JSON.
+    match /accountNotices/{userId} {
+      allow get: if request.auth != null && request.auth.uid == userId;
+      allow list, create, update, delete: if false;
+    }
+
+    // Owner-visible "dismissed" state, not evidence of guilt or a
+    // tamper-proof admission. No automated bans use these acknowledgements.
+    match /accountNoticeAcks/{userId} {
+      allow get: if request.auth != null && request.auth.uid == userId;
+      allow list, delete: if false;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['noticeId','acknowledgedAt'])
+        && request.resource.data.keys().hasAll(['noticeId','acknowledgedAt'])
+        && request.resource.data.noticeId is string
+        && request.resource.data.noticeId.matches('^[a-z0-9][a-z0-9-]{4,79}
+      allow get, list: if request.auth != null;
+      // Only Admin SDK/Cloud Functions with service credentials can write.
+      allow create, update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+)
+        && request.resource.data.acknowledgedAt is timestamp;
+    }
+
     match /verifiedProfiles/{userId} {
       allow get, list: if request.auth != null;
       // Only Admin SDK/Cloud Functions with service credentials can write.
