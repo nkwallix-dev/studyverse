@@ -13,6 +13,9 @@ export interface CloudSnapshot{
   bridge?:unknown;
 }
 export interface PublicPlayer {uid:string;nickname:string;avatar:string;title:string}
+/** Moderator-controlled notice. No client can write or choose who gets one. */
+export interface AccountNotice {id:string;kind:'fairplay-warning'}
+
 interface CloudConfig{apiKey:string;projectId:string}
 export interface CloudSession{uid:string;username:string;idToken:string;refreshToken:string;expiresAt:number}
 interface AuthResult{localId:string;idToken:string;refreshToken:string;expiresIn:string}
@@ -147,6 +150,58 @@ export class StudyverseCloud{
       const result=await response.json() as {error?:{message?:string}};
       throw Error(result.error?.message||'Cloud konnte nicht speichern ('+response.status+').');
     }
+  }
+  /** Read ONLY this authenticated user's moderator-assigned notice.
+   * The string contents of the notice are deliberately fixed in the UI.
+   */
+  async readAccountNotice():Promise<AccountNotice|null>{
+    if(!this.session)throw Error('Bitte zuerst anmelden.');
+    const url=this.documentBase()+'/accountNotices/'+encodeURIComponent(this.session.uid);
+    const response=await fetchCloud(url,{headers:{Authorization:'Bearer '+await this.token()}});
+    if(response.status===404)return null;
+    const body=await response.json() as {
+      fields?:{id?:{stringValue?:string};kind?:{stringValue?:string};active?:{booleanValue?:boolean}};
+      error?:{message?:string}
+    };
+    if(!response.ok)throw Error(body.error?.message||'Verwarnung konnte nicht geladen werden ('+response.status+').');
+    const id=body.fields?.id?.stringValue||'';
+    if(body.fields?.active?.booleanValue!==true||body.fields?.kind?.stringValue!=='fairplay-warning'||
+      !/^[a-z0-9][a-z0-9-]{4,79}$/.test(id))return null;
+    return {id,kind:'fairplay-warning'};
+  }
+  /** The acknowledgement is a display preference, NOT tamperproof evidence
+   * that the user actually read the warning. All enforcement is manual.
+   */
+  async noticeAcknowledged(id:string):Promise<boolean>{
+    if(!this.session)throw Error('Bitte zuerst anmelden.');
+    const url=this.documentBase()+'/accountNoticeAcks/'+encodeURIComponent(this.session.uid);
+    const response=await fetchCloud(url,{headers:{Authorization:'Bearer '+await this.token()}});
+    if(response.status===404)return false;
+    const body=await response.json() as {
+      fields?:{noticeId?:{stringValue?:string}};error?:{message?:string}
+    };
+    if(!response.ok)throw Error(body.error?.message||'Verwarnungsstatus konnte nicht gelesen werden ('+response.status+').');
+    return body.fields?.noticeId?.stringValue===id;
+  }
+  async acknowledgeNotice(id:string):Promise<void>{
+    if(!this.session)throw Error('Bitte zuerst anmelden.');
+    if(!/^[a-z0-9][a-z0-9-]{4,79}$/.test(id))throw Error('Ungültige Verwarnung.');
+    const url=this.documentBase()+'/accountNoticeAcks/'+encodeURIComponent(this.session.uid)+
+      '?updateMask.fieldPaths=noticeId&updateMask.fieldPaths=acknowledgedAt';
+    const response=await fetchCloud(url,{
+      method:'PATCH',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await this.token()},
+      body:JSON.stringify({fields:{noticeId:{stringValue:id},
+        acknowledgedAt:{timestampValue:new Date().toISOString()}}})
+    });
+    if(!response.ok){
+      const body=await response.json() as {error?:{message?:string}};
+      throw Error(body.error?.message||'Verwarnung konnte nicht bestätigt werden ('+response.status+').');
+    }
+  }
+  private documentBase():string{
+    if(!this.session)throw Error('Bitte zuerst anmelden.');
+    return 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(this.settings.projectId)+
+      '/databases/(default)/documents';
   }
   // The friendly players directory is NOT a ranking. No XP, coins, level,
   // total solved or numeric achievements are ever published or read here.
