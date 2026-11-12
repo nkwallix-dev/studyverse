@@ -82,7 +82,7 @@ async function answer(i){
       challengeId:q.id,answer:String(q.choices[choice.optionIndex])});
      if(result.tokensAwarded>0){
       DAILY.claimQuiz(q.subject,q.id.split(":")[1]);
-      toast("✅ +"+result.tokensAwarded+" verifizierte TT!");}
+      toast("✅ +"+result.tokensAwarded+" TT · +"+(result.xpAwarded||0)+" XP verifiziert!");}
      else toast(result.reason==="already-credited-today"?"Diese Frage wurde heute schon vergütet.":"Heute keine weitere Quiz-Gutschrift.");
     }catch(error){toast("⚠ Server-Gutschrift fehlgeschlagen – keine TT gebucht.");console.warn("Verified quiz:",error)}
     finally{run.pending=false;render();}
@@ -103,7 +103,7 @@ async function next(){
      session.pending=true;render();
      try{
       const result=await window.studyverseCallFunction("submitDailyBoss",{answers:session.answers});
-      if(result.tokensAwarded>0){DAILY.claimBoss();toast("👾 +"+result.tokensAwarded+" verifizierte Boss-TT!");}
+      if(result.tokensAwarded>0){DAILY.claimBoss();toast("👾 +"+result.tokensAwarded+" TT · +"+(result.xpAwarded||0)+" XP verifiziert!");}
       else toast("Boss geschafft – heute kein weiterer Bonus.");
      }catch(error){toast("⚠ Boss-Bonus nicht bestätigt.");console.warn("Verified boss:",error)}
      finally{session.pending=false;}
