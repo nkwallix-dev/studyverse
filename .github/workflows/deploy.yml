@@ -59,6 +59,7 @@ jobs:
 
       - name: Test public friends directory and responsive shop/profile UI
         run: node scripts/test-public-profiles.cjs
+          node scripts/test-reward-carousel-and-ranks.cjs
 
       - name: Test account-specific fair-play warning and no automated bans
         run: node scripts/test-account-warning.cjs
