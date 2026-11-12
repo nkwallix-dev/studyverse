@@ -236,9 +236,9 @@ async function main(){
    localStorage.setItem('studyverse_import_prompt_seen_v1','1'));
   await subjectPage.goto(base,{waitUntil:'load'});
   await subjectPage.locator('.navigation button[aria-label="Lernwelten"]').first().click();
-  const matTile=subjectPage.locator('button.subject-card.detailed').filter({hasText:/Mathematik/i}).first();
-  assert(await matTile.count()===1,'MathsVerse subject tile must remain visible');
-  assert(await matTile.isDisabled(),'MathsVerse cannot be opened');
+  const matTile=subjectPage.locator('button.subject-card.detailed[aria-label^="Mathematik"]').first();
+  await matTile.waitFor({state:'visible',timeout:6000});
+  assert(await matTile.isDisabled(),'MathsVerse must remain visible but locked');
   await subjectPage.close();
   // Global equipment must actually render inside EACH standalone trainer, not
   // merely appear on the Studyverse dashboard where it was equipped.
