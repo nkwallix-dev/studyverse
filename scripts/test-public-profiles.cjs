@@ -29,6 +29,10 @@ assert(!html.includes('friends-summary')&&!html.includes('friends-directory-note
  'Friends page removes clutter and manual refresh button');
 assert(html.includes('friends-list')&&html.includes('friend-character'),
  'Friend character cards remain visible');
+assert(/<div class="top-pills">[\s\S]*?class="top-pill token"[\s\S]*?class="top-friends-link"[\s\S]*?class="top-profile-link"/.test(html),
+ 'Friends button must be in the right header between TastyTokens and Mein Profil');
+assert(!/<div class="topbar-left">[\s\S]*?class="top-friends-link"[\s\S]*?<\/div>\s*<div class="top-pills">/.test(html),
+ 'Friends button must not remain among the left breadcrumbs');
 assert(html.includes('player.avatar')&&html.includes('player.title')&&html.includes('player.nickname'),
  'Friends cards keep the avatar, title and name');
 assert(html.includes('SPIELERVERZEICHNIS')&&html.includes('alphabetisch')===false,
