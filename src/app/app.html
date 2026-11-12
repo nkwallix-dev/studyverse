@@ -378,19 +378,20 @@
           <details class="profile-advanced-tools" [open]="!cloudConfigured">
             <summary>⚙️ Erweiterte Datenverwaltung <span>Backups &amp; alte Spielstände</span></summary>
             <div class="profile-advanced-body">
-              <p>Dein angemeldetes Konto speichert Fortschritte automatisch online. Für Notfälle oder ältere Versionen kannst du weiterhin eine Sicherheitskopie exportieren oder einen alten Spielstand importieren.</p>
+              <p>Deine Cloud-Spielstände werden automatisch online synchronisiert. Du kannst eine Sicherheitskopie als JSON exportieren. JSON-Import ist bei Cloud-Accounts aus Sicherheitsgründen deaktiviert, da XP und TastyTokens in solchen Dateien bearbeitbar sind.</p>
               <div class="backup-actions">
                 <button type="button" class="btn secondary" (click)="exportProfile()">⬇️ Sicherheitskopie herunterladen</button>
-                <label class="btn secondary backup-import-button" for="studyverse-backup-import">📂 Alten Spielstand wiederherstellen
+                <label class="btn secondary backup-import-button" *ngIf="canRestoreBackup" for="studyverse-backup-import">📂 Alten Spielstand wiederherstellen
                   <input id="studyverse-backup-import" type="file" accept=".json,application/json" (change)="importFile($event)" hidden>
                 </label>
+                <button type="button" class="btn secondary" *ngIf="hasLocalArchive" (click)="exportLocalArchive()">⬇️ Früheren lokalen Spielstand herunterladen</button>
               </div>
               <div class="legacy-recovery" *ngIf="canImport">
                 <p>Hast du noch einen Chemverse-Spielstand aus einer früheren Version im Browser? Du kannst ihn einmalig übernehmen.</p>
                 <button type="button" class="btn secondary" (click)="importOpen=true">Chemverse-Altstand importieren</button>
               </div>
               <button type="button" class="btn secondary" *ngIf="canUndoRestore" (click)="undoStudyverseRestore()">↶ Letzte Wiederherstellung rückgängig machen</button>
-              <p class="small muted">Beim Import eines Studyverse-Backups wird dein aktueller Stand nach Bestätigung ersetzt und danach mit deinem Onlinekonto synchronisiert. Nutze das nur, wenn du wirklich einen alten Stand wiederherstellen möchtest.</p>
+              <p class="small muted">Offline kannst du eine JSON-Sicherung weiterhin wiederherstellen. Cloud-Accounts übernehmen aus JSON keine XP, TastyTokens oder Cosmetics mehr. Ein archivierter Altstand dient nur als herunterladbare Kopie.</p>
             </div>
           </details></div></div>
           </section>
@@ -416,7 +417,7 @@
     </div>
   </div>
 
-  <div class="veil" *ngIf="intro && (!cloudReady || !cloudConfigured)" role="dialog" aria-modal="true">
+  <div class="veil" *ngIf="intro && cloudReady && !cloudConfigured" role="dialog" aria-modal="true">
     <div class="modal welcome"><div class="modal-symbol">🧪</div><span class="eyebrow">A LEGEND RETURNS</span><h2>Willkommen im <span>STUDYVERSE.</span></h2><p>Du hast schon in CHEMVERSE gelernt? Willst du deinen bisherigen Spielstand mit XP, TT und gekauften Items übernehmen?</p>
       <button class="btn primary full" (click)="startImport()">Ja, CHEMVERSE übertragen ↗</button><button class="btn secondary full" (click)="skipIntro()">Nein, frisch anfangen</button>
       <small>Die Frage erscheint nur beim ersten Aufruf in diesem Browser. Für Notfälle bleibt eine Importmöglichkeit in der erweiterten Datenverwaltung.</small>
@@ -439,16 +440,10 @@
       <input id="cloud-pin" class="cloud-auth-input cloud-pin-input" type="password" inputmode="numeric" pattern="[0-9]{6}" [(ngModel)]="cloudPin" maxlength="6" minlength="6" autocomplete="current-password" placeholder="● ● ● ● ● ●" [disabled]="cloudBusy" (keyup.enter)="submitCloudAccount()">
       <p class="cloud-auth-error" *ngIf="cloudMessage">{{cloudMessage}}</p>
       <button type="button" class="btn primary full" [disabled]="cloudBusy" (click)="submitCloudAccount()">{{cloudBusy?cloudStage:cloudMode==='register'?'🚀 Account erstellen':'↩ Einloggen & Spielstand laden'}}</button>
-      <div class="cloud-auth-import" *ngIf="cloudMode==='register'">
-        <p>Schon einen alten Studyverse- oder Chemverse-Spielstand? Importiere zuerst das Backup, dann erstelle deinen Account.</p>
-        <label class="btn secondary cloud-auth-upload">📦 Alten Spielstand importieren
-          <input type="file" accept=".json,application/json" (change)="importFile($event)" hidden>
-        </label>
-      </div>
-      <small>Deine PIN sollte niemand kennen. Ohne E-Mail-Konto gibt es keine automatische PIN-Wiederherstellung – merk sie dir! Alte JSON-Backups funktionieren weiterhin.</small>
+      <small>Deine PIN sollte niemand kennen. Ohne E-Mail-Konto gibt es keine automatische PIN-Wiederherstellung – merk sie dir! Bei neuen Cloud-Accounts werden lokale JSON-Spielstände nicht als XP oder TT übernommen.</small>
     </div>
   </div>
-  <div class="veil" *ngIf="importOpen" role="dialog" aria-modal="true">
+  <div class="veil" *ngIf="importOpen && canRestoreBackup" role="dialog" aria-modal="true">
     <div class="modal"><div class="modal-symbol">📦</div><span class="eyebrow">SAVE TRANSFER</span><h2>Deinen Fortschritt <span>mitnehmen.</span></h2>
       <p>Hast du einen alten Studyverse- oder Chemverse-Spielstand? Lade die JSON-Datei hoch. Im normalen Alltag wird dein Fortschritt automatisch über dein Onlinekonto synchronisiert.</p>
       <label class="upload">📁 Backup-Datei (.json) auswählen <input type="file" accept=".json,application/json" (change)="importFile($event)"></label>
