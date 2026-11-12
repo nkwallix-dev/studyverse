@@ -16,8 +16,9 @@ if(!Array.isArray(questions)||questions.length<100)throw Error('No daily challen
 const ts=require(require.resolve('typescript',{paths:[path.resolve(__dirname,'..')]}));
 const original=fs.readFileSync(path.resolve(__dirname,'../src/app/shop-items.ts'),'utf8');
 const output=ts.transpileModule(original,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
-const module={exports:{}};vm.runInNewContext(output,{module,exports:module.exports,console});
-const items=module.exports.SHOP_ITEMS;
+const compiledModule={exports:{}};
+vm.runInNewContext(output,{module:compiledModule,exports:compiledModule.exports,console});
+const items=compiledModule.exports.SHOP_ITEMS;
 if(!Array.isArray(items)||items.length<20)throw Error('No shop items found');
 console.log('Questions='+questions.length+' Shop items='+items.length+' mode='+(approved?'WRITE':'DRY RUN'));
 if(!approved){console.log('No Firestore write made. To populate private server catalog add --apply --owner-approved');process.exit(0)}
