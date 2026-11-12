@@ -317,26 +317,25 @@
 
         <ng-container *ngSwitchCase="'friends'">
           <section class="friends-page">
-            <div class="eyebrow">STUDYVERSE COMMUNITY · VERIFIZIERTE SPIELER</div>
+            <div class="eyebrow">STUDYVERSE COMMUNITY · SPIELERVERZEICHNIS</div>
             <div class="friends-heading">
               <div><h1 class="page-title">Deine <span>Freunde.</span></h1>
-                <p class="page-subtitle">Nur serverseitig geprüfte Level erscheinen hier. Ungeprüfte Browser-Spielstände zählen nicht für die Rangliste.</p>
+                <p class="page-subtitle">Hier findest du eure StudyVerse-Accounts mit Character, Anzeigename und Titel. Die Liste ist bewusst keine Level-Rangliste.</p>
               </div>
               <button type="button" class="btn secondary friends-refresh" [disabled]="friendsLoading" (click)="refreshFriends()">↻ Aktualisieren</button>
             </div>
-            <div class="friends-summary"><strong>👥 {{publicPlayers.length}} Spieler</strong><span>Nur verifizierte Level · Keine unbestätigten Browserwerte</span></div>
-            <p class="friends-directory-note">🔒 Sicherheitsupdate: Die bisherige Spielerliste wurde wegen manipulierbarer Level pausiert. Ein neues Ranglistensystem übernimmt nur noch Scores, die ein Server unabhängig geprüft hat. Dein eigener Lernfortschritt, Shop und Cloud-Backups bleiben nutzbar.</p>
+            <div class="friends-summary"><strong>👥 {{publicPlayers.length}} Spieler</strong><span>Alphabetisch sortiert · XP und TastyTokens bleiben privat</span></div>
+            <p class="friends-directory-note">👥 Eure Profile sind wieder sichtbar – ohne leicht fälschbare Level. Den Namen und die Ausstattung kann man selbst ändern; eine echte Highscore-Rangliste kommt erst mit serverseitig geprüften Punkten.</p>
             <div class="friends-loading" *ngIf="friendsLoading">⏳ Spielerliste wird geladen …</div>
             <div class="friends-message" *ngIf="friendsError && !friendsLoading">{{friendsError}}</div>
             <div class="friends-list" *ngIf="!friendsLoading && !friendsError && publicPlayers.length">
-              <article class="friend-card" *ngFor="let player of publicPlayers; let i=index" [class.friend-self]="isOwnPlayer(player)">
-                <span class="friend-rank">#{{i+1}}</span>
+              <article class="friend-card" *ngFor="let player of publicPlayers" [class.friend-self]="isOwnPlayer(player)">
                 <div class="friend-monogram friend-character" [attr.aria-label]="'Character: '+(player.avatar || '🧪')">{{player.avatar || '🧪'}}</div>
                 <div class="friend-name"><strong>{{player.nickname}}</strong><span class="friend-equipped-title">🏅 {{player.title || 'Weltenentdecker'}}</span><small *ngIf="isOwnPlayer(player)">Das bist du ✦</small></div>
-                <div class="friend-level"><small>LEVEL</small><strong>{{player.level}}</strong></div>
+                <div class="friend-social-tag">👤 Spieler</div>
               </article>
             </div>
-            <div class="friends-empty" *ngIf="!friendsLoading && !friendsError && !publicPlayers.length">Noch keine geprüften Ranglisten-Einträge. Die alte Liste wird nicht mehr angezeigt, weil ihre Werte manipulierbar waren.</div>
+            <div class="friends-empty" *ngIf="!friendsLoading && !friendsError && !publicPlayers.length">Noch keine öffentlichen Spielerprofile vorhanden. Neue Spieler erscheinen nach dem Anmelden automatisch.</div>
           </section>
         </ng-container>
         <ng-container *ngSwitchCase="'profile'">
