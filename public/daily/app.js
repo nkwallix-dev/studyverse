@@ -39,7 +39,9 @@ function addTT(amount,label){
 }
 function begin(newMode){
  mode=newMode;history.replaceState(null,"","?mode="+mode);
- session={questions:selectPool(),pos:0,score:0,answered:false,picked:-1,options:[],answers:[],pending:false};
+ const questions=selectPool(newMode==="boss");
+ if(questions.length!==20){toast("Der Fragenpool konnte nicht geladen werden.");return}
+ session={questions,pos:0,score:0,answered:false,picked:-1,options:[],answers:[],pending:false};
  refreshOptions();render();
 }
 function refreshOptions(){if(session&&session.pos<session.questions.length)session.options=shuffledOptions(session.questions[session.pos]);session.answered=false;session.picked=-1}
