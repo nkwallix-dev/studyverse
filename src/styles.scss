@@ -832,3 +832,17 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .moderation-preview .moderation-label,.moderation-preview h2 span{color:#a6e7ff}
 .moderation-preview .moderation-symbol{background:#9bcefa18;border-color:#9bcefa77}
 @media(max-width:520px){.moderation-veil{padding:10px}.moderation-modal{padding:20px 17px;max-height:calc(100dvh - 20px)}.moderation-body{font-size:13px}.moderation-consequence{padding:12px}}
+
+/* Consecutive milestone reveals. This dialog is intentionally not dismissible
+   through a backdrop/close icon; users choose Next or purchase each item. */
+.reward-counter{margin:15px auto 5px;color:#eab7ff;font-size:12px;letter-spacing:2px;font-weight:900;text-align:center}
+.reward-progress-track{height:6px;border-radius:8px;overflow:hidden;background:#393055}
+.reward-progress-track>div{height:100%;border-radius:8px;background:linear-gradient(90deg,#d18bff,#72e8e8);transition:width .25s ease}
+.reward-wallet{padding:12px 15px;border:1px solid #c19cfc66;border-radius:12px;background:#30224d;color:#f9edff;font-size:15px}
+.reward-wallet strong{float:right;color:#ffd275}
+.reward-price-text{margin:8px 0!important;color:#e5c6fe!important}
+.reward-price-text strong{color:#ffd275}
+.reward-help{font-size:12px!important;opacity:.85}
+.reward-unlock-actions{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr)}
+.reward-unlock-actions button{font-size:13px}
+@media(max-width:450px){.reward-unlock-actions{grid-template-columns:1fr}.reward-wallet strong{float:none;display:inline-block;margin-left:8px}}
