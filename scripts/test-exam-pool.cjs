@@ -69,5 +69,8 @@ for(const q of dailyBoss.filter(q=>q.subject==='dsai')){
 // even when the standalone trainer phrases it independently; that daily
 // variant is excluded, which is intentional (e.g. dsai:q67).
 assert(!dailyBoss.some(q=>q.id==='dsai:q67'),'Daily Original-Array wording must not enter the boss');
+for(const id of ['dsai:q79','dsai:q80','dsai:q81','dsai:q82']){
+ assert(!dailyBoss.some(q=>q.id===id),'A boss cannot ask for an output of an undefined NumPy array: '+id);
+}
 console.log('PASS: Dsaiverse exam has '+dsaiExam.length+
  ' safe candidates from all 16 topics, excludes dataset trivia/years, keeps regular learning pool intact.');
