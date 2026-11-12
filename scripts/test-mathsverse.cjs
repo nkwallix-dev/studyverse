@@ -5,16 +5,28 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const dir='public/maths/hw-02/';
 const read=name=>fs.readFileSync(dir+name,'utf8');
 const data=read('data.js'),engine=read('math-engine.js'),graphs=read('graphs.js'),
- lessons=read('solved-lessons.js'),app=read('app.js'),page=read('index.html'),css=read('style.css');
-for(const source of [data,engine,graphs,lessons,app])new Function(source);
-for(const file of ['data.js','math-engine.js','graphs.js','solved-lessons.js','app.js','../../shared/cloud-progress.js','../../shared/verse-cosmetics.js'])
+ lessons=read('solved-lessons.js'),merge=read('pdf-merge.js'),app=read('app.js'),page=read('index.html'),css=read('style.css');
+for(const source of [data,engine,graphs,lessons,merge,app])new Function(source);
+for(const file of ['data.js','math-engine.js','graphs.js','solved-lessons.js','pdf-merge.js','app.js','../../shared/cloud-progress.js','../../shared/verse-cosmetics.js'])
  assert(page.includes('src="'+file+'"'),'Required teaching module not loaded: '+file);
 for(const removed of ['math-canvas.js','math-keyboard.js','workbook.js'])
  assert(!page.includes('src="'+removed+'"'),'Obsolete calculator/trainer module still loaded: '+removed);
 assert(!page.includes('Prüfungssimulation'),'No boss should be advertised in MathsVerse page metadata.');
 const bundle={};
-for(const src of [data,engine,graphs,lessons])vm.runInNewContext(src,{window:bundle,console});
-const D=bundle.MATHSVERSE_DATA,E=bundle.MATHSVERSE_MATH,G=bundle.MATHSVERSE_GRAPHS,L=bundle.MATHSVERSE_SOLUTIONS;
+for(const src of [data,engine,graphs,lessons,merge])vm.runInNewContext(src,{window:bundle,console});
+const D=bundle.MATHSVERSE_DATA,E=bundle.MATHSVERSE_MATH,G=bundle.MATHSVERSE_GRAPHS,L=bundle.MATHSVERSE_SOLUTIONS,P=bundle.MATHSVERSE_PDF_MERGE;
+P.install(L);
+const pdfIds=['1.66a','1.67a','1.98a','1.98b','1.98c','1.98d','1.100-1','1.100-2','1.100-3','1.100-4'];
+assert.deepEqual(Array.from(P.ids).sort(),pdfIds.sort(),'Exactly ten overlapping PDF-backed textbook tasks');
+assert.equal(D.tasks.filter(t=>!P.ids.includes(t.id)).length,8,'The remaining MathsVerse tasks must be preserved');
+for(const id of pdfIds){const l=L.get(id);assert(l.pdf?.pages&&l.pdf.memo,'PDF method and page missing: '+id)}
+for(const id of ['1.55a','1.55b','1.56a','1.56b','1.57a','1.57b','1.58a','1.58b'])assert(!L.get(id).pdf,'Non-overlapping task should not be attributed to PDF: '+id);
+assert(L.get('1.66a').steps.some(s=>s.math.includes('F(−3)')&&s.math.includes('−27/3')),'The PDF explicitly calculates the first negative-limit substitution');
+assert(L.get('1.67a').steps.some(s=>s.math.includes('p = −6, q = −1')),'PDF uses the small p-q formula');
+assert(L.get('1.67a').steps.some(s=>s.math.includes('f(0)')&&s.math.includes('g(0)')),'PDF tests which curve is above at x=0');
+assert(L.get('1.67a').steps.some(s=>s.math.includes('D(6,162)')),'PDF substitutes rounded intersection upper bound');
+assert(L.get('1.98c').steps.some(s=>s.math.includes('14,620')),'PDF evaluates roots to numeric intermediate values');
+assert(L.get('1.100-4').steps.some(s=>s.math.includes('s(14)'))&&L.get('1.100-4').steps.some(s=>s.math.includes('s(14,5)'))&&L.get('1.100-4').steps.some(s=>s.math.includes('s(14,4)')),'Keep PDF numerical trials for drone 200m problem');
 assert.equal(D.exam,'2. Hausübungswiederholung');
 assert.equal(D.tasks.length,18);
 assert.equal(new Set(D.tasks.map(t=>t.id)).size,18);
@@ -84,7 +96,8 @@ for(let i=0;i<D.groups.length;i++){
  assert.equal(headings,number,'Each example needs a complete worked sequence');
  assert(render().includes('AUFGABENSTELLUNG'),'Original task remains visible');
  assert(render().includes('DARAUF ACHTEN')||render().includes('Darauf achten'),'Each example needs a cautionary note');
- if(i===2)assert(render().includes('Schnittpunkte')&&render().includes('maths-graph-svg'),'Area chapter must show intersection graph');
+ if(i===2){assert(render().includes('Schnittpunkte')&&render().includes('maths-graph-svg'),'Area chapter must show intersection graph');assert(render().includes('MIT DER HÜ-WIEDERHOLUNGS-PDF ABGEGLICHEN'),'PDF matched area tasks must be labelled clearly')}
+ if(i===0)assert(render().includes('Zusätzliches MathsVerse-Beispiel'),'Non-PDF tasks must be distinguishable from PDF-supported tasks');
  readChapter();
 }
 const saved=JSON.parse(storage.mathsverse_hw02_v1);
@@ -99,4 +112,4 @@ const q93=dsai.DSAI_QUESTIONS.find(q=>q.id==='q93');
 assert(q93&&q93.question.includes('Jobtitel'),'Preserve the teammate question');
 assert(!q93.code||!q93.code.includes('nunique()'),'DSAIVerse must not reveal the answer above its own quiz');
 assert(q93.choices[q93.answer]==='nunique()','Correct pandas method remains nunique()');
-console.log('MATHSVERSE PASS: 18 long worked examples, 4 chapters, helpful graphs, no quiz or boss, safe existing saves, DSAI answer spoiler removed.');
+console.log('MATHSVERSE PASS: 10 PDF-matched thorough calculation methods + 8 other original lessons, all 18 graph-safe, cloud-save safe, no boss/quiz.');
