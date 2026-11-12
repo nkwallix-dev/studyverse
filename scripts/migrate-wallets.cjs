@@ -61,7 +61,7 @@ const legacyState=data=>{
   fs.writeFileSync(reportPath,JSON.stringify(report,null,2)+'\n',{mode:0o600});
   // Owner-friendly template: every user starts with decision "review".
   // Applying this template without explicit per-user approval is impossible.
-  const templatePath=reportPath.replace(/\\.json$/,'')+'.approvals.template.json';
+  const templatePath=reportPath.replace(/\.json$/,'')+'.approvals.template.json';
   const template={project,reviewed:false,entries:entries.map(x=>({
     uid:x.uid,sourceHash:x.sourceHash,decision:'review',
     tokens:x.tokens,xp:x.xp,inventory:x.inventory,flags:x.flags
