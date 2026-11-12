@@ -18,7 +18,7 @@ if(!project||!/^[a-z][a-z0-9-]{4,60}$/.test(project)||!reportPath||scan===apply)
  console.error('Usage: --scan|--apply --project PROJECT --report FILE [--approvals FILE --confirm-reviewed]');
  process.exit(2);
 }
-initializeApp({credential:applicationDefault(),projectId:project});
+initializeApp({projectId:project,...(process.env.FIRESTORE_EMULATOR_HOST?{}:{credential:applicationDefault()})});
 const db=getFirestore();
 const parse=raw=>{try{return JSON.parse(raw||'{}')}catch{return {}}};
 const sane=n=>Number.isSafeInteger(n)&&n>=0?n:0;
@@ -59,7 +59,16 @@ const legacyState=data=>{
     entries};
   fs.mkdirSync(path.dirname(reportPath),{recursive:true});
   fs.writeFileSync(reportPath,JSON.stringify(report,null,2)+'\n',{mode:0o600});
+  // Owner-friendly template: every user starts with decision "review".
+  // Applying this template without explicit per-user approval is impossible.
+  const templatePath=reportPath.replace(/\\.json$/,'')+'.approvals.template.json';
+  const template={project,reviewed:false,entries:entries.map(x=>({
+    uid:x.uid,sourceHash:x.sourceHash,decision:'review',
+    tokens:x.tokens,xp:x.xp,inventory:x.inventory,flags:x.flags
+  }))};
+  fs.writeFileSync(templatePath,JSON.stringify(template,null,2)+'\n',{mode:0o600});
   console.log('READ-ONLY REPORT: '+reportPath+' (no Firestore writes)');
+  console.log('REVIEW TEMPLATE: '+templatePath+' (mark EVERY entry approve or skip, then reviewed=true)');
   return;
  }
  if(!args.includes('--confirm-reviewed')||!arg('--approvals'))throw Error('Manual approvals and --confirm-reviewed required');
