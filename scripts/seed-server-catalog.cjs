@@ -4,6 +4,8 @@
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const {initializeApp,applicationDefault}=require(require.resolve('firebase-admin/app',{paths:[path.resolve(__dirname,'../functions')]}));
 const {getFirestore,FieldValue}=require(require.resolve('firebase-admin/firestore',{paths:[path.resolve(__dirname,'../functions')]}));
+const {isExamQuestion}=require(path.resolve(__dirname,'../public/shared/exam-question-policy.js'));
+
 const args=process.argv.slice(2),project=args[args.indexOf('--project')+1];
 if(!project||!/^[a-z][a-z0-9-]{4,60}$/.test(project))
  throw Error('Usage: --project studyverse-logins [--apply --owner-approved]');
@@ -26,7 +28,8 @@ if(!approved){console.log('No Firestore write made. To populate private server c
  for(const q of questions){
   if(typeof q.id!=='string'||!/^[-a-z0-9:_]{3,100}$/.test(q.id)||!Array.isArray(q.choices)||
      !Number.isInteger(q.answer)||q.answer<0||q.answer>=q.choices.length)throw Error('Invalid challenge '+q.id);
-  await db.doc('questionBank/'+q.id).set({kind:'quiz',active:true,answer:String(q.choices[q.answer]),
+  await db.doc('questionBank/'+q.id).set({kind:'quiz',active:true,
+    examEligible:isExamQuestion(q),answer:String(q.choices[q.answer]),
     source:q.subject||'unknown',updatedAt:FieldValue.serverTimestamp()},{merge:true});
  }
  for(const item of items){
