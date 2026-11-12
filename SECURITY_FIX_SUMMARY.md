@@ -9,8 +9,9 @@ Do not merge/deploy this branch until the owner has reviewed existing wallets, b
 - `clientStates/{uid}` holds only untrusted practice JSON, nickname and timestamp. Its embedded trainer progress and any nested numeric data have **no wallet authority**.
 - `users/{uid}/wallet/tokens` is the source of truth for verified `tokens`, `xp` and `inventory`, owner-readable, **client-write-denied**.
 - `users/{uid}/verifiedAttempts/*` prevents double awards per UTC day and question; global quota **20 quiz × 25 = 500 TT**, plus one **250 TT** boss reward, maximum **750 TT/UTC day**.
-- Firebase 2nd-gen callable `submitAnswer` and `submitDailyBoss` validate solutions from the private `questionBank` collection and credit the wallet in Firestore transactions.
+- Firebase 2nd-gen callable `submitAnswer` and `submitDailyBoss` validate solutions from the private `questionBank` collection and credit the wallet in Firestore transactions (+10 XP per unique credited quiz answer, +50 XP per credited boss).
 - A client cannot set the reward amount, score, price, XP, or purchase receipt. `purchaseItem` uses server-side `shopCatalog` and canonical wallet.
+- An admin-written `verifiedProfiles/{uid}` projection publishes wallet-derived levels. Old `publicProfiles.level` values are ignored by the ranking; existing friend UI stays intact.
 - Public-profile nickname/title moderation via Firestore trigger corrects bad text and writes a **non-punitive** notice. Existing manual `fairplay-warning` is never overwritten; no automated bans.
 - Website and daily arena read canonical online wallets and request server-side daily TT. Logged-out offline gameplay remains local.
 - One-time scan/approve migration scripts refuse to change pre-existing wallets or stale legacy snapshots.
@@ -21,7 +22,7 @@ Do not merge/deploy this branch until the owner has reviewed existing wallets, b
 
 1. **No real account data has been scanned or migrated.** An owner must review every UID in the generated report. A flagged balance is not automatically evidence of fraud.
 2. Existing trainer **local XP, achievements, imported inventory, Verse-Drop purchases and non-daily rewards are NOT server-verifiable**. Cloud accounts cannot mint those from editable localStorage. Level growth from those sources is paused online until separate authoritative progress endpoints are added. Existing purchases are restored by migration; *new* Verse-Drop purchases are refused online until unlock criteria can be verified by backend.
-3. There is currently **no XP policy in SHOP_ECONOMY.md for the mixed daily arena**. The new daily server reward credits verified TT only and returns `xpAwarded:0`. Do not invent XP payouts without an economy decision.
+3. **New provisional daily XP economy:** +10 verified XP per credited unique daily question and +50 verified XP for the one 14/20 boss per UTC day (max +250 verified XP/day). This is separate from legacy untrusted trainer XP; the proposed values must be reviewed by the project owner before production activation.
 4. Current publicly served `public/daily/questions.js` already contains **correct answers**. The private backend answer collection cannot prove that a caller learned the material; someone can programmatically submit known solutions. The new design prevents 10-million-TT balance edits, repeated awards and arbitrary prices, **not automation within the daily cap**. Truly competitive XP needs private rotating challenges and stronger anti-abuse controls.
 5. The nickname trigger runs **after** Firestore commits, so banned text can briefly appear before correction. The simple normalization patterns are not exhaustive and may need a properly curated multilingual list and appeal path.
 6. **Firebase Functions may require upgrading the Firebase project to the Blaze billing plan.** Verify budget, quotas, IAM roles, and the project's required Firebase/Google APIs first.
