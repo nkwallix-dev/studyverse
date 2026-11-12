@@ -1,0 +1,21 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {renameJson,validDisplay,validLogin,authEmail}=require('./admin-rename-user.cjs');
+const before={version:1,profile:{nickname:'Old name',xp:4274,tokens:13545,
+ inventory:['a','b'],equipped:{title:'cheater'},claimedLevels:{'5':true}},trainers:{chem:{xp:99}}};
+const raw=JSON.stringify(before);
+const after=JSON.parse(renameJson(raw,'Spieler123'));
+assert.equal(after.profile.nickname,'Spieler123');
+assert.equal(after.profile.xp,4274);
+assert.equal(after.profile.tokens,13545);
+assert.deepEqual(after.profile.inventory,['a','b']);
+assert.deepEqual(after.profile.equipped,{title:'cheater'});
+assert.deepEqual(after.trainers,{chem:{xp:99}});
+assert.deepEqual(before,JSON.parse(raw),'Original save must not be mutated');
+assert.equal(validDisplay('Spieler_123'),true);
+assert.equal(validDisplay('Bad\\nName'),false);
+assert.equal(validLogin('spieler123'),true);
+assert.equal(validLogin('no domain!'),false);
+assert.equal(authEmail('spieler123'),'spieler123@accounts.studyverse.example.com');
+assert.throws(()=>renameJson('{broken','Nope'),/Invalid JSON/);
+console.log('PASS: Owner nickname rename preserves tokens, XP, inventory, titles and trainer saves.');
