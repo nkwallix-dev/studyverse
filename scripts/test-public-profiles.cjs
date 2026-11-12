@@ -46,6 +46,17 @@ assert(shopCss.includes('COSMETIC CATEGORY SIGNATURES')&&css.includes('.profile-
  'Other site UI remains unaffected');
 assert(angular.includes('publishFriendCard(')&&angular.includes('this.cloud.publishFriendProfile('),
  'Existing account cards and user cosmetics must sync from the app');
+const registerPath=angular.slice(angular.indexOf('async submitCloudAccount(){'),
+ angular.indexOf('private clearDeviceProgress(){'));
+const afterHydration=registerPath.indexOf("this.cloudHydrating=false;this.cloudBusy=false;this.cloudStage='';");
+const publishes=registerPath.indexOf("void this.publishFriendCard();");
+assert(afterHydration>0&&publishes>afterHydration,
+ 'New registrations and sign-ins must publish their public card AFTER hydration ends');
+assert(registerPath.includes("if(this.cloud.session&&this.cloudMaySave&&this.cloudStatus==='✓ Online gespeichert')"),
+ 'Only a fully saved online account may publish its public social card');
+assert(registerPath.includes("await this.cloud.save(this.cloudSnapshot());"),
+ 'Registration persists the private save before publishing a public card');
+
 assert(angular.includes('void this.publishFriendCard(true)'),
  'Explicit nickname changes must update friends without overriding admin corrections during login');
 const session={uid:'user-123',username:'niko',idToken:'token-123',refreshToken:'refresh-123',expiresAt:Date.now()+3600_000};
