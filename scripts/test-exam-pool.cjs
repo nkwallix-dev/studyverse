@@ -60,9 +60,14 @@ assert(dailyApp.includes('examOnly?bySubject.dsai.filter(eligible):bySubject.dsa
  'Normal daily repetition must retain its complete question pool');
 
 // All sample sets remain mathematically possible.
-for(const q of dsaiExam){
- const dailyCopy=daily.find(d=>d.id==='dsai:'+q.id);
- assert(dailyCopy && isExamQuestion(dailyCopy),'Server daily pool should match the Dsaiverse boss '+q.id);
+for(const q of dailyBoss.filter(q=>q.subject==='dsai')){
+ const original=dsai.find(d=>('dsai:'+d.id)===q.id);
+ assert(original && isExamQuestion(original),
+  'Daily boss must never include an original Dsaiverse question that is not exam-safe '+q.id);
 }
+// The shared Daily questions sometimes explicitly reference an Original-Array
+// even when the standalone trainer phrases it independently; that daily
+// variant is excluded, which is intentional (e.g. dsai:q67).
+assert(!dailyBoss.some(q=>q.id==='dsai:q67'),'Daily Original-Array wording must not enter the boss');
 console.log('PASS: Dsaiverse exam has '+dsaiExam.length+
  ' safe candidates from all 16 topics, excludes dataset trivia/years, keeps regular learning pool intact.');
