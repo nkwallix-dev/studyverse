@@ -12,7 +12,7 @@ export interface CloudSnapshot{
   daily?:unknown;
   bridge?:unknown;
 }
-export interface PublicPlayer {uid:string;nickname:string;avatar:string;title:string}
+export interface PublicPlayer {uid:string;nickname:string;avatar:string;title:string;level:number|null}
 /** Moderator-controlled notice. No client can write or choose who gets one. */
 export interface AccountNotice {id:string;kind:'fairplay-warning'}
 
@@ -203,10 +203,10 @@ export class StudyverseCloud{
     return 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(this.settings.projectId)+
       '/databases/(default)/documents';
   }
-  // The friendly players directory is NOT a ranking. No XP, coins, level,
-  // total solved or numeric achievements are ever published or read here.
-  // Existing /publicProfiles docs may still contain old unverified "level" fields:
-  // ignore them completely and NEVER write them again.
+  // Existing /publicProfiles docs contain historical, UNVERIFIED level values.
+  // Display them provisionally until the backend publishes trusted ranks.
+  // Clients NEVER publish/edit a level here; Firestore rules keep it immutable.
+  // Never trust these historical values for tokens, privileges or purchases.
   private friendDirectoryEndpoint():string{
     if(!this.session)throw Error('Bitte zuerst anmelden.');
     return 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(this.settings.projectId)+
@@ -258,7 +258,7 @@ export class StudyverseCloud{
       const body=await response.json() as {documents?:Array<{name?:string;fields?:{
         nickname?:{stringValue?:string};avatar?:{stringValue?:string};
         title?:{stringValue?:string};selectedTitle?:{stringValue?:string};
-        moderatorTitle?:{stringValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
+        moderatorTitle?:{stringValue?:string};level?:{integerValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
       if(!response.ok)throw Error(body.error?.message||'Freundesliste konnte nicht geladen werden ('+response.status+').');
       for(const doc of body.documents||[]){
         const uid=doc.name?.split('/').pop()||'';
@@ -271,16 +271,20 @@ export class StudyverseCloud{
         // exclusive "Cheater" title, without letting owner edits overwrite it.
         const customLegacy=oldTitle&&oldTitle.toLowerCase()==='cheater'?oldTitle:'';
         const title=moderatorTitle||customLegacy||selectedTitle||oldTitle||'Weltenentdecker';
+        // Read legacy public level as a provisional display value, never as verified XP.
+        const parsedLevel=Number(doc.fields?.level?.integerValue);
+        const level=doc.fields?.level?.integerValue!==undefined &&
+          Number.isSafeInteger(parsedLevel) && parsedLevel>=1?parsedLevel:null;
         if(uid&&isAllowedNickname(nickname)){
           players.push({uid,nickname,avatar:avatar.length<=20?avatar:'🧪',
-            title:title.length<=80?title:'Weltenentdecker'});
+            title:title.length<=80?title:'Weltenentdecker',level});
         }
       }
       next=body.nextPageToken||'';
       if(!next)break;
       if(page===49)throw Error('Spielerliste zu groß. Bitte erneut versuchen.');
     }
-    return players.sort((a,b)=>a.nickname.localeCompare(b.nickname,'de'));
+    return players.sort((a,b)=>(b.level??-1)-(a.level??-1)||a.nickname.localeCompare(b.nickname,'de'));
   }
 
 }

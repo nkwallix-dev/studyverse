@@ -1,5 +1,5 @@
 'use strict';
-/* Social cards may be owner-edited; unverified XP/levels never become ranks. */
+/* Provisional legacy levels may be DISPLAYED but never edited or trusted as verified scores. */
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const ts=require('typescript');
 const source=fs.readFileSync('src/app/cloud.ts','utf8');
@@ -23,8 +23,12 @@ assert(/match \/verifiedProfiles\/\{userId\}\s*\{[\s\S]*?allow get, list: if req
 assert(!angular.includes('publishPlayerProfile('),'No user-supplied level publishing allowed');
 assert(source.includes('documents/publicProfiles')&&!source.includes('documents/verifiedProfiles'),
  'The friends directory must be distinct from the verified ranking system');
-assert(!html.includes('{{player.level}}')&&!html.includes('{{i+1}}'),
- 'No fake levels or rank positions in the friends UI');
+assert(html.includes("player.level === null ? '–' : player.level")&&html.includes('#{{i+1}}'),
+ 'Level and placement return to friends display without claiming verification');
+assert(!html.includes('friends-summary')&&!html.includes('friends-directory-note')&&!html.includes('friends-refresh'),
+ 'Friends page removes clutter and manual refresh button');
+assert(html.includes('friends-list')&&html.includes('friend-character'),
+ 'Friend character cards remain visible');
 assert(html.includes('player.avatar')&&html.includes('player.title')&&html.includes('player.nickname'),
  'Friends cards keep the avatar, title and name');
 assert(html.includes('SPIELERVERZEICHNIS')&&html.includes('alphabetisch')===false,
@@ -94,11 +98,13 @@ assert(!isAllowedNickname('n*gga')&&!isAllowedNickname('n1gga')&&!isAllowedNickn
  await cloud.initialize();
  const entries=await cloud.listPublicProfiles();
  assert.equal(entries.length,4,'Show legitimate names, not one offensive entry');
- assert.equal(entries.map(x=>x.nickname).join(','),'Gwendi,Kogi,Korrigierter Name,Niki',
-  'Friends sort alphabetically instead of by unverified Level');
+ assert.equal(entries.map(x=>x.nickname).join(','),'Kogi,Korrigierter Name,Niki,Gwendi',
+  'Friends sort by historical level descending, not by nickname');
+ assert.equal(entries.map(x=>x.level).join(','),'99999,31,5,3',
+  'Read existing immutable public level only; never source it from localStorage');
  assert.equal(entries.find(x=>x.uid==='user-123').title,'Cheater',
   'Manually awarded special title must survive reopening the friends list');
- assert(!('level' in entries[0]),'PublicPlayer never exposes an unverified level');
+ assert.equal(entries.find(x=>x.uid==='user-123').level,31,'Existing level may be shown as a provisional value');
  await cloud.publishFriendProfile('Altes Profil','🐱','Matheprofi');
  const update=requests.at(-1);
  assert.equal(update.method,'PATCH');
@@ -118,5 +124,5 @@ assert(!isAllowedNickname('n*gga')&&!isAllowedNickname('n1gga')&&!isAllowedNickn
   'New public cards contain no level, XP or token balances');
  assert(!requests.some(x=>x.url.includes('/verifiedProfiles')||x.url.includes('/users/')),
   'Publishing friends never touches competitive scores or private saves');
- console.log('PASS: Friends profiles restored, admin nickname/Cheater title preserved; unverified levels and token values never published.');
+ console.log('PASS: Friends ranking returns from immutable legacy levels; old cosmetics/admin title preserved, no new level writes.');
 })().catch(e=>{console.error(e);process.exitCode=1});
