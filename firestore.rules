@@ -1,15 +1,12 @@
-// StudyVerse security lockdown.
-// CRITICAL: this file must be deployed to Firebase > Firestore Database > Rules.
-// The static website cannot deploy these rules on its own.
+// StudyVerse Firestore rules
+// PRIVATE progress: owner-only saves. Values in /users are UNVERIFIED.
+// FRIENDS: /publicProfiles is an authenticated social directory ONLY.
+// Legacy "level" values remain stored, but owners can neither change them
+// nor copy them into a public ranking. The client NEVER displays old levels.
+// COMPETITIVE RANKS: /verifiedProfiles is writable only by trusted Admin SDK.
 //
-// Private /users saves remain editable by their authenticated owner for backup/sync.
-// Their JSON profile (including XP and TastyTokens) is CLIENT-UNVERIFIED DATA.
-// Never copy those numeric values directly into any public leaderboard.
-//
-// /publicProfiles was an unverified legacy leaderboard. It is now locked.
-// /verifiedProfiles is a separate SERVER-ONLY collection for a future scoring
-// service. Firebase Admin SDK / Cloud Functions bypass Firestore Security Rules
-// and must validate answers, reward idempotency and display names themselves.
+// IMPORTANT: GitHub Pages does NOT deploy this file to Firebase.
+// Publish manually under Firebase Console > Firestore Database > Rules.
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -26,16 +23,42 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // Legacy entries may contain forged XP/levels or offensive nicknames.
-    // Prevent all client reads/writes while admins review existing records.
-    match /publicProfiles/{userId} {
-      allow read, write: if false;
+    function validFriendProfile() {
+      return request.resource.data.keys().hasAll(['nickname', 'avatar', 'selectedTitle', 'updatedAt'])
+        && request.resource.data.nickname is string
+        && request.resource.data.nickname.size() >= 2
+        && request.resource.data.nickname.size() <= 24
+        && request.resource.data.avatar is string
+        && request.resource.data.avatar.size() > 0
+        && request.resource.data.avatar.size() <= 20
+        && request.resource.data.selectedTitle is string
+        && request.resource.data.selectedTitle.size() > 0
+        && request.resource.data.selectedTitle.size() <= 80
+        && request.resource.data.updatedAt is timestamp;
     }
 
-    // Only a trusted backend may create authoritative rankings.
-    // No client, including the owner, can write or forge the verified flag.
+    match /publicProfiles/{userId} {
+      // Read social data only for signed-in classmates.
+      allow get, list: if request.auth != null;
+      // A newly created card may carry only display fields – no XP or level.
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['nickname', 'avatar', 'selectedTitle', 'updatedAt'])
+        && validFriendProfile();
+      // Old public records may still have level/title fields. Those fields
+      // are immutable for clients, preserving moderator edits and blocking
+      // forged level updates through REST requests or imported JSON.
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['nickname', 'avatar', 'selectedTitle', 'updatedAt'])
+        && validFriendProfile();
+      allow delete: if false;
+    }
+
     match /verifiedProfiles/{userId} {
       allow get, list: if request.auth != null;
+      // Only Admin SDK/Cloud Functions with service credentials can write.
       allow create, update, delete: if false;
     }
 
