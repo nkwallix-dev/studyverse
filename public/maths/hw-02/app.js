@@ -7,7 +7,7 @@
  if(!D||!G||!L)throw Error('MathsVerse: Buchaufgaben, Graphen oder ausführliche Lösungen fehlen.');
  const KEY='mathsverse_hw02_v1',PROFILE='studyverse_profile_v1';
  const $=selector=>document.querySelector(selector);
- const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;',"'":'&#39;'}[ch]));
+ const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const read=key=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
  const existing=read(KEY),saved=existing&&typeof existing==='object'?existing:{};
  saved.learned=saved.learned&&typeof saved.learned==='object'?saved.learned:{};
