@@ -63,6 +63,8 @@ export class App implements OnInit,OnDestroy {
  cloudStatus='Lokal'; private cloudTimer:ReturnType<typeof setTimeout>|null=null;
  publicPlayers:PublicPlayer[]=[]; friendsLoading=false; friendsError=''; 
  private cloudWrites:Promise<void>=Promise.resolve();
+ private friendSync:Promise<void>=Promise.resolve();
+ private friendProfileStamp='';
  achievementSubject='Alle';achievementTest='Alle';achievementSort:'open'|'done'|'progress'|'reward'|'title'='open';
  profile:Profile=this.load(); public today=new Date();
  private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.queueCloudSave();};
@@ -105,12 +107,33 @@ export class App implements OnInit,OnDestroy {
    }
    return restored;
  }
- private save(){write(KEY,JSON.stringify(this.profile));this.queueCloudSave();}
+ private save(){write(KEY,JSON.stringify(this.profile));this.queueCloudSave();void this.publishFriendCard();}
  private alert(message:string){this.info=message;}
 
  get cloudUser(){return this.cloud.session?.username||'';}
- // PUBLIC RANKINGS ARE SERVER VERIFIED ONLY. Client-side XP/Tokens
- // are for personal progress, not proof of leaderboard achievement.
+ // Friends directory contains only nickname, avatar and a vanity title.
+ // Published numeric scores are excluded: local XP/TT stay unverified.
+ private publishFriendCard(rename=false):Promise<void>{
+   if(!this.cloudReady||!this.cloudConfigured||!this.cloud.session||
+      !this.cloudMaySave||this.cloudHydrating)return Promise.resolve();
+   const uid=this.cloud.session.uid;
+   const nickname=this.profile.nickname,avatar=this.currentAvatar,title=this.title;
+   if(!isAllowedNickname(nickname))return Promise.resolve();
+   const stamp=uid+'|'+nickname+'|'+avatar+'|'+title;
+   if(!rename&&stamp===this.friendProfileStamp)return this.friendSync;
+   this.friendSync=this.friendSync.catch(()=>{}).then(async()=>{
+     if(this.cloud.session?.uid!==uid||!this.cloudMaySave)return;
+     await this.cloud.publishFriendProfile(nickname,avatar,title,rename);
+     this.friendProfileStamp=stamp;
+   }).catch(error=>{
+     // Directory errors must never prevent saving personal learning progress.
+     if(this.view==='friends'){
+       this.friendsError='Öffentliches Profil konnte nicht synchronisiert werden: '+cloudError(error);
+       this.changeDetector.markForCheck();
+     }
+   });
+   return this.friendSync;
+ }
  async refreshFriends():Promise<void>{
    const uid=this.cloud.session?.uid;
    if(!uid||!this.cloudConfigured){
@@ -121,8 +144,9 @@ export class App implements OnInit,OnDestroy {
    this.friendsLoading=true;this.friendsError='';
    this.changeDetector.markForCheck();
    try{
+     await this.publishFriendCard();
      const entries=await this.cloud.listPublicProfiles();
-     if(this.cloud.session?.uid===uid){this.publicPlayers=entries;this.friendsError=entries.length?'':'Noch keine serverseitig verifizierten Spieler vorhanden. Frühere, ungeprüfte Level werden aus Sicherheitsgründen nicht mehr angezeigt.';}
+     if(this.cloud.session?.uid===uid){this.publicPlayers=entries;this.friendsError='';}
    }catch(error){
      if(this.cloud.session?.uid===uid){
        this.publicPlayers=[];
@@ -221,6 +245,7 @@ export class App implements OnInit,OnDestroy {
    }finally{
      this.cloudConfigured=this.cloud.configured;this.cloudReady=true;
      if(this.cloud.session&&this.cloudMaySave){
+       void this.publishFriendCard();
        this.queueCloudSave();
      }
      this.changeDetector.markForCheck();
@@ -292,6 +317,7 @@ export class App implements OnInit,OnDestroy {
        await this.cloud.save(this.cloudSnapshot());
      }
      this.cloudMaySave=true;this.cloudStatus='✓ Online gespeichert';this.cloudPin='';this.cloudUsername='';
+     void this.publishFriendCard();
      this.cloudMessage='';
    }catch(e){
      this.cloudMessage=cloudError(e);
@@ -325,7 +351,7 @@ export class App implements OnInit,OnDestroy {
      this.alert('Cloud-Speicherung fehlgeschlagen. Exportiere zur Sicherheit ein Backup und versuche es erneut, bevor du dich abmeldest.');
      return;
    }
-   this.cloud.signOut();this.cloudMaySave=false;this.publicPlayers=[];this.friendsError='';this.clearDeviceProgress();
+   this.cloud.signOut();this.cloudMaySave=false;this.publicPlayers=[];this.friendsError='';this.friendProfileStamp='';this.clearDeviceProgress();
    this.profile=initial();this.nicknameEdit=this.profile.nickname;
    this.cloudMode='login';this.cloudStatus='Abgemeldet';this.cloudMessage='';
    this.view='dashboard';this.intro=false;write(INTRO,'1');
@@ -781,7 +807,7 @@ export class App implements OnInit,OnDestroy {
  saveNickname(){
    const name=this.nicknameEdit.trim();
    if(!isAllowedNickname(name)){this.alert('Bitte wähle einen unbedenklichen Anzeigenamen (2–24 Zeichen, ohne Sonderzeichen oder beleidigende Begriffe).');return;}
-   this.profile.nickname=name;this.save();this.alert('Profil aktualisiert.');
+   this.profile.nickname=name;this.save();void this.publishFriendCard(true);this.alert('Profil aktualisiert.');
  }
  exportProfile(){
    // Include the most recent per-test save, not just the global wallet and appearance.
