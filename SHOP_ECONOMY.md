@@ -1,26 +1,28 @@
-# Studyverse — Ökonomie der Lernziele & Essentials (November 2026)
+# Studyverse — Lernziel-Freischaltungen & Token-Shop (November 2026)
 
-## Shop / Inventar — neue verbindliche Logik
+## Shop und Inventar: neues Wirtschaftsmodell
 
-- **STUDYVERSE Essentials** sind die **einzigen Items, die TastyTokens kosten**.
-  Sie bleiben durch das globale Profil-Level begrenzt, bis sie kaufbar sind.
-- **Test-Drops** (Chemverse, Dsaiverse, Sharpverse, später weitere Tests) haben
-  `cost:0`, ein **konkretes Lernziel** und werden nach dem Lernziel **gratis abgeholt**.
-  Items werden nicht automatisch verschenkt, nur weil eine Metrik erhöht wurde.
-- Bei einem **neu erreichten** Lernziel erscheint ein Popup mit dem Item:
-  **„Annehmen“** legt es gratis ins Inventar; **„Zeig's mir“** öffnet den
-  passenden Test-Drop im Shop, ohne es bereits zu besitzen.
-- Im Shop sind **niemals bereits besessene Items** sichtbar.
-  Ein Test-Drop erscheint im Dropdown erst, sobald der Account wenigstens
-  eines seiner Items freigeschaltet hat (auch wenn er es bereits besitzt).
-  Auf der Testseite erscheinen sowohl freigeschaltete, noch nicht abgeholte
-  Items als auch gesperrte Items mit Ziel und Fortschritt.
-- Das **Inventar** ist der einzige Ort, an dem besessene Items angezeigt,
-  betrachtet oder ausgerüstet werden. Bereits gekaufte Cosmetics werden **nicht
-  aus dem gespeicherten Profil gelöscht**.
-- Vor diesem Update bereits erfüllte Lernziele sind weiterhin abholbar,
-  erzeugen bei der ersten Anmeldung aber keinen Spam von alten Popups.
-  Die wartende Popup-Liste ist Teil des Cloud-Snapshots.
+- **ALLE noch nicht gekauften Cosmetics kosten TastyTokens**, auch Test-Items.
+  Die bisherigen Preise, Item-IDs und die XP-/Token-Verdienstregeln bleiben
+  unverändert. Es gibt keine kostenlosen Test-Items.
+- **Essentials** können nach Erreichen des jeweiligen Profil-Levels gekauft
+  werden. **Test-Items** werden erst durch **nachweisbaren Lernfortschritt**
+  im zugehörigen Test **zum Kauf freigeschaltet**.
+- Popup bei einem neuen Lernziel: **„Gegenstand freigeschaltet!“**.
+  **„Annehmen“** bestätigt und schließt nur das Popup (kein Item, kein Tokenabzug).
+  **„Zeig's mir“** öffnet direkt die passende Test-Shop-Seite und zeigt
+  das freigeschaltete Item. Erst ein gesonderter Klick auf **Kaufen** im Shop
+  bezahlt die Tokens und übernimmt das Item ins Inventar.
+- Im Shop sind **nur Items, die noch NICHT im Besitz sind**.
+  Bereits gekaufte Items sind ausschließlich im **Inventar** sichtbar und
+  dort ausrüstbar. Auf einer Test-Shop-Seite sieht man **freigeschaltete**
+  und **gesperrte** Items inklusive Lernziel, Fortschritt und TT-Preis.
+- Der Shop-Dropdown zeigt **Essentials immer**; einen Test nur,
+  nachdem mindestens ein Item in diesem Test freigeschaltet wurde –
+  auch wenn inzwischen schon alle seine Items gekauft wurden.
+- Freigeschaltete Alt-Items bleiben kaufbar, ohne die Nutzer mit vielen
+  rückwirkenden Popups zu nerven. Eine gespeicherte Seen-/Queue-Liste
+  verhindert doppelte Hinweise und überlebt den Cloud-Sync.
 
 ## MathsVerse
 
@@ -45,9 +47,7 @@ mit einem vertrauenswürdigen Backend nachziehen; PR #15 bleibt bis dahin Draft.
 
 ---
 
-## Frühere Regeln und Historie
-
-# Historisches Drops-/Token-Modell (vor der Umstellung)
+## Vorherige Shop-/Economy-Regeln (historischer Kontext)
 
 ## Dauerhafte Regel für neue Lernwelten
 Mit **jedem neuen Test-Trainer** kommt ein neuer, eigener kosmetischer **Verse-Drop** in den globalen STUDYVERSE-Item-Shop.
