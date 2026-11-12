@@ -13,7 +13,7 @@ Do not merge/deploy this branch until the owner has reviewed existing wallets, b
 - A client cannot set the reward amount, score, price, XP, or purchase receipt. `purchaseItem` uses server-side `shopCatalog` and canonical wallet.
 - An admin-written `verifiedProfiles/{uid}` projection publishes wallet-derived levels. Old `publicProfiles.level` values are ignored by the ranking; existing friend UI stays intact.
 - Public-profile nickname/title moderation via Firestore trigger corrects bad text and writes a **non-punitive** notice. Existing manual `fairplay-warning` is never overwritten; no automated bans.
-- Website and daily arena read canonical online wallets and request server-side daily TT. Logged-out offline gameplay remains local.
+- Website, daily arena, Chemverse and Dsaiverse request server-side daily TT/XP for signed-in users. Dsaiverse's 20-question boss is verified; Chemverse's separate 14-question boss is practice-only for cloud accounts (Daily Arena remains the official 20-question boss). Logged-out offline gameplay remains local.
 - One-time scan/approve migration scripts refuse to change pre-existing wallets or stale legacy snapshots.
 - GitHub Actions emulators validate rules, callable rewards and moderation before publication.
 - OIDC/WIF deploy config avoids a long-lived service-account JSON key.
