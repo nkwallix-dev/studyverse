@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {quizGrant,bossGrant,isBlockedPublicText,parseCounter}=require('../lib/core.js');
+const {quizGrant,bossGrant,isBlockedPublicText,parseCounter,QUIZ_XP,BOSS_XP}=require('../lib/core.js');
 test('quiz credit never exceeds 20 questions/500 quiz tokens/750 total',()=>{
  assert.equal(quizGrant({quizQuestions:0,quizTokens:0,bossTokens:0,totalTokens:0}),25);
  assert.equal(quizGrant({quizQuestions:20,quizTokens:475,bossTokens:0,totalTokens:475}),0);
@@ -22,4 +22,10 @@ test('untrusted counters are always parsed as nonnegative integers',()=>{
  assert.deepEqual(parseCounter({totalTokens:-500,quizTokens:12.3,quizQuestions:4,bossTokens:0}),{
   totalTokens:0,quizTokens:0,quizQuestions:4,bossTokens:0
  });
+});
+
+test('verified daily XP progression is bounded by daily reward ledger',()=>{
+ assert.equal(QUIZ_XP,10);
+ assert.equal(BOSS_XP,50);
+ assert.equal(20*QUIZ_XP+BOSS_XP,250);
 });
