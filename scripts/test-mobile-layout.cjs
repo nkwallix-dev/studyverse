@@ -241,7 +241,7 @@ async function main(){
       rewardSeen:{},rewardQueue:[],rewardBatchTotal:0,rewardBatchPosition:0
     }));
     localStorage.setItem('dsai_studyverse_v1',JSON.stringify({
-      xp:180,coins:1000,learned:{a:true,b:true,c:true,d:true,e:true,f:true},
+      xp:180,coins:1000,courseDone:{a:true,b:true,c:true,d:true,e:true,f:true},
       purchased:{},solved:{},earned:{}
     }));
     localStorage.setItem('studyverse_trainer_launch_v2',JSON.stringify({
