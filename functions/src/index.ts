@@ -160,6 +160,26 @@ export const purchaseItem = onCall({region: FUNCTION_REGION}, async request => {
   });
 });
 
+/**
+ * Public ranking is a SERVER projection of the current, owner-approved wallet.
+ * Only the server can write /verifiedProfiles and it never copies legacy
+ * publicProfiles.level (those values could be forged before the security fix).
+ * Re-read the latest wallet to tolerate out-of-order Firestore events.
+ */
+export const publishVerifiedLevel = onDocumentWritten(
+  {document: "users/{uid}/wallet/tokens", region: FUNCTION_REGION}, async event => {
+    const uid = event.params.uid;
+    const wallet = await walletPath(uid).get();
+    const rank = db.doc(`verifiedProfiles/${uid}`);
+    if (!wallet.exists || wallet.data()?.migrationApproved !== true) {
+      await rank.delete();
+      return;
+    }
+    const xp = safeNonNegativeInteger(wallet.data()?.xp);
+    const level = 1 + Math.floor(Math.sqrt(xp / 110));
+    await rank.set({verified: true, level, updatedAt: FieldValue.serverTimestamp()});
+  });
+
 /** Sanitize even direct REST calls; backend moderation is not an automatic ban.
  * A fair-play warning takes precedence and will never be overwritten. */
 export const moderatePublicProfile = onDocumentWritten(
