@@ -32,13 +32,13 @@
         <div class="breadcrumbs"><span>✧</span><span class="top-brand-name">STUDYVERSE</span><span class="slash">/</span>
           <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='earn'?'TastyTokens verdienen':'Item-Shop'):view==='achievements'?'Achievements':view==='friends'?'Freunde':'Mein Profil'}}</strong>
         </div>
-        <button type="button" class="top-friends-link" [class.active]="view==='friends'" (click)="go('friends')" aria-label="Freunde und Spielerliste öffnen" title="Alle Spieler anzeigen">
-          <span>👥</span><span class="top-friends-text">Freunde</span>
-        </button>
       </div>
       <div class="top-pills">
         <div class="top-pill lev"><span>⚡</span> Level {{level}} <div class="tiny-track"><i [style.width.%]="levelProgress"></i></div></div>
         <button class="top-pill token" title="TastyTokens (TT)" (click)="go('shop')"><span>◉</span> {{profile.tokens | number}} TT</button>
+        <button type="button" class="top-friends-link" [class.active]="view==='friends'" (click)="go('friends')" aria-label="Freunde und Spielerliste öffnen" title="Alle Spieler anzeigen">
+          <span>👥</span><span class="top-friends-text">Freunde</span>
+        </button>
         <button type="button" class="top-profile-link" [class.active]="view==='profile'" (click)="go('profile')" aria-label="Mein Profil öffnen" title="Mein Profil">
           <span class="top-profile-avatar">{{currentAvatar}}</span><span class="top-profile-text">Mein Profil</span>
         </button>
