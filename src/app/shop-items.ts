@@ -15,8 +15,8 @@ export const SHOP_DROPS:ShopDrop[]=[
  {id:'pos-pa-01',icon:'♯',title:'Sharpverse · 1. PA',subtitle:'C# · Threads · WPF',description:'Wortspiele, Weltraum-Schafe, spielerische Karten-Banner und Prestige-Items für Code-Versteher.',status:'live'}
 ];
 export const SHOP_ITEMS:ShopItem[]=[
- {id:'maths_avatar_pi',kind:'avatar',icon:'🦊',name:'Pi-Fuchs',cost:85,desc:'Der Mathe-Fuchs für fünf selbst gelöste Aufgaben.',group:'avatar',drop:'maths-hw-02',requirement:{metric:'quiz',value:5}},
- {id:'maths_title_integral',kind:'title',icon:'∑',name:'Integral-Genie',cost:160,desc:'Prestige-Titel für alle 18 gemeisterten MathsVerse-Teilaufgaben.',group:'title',drop:'maths-hw-02',requirement:{metric:'quiz',value:18}},
+ {id:'maths_avatar_pi',kind:'avatar',icon:'🦊',name:'Pi-Fuchs',cost:85,desc:'Mathe-Fuchs nach zwei durchgearbeiteten Lernkapiteln.',group:'avatar',drop:'maths-hw-02',requirement:{metric:'academy',value:2}},
+ {id:'maths_title_integral',kind:'title',icon:'∑',name:'Integral-Genie',cost:160,desc:'Prestige-Titel nach allen vier vollständig durchgearbeiteten Mathekapiteln.',group:'title',drop:'maths-hw-02',requirement:{metric:'academy',value:4}},
 {id:'neon',kind:'theme',icon:'🟢',name:'Toxic Neon',cost:160,desc:'Grün-violette Labornacht. Leuchtet schon beim Anschauen.',group:'theme',bg:'linear-gradient(125deg,#2f104d,#85ff50)',drop:'nawi-test-01',requirement:{metric:'academy',value:3}},
 {id:'pizza',kind:'theme',icon:'🍕',name:'Lehrer-Pizza',cost:230,desc:'Goldgelbe Cheeseboard-Hölle. Wer bestellt den Stoff?',group:'theme',bg:'linear-gradient(125deg,#773420,#ffc778)',drop:'nawi-test-01',requirement:{metric:'academy',value:4}},
 {id:'cosmic',kind:'theme',icon:'🌌',name:'Galaxy',cost:980,desc:'Legendäres galaktisches Theme. Ein teures Prestige-Upgrade für dein gesamtes STUDYVERSE.',group:'theme',bg:'radial-gradient(circle at 70% 40%,#f872e8,#190852 45%,#03031c)',drop:'global',level:20},
