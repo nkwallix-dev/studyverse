@@ -14,6 +14,10 @@ on:
       - 'scripts/show-wallet-summary.cjs'
       - 'scripts/seed-server-catalog.cjs'
       - 'scripts/test-server-question-bank.cjs'
+      - 'scripts/test-exam-pool.cjs'
+      - 'public/shared/exam-question-policy.js'
+      - 'public/daily/questions.js'
+      - 'public/dsai/test-01/questions.js'
       - '.github/workflows/firebase-rules.yml'
   push:
     branches: [main]
@@ -62,6 +66,8 @@ jobs:
         run: node scripts/seed-server-catalog.cjs --project demo-studyverse-rules
       - name: Confirm trainer answers match the private server bank
         run: node scripts/test-server-question-bank.cjs
+      - name: Validate exam-only pool across Daily, Chemverse and Dsaiverse
+        run: node scripts/test-exam-pool.cjs
       - name: Ensure both copies of Firestore rules are identical
         run: cmp firestore.rules firebase/firestore.rules
       - name: Run existing Studyverse regression tests
