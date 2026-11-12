@@ -1,5 +1,15 @@
-// Studyverse Firestore security rules – deploy to Firebase Console > Firestore > Rules.
-// Private saves stay owner-only. Public profiles expose only nickname, level, avatar and selected title.
+// StudyVerse security lockdown.
+// CRITICAL: this file must be deployed to Firebase > Firestore Database > Rules.
+// The static website cannot deploy these rules on its own.
+//
+// Private /users saves remain editable by their authenticated owner for backup/sync.
+// Their JSON profile (including XP and TastyTokens) is CLIENT-UNVERIFIED DATA.
+// Never copy those numeric values directly into any public leaderboard.
+//
+// /publicProfiles was an unverified legacy leaderboard. It is now locked.
+// /verifiedProfiles is a separate SERVER-ONLY collection for a future scoring
+// service. Firebase Admin SDK / Cloud Functions bypass Firestore Security Rules
+// and must validate answers, reward idempotency and display names themselves.
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -15,27 +25,20 @@ service cloud.firestore {
         && request.resource.data.updatedAt is timestamp;
       allow delete: if false;
     }
+
+    // Legacy entries may contain forged XP/levels or offensive nicknames.
+    // Prevent all client reads/writes while admins review existing records.
     match /publicProfiles/{userId} {
-      allow get, list: if request.auth != null;
-      allow create, update: if request.auth != null
-        && request.auth.uid == userId
-        && request.resource.data.keys().hasOnly(['nickname', 'level', 'avatar', 'title', 'updatedAt'])
-        && request.resource.data.keys().hasAll(['nickname', 'level', 'avatar', 'title', 'updatedAt'])
-        && request.resource.data.nickname is string
-        && request.resource.data.nickname.size() > 0
-        && request.resource.data.nickname.size() <= 24
-        && request.resource.data.level is int
-        && request.resource.data.level >= 1
-        && request.resource.data.level <= 100000
-        && request.resource.data.avatar is string
-        && request.resource.data.avatar.size() > 0
-        && request.resource.data.avatar.size() <= 20
-        && request.resource.data.title is string
-        && request.resource.data.title.size() > 0
-        && request.resource.data.title.size() <= 80
-        && request.resource.data.updatedAt is timestamp;
-      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if false;
     }
+
+    // Only a trusted backend may create authoritative rankings.
+    // No client, including the owner, can write or forge the verified flag.
+    match /verifiedProfiles/{userId} {
+      allow get, list: if request.auth != null;
+      allow create, update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
