@@ -234,17 +234,30 @@ export class App implements OnInit,OnDestroy {
  private useCloudSnapshot(snapshot:CloudSnapshot){
    if(!validStudyverse(snapshot.profile))throw Error('Ungültiger Cloud-Spielstand. Der lokale Stand bleibt erhalten.');
    const previous=this.currentBackupSnapshot();
+   // A Verse writes its completed lessons locally before returning here.
+   // Never overwrite that still-pending bridge with an older Cloud snapshot.
+   const pendingBridge=parse(read(BRIDGE));
+   const pendingTrainer=isObj(pendingBridge)
+     ?TRAINERS.find(t=>t.id===pendingBridge['id']&&t.saveKey===pendingBridge['saveKey'])
+     :undefined;
+   const pendingState=pendingTrainer?parse(read(pendingTrainer.saveKey)):null;
+   const remoteTrainer=pendingTrainer?snapshot.trainers[pendingTrainer.id]:null;
+   const preserveReturn=!!pendingTrainer&&isObj(pendingState)
+     &&typeof pendingState['xp']==='number'&&typeof pendingState['coins']==='number'
+     &&(!isObj(remoteTrainer)||safe(pendingState['xp'])>=safe(remoteTrainer['xp']));
    try{
      write(RESTORE,JSON.stringify(previous));
      write(KEY,JSON.stringify(snapshot.profile));
      for(const trainer of TRAINERS){
+       if(preserveReturn&&trainer.id===pendingTrainer?.id)continue;
        const saved=snapshot.trainers[trainer.id];
        if(isObj(saved))write(trainer.saveKey,JSON.stringify(saved));
        else localStorage.removeItem(trainer.saveKey);
      }
      if(snapshot.daily!==undefined)write(CLOUD_DAILY_KEY,JSON.stringify(snapshot.daily));
      else localStorage.removeItem(CLOUD_DAILY_KEY);
-     if(isObj(snapshot.bridge))write(BRIDGE,JSON.stringify(snapshot.bridge));
+     if(preserveReturn)write(BRIDGE,JSON.stringify(pendingBridge));
+     else if(isObj(snapshot.bridge))write(BRIDGE,JSON.stringify(snapshot.bridge));
      else localStorage.removeItem(BRIDGE);
      write(INTRO,'1');
    }catch(e){
