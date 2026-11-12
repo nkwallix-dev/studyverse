@@ -179,12 +179,17 @@ body[data-frame="pixel"] :is(.panel,.hero){border:3px solid #b78aff!important;bo
 
 </style>
 <link rel="stylesheet" href="../../shared/verse-cosmetics.css">
+<link rel="stylesheet" href="../../shared/verse-endgame.css">
 </head>
 <body data-theme="base">
-<div class="app"><aside class="sidebar" id="sidebar">
+<div class="app"><aside class="sidebar verse-chem-sidebar" id="sidebar">
 <div class="brand"><div class="brand-symbol" id="brandAvatar">⚗</div><div><strong>Chemverse</strong><small>1. TEST · NAWI</small></div></div>
 <nav class="nav" id="nav" aria-label="Lernmodi"></nav>
-<div class="side-bottom"><div class="tiny">🧪 Deine Unterrichtsunterlagen · Fortschritt lokal und im Studyverse-Onlinekonto gespeichert</div></div>
+<div class="verse-endgame" id="verseEndgame" aria-label="Endgame">
+  <div class="verse-endgame-title">ENDGAME</div>
+  <button type="button" class="verse-endgame-button" data-nav="boss" aria-label="Chemverse Bosskampf öffnen"><span class="verse-endgame-icon" aria-hidden="true">👹</span><span class="verse-endgame-label">Bosskampf</span></button>
+  <button type="button" class="verse-endgame-button" data-nav="sources" aria-label="Chemverse Quellen öffnen"><span class="verse-endgame-icon" aria-hidden="true">📚</span><span class="verse-endgame-label">Quellen</span></button>
+</div>
 </aside><div class="main"><header class="topbar"><div class="topbar-left"><div class="crumb">Chemverse 1. Test <span style="opacity:.45">/</span> <b id="crumbText">Kommandozentrale</b></div></div><div class="topstats"><a id="returnStudyverse" class="studyverse-return" href="../../" title="Zur Studyverse-Homepage zurückkehren"><span>↩ STUDYVERSE</span></a><a class="studyverse-profile-link" href="../../#profile" title="Mein Profil in Studyverse öffnen"><span id="levelAvatar" aria-hidden="true">🧪</span><span>Mein Profil</span></a></div></header><main id="pages"></main><footer class="footer">Chemverse · Lernhilfe mit lokalem Fortschritt und optionaler Studyverse-Cloud-Synchronisierung · Quellen: deine Unterrichtsunterlagen.</footer></div></div>
 <div id="toastWrap" class="toast-wrap" aria-live="polite"></div>
 <script src="../../shared/daily-rewards.js"></script>
@@ -396,7 +401,7 @@ const SHOP=[
 {id:'effect_coinrain',kind:'extra',icon:'🪙',name:'Coin-Regen',cost:100,level:10,desc:'Nach jeder XP-Belohnung fallen Goldmünzen über den Bildschirm.',group:'fx'},
 {id:'effect_discoin',kind:'extra',icon:'🪩',name:'Disco-Glow',cost:155,level:9,desc:'Dauerhaft pulsierende Topbar-Glows.',group:'fx'}
 ];
-const MENUS=[{group:'HIER FÄNGST DU AN',items:[['home','🏠','Kommandozentrale'],['academy','🎓','Lernakademie · START'],['atlas','🗺️','Nachschlageatlas']]},{group:'ÜBEN NACH DEM LERNEN',items:[['flash','📇','Karteikarten'],['quiz','⚡','Quiz-Arena'],['draw','✍️','Molekül-Werkstatt'],['names','🏷️','Namen-Duell'],['reactions','💥','Reaktionslabor'],['isomers','🪞','Isomerie-Garage']]},{group:'ENDGAME',items:[['boss','👹','Bosskampf'],['sources','📚','Quellen']]},{group:'ZUSATZ · NICHT PFLICHT',items:[['orbit','🪐','Orbital-Kästchen']]}];
+const MENUS=[{group:'HIER FÄNGST DU AN',items:[['home','🏠','Kommandozentrale'],['academy','🎓','Lernakademie · START'],['atlas','🗺️','Nachschlageatlas']]},{group:'ÜBEN NACH DEM LERNEN',items:[['flash','📇','Karteikarten'],['quiz','⚡','Quiz-Arena'],['draw','✍️','Molekül-Werkstatt'],['names','🏷️','Namen-Duell'],['reactions','💥','Reaktionslabor'],['isomers','🪞','Isomerie-Garage']]},{group:'ZUSATZ · NICHT PFLICHT',items:[['orbit','🪐','Orbital-Kästchen']]},{group:'ENDGAME',items:[['boss','👹','Bosskampf'],['sources','📚','Quellen']]}];
 const KEY='chemverse_niklas_v1'; // Gleicher Speicher-Key wie V1: alter Spielstand bleibt erhalten.
 const DEFAULT=()=>({dailyCoin:{date:'',quizIds:[],bossPaid:false},quizAnswerOrders:{},xp:0,coins:0,earned:{},solved:{},mastered:{},learned:{},cards:{},purchased:{},theme:'base',effects:false,title:false,streak:0,lastDay:'',totals:{quiz:0,draw:0,name:0,reaction:0,flash:0,correct:0},combo:0,maxCombo:0,bestBoss:0,bossRuns:0,testDate:'2026-11-10',sound:false,focusCore:true,courseStep:{},courseDone:{},loadout:{atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},claimedLevels:{},economyV3:false});
 let state;try{state={...DEFAULT(),...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){state=DEFAULT()};
@@ -487,7 +492,7 @@ function unlocked(id){switch(id){case'first':return numDone('q')>=1;case'quiz10'
 // Achievements are displayed in Studyverse; never interrupt a Chemverse learning session with badge popups.
 let prevUnlocks={};function checkAchievements(){ACHIEVEMENTS.forEach(([id])=>{if(unlocked(id))prevUnlocks[id]=true})}
 function activatePage(id){if(id==='shop'){location.href=new URL('../../',location.href).href;return}if(id!=='shop'&&shopPreview){shopPreview=null;updateTop()}active=id;renderNav();renderPage();$('#crumbText').textContent=MENUS.flatMap(g=>g.items).find(x=>x[0]===id)?.[2]||'CHEMVERSE';$('#sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'instant'})}
-function renderNav(){const root=$('#nav');root.innerHTML=MENUS.map(g=>`<div class="nav-label">${g.group}</div>${g.items.map(([id,ic,title])=>`<button type="button" data-nav="${id}" class="${id===active?'active':''}"><span class="ico">${ic}</span>${title}${id==='shop'?'<span class="nav-tag">★</span>':''}</button>`).join('')}`).join('');root.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>activatePage(b.dataset.nav))}
+function renderNav(){const root=$('#nav');root.innerHTML=MENUS.filter(g=>g.group!=='ENDGAME').map(g=>`<div class="nav-label">${g.group}</div>${g.items.map(([id,ic,title])=>`<button type="button" data-nav="${id}" class="${id===active?'active':''}"><span class="ico">${ic}</span>${title}${id==='shop'?'<span class="nav-tag">★</span>':''}</button>`).join('')}`).join('');document.querySelectorAll('#sidebar [data-nav]').forEach(b=>{b.classList.toggle('active',b.dataset.nav===active);b.onclick=()=>activatePage(b.dataset.nav)})}
 function view(html){$('#pages').innerHTML=`<section class="page active">${html}</section>`;}
 function head(kicker,title,sub){return `<div class="section-head"><div class="eyebrow">${kicker}</div><h1>${title}</h1><p>${sub}</p></div>`}
 function button(label,fn,cls='btn secondary'){return `<button class="${cls}" data-action="${fn}">${label}</button>`}

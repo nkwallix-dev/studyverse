@@ -207,7 +207,7 @@ function bossEnd(){
 function render(){
  $("crumb").textContent=titles[view]||"Kommandozentrale";
  let selected=view==="lesson"?"academy":view.startsWith("boss")?"boss":view==="result"?run?.mode:view;
- document.querySelectorAll("#nav button[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===selected));
+ document.querySelectorAll("#sidebar button[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===selected));
  $("main").innerHTML=view==="sources"?sources():view==="home"?overview():view==="academy"?academy():view==="atlas"?atlas():view==="lesson"?lesson():view==="boss"?bossIntro():view==="boss-run"?bossPage():view==="boss-result"?bossEnd():view==="result"?endRound():modePage();
 }
 function doAction(action){
@@ -234,7 +234,7 @@ $("main").addEventListener("click",e=>{
  t=e.target.closest("[data-navmain]");if(t){go(t.dataset.navmain);return}
  t=e.target.closest("[data-action]");if(t)doAction(t.dataset.action);
 });
-$("nav").addEventListener("click",e=>{let t=e.target.closest("[data-nav]");if(t)go(t.dataset.nav)});
+$("sidebar").addEventListener("click",e=>{let t=e.target.closest("button[data-nav]");if(t)go(t.dataset.nav)});
 $("mobileMenu").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("sidebar").classList.remove("open")});
 let hash=location.hash.slice(1);if([...allModes,"home","academy","atlas","boss"].includes(hash))go(hash);else render();

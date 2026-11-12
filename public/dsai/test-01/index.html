@@ -1,14 +1,18 @@
 <!doctype html><html lang="de"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101027"><title>Dsaiverse 1. Test · STUDYVERSE</title>
-<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="../../shared/verse-cosmetics.css"></head><body>
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="../../shared/verse-cosmetics.css"><link rel="stylesheet" href="../../shared/verse-endgame.css"></head><body>
 <div class="app" id="app">
-<aside class="sidebar" id="sidebar"><a class="brand" href="../../" title="Zur STUDYVERSE-Homepage"><span class="brand-icon">🤖</span><span><b>Dsaiverse</b><small>1. TEST · DATA SCIENCE & AI</small></span></a>
+<aside class="sidebar verse-compact-at-tablet" style="--verse-endgame-accent:var(--aqua)" id="sidebar"><a class="brand" href="../../" title="Zur STUDYVERSE-Homepage"><span class="brand-icon">🤖</span><span><b>Dsaiverse</b><small>1. TEST · DATA SCIENCE & AI</small></span></a>
 <div class="nav-label">MISSION CONTROL</div><nav id="nav" aria-label="Lernmodi">
 <button data-nav="home">🏠 Kommandozentrale</button><button data-nav="academy">🎓 Von Null lernen</button><button data-nav="atlas">📚 Nachschlageatlas</button>
 <div class="nav-label">TRAININGSBEREICHE</div><button data-nav="quiz">⚡ Quiz-Arena</button><button data-nav="code">🧩 Code-Detective</button><button data-nav="sorter">🗂️ Data-Sorter</button><button data-nav="pipeline">🧭 Pipeline-Puzzle</button><button data-nav="forecast">📈 Festival-Forecast</button>
-<div class="nav-label">ENDGAME</div><button data-nav="boss">👾 Finaler AI-Boss</button><button data-nav="sources">📚 Quellen</button></nav>
-<div class="sidebar-bottom">💾 Dein Fortschritt bleibt gespeichert<br>⚡ XP & 🪙 TastyTokens → STUDYVERSE</div>
+</nav>
+<div class="verse-endgame" id="verseEndgame" aria-label="Endgame">
+  <div class="verse-endgame-title">ENDGAME</div>
+  <button type="button" class="verse-endgame-button" data-nav="boss" aria-label="Finaler AI-Boss"><span class="verse-endgame-icon" aria-hidden="true">👾</span><span class="verse-endgame-label">Finaler AI-Boss</span></button>
+  <button type="button" class="verse-endgame-button" data-nav="sources" aria-label="Quellen"><span class="verse-endgame-icon" aria-hidden="true">📚</span><span class="verse-endgame-label">Quellen</span></button>
+</div>
 </aside>
 <div class="workspace"><header class="topbar"><button class="mobile-menu" id="mobileMenu" aria-label="Menü öffnen">☰</button><span class="crumb">Dsaiverse <span class="slash">/</span> <b id="crumb">Kommandozentrale</b></span>
 <div class="topbar-actions"><a class="back" href="../../" title="Zur Studyverse-Homepage">↩ STUDYVERSE</a><a class="studyverse-profile-link" href="../../#profile" title="Mein Profil in Studyverse öffnen"><span class="avatar" id="avatar">🤖</span><span>Mein Profil</span></a></div></header>
