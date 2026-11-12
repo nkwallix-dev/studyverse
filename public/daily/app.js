@@ -7,10 +7,15 @@ const safe=x=>String(x).replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;
 function read(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch{return null}}
 function write(k,v){localStorage.setItem(k,JSON.stringify(v));window.studyverseCloudTouch?.()}
 function shuffle(list){const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function selectPool(){
- const chem=shuffle(bySubject.chem).slice(0,10);
- const code=shuffle(bySubject.dsai.filter(q=>q.code)).slice(0,3);
- const other=shuffle(bySubject.dsai.filter(q=>!code.includes(q))).slice(0,7);
+function selectPool(examOnly=false){
+ const eligible=window.STUDYVERSE_IS_EXAM_QUESTION;
+ if(examOnly&&typeof eligible!=="function")return [];
+ const chemSource=examOnly?bySubject.chem.filter(eligible):bySubject.chem;
+ const dsaiSource=examOnly?bySubject.dsai.filter(eligible):bySubject.dsai;
+ const chem=shuffle(chemSource).slice(0,10);
+ const code=shuffle(dsaiSource.filter(q=>q.code)).slice(0,3);
+ const other=shuffle(dsaiSource.filter(q=>!code.includes(q))).slice(0,7);
+ if(chem.length!==10||code.length!==3||other.length!==7)return [];
  return shuffle([...chem,...code,...other]);
 }
 function shuffledOptions(q){
