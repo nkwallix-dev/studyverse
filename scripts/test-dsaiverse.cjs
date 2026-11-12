@@ -13,6 +13,11 @@ assert.equal(C.lessons.length,16);
 assert.equal(Q.length,106);
 assert.equal(new Set(Q.map(q=>q.id)).size,Q.length,'Unique question IDs required');
 assert.equal(Q.filter(q=>q.code).length,23,'Expected the uploaded notebooks to drive 23 code-recognition questions');
+const pandasUnique=Q.find(q=>q.id==='q93');
+assert(pandasUnique&&pandasUnique.choices[pandasUnique.answer]==='nunique()',
+ 'Pandas nunique() must remain the correct solution to counting distinct titles');
+assert.equal(pandasUnique.code,"sal['JobTitle']",
+ 'Do not display the exact nunique() answer above the multiple-choice question');
 for(const l of C.lessons){
  assert(Q.some(q=>q.topic===l.id),'All learning lessons require a checkpoint question: '+l.id);
  assert(l.blocks.length>=3&&l.example&&l.source,'Each lesson needs examples and source: '+l.id);
