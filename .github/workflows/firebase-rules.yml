@@ -97,7 +97,7 @@ jobs:
       - name: Authenticate with Google Cloud OIDC (no long-lived keys)
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/916049777071/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          workload_identity_provider: projects/916949777071/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: studyverse-github-deploy@studyverse-logins.iam.gserviceaccount.com
           project_id: studyverse-logins
       - name: Publish server rules and callable functions
