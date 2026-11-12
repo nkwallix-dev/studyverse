@@ -226,10 +226,38 @@ export class App implements OnInit,OnDestroy {
      this.changeDetector.markForCheck();
    }
  }
+ private freshCloudAccount(){
+   // Client-editable browser progress is never a valid initial cloud balance.
+   const existing=this.currentBackupSnapshot();
+   const hasLocal=this.profile.xp>0||this.profile.tokens>0||this.profile.inventory.length>0
+     ||TRAINERS.some(t=>isObj(parse(read(t.saveKey))));
+   if(hasLocal)
+     write(LOCAL_ARCHIVE,JSON.stringify({savedAt:new Date().toISOString(),profile:existing.profile,trainers:existing.trainers}));
+   this.clearDeviceProgress();
+   this.profile=initial();
+   if(this.cloud.session?.username)this.profile.nickname=this.cloud.session.username;
+   this.nicknameEdit=this.profile.nickname;
+   write(KEY,JSON.stringify(this.profile));
+   this.intro=false;write(INTRO,'1');
+ }
+ get hasLocalArchive(){return isObj(parse(read(LOCAL_ARCHIVE)));}
+ exportLocalArchive(){
+   const backup=read(LOCAL_ARCHIVE);
+   if(!backup){this.alert('Kein früherer lokaler Spielstand archiviert.');return;}
+   const blob=new Blob([backup],{type:'application/json'});
+   const url=URL.createObjectURL(blob),link=document.createElement('a');
+   link.href=url;link.download='studyverse-alter-lokaler-spielstand.json';link.click();
+   URL.revokeObjectURL(url);
+ }
  async submitCloudAccount(){
    if(this.cloudBusy)return;
-   this.cloudBusy=true;this.cloudMessage='';this.cloudHydrating=true;this.cloudMaySave=false;
    const registering=this.cloudMode==='register';
+   const offlineProgress=this.profile.xp>0||this.profile.tokens>0||this.profile.inventory.length>0
+     ||TRAINERS.some(t=>isObj(parse(read(t.saveKey))));
+   if(registering&&offlineProgress&&!window.confirm(
+      'Sicherheitsupdate: Neue Cloud-Accounts starten mit 0 XP und 0 TastyTokens. Dein bisheriger lokaler Stand wird als Offline-Archiv gesichert, aber nicht hochgeladen. Möchtest du fortfahren?'
+   ))return;
+   this.cloudBusy=true;this.cloudMessage='';this.cloudHydrating=true;this.cloudMaySave=false;
    let authenticated=false;
    try{
      if(registering){
@@ -238,13 +266,8 @@ export class App implements OnInit,OnDestroy {
        authenticated=true;
        this.cloudStage='Spielstand wird online gespeichert …';
        this.changeDetector.markForCheck();
-       // Every NEW cloud account gets its short Studyverse login name as the
-       // initial public display nickname. Existing accounts' chosen names stay.
-       // Use session.username (e.g. "test"), never a generated auth email address.
-       if(this.cloud.session?.username)
-         this.profile.nickname=this.cloud.session.username;
-       this.nicknameEdit=this.profile.nickname;
-       this.intro=false;write(INTRO,'1');
+       // A new online account must not inherit altered localStorage/JSON values.
+       this.freshCloudAccount();
        await this.cloud.save(this.cloudSnapshot());
      }else{
        this.cloudStage='Anmeldedaten werden geprüft …';
@@ -255,13 +278,10 @@ export class App implements OnInit,OnDestroy {
        const remote=await this.cloud.load();
        if(remote)this.useCloudSnapshot(remote);
        else {
-         const hasLocal=this.profile.xp>0||this.profile.tokens>0||this.profile.inventory.length>0;
-         const keep=hasLocal&&window.confirm('Dieses Onlinekonto hat noch keinen Spielstand. Den lokalen Stand auf dieses Konto hochladen?');
-         if(!keep){
-           this.clearDeviceProgress();
-           this.profile=initial();this.nicknameEdit=this.profile.nickname;
-           write(KEY,JSON.stringify(this.profile));
-         }
+         // Existing credentials without a saved server profile are also new;
+         // never seed them from an editable offline snapshot.
+         this.freshCloudAccount();
+         this.alert('🔒 Neues Cloud-Profil startet mit 0 XP/TT. Der vorherige Browser-Spielstand wurde nur lokal archiviert.');
          await this.cloud.save(this.cloudSnapshot());
        }
      }
