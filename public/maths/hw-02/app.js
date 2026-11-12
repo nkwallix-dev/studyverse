@@ -30,7 +30,7 @@
     '<span>'+esc(g.icon)+'</span><span>'+esc(g.name)+'</span>'+
     (saved.learned[g.name]?'<span class="chapter-nav-check" aria-label="Bereits gelesen">✓</span>':'')+'</button>').join('')+
    '</nav><div class="side-foot"><span>📖 18 vollständig gelöste Aufgaben</span>'+
-   '<small>Keine Quizfragen · kein Bosskampf · nur Rechenwege und Erklärungen</small>'+
+   '<small>Vier Kapitel · 18 Musterlösungen · alle Rechenschritte erklärt</small>'+
    '<a href="../../">↩ StudyVerse-Zentrale</a></div></aside>';
  }
  function graph(task){
@@ -73,7 +73,7 @@
    '<span>'+esc(g.name)+'</span></div><div class="solved-index-items">'+
    tasks.map(t=>'<a href="#beispiel-'+esc(t.id)+'"><b>'+esc(titleFor(t.id))+'</b><small>'+esc(t.prompt)+'</small><span>↘</span></a>').join('')+'</div></section>'+
    tasks.map(problem).join('')+
-   '<div class="solved-chapter-bottom"><div><h3>Kapitel durchgearbeitet?</h3><p>Du kannst das Kapitel als gelesen markieren. Das ist keine Prüfung und hat keinen Bosskampf.</p></div>'+
+   '<div class="solved-chapter-bottom"><div><h3>Kapitel durchgearbeitet?</h3><p>Du kannst das Kapitel als gelesen markieren. Die ausführlichen Beispiele bleiben jederzeit verfügbar.</p></div>'+
    '<button class="'+(finished?'secondary':'primary')+'" type="button" data-read-chapter="'+chapterIndex+'">'+
    (finished?'✓ Kapitel gelesen':'✓ Als gelesen markieren')+'</button></div>'+
    '<nav class="solved-chapter-next" aria-label="Zwischen Lernkapiteln wechseln">'+
