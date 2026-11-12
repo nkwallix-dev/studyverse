@@ -8,10 +8,8 @@ The workflow `.github/workflows/firebase-rules.yml` validates on pull requests a
 
 1. In Google Cloud, create a dedicated deploy service account and assign the least-privileged role for publishing Firestore rules, `roles/firebaserules.admin`, on the project. Do **not** create/download a service-account JSON key.
 2. Configure a Workload Identity Federation pool and OIDC provider for GitHub Actions (`https://token.actions.githubusercontent.com`), strictly restricted to repository `nkwallix-dev/studyverse` and preferably `refs/heads/main`. Allow the federated principal to impersonate only this deploy account via `roles/iam.workloadIdentityUser`.
-3. Under GitHub repository **Settings → Secrets and variables → Actions → Variables**, create:
-   - `FIREBASE_WIF_PROVIDER`: full provider resource name (`projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL/providers/PROVIDER`)
-   - `FIREBASE_DEPLOY_SA`: email of the dedicated deploy service account
-4. Merge the PR after review. The workflow runs tests and checks rules syntax with the Firebase emulator. The publish job is **skipped** when either variable is missing. When configured, re-run the workflow manually or push a rules change to `main` to publish.
+3. GitHub Actions is already configured with the non-secret Workload Identity Provider `projects/916049777071/locations/global/workloadIdentityPools/github-pool/providers/github-provider` and service account `studyverse-github-deploy@studyverse-logins.iam.gserviceaccount.com`. **No `FIREBASE_TOKEN`, `FIREBASE_WIF_PROVIDER` or `FIREBASE_DEPLOY_SA` GitHub secret/variable is required.**
+4. Confirm the provider's repository/branch restrictions and the service account's IAM binding (`roles/iam.workloadIdentityUser`); then merge the PR after review. GitHub Actions authenticates using `google-github-actions/auth@v2` and `id-token: write`. The deploy job only runs on `main` after validation.
 5. Check the **Publish Firestore rules only** job result in GitHub Actions and verify the expected rules in Firebase Console. Any future Firebase Console edits might be overwritten by the next git deployment.
 
 Keep both `firestore.rules` and `firebase/firestore.rules` identical. Existing Studyverse tests require this. The CLI uses the root `firestore.rules`. A future migration can remove the duplicate file once the tests are updated.
