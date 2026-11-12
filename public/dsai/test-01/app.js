@@ -16,8 +16,52 @@ function toast(t){let e=$("toast");e.textContent=t;e.classList.add("show");clear
 function date(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function daily(){if(s.dailyCoin?.date!==date())s.dailyCoin={date:date(),quizIds:[],bossPaid:false};return s.dailyCoin}
 function payFirst(id,xp,tt){if(s.solved[id])return false;s.solved[id]=true;s.xp+=xp;s.coins+=tt;store();toast(`✨ Erstmals geschafft: +${xp} XP · +${tt} TT`);return true}
-function payDailyQuiz(id){let d=daily();if(!Array.isArray(d.quizIds))d.quizIds=[];if(d.quizIds.includes(id)||d.quizIds.length>=20)return;if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimQuiz('dsai',id))return;d.quizIds.push(id);s.coins+=25;store();toast(`🪙 Tägliche Quizbelohnung: +25 TT (${d.quizIds.length}/20)`)}
-function payDailyBoss(p){let d=daily();if(p<70||d.bossPaid)return;if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimBoss())return;d.bossPaid=true;s.coins+=250;store();toast("🪙 Tagesboss geschafft: +250 TT")}
+function isVerifiedCloudPlayer(){
+ const session=load("studyverse_cloud_session_v1");
+ return !!(session?.uid&&session?.refreshToken);
+}
+function payDailyQuiz(id){
+ if(isVerifiedCloudPlayer()){
+  const q=Q.find(x=>x.id===id);
+  if(!q||typeof window.studyverseCallFunction!=="function"){
+   toast("⚠ Verifizierte Quizbelohnung nicht verfügbar.");return;
+  }
+  // Never mint TT or XP in localStorage for authenticated accounts.
+  void window.studyverseCallFunction("submitAnswer",{
+    challengeId:"dsai:"+id,answer:String(q.choices[q.answer])
+  }).then(result=>{
+    if(result.tokensAwarded>0){
+      const d=daily();if(!d.quizIds.includes(id))d.quizIds.push(id);store();
+      toast("🛡️ +"+result.tokensAwarded+" TT · +"+result.xpAwarded+" XP bestätigt");
+    }else toast("Heute keine zusätzliche verifizierte Quizbelohnung.");
+  }).catch(error=>{console.warn("DSAI verification",error);toast("⚠ Quiz-Cloudbelohnung fehlgeschlagen.");});
+  return;
+ }
+ let d=daily();if(!Array.isArray(d.quizIds))d.quizIds=[];
+ if(d.quizIds.includes(id)||d.quizIds.length>=20)return;
+ if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimQuiz('dsai',id))return;
+ d.quizIds.push(id);s.coins+=25;store();toast(`🪙 Tägliche Quizbelohnung: +25 TT (${d.quizIds.length}/20)`);
+}
+function payDailyBoss(p){
+ if(p<70)return;
+ if(isVerifiedCloudPlayer()){
+   if(!Array.isArray(run?.bossAnswers)||run.bossAnswers.length!==20||
+      typeof window.studyverseCallFunction!=="function"){
+     toast("⚠ Verifizierte Bossbelohnung nicht verfügbar.");return;
+   }
+   void window.studyverseCallFunction("submitDailyBoss",{answers:run.bossAnswers})
+      .then(result=>{
+        if(result.tokensAwarded>0){
+          const d=daily();d.bossPaid=true;store();
+          toast("👑 +"+result.tokensAwarded+" TT · +"+result.xpAwarded+" XP bestätigt");
+        }else toast("Heute keine weitere verifizierte Bossbelohnung.");
+      }).catch(error=>{console.warn("DSAI boss verification",error);toast("⚠ Boss-Cloudbelohnung fehlgeschlagen.");});
+   return;
+ }
+ let d=daily();if(d.bossPaid)return;
+ if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimBoss())return;
+ d.bossPaid=true;s.coins+=250;store();toast("🪙 Tagesboss geschafft: +250 TT");
+}
 function ids(mode){return mode==="quiz"?Q.map(x=>x.id):mode==="code"?CODE.map(x=>"d"+x.id):mode==="sorter"?C.sort.map(x=>x.id):mode==="pipeline"?C.pipelines.map(x=>"p"+x.id):mode==="forecast"?FORE.map(x=>x.id):[]}
 function progress(mode){let a=ids(mode),done=a.filter(x=>s.solved[x]).length;return {total:a.length,done,left:a.length-done}}
 function learned(){return C.lessons.filter(l=>s.courseDone[l.id]).length}
@@ -171,7 +215,7 @@ function bossIntro(){
 function startBoss(){
  const primary=C.lessons.map(l=>shuffle(Q.filter(q=>q.topic===l.id))[0]).filter(Boolean);
  const chosen=shuffle([...primary,...shuffle(Q.filter(q=>!primary.includes(q))).slice(0,Math.max(0,20-primary.length))]).map(q=>q.id);
- run={mode:"boss",focus:false,items:chosen,at:0,step:0,answered:false,picked:-1,correct:false,right:0,prompt:null};
+ run={mode:"boss",focus:false,items:chosen,at:0,step:0,answered:false,picked:-1,correct:false,right:0,prompt:null,bossAnswers:[]};
  view="boss-run";prepare();render();window.scrollTo(0,0)
 }
 function bossPage(){
@@ -183,6 +227,7 @@ function bossPage(){
 function bossAnswer(i){
  if(view!=="boss-run"||run.answered||!run.prompt.opts[i])return;
  run.answered=true;run.picked=i;run.correct=run.prompt.opts[i].correct;
+ run.bossAnswers.push({challengeId:"dsai:"+run.items[run.at],answer:String(run.prompt.opts[i].text)});
  if(run.correct){run.right++;s.combo++;s.maxCombo=Math.max(s.maxCombo||0,s.combo)}else s.combo=0;
  store();render();
 }
