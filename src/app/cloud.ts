@@ -48,13 +48,13 @@ export function cloudError(error:unknown):string{
  * this filter to establish server-authoritative scores. */
 export function isAllowedNickname(value:string):boolean{
   const name=value.trim();
-  if(name.length<2||name.length>24||/[\\u0000-\\u001f\\u007f]/.test(name))return false;
-  if(!/^[\\p{L}\\p{N} _.-]+$/u.test(name))return false;
+  if(name.length<2||name.length>24||/[\u0000-\u001f\u007f]/.test(name))return false;
+  if(!/^[\p{L}\p{N} _.-]+$/u.test(name))return false;
   const normalized=name.normalize('NFKD').toLowerCase()
     .replace(/[4@]/g,'a').replace(/3/g,'e').replace(/[1!|]/g,'i')
     .replace(/0/g,'o').replace(/9/g,'g').replace(/[^a-z]/g,'');
   if(/n(?:i)?gg(?:a|e|er|ers)/.test(normalized))return false;
-  if(/^(admin|administrator|moderator|support|stud yverse)$/.test(normalized))return false;
+  if(/^(admin|administrator|moderator|support|studyverse)$/.test(normalized))return false;
   return true;
 }
 export class StudyverseCloud{
