@@ -100,7 +100,7 @@ assert(!isAllowedNickname('n*gga')&&!isAllowedNickname('n1gga')&&!isAllowedNickn
  assert.equal(entries.length,4,'Show legitimate names, not one offensive entry');
  assert.equal(entries.map(x=>x.nickname).join(','),'Kogi,Korrigierter Name,Niki,Gwendi',
   'Friends sort by historical level descending, not by nickname');
- assert.deepEqual(entries.map(x=>x.level),[99999,31,5,3],
+ assert.equal(entries.map(x=>x.level).join(','),'99999,31,5,3',
   'Read existing immutable public level only; never source it from localStorage');
  assert.equal(entries.find(x=>x.uid==='user-123').title,'Cheater',
   'Manually awarded special title must survive reopening the friends list');
