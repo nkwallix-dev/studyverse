@@ -230,6 +230,10 @@ async function main(){
   }
   // MathsVerse remains a visible locked subject but has no deployable course.
   const subjectPage=await browser.newPage();
+  // Same initialized test profile as the main mobile sweep. Otherwise the
+  // first-run import welcome dialog correctly blocks navigation clicks.
+  await subjectPage.addInitScript(()=>
+   localStorage.setItem('studyverse_import_prompt_seen_v1','1'));
   await subjectPage.goto(base,{waitUntil:'load'});
   await subjectPage.locator('.navigation button[aria-label="Lernwelten"]').first().click();
   const matTile=subjectPage.locator('button.subject-card.detailed').filter({hasText:/Mathematik/i}).first();
