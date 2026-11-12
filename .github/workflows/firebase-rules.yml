@@ -54,6 +54,19 @@ jobs:
         run: node --test functions/test/core.test.cjs
       - name: Ensure both copies of Firestore rules are identical
         run: cmp firestore.rules firebase/firestore.rules
+      - name: Run existing Studyverse regression tests
+        run: |
+          node scripts/test-chemverse.cjs
+          node scripts/test-dsaiverse.cjs
+          node scripts/test-sharpverse.cjs
+          node scripts/test-mathsverse.cjs
+          node scripts/test-save-transfer.cjs
+          node scripts/test-shop-preview.cjs
+          node scripts/test-daily.cjs
+          node scripts/test-cloud-sync.cjs
+          node scripts/test-public-profiles.cjs
+          node scripts/test-account-warning.cjs
+          node scripts/test-build-cloud-config.cjs
       - name: Validate Angular compatibility
         run: npm run build -- --base-href /studyverse/
       - name: Run actual Firestore, Auth and Functions emulator integration tests
