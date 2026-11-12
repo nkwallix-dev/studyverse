@@ -317,15 +317,15 @@
 
         <ng-container *ngSwitchCase="'friends'">
           <section class="friends-page">
-            <div class="eyebrow">STUDYVERSE COMMUNITY · SPIELERLISTE</div>
+            <div class="eyebrow">STUDYVERSE COMMUNITY · VERIFIZIERTE SPIELER</div>
             <div class="friends-heading">
               <div><h1 class="page-title">Deine <span>Freunde.</span></h1>
-                <p class="page-subtitle">Alle Studyverse-Spieler auf einen Blick – nur Anzeigename und Level, ohne Freundschaftsanfragen.</p>
+                <p class="page-subtitle">Nur serverseitig geprüfte Level erscheinen hier. Ungeprüfte Browser-Spielstände zählen nicht für die Rangliste.</p>
               </div>
               <button type="button" class="btn secondary friends-refresh" [disabled]="friendsLoading" (click)="refreshFriends()">↻ Aktualisieren</button>
             </div>
-            <div class="friends-summary"><strong>👥 {{publicPlayers.length}} Spieler</strong><span>Nach Level sortiert · Kein Login-Name und kein privater Spielstand</span></div>
-            <p class="friends-directory-note">Schon länger registriert? Bestehende Spieler erscheinen automatisch, sobald sie Studyverse mit der aktuellen Version erneut öffnen. Anzeigename, Level, ausgerüsteter Character und ausgewählter Titel kommen aus „Mein Profil“.</p>
+            <div class="friends-summary"><strong>👥 {{publicPlayers.length}} Spieler</strong><span>Nur verifizierte Level · Keine unbestätigten Browserwerte</span></div>
+            <p class="friends-directory-note">🔒 Sicherheitsupdate: Die bisherige Spielerliste wurde wegen manipulierbarer Level pausiert. Ein neues Ranglistensystem übernimmt nur noch Scores, die ein Server unabhängig geprüft hat. Dein eigener Lernfortschritt, Shop und Cloud-Backups bleiben nutzbar.</p>
             <div class="friends-loading" *ngIf="friendsLoading">⏳ Spielerliste wird geladen …</div>
             <div class="friends-message" *ngIf="friendsError && !friendsLoading">{{friendsError}}</div>
             <div class="friends-list" *ngIf="!friendsLoading && !friendsError && publicPlayers.length">
@@ -336,7 +336,7 @@
                 <div class="friend-level"><small>LEVEL</small><strong>{{player.level}}</strong></div>
               </article>
             </div>
-            <div class="friends-empty" *ngIf="!friendsLoading && !friendsError && !publicPlayers.length">Noch keine veröffentlichten Spielerprofile. Sobald sich Spieler nach dem Update anmelden, erscheinen sie hier.</div>
+            <div class="friends-empty" *ngIf="!friendsLoading && !friendsError && !publicPlayers.length">Noch keine geprüften Ranglisten-Einträge. Die alte Liste wird nicht mehr angezeigt, weil ihre Werte manipulierbar waren.</div>
           </section>
         </ng-container>
         <ng-container *ngSwitchCase="'profile'">
