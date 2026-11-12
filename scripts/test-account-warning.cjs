@@ -25,7 +25,7 @@ assert(html.includes('OFFIZIELLE STUDYVERSE-VERWARNUNG') &&
  html.includes('(click)="acknowledgeAccountNotice()"'),
  'Warning and preview must use same alertdialog with acknowledgement');
 assert(html.includes('keine automatische Sperre oder Löschung') &&
- html.includes('persönlicher Prüfung'),
+ html.includes('persönlich geprüft und bestätigt'),
  'Warning must state clearly that bans are never automated');
 assert(!app.includes('deleteAccount(')&&!app.includes('disableAccount('),
  'The app must never automatically delete or disable an account');
