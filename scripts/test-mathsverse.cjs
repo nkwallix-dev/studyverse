@@ -14,6 +14,9 @@ assert(!registry.includes("id:'maths-hw-02'"),'Old homework course must no longe
 assert(!shop.includes("id:'maths-hw-02'"),'Old MathsVerse shop collection must be removed');
 assert(!shop.includes("id:'maths_avatar_pi'")&&!shop.includes("id:'maths_title_integral'"),
  'Both old MathsVerse cosmetics must be absent from the catalog');
+const retired=fs.readFileSync('src/app/legacy-owned-items.ts','utf8');
+assert(retired.includes("id:'maths_avatar_pi'")&&retired.includes("id:'maths_title_integral'"),
+ 'Old purchasers keep archived cosmetics in inventory, not the shop');
 assert(!fs.existsSync('public/maths/hw-02/index.html'),
  'Old MathsVerse homepage must be deleted');
 assert(!fs.existsSync('public/maths/hw-02/app.js'),
