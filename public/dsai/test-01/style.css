@@ -120,3 +120,8 @@ body[data-frame="pixel"] :is(.panel,.question-card,.lesson-card,.mode-card,.stat
  .topbar-actions .back::before{content:"↩";font-size:19px}
  .stats{grid-template-columns:minmax(0,1fr)}
 }
+
+/* Training modes can scroll; boss and sources stay pinned at the sidebar foot.
+   At tablet widths the existing compact sidebar keeps readable icons. */
+.sidebar>nav#nav{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin}
+.sidebar .verse-endgame{margin-top:auto}
