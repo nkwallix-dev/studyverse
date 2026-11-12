@@ -17,7 +17,7 @@ interface Profile {
   [key:string]:unknown;
 }
 const KEY='studyverse_profile_v1', INTRO='studyverse_import_prompt_seen_v1';
-const CHEM='chemverse_niklas_v1', BRIDGE='studyverse_trainer_launch_v2', RESTORE='studyverse_before_restore_v1';
+const CHEM='chemverse_niklas_v1', BRIDGE='studyverse_trainer_launch_v2', RESTORE='studyverse_before_restore_v1', LOCAL_ARCHIVE='studyverse_before_first_cloud_login_v1';
 const defaultEquip=()=>({theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'});
 const initial=():Profile=>({xp:0,tokens:0,nickname:'Explorer',inventory:[],equipped:defaultEquip(),claimedLevels:{},activity:[],customSubjects:[],shopDropMigrationV1:true});
 const safe=(n:unknown):number=>typeof n==='number'&&Number.isFinite(n)?Math.max(0,Math.floor(n)):0;
@@ -573,13 +573,21 @@ export class App implements OnInit,OnDestroy {
  }
  go(page:View){if(page==='achievements'||page==='shop')this.syncTrainer();this.view=page;this.selected=null;this.previewed=null;if(page==='shop')this.shopTab='catalog';if(page==='friends')void this.refreshFriends();window.scrollTo({top:0,behavior:'smooth'});}
  choose(id:string){if(!this.subjectHasTrainer(id))return;this.selected=id;this.view='subjects';window.scrollTo({top:0,behavior:'smooth'});}
- startImport(){this.intro=false;this.importOpen=true;write(INTRO,'1');}
+ startImport(){if(this.rejectUnsafeBackupRestore())return;this.intro=false;this.importOpen=true;write(INTRO,'1');}
  skipIntro(){this.intro=false;write(INTRO,'1');}
- get canImport(){return !this.profile.legacyImportedAt;}
- get canUndoRestore(){return isObj(parse(read(RESTORE)));}
- importBrowser(){this.applyImport(parse(read(CHEM)));}
+ // JSON backups are for personal offline recovery, not authoritative cloud scores.
+ get canRestoreBackup(){return this.cloudReady&&!this.cloudConfigured&&!this.cloud.session;}
+ get canImport(){return this.canRestoreBackup&&!this.profile.legacyImportedAt;}
+ private rejectUnsafeBackupRestore():boolean{
+   if(this.canRestoreBackup)return false;
+   this.alert('🔒 JSON-Import für Cloud-Accounts deaktiviert. Bearbeitete Backups könnten XP und TastyTokens beliebig erhöhen. Deine Cloud-Sicherung bleibt erhalten.');
+   return true;
+ }
+ get canUndoRestore(){return this.canRestoreBackup&&isObj(parse(read(RESTORE)));}
+ importBrowser(){if(this.rejectUnsafeBackupRestore())return;this.applyImport(parse(read(CHEM)));}
  async importFile(event:Event){
    const input=event.target as HTMLInputElement;const file=input.files?.[0];if(!file)return;
+   if(this.rejectUnsafeBackupRestore()){input.value='';return;}
    try{
      if(file.size>10_000_000){this.alert('Datei zu groß (max. 10 MB).');return;}
      let data:unknown;
@@ -607,6 +615,7 @@ export class App implements OnInit,OnDestroy {
    }
  }
  private restoreStudyverseBackup(data:Record<string,unknown>){
+   if(this.rejectUnsafeBackupRestore())return;
    // Restore is a replacement, not an addition: importing the same file twice must NEVER duplicate XP/TT.
    const hasLocalProgress=this.profile.xp>0||this.profile.tokens>0||this.profile.inventory.length>0
      ||TRAINERS.some(tr=>isObj(parse(read(tr.saveKey)))&&Object.keys(parse(read(tr.saveKey)) as Record<string,unknown>).length>0);
@@ -652,6 +661,7 @@ export class App implements OnInit,OnDestroy {
      (Object.keys(snapshots).length?' Lernstände wurden ebenfalls übertragen.':' Achtung: Diese Datei enthält keine gespeicherten Lernwelten.'));
  }
  undoStudyverseRestore(){
+   if(this.rejectUnsafeBackupRestore())return;
    const raw=parse(read(RESTORE));
    if(!isObj(raw)||(raw['profile']!==null&&typeof raw['profile']!=='string')||!isObj(raw['trainers'])){
      this.alert('Keine gültige Rückfallkopie vorhanden.');return;
@@ -671,6 +681,7 @@ export class App implements OnInit,OnDestroy {
    this.alert('↶ Vorherigen PC-Spielstand wiederhergestellt.');
  }
  private applyImport(data:unknown){
+   if(this.rejectUnsafeBackupRestore())return;
    if(!this.canImport){this.alert('CHEMVERSE wurde bereits einmal importiert.');return;}
    if(!validChem(data)){this.alert('Ungültiger CHEMVERSE-Export: XP, TastyTokens oder Fortschrittsdaten fehlen.');return;}
    const purchased=data['purchased'] as Record<string,unknown>;
