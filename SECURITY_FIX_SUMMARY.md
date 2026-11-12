@@ -28,12 +28,45 @@ Do not merge/deploy this branch until the owner has reviewed existing wallets, b
 6. **Firebase Functions may require upgrading the Firebase project to the Blaze billing plan.** Verify budget, quotas, IAM roles, and the project's required Firebase/Google APIs first.
 7. Additional trainers still show local motivational progress; it is not considered verified currency online. Review the online/offline UX before shipping to classmates.
 
+## Read-only migration report – Google Cloud Shell (no Firebase admin key in chat)
+
+**This is the remaining owner-only step. It performs ZERO Firestore writes.**
+Use a fresh Cloud Shell session under a Google account authorized to read
+the Studyverse Firestore database. Authentication and report files stay in
+your own Cloud Shell home directory (not GitHub or public CI artifacts).
+
+```bash
+gcloud config set project studyverse-logins
+git clone --branch feature/server-authoritative-wallet-20261112 \
+  https://github.com/nkwallix-dev/studyverse.git studyverse-security
+cd studyverse-security
+npm ci
+npm install --prefix functions --no-audit --no-fund
+gcloud auth application-default login
+node scripts/migrate-wallets.cjs --scan \
+  --project studyverse-logins \
+  --report security-reports/wallet-report.json
+node scripts/show-wallet-summary.cjs \
+  --report security-reports/wallet-report.json
+```
+
+The last command shows a small table with **nickname / TT / XP / item count /
+review flags**, with no full UID or approval hash. It is suitable for copying
+into a private discussion. The detailed report and
+`*.approvals.template.json` remain ignored local files; do **not** upload them
+to a public repository. `--scan` never modifies balances. If you rerun the
+scan after someone has played, use the newest report and re-review approvals.
+
+Do **not** run `--apply` until account-by-account values have been checked
+with the owner, suspicious values corrected, the production database backed up,
+and the maintenance/cutover plan agreed.
+
 ## Owner-only rollout: DO NOT reverse this order
 
 1. Create a full Firestore backup / export. Review GitHub PR changes and CI.
 2. Configure Firebase Blaze if needed, Google APIs, dedicated GitHub OIDC deploy service account and WIF as in `firebase/AUTO_DEPLOY.md`. Keep `STUDYVERSE_SECURITY_CUTOVER_APPROVED` unset.
 3. In a short maintenance window **stop active use and freeze legacy client writes**. Otherwise a player may change old data after the review and before cutoff.
-4. From a trusted local machine with Google ADC: run `node scripts/migrate-wallets.cjs --scan --project studyverse-logins --report security-reports/wallet-report.json`. Inspect all UIDs, especially spikes. Prepare `security-reports/wallet-approvals.json` with `{ "project": "studyverse-logins", "reviewed": true, "entries": [ { "uid":"...", "sourceHash":"...", "decision":"approve", "tokens":123, "xp":123, "inventory":["..."] } ] }`. Use `decision:"skip"` for unresolved accounts. A reviewed entry MUST be supplied for **each** UID in the report.
+4. Generate the read-only scan in Google Cloud Shell using the commands above. Do not attach the full report or approvals to GitHub Actions or public issues. Inspect all UIDs, especially spikes. Prepare `security-reports/wallet-approvals.json` with `{ "project": "studyverse-logins", "reviewed": true, "entries": [ { "uid":"...", "sourceHash":"...", "decision":"approve", "tokens":123, "xp":123, "inventory":["..."] } ] }`. Use `decision:"skip"` for unresolved accounts. A reviewed entry MUST be supplied for **each** UID in the report.
 5. Run `node scripts/migrate-wallets.cjs --apply --project studyverse-logins --report security-reports/wallet-report.json --approvals security-reports/wallet-approvals.json --confirm-reviewed`. Missing/wrong hashes or already-existing wallet stop import; no old data deleted.
 6. From this checked-out feature branch, seed private server config with `node scripts/seed-server-catalog.cjs --project studyverse-logins --apply --owner-approved`.
 7. Deploy Firestore rules & functions from this branch in a controlled maintenance step (`firebase deploy --only firestore:rules,functions --project studyverse-logins`) **before** publishing the new website. The old website's cloud writes will fail during this transition; keep maintenance active.
