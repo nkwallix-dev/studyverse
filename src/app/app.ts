@@ -21,7 +21,7 @@ interface Profile {
 const KEY='studyverse_profile_v1', INTRO='studyverse_import_prompt_seen_v1';
 const CHEM='chemverse_niklas_v1', BRIDGE='studyverse_trainer_launch_v2', RESTORE='studyverse_before_restore_v1', LOCAL_ARCHIVE='studyverse_before_first_cloud_login_v1';
 const defaultEquip=()=>({theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'});
-const initial=():Profile=>({xp:0,tokens:0,nickname:'Explorer',inventory:[],equipped:defaultEquip(),claimedLevels:{},activity:[],customSubjects:[],shopDropMigrationV1:true});
+const initial=():Profile=>({xp:0,tokens:0,nickname:'Explorer',inventory:[],equipped:defaultEquip(),claimedLevels:{},activity:[],customSubjects:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],rewardBatchTotal:0,rewardBatchPosition:0});
 const safe=(n:unknown):number=>typeof n==='number'&&Number.isFinite(n)?Math.max(0,Math.floor(n)):0;
 const isObj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v);
 const validChem=(v:unknown):v is Record<string,unknown>=>isObj(v)&&typeof v['xp']==='number'&&typeof v['coins']==='number'&&['learned','solved','earned','purchased'].every(k=>isObj(v[k]));
