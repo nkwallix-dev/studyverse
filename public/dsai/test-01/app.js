@@ -222,7 +222,7 @@ function startBoss(){
   toast("Der Prüfungsfragen-Pool ist unvollständig.");return
  }
  const chosen=shuffle([...primary,...shuffle(examPool.filter(q=>!primary.includes(q))).slice(0,Math.max(0,20-primary.length))]).map(q=>q.id);
- run={mode:"boss",focus:false,items:chosen,at:0,step:0,answered:false,picked:-1,correct:false,right:0,prompt:null};
+ run={mode:"boss",focus:false,items:chosen,at:0,step:0,answered:false,picked:-1,correct:false,right:0,prompt:null,bossAnswers:[]};
  view="boss-run";prepare();render();window.scrollTo(0,0)
 }
 function bossPage(){
