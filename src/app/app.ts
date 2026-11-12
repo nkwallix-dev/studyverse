@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
+import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
 import { StudyverseCloud, CloudSnapshot, PublicPlayer, AccountNotice, CLOUD_DAILY_KEY, cloudError, isAllowedNickname } from './cloud';
 
@@ -14,6 +15,7 @@ interface Profile {
   chemverseSave?:Record<string,unknown>; claimedLevels:Record<string,boolean>;
   activity:Activity[]; customSubjects?:{id:string;name:string;emoji:string}[];
   trainerSaves?:Record<string,Record<string,unknown>>; shopDropMigrationV1?:boolean; achievementTokenClaims?:Record<string,boolean>;
+ rewardSeen?:Record<string,boolean>; rewardQueue?:string[];
   [key:string]:unknown;
 }
 const KEY='studyverse_profile_v1', INTRO='studyverse_import_prompt_seen_v1';
@@ -38,7 +40,7 @@ export const SUBJECTS:Subject[]=[
   {id:'bwm',short:'BWM',name:'Betriebswirtschaft',icon:'📊',group:'Wirtschaft',color:'#ffd18d',desc:'Unternehmen, Märkte und wirtschaftliche Entscheidungen.'},
   {id:'ggp',short:'GGP',name:'Geschichte',icon:'🏛️',group:'Gesellschaft',color:'#ffbca9',desc:'Geschichte, Politik und Gesellschaft.'},
   {id:'pos',short:'POS',name:'C# Programmieren',icon:'💻',group:'Informatik',color:'#9dc3ff',desc:'C#, WPF, Algorithmen und Softwareentwicklung.'},
-  {id:'mat',short:'AM',name:'Mathematik',icon:'🧮',group:'Naturwissenschaften',color:'#d7abff',desc:'Integralrechnung, Flächen und Anwendungen – 2. Hausübungswiederholung.'},
+  {id:'mat',short:'AM',name:'Mathematik',icon:'🧮',group:'Naturwissenschaften',color:'#d7abff',desc:'Neue Mathematik-Schularbeit in Vorbereitung · Inhalte folgen in Kürze.'},
   {id:'dbi',short:'DBI',name:'Datenbanken',icon:'🗄️',group:'Informatik',color:'#88e4eb',desc:'SQL, T-SQL, Datenmodelle und Abfragen.'},
   {id:'nscs',short:'NSCS',name:'Netzwerktechnik',icon:'🌐',group:'Informatik',color:'#a9dcff',desc:'Netzwerke, Routing, Firewall und Security.'},
   {id:'dsai',short:'DSAI',name:'Data Science & AI',icon:'🤖',group:'Informatik',color:'#c5a2ff',desc:'Data Science, künstliche Intelligenz und Machine Learning.'},
@@ -55,7 +57,7 @@ export class App implements OnInit,OnDestroy {
  readonly subjects=SUBJECTS;
  readonly items=SHOP_ITEMS;
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
- shopDrop='nawi-test-01'; hideOwnedItems=false; shopTab:'catalog'|'inventory'|'earn'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
+ shopDrop='global'; spotlightRewardId=''; rewardPopupSuppressed=false; shopTab:'catalog'|'inventory'|'earn'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  readonly cloud=new StudyverseCloud();
  cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
@@ -71,7 +73,7 @@ export class App implements OnInit,OnDestroy {
  private noticeCheckId=0;
  achievementSubject='Alle';achievementTest='Alle';achievementSort:'open'|'done'|'progress'|'reward'|'title'='open';
  profile:Profile=this.load(); public today=new Date();
- private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.queueCloudSave();};
+ private onReturn=()=>{this.rewardPopupSuppressed=false;this.syncChemverse();this.grantAchievementTokens();this.checkRewardUnlocks();this.queueCloudSave();};
  ngOnInit(){
    this.nicknameEdit=this.profile.nickname;
    // Standalone Verses link to the shared player profile; resolve the hash
@@ -81,7 +83,8 @@ export class App implements OnInit,OnDestroy {
      window.history.replaceState(null,'',window.location.pathname+window.location.search);
    }
    this.syncChemverse();
-   const bonus=this.grantAchievementTokens();
+  this.checkRewardUnlocks();
+  const bonus=this.grantAchievementTokens();
    if(bonus)this.alert('🏆 Deine bereits erreichten Achievements bringen dir rückwirkend +'+bonus+' TT!');
    window.addEventListener('pageshow',this.onReturn);
    void this.startCloud();
@@ -239,7 +242,8 @@ export class App implements OnInit,OnDestroy {
      throw e;
    }
    this.profile=this.load();this.nicknameEdit=this.profile.nickname;
-   this.intro=false;this.importOpen=false;
+  this.checkRewardUnlocks();
+  this.intro=false;this.importOpen=false;
    this.syncTrainer();
  }
  private queueCloudSave(){
@@ -427,9 +431,10 @@ export class App implements OnInit,OnDestroy {
  get activeSubjects(){return this.orderedSubjects.filter(s=>this.subjectHasTrainer(s.id));}
  get filteredSubjects(){return this.orderedSubjects.filter(s=>(this.group==='Alle'||s.group===this.group)&&
  (s.name+' '+s.short+' '+s.desc).toLowerCase().includes(this.search.toLowerCase().trim()));}
- get drops(){return SHOP_DROPS;}
+ /** Show a test in the dropdown only once at least one prize is unlocked. */
+ get drops(){return SHOP_DROPS.filter(d=>d.id==='global'||this.items.some(i=>i.drop===d.id&&this.isUnlocked(i)));}
  get selectedDrop(){return this.drops.find(d=>d.id===this.shopDrop)||this.drops[0];}
- get dropItems(){return this.items.filter(i=>i.drop===this.shopDrop);}
+ get dropItems(){return this.items.filter(i=>i.drop===this.selectedDrop.id);}
  get dropOwned(){return this.dropItems.filter(i=>this.owns(i)).length;}
  dropItemCount(id:string){return this.items.filter(i=>i.drop===id).length;}
  dropOwnedCount(id:string){return this.items.filter(i=>i.drop===id&&this.owns(i)).length;}
@@ -463,14 +468,14 @@ export class App implements OnInit,OnDestroy {
 
  get dropUnlocked(){return this.dropItems.filter(i=>this.owns(i)||this.isUnlocked(i)).length;}
  get filteredItems(){return this.dropItems
-   .filter(i=>(this.shopGroup==='Alle'||i.group===this.shopGroup)&&(!this.hideOwnedItems||!this.owns(i)))
-   .sort((a,b)=>Number(this.owns(a))-Number(this.owns(b))
-     ||this.sortRequirement(a)-this.sortRequirement(b)||a.name.localeCompare(b.name,'de'));}
+  .filter(i=>!this.owns(i)&&(this.shopGroup==='Alle'||i.group===this.shopGroup))
+  .sort((a,b)=>Number(this.isUnlocked(b))-Number(this.isUnlocked(a))
+    ||this.sortRequirement(a)-this.sortRequirement(b)||a.name.localeCompare(b.name,'de'));}
  private sortRequirement(item:ShopItem){return item.drop==='global'?(item.level||1)*10:(item.requirement?.value||0);}
  // Every test uses the same category tabs, even when it has no items in one category.
  get shopCategories(){return ['Alle',...new Set(this.items.map(i=>i.group))];}
  get selectedCategoryHasItems(){return this.shopGroup==='Alle'||this.dropItems.some(i=>i.group===this.shopGroup);}
- chooseDrop(id:string){this.shopDrop=id;this.previewed=null;}
+ chooseDrop(id:string){if(!this.drops.some(d=>d.id===id))return;this.shopDrop=id;this.shopGroup='Alle';this.previewed=null;this.spotlightRewardId='';}
  metricProgress(drop:string,metric:ShopRequirement['metric']):number{
    const trainer=TRAINERS.find(t=>t.id===drop);if(!trainer)return 0;
    const save=this.snapshot(trainer),solved=isObj(save['solved'])?save['solved']:{};
@@ -554,8 +559,8 @@ export class App implements OnInit,OnDestroy {
  closePreview(){this.previewed=null;}
 
  get categories(){return ['Alle','Informatik','Naturwissenschaften','Wirtschaft','Gesellschaft','Andere'];}
- get claimed(){return this.profile.inventory.length;}
- get ownedCatalogItems(){return this.items.filter(item=>this.owns(item));}
+ get claimed(){return this.ownedCatalogItems.length;}
+ get ownedCatalogItems(){return [...this.items,...LEGACY_OWNED_ITEMS].filter(item=>this.owns(item));}
  get inventoryDrops(){return ['Alle',...new Set(this.ownedCatalogItems.map(item=>item.drop))];}
  get inventoryCategories(){
    return ['Alle',...new Set(this.ownedCatalogItems.filter(item=>this.inventoryDrop==='Alle'||item.drop===this.inventoryDrop).map(item=>item.group))];
@@ -569,7 +574,7 @@ export class App implements OnInit,OnDestroy {
    ).sort((a,b)=>Number(this.active(b))-Number(this.active(a))||a.name.localeCompare(b.name,'de'));
  }
  get inventoryEquippedCount(){return this.ownedCatalogItems.filter(item=>this.active(item)).length;}
- dropLabel(id:string){return this.drops.find(drop=>drop.id===id)?.title||id;}
+ dropLabel(id:string){return this.drops.find(drop=>drop.id===id)?.title||(id==='maths-hw-02'?'MathsVerse · Archiv':id);}
  changeInventoryDrop(id:string){this.inventoryDrop=id;this.inventoryGroup='Alle';}
  setShopTab(tab:'catalog'|'inventory'|'earn'){this.shopTab=tab;this.previewed=null;window.scrollTo({top:0,behavior:'smooth'});}
  openInventory(){this.go('shop');this.setShopTab('inventory');}
@@ -623,7 +628,54 @@ export class App implements OnInit,OnDestroy {
    }
    return paid;
  }
- get title(){return this.items.find(i=>i.id===this.profile.equipped['title'])?.name || 'Weltenentdecker';}
+ /** Persistent per-user reward notifications. Previously earned items appear in the
+  * catalog without generating a wall of retroactive popups on first upgrade. */
+ private checkRewardUnlocks(){
+  const unlocked=this.items.filter(i=>i.drop!=='global'&&this.isUnlocked(i)&&!this.owns(i));
+  if(!isObj(this.profile.rewardSeen)){
+   this.profile.rewardSeen=Object.fromEntries(unlocked.map(i=>[i.id,true]));
+   this.profile.rewardQueue=[];
+   this.save();
+   return;
+  }
+  const seen=this.profile.rewardSeen;
+  const queue=Array.isArray(this.profile.rewardQueue)?this.profile.rewardQueue.filter(id=>typeof id==='string'):[];
+  for(const item of unlocked){
+   if(seen[item.id])continue;
+   seen[item.id]=true;
+   if(!queue.includes(item.id))queue.push(item.id);
+  }
+  this.profile.rewardQueue=queue.filter(id=>{
+   const item=this.items.find(i=>i.id===id);
+   return !!item&&!this.owns(item)&&this.isUnlocked(item);
+  });
+  this.save();this.changeDetector.markForCheck();
+ }
+ get nextReward():ShopItem|null{
+  if(this.rewardPopupSuppressed)return null;
+  const id=this.profile.rewardQueue?.[0];
+  return this.items.find(i=>i.id===id&&!this.owns(i)&&this.isUnlocked(i))||null;
+ }
+ acceptReward(){
+  const item=this.nextReward;
+  if(!item)return;
+  // Accept the notification only; learning goals grant PURCHASE ELIGIBILITY,
+  // never free inventory. Existing TT, XP and cosmetics remain untouched.
+  this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
+  this.rewardPopupSuppressed=true;
+  this.save();
+  this.changeDetector.markForCheck();
+ }
+ showRewardInShop(){
+  const item=this.nextReward;
+  if(!item)return;
+  this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
+  this.rewardPopupSuppressed=true;
+  this.go('shop');this.shopTab='catalog';this.shopGroup='Alle';this.shopDrop=item.drop;
+  this.spotlightRewardId=item.id;
+  this.save();this.changeDetector.markForCheck();
+ }
+ get title(){return [...this.items,...LEGACY_OWNED_ITEMS].find(i=>i.id===this.profile.equipped['title'])?.name || 'Weltenentdecker';}
  get currentTheme(){return this.profile.equipped['theme'] || 'base';}
  // Keep the equipped design on the real homepage; only the modal showcases a candidate item.
  get previewTheme(){return this.currentTheme;}
@@ -641,11 +693,11 @@ export class App implements OnInit,OnDestroy {
  }
  get previewParticleSlots(){return [0,1,2,3,4,5,6,7,8,9,10,11];}
  get currentAvatar(){return this.profile.equipped['avatar'] || '🧪';}
- get unlockedAvatars(){return SHOP_ITEMS.filter(item=>item.group==='avatar'&&this.owns(item));}
- get unlockedTitles(){return SHOP_ITEMS.filter(item=>item.group==='title'&&this.owns(item));}
+ get unlockedAvatars(){return this.ownedCatalogItems.filter(item=>item.group==='avatar');}
+ get unlockedTitles(){return this.ownedCatalogItems.filter(item=>item.group==='title');}
  setProfileTitle(id:string){
    if(id){
-     const item=SHOP_ITEMS.find(x=>x.id===id&&x.group==='title');
+     const item=this.ownedCatalogItems.find(x=>x.id===id&&x.group==='title');
      if(!item||!this.owns(item)){this.alert('Diesen Titel hast du noch nicht freigeschaltet.');return;}
    }
    this.profile.equipped['title']=id||'';
@@ -659,7 +711,7 @@ export class App implements OnInit,OnDestroy {
    if(id==='default'){
      this.profile.equipped['avatar']=defaultEquip().avatar;
    } else {
-     const item=SHOP_ITEMS.find(x=>x.id===id&&x.group==='avatar');
+     const item=this.ownedCatalogItems.find(x=>x.id===id&&x.group==='avatar');
      if(!item||!this.owns(item)){this.alert('Diesen Avatar musst du erst im Item-Shop erhalten.');return;}
      this.profile.equipped['avatar']=item.icon;
    }
@@ -812,7 +864,7 @@ export class App implements OnInit,OnDestroy {
    return total;
  }
  private awardLevelFreebies(){
-   const free=this.items.filter(i=>i.cost===0&&(i.level||1)<=this.level);
+   const free=this.items.filter(i=>i.drop==='global'&&i.cost===0&&(i.level||1)<=this.level);
    this.profile.inventory=[...new Set([...this.profile.inventory,...free.map(i=>i.id)])];
  }
  owns(item:ShopItem){return this.profile.inventory.includes(item.id);}
@@ -821,25 +873,28 @@ export class App implements OnInit,OnDestroy {
    return this.profile.equipped[key]===value;
  }
  priceLabel(item:ShopItem){
-   if(this.owns(item))return this.active(item)?'✓ Ausgerüstet':'Ausrüsten';
-   if(item.drop==='global' && this.level<(item.level||1))return '🔒 Level '+item.level+' nötig';
-   if(!this.isUnlocked(item))return '🔒 Lernziel fehlt';
-   return item.cost===0?'Kostenlos abholen':'◉ '+item.cost+' TT';
+  if(this.owns(item))return this.active(item)?'✓ Ausgerüstet':'Ausrüsten';
+  if(!this.isUnlocked(item))return item.drop==='global'?'🔒 Level '+item.level+' nötig':'🔒 Lernziel fehlt';
+  return '◉ '+item.cost+' TT kaufen';
  }
  buyOrEquip(item:ShopItem){
-   if(!this.owns(item)){
-     if(!this.isUnlocked(item)){this.alert('Erst freischalten: '+this.requirementLabel(item));return;}
-     if(this.profile.tokens<item.cost){this.alert('Nicht genug TastyTokens, Bruder. 💀');return;}
-     this.profile.tokens-=item.cost;this.profile.inventory=[...this.profile.inventory,item.id];
-     this.profile.activity=[{label:item.name+' gekauft · '+this.selectedDrop.title,date:new Date().toISOString(),amount:-item.cost},...this.profile.activity].slice(0,30);
-     this.alert(item.icon+' '+this.itemDisplayName(item)+' gehört dir! Überall in STUDYVERSE ausrüstbar.');
-   }else{
-     const key=item.group,value=key==='avatar'?item.icon:(item.equip||item.id);
-     this.profile.equipped[key]=this.active(item)?this.equipDefault(key):value;
-     this.alert(this.itemDisplayName(item)+' – Ausrüstung geändert.');
-   }
-   this.previewed=null;
-   this.save();
+  if(!this.owns(item)){
+   if(!this.isUnlocked(item)){this.alert('Erst freischalten: '+this.requirementLabel(item));return;}
+   if(this.profile.tokens<item.cost){this.alert('Nicht genug TastyTokens, Bruder. 💀');return;}
+   this.profile.tokens-=item.cost;
+   this.profile.inventory=[...new Set([...this.profile.inventory,item.id])];
+   this.profile.activity=[{
+    label:'Gekauft: '+item.name,
+    date:new Date().toISOString(),amount:-item.cost
+   },...this.profile.activity].slice(0,30);
+   this.alert(item.icon+' '+this.itemDisplayName(item)+' gekauft!');
+   this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
+  }else{
+   const key=item.group,value=key==='avatar'?item.icon:(item.equip||item.id);
+   this.profile.equipped[key]=this.active(item)?this.equipDefault(key):value;
+   this.alert(this.itemDisplayName(item)+' – Ausrüstung geändert.');
+  }
+  this.previewed=null;this.spotlightRewardId='';this.save();
  }
  private equipDefault(k:string){return defaultEquip()[k as keyof ReturnType<typeof defaultEquip>] || 'none';}
  themeStyle(item:ShopItem){return item.bg || 'linear-gradient(130deg,#212a47,#504193)';}
@@ -904,7 +959,8 @@ export class App implements OnInit,OnDestroy {
    this.awardLevelFreebies();
    if(gained)this.profile.activity=[{label:trainer.title+' · Lernrunde',date:new Date().toISOString(),amount:gained},...this.profile.activity].slice(0,30);
    this.save();try{localStorage.removeItem(BRIDGE)}catch{}
-   const achievementBonus=this.grantAchievementTokens();
+  this.checkRewardUnlocks();
+  const achievementBonus=this.grantAchievementTokens();
    if(gained||levelBonus||achievementBonus)this.alert('Willkommen zurück! '+(gained?'+'+gained+' XP ':'')+(levelBonus?'· +'+levelBonus+' Level-TT':'')+(achievementBonus?' · 🏆 +'+achievementBonus+' Achievement-TT':'')+' synchronisiert.');
  }
 }

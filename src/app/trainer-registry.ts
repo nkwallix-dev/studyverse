@@ -11,14 +11,6 @@ export interface TrainerDef {
 /** Add one entry for each new test. XP/coins are synced per trainer, not per subject. */
 export const TRAINERS: TrainerDef[] = [
   {
-    id:'maths-hw-02',subjectId:'mat',title:'MathsVerse · 2. Hausübungswiederholung',
-    subtitle:'18 Buchteilaufgaben · 4 ausführliche Lernkapitel · erklärte Musterlösungen',
-    path:'maths/hw-02/index.html',saveKey:'mathsverse_hw02_v1',examDate:'2026-11-12',
-    achievements:[
-      {id:'academy',icon:'📚',title:'Alle Mathekapitel durchgearbeitet',description:'Alle vier ausführlichen Lernkapitel gelesen',metric:'learn',target:4,reward:250}
-    ]
-  },
-  {
     id:'nawi-test-01',subjectId:'nawi',title:'Chemverse 1. Test',
     subtitle:'Chemie · Lernakademie, Quiz, Formeln & Bosskampf',
     path:'nawi/test-01/index.html',saveKey:'chemverse_niklas_v1',examDate:'2026-11-10',

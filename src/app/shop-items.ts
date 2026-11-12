@@ -8,15 +8,12 @@ export interface ShopItem {
   drop:'global'|string;requirement?:ShopRequirement;
 }
 export const SHOP_DROPS:ShopDrop[]=[
- {id:'global',icon:'🌐',title:'STUDYVERSE Essentials',subtitle:'Profil-Level',description:'Zeitlose Basics, Fonts, Effekte und Profilstyles. Höhere Profil-Level öffnen weitere Angebote.',status:'live'},
- {id:'maths-hw-02',icon:'🧮',title:'MathsVerse · 2. Hausübungswiederholung',subtitle:'Lernfortschritt',description:'Exklusive Mathe-Cosmetics aus den 18 Integral- und Flächenaufgaben.',status:'live'},
- {id:'nawi-test-01',icon:'🧪',title:'Chemverse 1. Test',subtitle:'Lernfortschritt',description:'Exklusiver Chemie-Loot. Werde in der Lernakademie und den Übungsmodi besser, um Items freizuschalten.',status:'live'},
- {id:'dsai-test-01',icon:'🤖',title:'Dsaiverse · 1. Test',subtitle:'Lernfortschritt',description:'Exklusiver Data-Science-Loot aus NumPy, Pandas, KI, Statistik und den Prozess-Minispielen.',status:'live'},
- {id:'pos-pa-01',icon:'♯',title:'Sharpverse · 1. PA',subtitle:'C# · Threads · WPF',description:'Wortspiele, Weltraum-Schafe, spielerische Karten-Banner und Prestige-Items für Code-Versteher.',status:'live'}
+ {id:'global',icon:'🌐',title:'STUDYVERSE Essentials',subtitle:'Profil-Level',description:'Nur hier zahlst du mit TastyTokens: zeitlose Basics, Fonts, Effekte und Profilstyles.',status:'live'},
+ {id:'nawi-test-01',icon:'🧪',title:'Chemverse 1. Test',subtitle:'Lernfortschritt',description:'Gratis-Lernzielbelohnungen aus deinem Chemie-Test. Durch Fortschritt freischalten und abholen.',status:'live'},
+ {id:'dsai-test-01',icon:'🤖',title:'Dsaiverse · 1. Test',subtitle:'Lernfortschritt',description:'Gratis-Lernzielbelohnungen aus NumPy, Pandas, KI und den Übungsmodi.',status:'live'},
+ {id:'pos-pa-01',icon:'♯',title:'Sharpverse · 1. PA',subtitle:'C# · Threads · WPF',description:'Gratis-Lernzielbelohnungen für C#, Threads, WPF und Code-Versteher.',status:'live'}
 ];
 export const SHOP_ITEMS:ShopItem[]=[
- {id:'maths_avatar_pi',kind:'avatar',icon:'🦊',name:'Pi-Fuchs',cost:85,desc:'Mathe-Fuchs nach zwei durchgearbeiteten Lernkapiteln.',group:'avatar',drop:'maths-hw-02',requirement:{metric:'academy',value:2}},
- {id:'maths_title_integral',kind:'title',icon:'∑',name:'Integral-Genie',cost:160,desc:'Prestige-Titel nach allen vier vollständig durchgearbeiteten Mathekapiteln.',group:'title',drop:'maths-hw-02',requirement:{metric:'academy',value:4}},
 {id:'neon',kind:'theme',icon:'🟢',name:'Toxic Neon',cost:160,desc:'Grün-violette Labornacht. Leuchtet schon beim Anschauen.',group:'theme',bg:'linear-gradient(125deg,#2f104d,#85ff50)',drop:'nawi-test-01',requirement:{metric:'academy',value:3}},
 {id:'pizza',kind:'theme',icon:'🍕',name:'Lehrer-Pizza',cost:230,desc:'Goldgelbe Cheeseboard-Hölle. Wer bestellt den Stoff?',group:'theme',bg:'linear-gradient(125deg,#773420,#ffc778)',drop:'nawi-test-01',requirement:{metric:'academy',value:4}},
 {id:'cosmic',kind:'theme',icon:'🌌',name:'Galaxy',cost:980,desc:'Legendäres galaktisches Theme. Ein teures Prestige-Upgrade für dein gesamtes STUDYVERSE.',group:'theme',bg:'radial-gradient(circle at 70% 40%,#f872e8,#190852 45%,#03031c)',drop:'global',level:20},

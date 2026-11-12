@@ -168,9 +168,9 @@
           <h1 class="page-title" *ngIf="shopTab==='catalog'">Der <span>Item-Shop.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='inventory'">Dein <span>Inventar.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='earn'">TastyTokens <span>verdienen.</span></h1>
-          <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Erst lernen, dann kaufen.</strong> Einmal erworbene Cosmetics gehören dir aber im gesamten STUDYVERSE.</p>
+          <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Essentials sind über dein Profil-Level kaufbar.</strong> Test-Items musst du zuerst durch Lernziele freischalten, anschließend kaufst du sie mit TastyTokens. Bereits gekaufte Items findest du im Inventar.</p>
           <p class="page-subtitle" *ngIf="shopTab==='inventory'">Alle deine Cosmetics an einem Ort. Nach Drop und Kategorie filtern, Styles anschauen und direkt ausrüsten.</p>
-          <p class="page-subtitle" *ngIf="shopTab==='earn'">Sammle TastyTokens mit Achievements, täglichen Quizfragen und Bosskämpfen – und hol dir damit deine nächsten Cosmetics.</p>
+          <p class="page-subtitle" *ngIf="shopTab==='earn'">Sammle TastyTokens mit Achievements, Quizfragen und Bosskämpfen. Damit kaufst du Essentials und freigeschaltete Test-Items.</p>
           <div class="shop-view-tabs" role="tablist" aria-label="Item-Shop, Inventar und TastyTokens verdienen">
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='catalog'" [class.selected]="shopTab==='catalog'" (click)="setShopTab('catalog')">◇ Item-Shop</button>
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='inventory'" [class.selected]="shopTab==='inventory'" (click)="setShopTab('inventory')">🎒 Inventar <span>{{ownedCatalogItems.length}}</span></button>
@@ -189,19 +189,20 @@
 
           <div class="section-heading lower shop-items-heading">
             <div class="shop-items-heading-main">
-              <h2>Alle Items <span>✦</span></h2>
-              <small class="shop-current-drop">{{selectedDrop.icon}} {{dropOwned}} / {{dropItems.length}} · {{selectedDrop.title}}</small>
+              <h2>{{selectedDrop.id==='global'?'Essentials':'Lernziel-Belohnungen'}} <span>✦</span></h2>
+              <small class="shop-current-drop">{{selectedDrop.icon}} {{filteredItems.length}} noch offen · {{selectedDrop.title}}</small>
             </div>
             <label class="shop-drop-picker">
-              <span>WÄHLE DEINEN TEST</span>
+              <span>ESSENTIALS / FREIGESCHALTETE TESTS</span>
               <select id="shop-drop-select" aria-label="Test oder Essentials-Kollektion auswählen" aria-describedby="shop-test-explainer"
                 [ngModel]="shopDrop" (ngModelChange)="chooseDrop($event)">
                 <option *ngFor="let drop of drops" [value]="drop.id">{{drop.icon}} {{drop.title}}{{drop.status==='upcoming'?' · Bald verfügbar':''}}</option>
               </select>
             </label>
           </div>
-          <p class="shop-test-explainer" id="shop-test-explainer">🎨 Jeder Test hat eigene Cosmetics. Wähle rechts deinen Test im Dropdown, um seine Items zu sehen. Die <strong>STUDYVERSE Essentials</strong> gelten für alle Tests.</p>
-          <p class="shop-drop-hint" *ngIf="shopDrop==='global'">⚡ Maximal 2 neue Level-Items pro Stufe · ❄️ Absolute Null: Lv 12 · 🌋 Reaktor-Kern: Lv 13 · ⚜️ Legenden-Rahmen: Lv 15</p>
+          <p class="shop-test-explainer" id="shop-test-explainer">🎨 Im Dropdown erscheinen nur Tests, bei denen du mindestens ein Item freigeschaltet hast. Gesperrte Items zeigen ihr Lernziel; bereits erhaltene Items gehören ins Inventar.</p>
+          <p class="shop-drop-hint" *ngIf="selectedDrop.id==='global'">◉ Essentials kosten TastyTokens und werden durch dein Profil-Level freigeschaltet.</p>
+           <p class="shop-drop-hint" *ngIf="selectedDrop.id!=='global'">🏆 Lernziele schalten die Kaufmöglichkeit frei – danach bezahlst du wie gewohnt mit TastyTokens.</p>
           <p class="shop-drop-hint" *ngIf="selectedDrop.status==='upcoming'">✧ Diese Kollektion ist noch nicht spielbar. Wähle einen anderen Drop.</p>
           <div class="chips shop-category-chips">
             <button type="button" *ngFor="let g of shopCategories" [class.selected]="shopGroup===g" (click)="shopGroup=g">
@@ -209,29 +210,25 @@
             </button>
           </div>
           <ng-container *ngIf="selectedDrop.status==='live'">
-            <label class="shop-owned-toggle">
-              <input type="checkbox" [(ngModel)]="hideOwnedItems">
-              <span>✓ Bereits im Besitz ausblenden</span>
-              <small>{{filteredItems.length}} Items angezeigt</small>
-            </label>
+            
             <p class="shop-owned-empty" *ngIf="filteredItems.length===0 && !selectedCategoryHasItems">✧ In {{selectedDrop.title}} gibt es aktuell keine {{groupLabel(shopGroup)}}. Du kannst die Kategorie trotzdem in einem anderen Test auswählen.</p>
-            <p class="shop-owned-empty" *ngIf="filteredItems.length===0 && selectedCategoryHasItems">🎒 In dieser Auswahl sind keine Items sichtbar. <span *ngIf="hideOwnedItems">Deaktiviere „Bereits im Besitz ausblenden“, um gekaufte Items wiederzusehen.</span></p>
+            <p class="shop-owned-empty" *ngIf="filteredItems.length===0 && selectedCategoryHasItems">🎒 Hier ist alles bereits eingesammelt! Deine Cosmetics findest du im Inventar.</p>
 
             <div class="item-grid drop-item-grid">
-              <article class="item drop-item" *ngFor="let item of filteredItems" [attr.data-category]="item.group" [class.locked]="!isUnlocked(item)" [class.owned]="owns(item)">
+              <article class="item drop-item" *ngFor="let item of filteredItems" [attr.data-category]="item.group" [class.locked]="!isUnlocked(item)" [class.reward-spotlight]="spotlightRewardId===item.id">
                 <div class="item-art drop-item-art" [class.avatar-art]="item.group==='avatar'" [class.panda-art]="item.id==='dsai_panda'" [style.background]="themeStyle(item)">
                   <span class="item-spark one">✦</span><span class="big-item-icon">{{item.icon}}</span><span class="item-spark two">✧</span>
                 </div>
                 <div class="item-meta"><span class="item-kind">{{groupLabel(item.group)}}</span></div>
                 <h3 class="item-title-row"><span class="item-name">{{item.name}}<span class="item-name-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></span>
-                  <span class="item-inline-status owned" *ngIf="owns(item)">✓ OWNED</span>
-                  <span class="item-inline-status locked-status" *ngIf="!owns(item) && !isUnlocked(item)">🔒 LOCKED</span>
+                  <span class="item-inline-status unlocked-status" *ngIf="isUnlocked(item) && item.drop!=='global'">🎁 FREIGESCHALTET</span>
+                  <span class="item-inline-status locked-status" *ngIf="!isUnlocked(item)">🔒 GESPERRT</span>
                 </h3><p>{{item.desc}}</p>
                 <div class="item-unlock" [class.ready]="itemProgressPercent(item)===100">
                   <div class="unlock-caption"><span>{{requirementLabel(item)}}</span><b>{{itemProgressPercent(item)}}%</b></div>
                   <div class="progress-track"><i [style.width.%]="itemProgressPercent(item)"></i></div>
                 </div>
-                <div class="drop-price" *ngIf="!owns(item)"><span>PREIS</span><strong>{{item.cost===0?'GRATIS':(item.cost | number)+' TT'}}</strong></div>
+                <div class="drop-price"><span>{{item.drop==='global'?'PREIS':'PREIS NACH FREISCHALTUNG'}}</span><strong>{{item.cost | number}} TT</strong></div>
                 <div class="drop-actions">
                   <button type="button" class="drop-preview-btn" (click)="preview(item)">👁 Vorschau</button>
                   <button type="button" class="drop-buy-btn" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
@@ -282,7 +279,7 @@
             </div>
             <div class="empty-tests inventory-empty" *ngIf="inventoryItems.length===0">
               <span>🎒</span><h3>{{ownedCatalogItems.length===0?'Dein Inventar ist noch leer.':'Keine Cosmetics mit diesen Filtern.'}}</h3>
-              <p>{{ownedCatalogItems.length===0?'Verdiene TT und schalte dir im Item-Shop deinen ersten Style frei.':'Probiere eine andere Kollektion, Kategorie oder Suche.'}}</p>
+              <p>{{ownedCatalogItems.length===0?'Schalte Test-Items durch Lernen frei und kaufe deine Lieblingsdesigns mit TastyTokens.':'Probiere eine andere Kollektion, Kategorie oder Suche.'}}</p>
               <button class="btn primary" (click)="setShopTab('catalog')">Zum Item-Shop ↗</button>
             </div>
           </ng-container>
@@ -292,7 +289,7 @@
               <span class="coin-station-emoji">🪙</span>
               <div><div class="eyebrow">TASTYTOKENS · DEINE VERDIENSTMÖGLICHKEITEN</div><h2>SO VERDIENST DU WEITERE TASTYTOKENS</h2>
                 <p>Offene Achievements bringen einmalige Boni. Danach verdienst du durch tägliches Üben weiter TastyTokens.</p></div>
-              <div class="coin-station-value"><small>NOCH IN ALLEN DROPS ZU KAUFEN</small><strong>{{shopTotalRemainingCost | number}} TT</strong>
+              <div class="coin-station-value"><small>NOCH IM SHOP AUSZUGEBEN</small><strong>{{shopTotalRemainingCost | number}} TT</strong>
                 <span *ngIf="shopTotalTokenGap>0">Dir fehlen noch {{shopTotalTokenGap | number}} TT für alle noch nicht gekauften Cosmetics.</span>
                 <span *ngIf="shopTotalTokenGap===0">Dein Guthaben reicht theoretisch für alle noch nicht gekauften Cosmetics!</span></div>
             </div>
@@ -309,7 +306,7 @@
                 <p>Chemverse + Dsaiverse gemeinsam: einmal täglich 250 TT bei mindestens 70 % im gemischten Bosskampf. Antwortpositionen werden neu gemischt.</p>
                 <button (click)="goEarnTokens('boss')">Boss herausfordern ↗</button></div>
             </div>
-            <div class="coin-earning-foot">💡 Neue Tests geben dir zusätzliche erstmalige XP und TastyTokens. Für jeden weiteren Trainer kommen neue Achievements und neue Drops hinzu. Wiederholungsboni werden pro Browser-Tag zurückgesetzt.</div>
+            <div class="coin-earning-foot">💡 Lernen schaltet Test-Cosmetics zum Kauf frei. Deine TastyTokens sind weiterhin für Essentials und Test-Items gedacht. Wiederholungsboni werden pro Browser-Tag zurückgesetzt.</div>
           </section>
           </ng-container>
         </ng-container>
@@ -443,6 +440,20 @@
       <button class="btn secondary full" *ngIf="canImport" (click)="importBrowser()">Im Browser gespeicherten CHEMVERSE-Stand versuchen</button>
       <button class="btn plain full" (click)="importOpen=false">Später machen</button>
       <small>Ein Studyverse-Backup ersetzt den bestehenden Stand nach Rückfrage. Vorher wird eine lokale Rückfallkopie angelegt. Alte Chemverse-Daten lassen sich einmalig übernehmen.</small>
+    </div>
+  </div>
+  <div class="veil reward-unlock-veil" *ngIf="nextReward as reward" role="dialog" aria-modal="true" aria-labelledby="reward-unlock-title">
+    <div class="modal reward-unlock-modal">
+      <span class="eyebrow">🏆 LERNZIEL ERREICHT</span>
+      <div class="reward-unlock-art" aria-hidden="true">{{reward.icon}}</div>
+      <h2 id="reward-unlock-title">Gegenstand <span>freigeschaltet!</span></h2>
+      <h3>{{itemDisplayName(reward)}}</h3>
+      <p>Du hast dein Lernziel in <strong>{{dropLabel(reward.drop)}}</strong> erreicht: {{requirementLabel(reward)}}. Das Item ist jetzt für <strong>{{reward.cost | number}} TT</strong> kaufbar.</p>
+      <div class="reward-unlock-actions">
+        <button type="button" class="btn secondary" (click)="acceptReward()">✓ Annehmen</button>
+        <button type="button" class="btn primary" (click)="showRewardInShop()">Zeig's mir ↗</button>
+      </div>
+      <small>„Annehmen“ schließt diese Meldung. „Zeig's mir“ öffnet den passenden Test-Shop. Gekauft wird erst im Shop.</small>
     </div>
   </div>
   <div class="veil shop-preview-veil" *ngIf="previewed as item" role="dialog" aria-modal="true" aria-label="Live-Vorschau für ein Cosmetic">
