@@ -12,8 +12,8 @@ const preview=h.slice(h.indexOf('<div class="veil shop-preview-veil"'),h.indexOf
 // when switching tests, including tests that do not offer that cosmetic type.
 assert(t.includes("get shopCategories(){return ['Alle',...new Set(this.items.map(i=>i.group))];}"),
  'Shop category tabs must be derived from ALL items, not only selected-test items');
-assert(t.includes("chooseDrop(id:string){this.shopDrop=id;this.previewed=null;}"),
- 'Changing the test must preserve the selected category filter');
+assert(t.includes("chooseDrop(id:string){if(!this.drops.some(d=>d.id===id))return;"),
+ 'Only genuinely unlocked test drops may be selected');
 assert(h.indexOf('class="chips shop-category-chips"')<h.indexOf('<ng-container *ngIf="selectedDrop.status===\'live\'">'),
  'Category tabs must not disappear when a test is unavailable');
 assert(h.includes('!selectedCategoryHasItems'),
@@ -80,15 +80,15 @@ const catalog=h.slice(h.indexOf('<div class="item-grid drop-item-grid">'),h.inde
 const inventory=h.slice(h.indexOf('class="item-grid drop-item-grid inventory-item-grid"'),h.indexOf('class="empty-tests inventory-empty"'));
 assert(catalog.includes('class="item-title-row"'),'Shop badges must be adjacent to product title');
 assert(inventory.includes('class="item-title-row"'),'Inventory equipped badge must be adjacent to product title');
-assert(catalog.includes('class="item-inline-status owned"')&&catalog.includes('class="item-inline-status locked-status"'),'Catalog must label owned and locked, below art');
-assert(!catalog.includes('🔓 UNLOCKED'),'Redundant unlocked labels must be removed');
+assert(catalog.includes('class="item-inline-status unlocked-status"')&&catalog.includes('class="item-inline-status locked-status"'),'Catalog must label unlocked and locked, never owned');
+assert(!catalog.includes('✓ OWNED'),'Shop must not show owned cosmetics');
 assert(!catalog.includes('item-top-badge'),'No status overlays on catalog item art');
 assert(!inventory.includes('inventory-equipped-badge'),'No status overlays on inventory art');
 assert(inventory.includes('class="item-inline-status equipped-status"'),'Equipped state should be a small badge beside inventory title');
 assert(!inventory.includes('✓ OWNED')&&!inventory.includes('IM INVENTAR'),'Inventory already means owned: no redundant ownership badges');
 assert(catalog.includes("[class.panda-art]=\"item.id==='dsai_panda'\"")&&inventory.includes("[class.panda-art]=\"item.id==='dsai_panda'\""),'Panda needs the larger avatar art in shop and inventory');
 assert(c.includes('.drop-item .item-art.drop-item-art.panda-art .big-item-icon'),'Panda art must have an enlarged rendering');
-console.log('PASS: clean item art; statuses next to titles; enlarged panda in catalog and inventory.');
+console.log('PASS: clean item art; statuses next to titles; inventory-only ownership.');
 
 const newShop=fs.readFileSync('src/app/shop-items.ts','utf8');
 assert(h.includes('class="sidebar-live-courses"'),'All playable trainer shortcuts should appear in top-left sidebar');
@@ -101,8 +101,8 @@ for(const banner of ['gold','warning','galaxy','molecule','flow','curve','cloud'
  const scene=({pink_paradise:'pink',parallel_pulse:'parallel'})[banner]||banner;
  assert(h.includes('scene-'+scene),banner+' needs actual thematic scenery');
 }
-assert(h.includes('<div class="drop-price" *ngIf="!owns(item)"'),'Owned cosmetics should not show cost in store');
-assert(h.includes('<p class="preview-cost" *ngIf="!owns(item)"'),'Owned cosmetics should not show cost in preview popup');
+assert(h.includes('<div class="drop-price" *ngIf="item.drop===\'global\'"'),'Only Essentials show a TT price');
+assert(h.includes('<p class="preview-cost" *ngIf="!owns(item) && item.drop===\'global\'"'),'Only Essentials show TT price in preview');
 const weber=newShop.split('\n').find(x=>x.includes("id:'dsai_title_weber'"));
 const fischer=newShop.split('\n').find(x=>x.includes("id:'title_chaos'"));
 const removedCosmetics=['chem_radical','title','chem_reactor','ocean','avatar_atom','avatar_dragon'];
