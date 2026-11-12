@@ -4,7 +4,7 @@ import {getFirestore, FieldValue, Timestamp} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import {onDocumentWritten} from "firebase-functions/v2/firestore";
 import {
-  BOSS_QUESTIONS, BOSS_REWARD, QUIZ_REWARD, FUNCTION_REGION,
+  BOSS_QUESTIONS, BOSS_REWARD, QUIZ_REWARD, QUIZ_XP, BOSS_XP, FUNCTION_REGION,
   currentDay, validAnswer, validChallengeId, safeNonNegativeInteger,
   quizGrant, bossGrant, parseCounter, isBlockedPublicText,
 } from "./core";
@@ -74,14 +74,15 @@ export const submitAnswer = onCall({region: FUNCTION_REGION}, async request => {
     const credit = quizGrant(current);
     if (!credit) return {correct: true, tokensAwarded: 0, xpAwarded: 0, reason: "daily-cap-reached"};
     const newTokens = safeNonNegativeInteger(w.data()?.tokens) + credit;
+    const newXp = safeNonNegativeInteger(w.data()?.xp) + QUIZ_XP;
     tx.create(attempt, {challengeId, type: "quiz", day, tokensAwarded: credit,
-      creditedAt: FieldValue.serverTimestamp()});
+      xpAwarded: QUIZ_XP, creditedAt: FieldValue.serverTimestamp()});
     tx.set(counter, {...current, quizTokens: current.quizTokens + credit,
       totalTokens: current.totalTokens + credit, quizQuestions: current.quizQuestions + 1,
       updatedAt: FieldValue.serverTimestamp()});
-    tx.update(wallet, {tokens: newTokens, updatedAt: FieldValue.serverTimestamp()});
-    // XP rewards are not defined for this challenge type in SHOP_ECONOMY.md.
-    return {correct: true, tokensAwarded: credit, xpAwarded: 0, walletTokens: newTokens};
+    tx.update(wallet, {tokens: newTokens, xp: newXp, updatedAt: FieldValue.serverTimestamp()});
+    return {correct: true, tokensAwarded: credit, xpAwarded: QUIZ_XP,
+      walletTokens: newTokens, walletXp: newXp};
   });
 });
 
@@ -116,12 +117,14 @@ export const submitDailyBoss = onCall({region: FUNCTION_REGION}, async request =
     const credit = bossGrant(current, correct, typed.length);
     if (!credit) return {passed: true, correct, tokensAwarded: 0, xpAwarded: 0, reason: "daily-cap-reached"};
     const newTokens = safeNonNegativeInteger(w.data()?.tokens) + credit;
+    const newXp = safeNonNegativeInteger(w.data()?.xp) + BOSS_XP;
     tx.create(attempt, {type: "boss", day, correct, tokensAwarded: credit,
-      creditedAt: FieldValue.serverTimestamp()});
+      xpAwarded: BOSS_XP, creditedAt: FieldValue.serverTimestamp()});
     tx.set(counter, {...current, bossTokens: current.bossTokens + credit,
       totalTokens: current.totalTokens + credit, updatedAt: FieldValue.serverTimestamp()});
-    tx.update(wallet, {tokens: newTokens, updatedAt: FieldValue.serverTimestamp()});
-    return {passed: true, correct, tokensAwarded: credit, xpAwarded: 0, walletTokens: newTokens};
+    tx.update(wallet, {tokens: newTokens, xp: newXp, updatedAt: FieldValue.serverTimestamp()});
+    return {passed: true, correct, tokensAwarded: credit, xpAwarded: BOSS_XP,
+      walletTokens: newTokens, walletXp: newXp};
   });
 });
 
