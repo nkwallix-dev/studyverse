@@ -5,7 +5,9 @@
 export const DAILY_QUIZ_CAP = 500;
 export const DAILY_TOTAL_CAP = 750;
 export const QUIZ_REWARD = 25;
+export const QUIZ_XP = 10; // New verified daily Arena progression per credited answer
 export const BOSS_REWARD = 250;
+export const BOSS_XP = 50; // Verified 14/20 daily boss completion
 export const BOSS_QUESTIONS = 20;
 export const BOSS_MIN_CORRECT = 14;
 export const MAX_QUIZ_QUESTIONS = 20;
