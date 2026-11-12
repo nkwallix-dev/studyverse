@@ -41,11 +41,16 @@ export function validAnswer(x: unknown): x is string {
 export function isBlockedPublicText(value: unknown): boolean {
   if (typeof value !== "string" || value.length < 2 || value.length > 80 ||
       /[\u0000-\u001f\u007f]/.test(value)) return true;
-  const canonical = value.normalize("NFKD").toLowerCase()
-    .replace(/[\u0300-\u036f]/g, "")
+  const lookalikes: Record<string, string> = {
+    "а":"a","е":"e","о":"o","р":"p","с":"c","х":"x","у":"y","і":"i","ј":"j","ѕ":"s",
+    "α":"a","ε":"e","ι":"i","ο":"o","ν":"n","κ":"k","ρ":"p","τ":"t","χ":"x"
+  };
+  const canonical = [...value.normalize("NFKC").normalize("NFKD").toLowerCase()]
+    .map(ch => lookalikes[ch] || ch).join("")
+    .replace(/[\u0300-\u036f\u200b-\u200d\u2060]/g, "")
     .replace(/ß/g, "ss")
     .replace(/[4@]/g, "a").replace(/3/g, "e")
-    .replace(/[1!|]/g, "i").replace(/0/g, "o").replace(/5\$/g, "s")
+    .replace(/[1!|]/g, "i").replace(/0/g, "o").replace(/[5$]/g, "s")
     .replace(/7/g, "t").replace(/9/g, "g")
     .replace(/[^a-z]/g, "");
   // Tight patterns to avoid blocking ordinary German/English names on fragments.
