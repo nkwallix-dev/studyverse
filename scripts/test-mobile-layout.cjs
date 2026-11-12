@@ -226,10 +226,10 @@ async function main(){
   // MathsVerse remains a visible locked subject but has no deployable course.
   const subjectPage=await browser.newPage();
   await subjectPage.goto(base,{waitUntil:'load'});
-  await subjectPage.getByRole('button',{name:/Lernwelten/i}).first().click();
-  const matTile=subjectPage.locator('.subject-card').filter({hasText:/Mathematik/i}).first();
+  await subjectPage.locator('.navigation button[aria-label="Lernwelten"]').first().click();
+  const matTile=subjectPage.locator('button.subject-card.detailed').filter({hasText:/Mathematik/i}).first();
   assert(await matTile.count()===1,'MathsVerse subject tile must remain visible');
-  assert(await matTile.locator('button:disabled').count()>=0,'MathsVerse cannot be opened');
+  assert(await matTile.isDisabled(),'MathsVerse cannot be opened');
   await subjectPage.close();
   // Global equipment must actually render inside EACH standalone trainer, not
   // merely appear on the Studyverse dashboard where it was equipped.
