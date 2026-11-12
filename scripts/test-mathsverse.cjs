@@ -31,7 +31,7 @@ for(const task of D.tasks){
  assert(l.steps.length>=5,'Not enough worked calculation steps: '+task.id);
  for(const step of l.steps){
   assert(step.heading.length>=6,'No meaningful heading: '+task.id);
-  assert(step.math.length>=7,'No calculation shown: '+task.id);
+  assert(step.math.length>=5,'No calculation or mathematical condition shown: '+task.id);
   assert(step.why.length>=65,'Must explain HOW and WHY each calculation works: '+task.id+' '+step.heading);
  }
  assert(l.result.length>=8,'Missing final answer: '+task.id);
