@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angula
 import { FormsModule } from '@angular/forms';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
-import { StudyverseCloud, CloudSnapshot, PublicPlayer, CLOUD_DAILY_KEY, cloudError, isAllowedNickname } from './cloud';
+import { StudyverseCloud, CloudSnapshot, PublicPlayer, AccountNotice, CLOUD_DAILY_KEY, cloudError, isAllowedNickname } from './cloud';
 
 type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements' | 'friends';
 interface Subject { id:string; short:string; name:string; icon:string; group:string; color:string; desc:string; }
@@ -65,6 +65,10 @@ export class App implements OnInit,OnDestroy {
  private cloudWrites:Promise<void>=Promise.resolve();
  private friendSync:Promise<void>=Promise.resolve();
  private friendProfileStamp='';
+ // An admin-issued notice is tied to Firebase UID, not an editable nickname.
+ moderationNotice:AccountNotice|null=null;
+ noticePreview=false;noticeSaving=false;noticeError='';
+ private noticeCheckId=0;
  achievementSubject='Alle';achievementTest='Alle';achievementSort:'open'|'done'|'progress'|'reward'|'title'='open';
  profile:Profile=this.load(); public today=new Date();
  private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.queueCloudSave();};
@@ -110,6 +114,46 @@ export class App implements OnInit,OnDestroy {
  private save(){write(KEY,JSON.stringify(this.profile));this.queueCloudSave();void this.publishFriendCard();}
  private alert(message:string){this.info=message;}
 
+ private async checkOwnAccountNotice():Promise<void>{
+   const uid=this.cloud.session?.uid;
+   if(!uid||!this.cloudMaySave)return;
+   const check=++this.noticeCheckId;
+   try{
+     const notice=await this.cloud.readAccountNotice();
+     if(this.cloud.session?.uid!==uid||check!==this.noticeCheckId)return;
+     const seen=notice?await this.cloud.noticeAcknowledged(notice.id):false;
+     if(this.cloud.session?.uid!==uid||check!==this.noticeCheckId)return;
+     if(notice&&!seen){
+       this.moderationNotice=notice;this.noticePreview=false;this.noticeError='';
+     }else if(new URLSearchParams(window.location.search).get('warningPreview')==='1'&&
+       read('studyverse_fairplay_preview_seen_'+uid)!=='1'){
+       // A preview is NOT a real account sanction; it never writes Firestore.
+       this.moderationNotice=null;this.noticePreview=true;this.noticeError='';
+     }
+   }catch(error){
+     // Failing to load the optional moderation UI must not corrupt a save.
+     this.noticeError=cloudError(error);
+   }finally{this.changeDetector.markForCheck();}
+ }
+ async acknowledgeAccountNotice():Promise<void>{
+   if(this.noticeSaving)return;
+   if(this.noticePreview){
+     const uid=this.cloud.session?.uid;
+     if(uid)write('studyverse_fairplay_preview_seen_'+uid,'1');
+     this.noticePreview=false;this.noticeError='';
+     this.changeDetector.markForCheck();return;
+   }
+   if(!this.moderationNotice||!this.cloud.session)return;
+   this.noticeSaving=true;this.noticeError='';
+   const uid=this.cloud.session.uid,noticeId=this.moderationNotice.id;
+   try{
+     await this.cloud.acknowledgeNotice(noticeId);
+     if(this.cloud.session?.uid===uid&&this.moderationNotice?.id===noticeId)
+       this.moderationNotice=null;
+   }catch(error){
+     this.noticeError='Konnte deine Bestätigung nicht speichern: '+cloudError(error)+'. Bitte erneut versuchen.';
+   }finally{this.noticeSaving=false;this.changeDetector.markForCheck();}
+ }
  get cloudUser(){return this.cloud.session?.username||'';}
  // Friends directory contains only nickname, avatar and a vanity title.
  // Published numeric scores are excluded: local XP/TT stay unverified.
@@ -245,6 +289,7 @@ export class App implements OnInit,OnDestroy {
    }finally{
      this.cloudConfigured=this.cloud.configured;this.cloudReady=true;
      if(this.cloud.session&&this.cloudMaySave){
+       void this.checkOwnAccountNotice();
        void this.publishFriendCard();
        this.queueCloudSave();
      }
@@ -318,6 +363,7 @@ export class App implements OnInit,OnDestroy {
      }
      this.cloudMaySave=true;this.cloudStatus='✓ Online gespeichert';this.cloudPin='';this.cloudUsername='';
      void this.publishFriendCard();
+     void this.checkOwnAccountNotice();
      this.cloudMessage='';
    }catch(e){
      this.cloudMessage=cloudError(e);
@@ -351,7 +397,7 @@ export class App implements OnInit,OnDestroy {
      this.alert('Cloud-Speicherung fehlgeschlagen. Exportiere zur Sicherheit ein Backup und versuche es erneut, bevor du dich abmeldest.');
      return;
    }
-   this.cloud.signOut();this.cloudMaySave=false;this.publicPlayers=[];this.friendsError='';this.friendProfileStamp='';this.clearDeviceProgress();
+   this.cloud.signOut();this.cloudMaySave=false;this.publicPlayers=[];this.friendsError='';this.friendProfileStamp='';this.moderationNotice=null;this.noticePreview=false;this.noticeError='';this.noticeCheckId++;this.clearDeviceProgress();
    this.profile=initial();this.nicknameEdit=this.profile.nickname;
    this.cloudMode='login';this.cloudStatus='Abgemeldet';this.cloudMessage='';
    this.view='dashboard';this.intro=false;write(INTRO,'1');
