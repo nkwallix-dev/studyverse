@@ -66,11 +66,17 @@ const http=async(name,token,data)=>{
   console.log('PASS: callable quiz credits once per day.');
   // 20-question boss: 14/20 is the minimum, daily bonus is idempotent.
   for(let i=0;i<20;i++){
-   await admin.doc('questionBank/boss:q'+i).set({active:true,kind:'quiz',answer:'Right'});
+   await admin.doc('questionBank/boss:q'+i).set({active:true,kind:'quiz',examEligible:true,answer:'Right'});
   }
   const answers=Array.from({length:20},(_,i)=>({
    challengeId:'boss:q'+i,answer:i<14?'Right':'Wrong'
   }));
+  await admin.doc('questionBank/boss:q19').update({examEligible:false});
+  const rejected=await fetch('http://127.0.0.1:5001/'+project+'/europe-west1/submitDailyBoss',{
+   method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
+   body:JSON.stringify({data:{answers}})});
+  assert.equal(rejected.ok,false,'Server must reject a dataset-dependent exam question');
+  await admin.doc('questionBank/boss:q19').update({examEligible:true});
   const bossFirst=await http('submitDailyBoss',token,{answers});
   const bossAgain=await http('submitDailyBoss',token,{answers});
   assert.equal(bossFirst.passed,true,'14 of 20 must pass');
