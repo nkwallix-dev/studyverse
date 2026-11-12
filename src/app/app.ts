@@ -627,6 +627,47 @@ export class App implements OnInit,OnDestroy {
    }
    return paid;
  }
+ /** Persistent per-user reward notifications. Previously earned items appear in the
+  * catalog without generating a wall of retroactive popups on first upgrade. */
+ private checkRewardUnlocks(){
+  const unlocked=this.items.filter(i=>i.drop!=='global'&&this.isUnlocked(i)&&!this.owns(i));
+  if(!isObj(this.profile.rewardSeen)){
+   this.profile.rewardSeen=Object.fromEntries(unlocked.map(i=>[i.id,true]));
+   this.profile.rewardQueue=[];
+   this.save();
+   return;
+  }
+  const seen=this.profile.rewardSeen;
+  const queue=Array.isArray(this.profile.rewardQueue)?this.profile.rewardQueue.filter(id=>typeof id==='string'):[];
+  for(const item of unlocked){
+   if(seen[item.id])continue;
+   seen[item.id]=true;
+   if(!queue.includes(item.id))queue.push(item.id);
+  }
+  this.profile.rewardQueue=queue.filter(id=>{
+   const item=this.items.find(i=>i.id===id);
+   return !!item&&!this.owns(item)&&this.isUnlocked(item);
+  });
+  this.save();this.changeDetector.markForCheck();
+ }
+ get nextReward():ShopItem|null{
+  const id=this.profile.rewardQueue?.[0];
+  return this.items.find(i=>i.id===id&&!this.owns(i)&&this.isUnlocked(i))||null;
+ }
+ acceptReward(){
+  const item=this.nextReward;
+  if(!item)return;
+  this.buyOrEquip(item);
+  this.changeDetector.markForCheck();
+ }
+ showRewardInShop(){
+  const item=this.nextReward;
+  if(!item)return;
+  this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
+  this.go('shop');this.shopTab='catalog';this.shopGroup='Alle';this.shopDrop=item.drop;
+  this.spotlightRewardId=item.id;
+  this.save();this.changeDetector.markForCheck();
+ }
  get title(){return this.items.find(i=>i.id===this.profile.equipped['title'])?.name || 'Weltenentdecker';}
  get currentTheme(){return this.profile.equipped['theme'] || 'base';}
  // Keep the equipped design on the real homepage; only the modal showcases a candidate item.
@@ -825,25 +866,30 @@ export class App implements OnInit,OnDestroy {
    return this.profile.equipped[key]===value;
  }
  priceLabel(item:ShopItem){
-   if(this.owns(item))return this.active(item)?'✓ Ausgerüstet':'Ausrüsten';
-   if(item.drop==='global' && this.level<(item.level||1))return '🔒 Level '+item.level+' nötig';
-   if(!this.isUnlocked(item))return '🔒 Lernziel fehlt';
-   return item.cost===0?'Kostenlos abholen':'◉ '+item.cost+' TT';
+  if(this.owns(item))return this.active(item)?'✓ Ausgerüstet':'Ausrüsten';
+  if(!this.isUnlocked(item))return item.drop==='global'?'🔒 Level '+item.level+' nötig':'🔒 Lernziel fehlt';
+  return item.drop==='global'?'◉ '+item.cost+' TT':'🎁 Gratis abholen';
  }
  buyOrEquip(item:ShopItem){
-   if(!this.owns(item)){
-     if(!this.isUnlocked(item)){this.alert('Erst freischalten: '+this.requirementLabel(item));return;}
-     if(this.profile.tokens<item.cost){this.alert('Nicht genug TastyTokens, Bruder. 💀');return;}
-     this.profile.tokens-=item.cost;this.profile.inventory=[...this.profile.inventory,item.id];
-     this.profile.activity=[{label:item.name+' gekauft · '+this.selectedDrop.title,date:new Date().toISOString(),amount:-item.cost},...this.profile.activity].slice(0,30);
-     this.alert(item.icon+' '+this.itemDisplayName(item)+' gehört dir! Überall in STUDYVERSE ausrüstbar.');
-   }else{
-     const key=item.group,value=key==='avatar'?item.icon:(item.equip||item.id);
-     this.profile.equipped[key]=this.active(item)?this.equipDefault(key):value;
-     this.alert(this.itemDisplayName(item)+' – Ausrüstung geändert.');
+  if(!this.owns(item)){
+   if(!this.isUnlocked(item)){this.alert('Erst freischalten: '+this.requirementLabel(item));return;}
+   if(item.drop==='global'){
+    if(this.profile.tokens<item.cost){this.alert('Nicht genug TastyTokens, Bruder. 💀');return;}
+    this.profile.tokens-=item.cost;
    }
-   this.previewed=null;
-   this.save();
+   this.profile.inventory=[...new Set([...this.profile.inventory,item.id])];
+   this.profile.activity=[{
+    label:(item.drop==='global'?'Gekauft: ':'Lernziel-Belohnung: ')+item.name,
+    date:new Date().toISOString(),...(item.drop==='global'?{amount:-item.cost}:{})
+   },...this.profile.activity].slice(0,30);
+   this.alert(item.icon+' '+this.itemDisplayName(item)+(item.drop==='global'?' gekauft!':' gratis abgeholt!'));
+   this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
+  }else{
+   const key=item.group,value=key==='avatar'?item.icon:(item.equip||item.id);
+   this.profile.equipped[key]=this.active(item)?this.equipDefault(key):value;
+   this.alert(this.itemDisplayName(item)+' – Ausrüstung geändert.');
+  }
+  this.previewed=null;this.spotlightRewardId='';this.save();
  }
  private equipDefault(k:string){return defaultEquip()[k as keyof ReturnType<typeof defaultEquip>] || 'none';}
  themeStyle(item:ShopItem){return item.bg || 'linear-gradient(130deg,#212a47,#504193)';}
