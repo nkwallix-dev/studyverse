@@ -16,14 +16,14 @@ Neue Drops benötigen eigene Lernfortschritt-Sperren. Neue **globale** Level-Mei
 Alle **11 Chemverse-Achievements** vergeben zusätzlich **4.670 Tokens** insgesamt. Die Belohnungen gelten rückwirkend, werden aber **pro Achievements-ID/Test genau einmal** auf dem STUDYVERSE-Profil gutgeschrieben.
 
 Regelmäßiges Lernen bleibt auch nach allen erstmaligen Aufgaben möglich:
-- **Tägliches Quiz:** Für die ersten 20 **verschiedenen richtig beantworteten** Quizfragen desselben Tages: **25 Tokens pro Frage** (bis zu 500 pro Tag). Auch bereits gemeisterte Fragen zählen. Dieselbe Frage gibt am selben Tag keinen zweiten Bonus. Falsche Antworten geben keine Tokens.
-- **Täglicher Boss:** Einmal pro Tag **250 Tokens**, wenn ein kompletter Bosskampf mit **mindestens 70 %** bestanden wird.
+- **Tägliches Quiz:** Für die ersten 20 **verschiedenen richtig beantworteten** Quizfragen desselben Tages: **25 Tokens pro Frage** (bis zu 500 pro Tag). Im geplanten Sicherheits-Backend zusätzlich **10 verifizierte XP** je vergüteter Frage. Auch bereits gemeisterte Fragen zählen. Dieselbe Frage gibt am selben Tag keinen zweiten Bonus. Falsche Antworten geben keine Tokens.
+- **Täglicher Boss:** Einmal pro Tag **250 Tokens**, wenn ein kompletter Bosskampf mit **mindestens 70 %** bestanden wird. Im geplanten Sicherheits-Backend zusätzlich **50 verifizierte XP**.
 - Maximal **750 wiederholbare Tokens pro Kalendertag** bei Chemverse.
 - Quiz und Boss verwenden **neu gemischte Antwortpositionen**, auch bei wiederholten Fragen. Die richtige Antwort wird bei derselben Frage nicht an derselben Position wie beim vorherigen Auftreten platziert.
 - Erstmalige Lernfortschritte erhalten weiterhin ihre bisherigen XP-/Token-Boni; mit späteren Verses kommen neue hinzu.
 - Jeder weitere Lernwelt-Drop soll eigene wiederholbare **kompetenzbasierte** Coin-Quellen bieten.
 
-**Die täglichen Aufgaben und Spielstände sind aktuell nur browserlokal.** Das ist eine Motivations-Economy, kein gegen Manipulation abgesichertes Online-Spiel. Für echte Konten ist weiterhin ein Auth-Provider / Backend erforderlich.
+**Aktueller Produktionsstand:** Die bisherige Browser-Economy bleibt bis zum kontrollierten Sicherheits-Cutover aktiv. PR #15 führt danach serverseitig begrenzte TT/XP-Wallets für angemeldete Nutzer ein. Trainerfortschritt bleibt lokal als nicht verifizierte Übung gespeichert; Wiederholungs-Gutschriften werden nur über das Backend gezählt. Die Fragen und Lösungen sind im Web weiterhin sichtbar – serverseitiges Guthaben verhindert direkte Fantasiebeträge, nicht das automatisierte Lösen innerhalb des Tageslimits.
 
 ## Bestehenden Spielstand übernehmen
 - Die CHEMVERSE-IDs der kosmetischen Items wurden beibehalten.
