@@ -9,6 +9,9 @@ on:
       - 'functions/**'
       - 'scripts/test-security-emulators.cjs'
       - 'scripts/migrate-wallets.cjs'
+      - 'scripts/admin-rename-user.cjs'
+      - 'scripts/test-admin-rename.cjs'
+      - 'scripts/show-wallet-summary.cjs'
       - 'scripts/seed-server-catalog.cjs'
       - 'scripts/test-server-question-bank.cjs'
       - '.github/workflows/firebase-rules.yml'
@@ -53,6 +56,8 @@ jobs:
         run: npm --prefix functions run build
       - name: Run security policy unit tests
         run: node --test functions/test/core.test.cjs
+      - name: Verify owner-only nickname change never modifies rewards
+        run: node scripts/test-admin-rename.cjs
       - name: Validate catalog seeding (strict dry run, NO writes)
         run: node scripts/seed-server-catalog.cjs --project demo-studyverse-rules
       - name: Confirm trainer answers match the private server bank
