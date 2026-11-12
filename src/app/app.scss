@@ -619,12 +619,14 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
 .reward-unlock-modal{width:min(510px,100%);padding:32px 28px;border:1px solid #c586f799;box-shadow:0 30px 110px #000b,0 0 70px #a777ff22;background:radial-gradient(circle at 50% 0%,#44315a,#1d183a 55%,#111326)}
 .reward-unlock-art{display:grid;place-items:center;width:116px;height:116px;margin:23px auto 14px;border-radius:28px;border:1px solid #dda2ff99;background:linear-gradient(145deg,#5d3377,#28204c);font-size:68px;box-shadow:0 18px 56px #cf91ff33;animation:reward-arrive .5s cubic-bezier(.2,.8,.2,1) both}
 .reward-unlock-modal h3{font-size:23px;margin:10px 0;font-weight:850;color:#ffd2ff}
-.reward-unlock-modal p{font-size:14px;margin:12px 0 22px}
+
 .reward-unlock-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;justify-content:center;align-items:center}
 .reward-unlock-actions .btn{min-height:48px;white-space:normal}
-.reward-unlock-modal>small{line-height:1.55;margin-top:14px}
+
 .drop-item.reward-spotlight{border-color:#d597ff;box-shadow:0 0 0 2px #ba73ff88,0 10px 40px #bc7bff30}
 .item-inline-status.unlocked-status{color:#a7ffdc;border:1px solid #78dcbc55;background:#1b554233}
-.reward-price strong{color:#a7ffdc}
+
 @keyframes reward-arrive{from{opacity:0;transform:translateY(20px) scale(.82)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(max-width:520px){.reward-unlock-modal{padding:24px 16px}.reward-unlock-modal h2{font-size:26px}.reward-unlock-actions{gap:8px}.reward-unlock-actions .btn{padding:10px 8px;font-size:12px}.reward-unlock-art{width:96px;height:96px;font-size:58px}}
+
+
+@media(max-width:520px){.reward-unlock-modal{padding:20px 12px}.reward-unlock-actions{gap:8px}}
