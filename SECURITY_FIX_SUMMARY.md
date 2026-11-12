@@ -1,7 +1,24 @@
 # Studyverse – Security Fix (staged, NOT deployed)
 
-**Status:** Implementation branch. **No production Firebase data was changed.**
+**Status:** Implementation branch, not deployed. **A read-only scan of 12 existing Studyverse accounts was completed by the owner.** Two `REVIEW_TOKENS_SPIKE` flags (gissi and JOOOOOOOOOOOO) were reviewed and explicitly accepted as legitimate. No live wallet migration or account modifications have been performed by ChatGPT.
+
+**XP + ITEM SHOP FREEZE (owner request, 12 Nov 2026):** Keep the entire existing XP earning formula and every shop behaviour unchanged for this migration. **Do not merge/deploy the current PR #15 application code before the separate XP/shop redesign**: its proposed server functions and client wallet changes deliberately alter online XP and purchases. The current actionable milestone is the **INACTIVE SHADOW MIGRATION ONLY** described in [STAGE_WALLET_GUIDE.md](./STAGE_WALLET_GUIDE.md).
 Do not merge/deploy this branch until the owner has reviewed existing wallets, backend permissions, rollout timing and CI results.
+
+## Migration phase 1: shadow-only wallet copies
+
+The new `scripts/stage-wallets.cjs` creates inactivated wallet copies with
+`migrationApproved:false`. It preserves XP, TT and purchased items byte-for-byte
+as parsed profile values; the old `users/{uid}.profile` remains authoritative
+and editable by the existing website. This script does NOT deploy changed rules,
+Cloud Functions or front-end code, and does NOT create verified leaderboard
+records. There is a private local backup before any copy is made, plus a
+read-only audit. Future XP/shop work requires a **fresh scan and shadow refresh**
+because the legacy app continues to grant XP and sell items meanwhile.
+
+**Run only** the steps in `STAGE_WALLET_GUIDE.md` for this phase.
+`scripts/migrate-wallets.cjs --apply` is the full activation migration,
+NOT the shadow copy, and must NOT be invoked in phase 1.
 
 ## Implemented
 
