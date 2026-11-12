@@ -26,8 +26,16 @@ const digest=s=>crypto.createHash('sha256').update(s).digest('hex');
 const owned=x=>Array.isArray(x)?[...new Set(x.filter(v=>typeof v==='string'&&v.length<100))]:[];
 const legacyState=data=>{
  const raw=typeof data?.profile==='string'?data.profile:'';
- const wrapper=parse(raw),p=wrapper.profile||{};
- return {raw,profile:p,tokens:sane(p.tokens),xp:sane(p.xp),inventory:owned(p.inventory)};
+ const wrapper=parse(raw),p=wrapper?.profile;
+ const valid=!!raw&&!!p&&typeof p==='object'&&!Array.isArray(p);
+ const profile=valid?p:{};
+ return {raw,valid,profile,
+   nickname:typeof profile.nickname==='string'?profile.nickname.slice(0,48):'(unbekannt)',
+   tokens:sane(profile.tokens),xp:sane(profile.xp),inventory:owned(profile.inventory),
+   validTokens:Number.isSafeInteger(profile.tokens)&&profile.tokens>=0,
+   validXp:Number.isSafeInteger(profile.xp)&&profile.xp>=0,
+   validInventory:Array.isArray(profile.inventory)
+ };
 };
 (async()=>{
  if(scan){
@@ -43,15 +51,18 @@ const legacyState=data=>{
    }catch{days=0;}
    const upperBound=4670+750*days+2000;
    const flags=[];
-   if(!record.raw||!record.profile||typeof record.profile!=='object')flags.push('INVALID_LEGACY_PROFILE');
+   if(!record.valid)flags.push('INVALID_LEGACY_PROFILE');
+   if(!record.validTokens)flags.push('INVALID_TOKENS_VALUE');
+   if(!record.validXp)flags.push('INVALID_XP_VALUE');
+   if(!record.validInventory)flags.push('INVALID_INVENTORY');
    if(record.tokens>100000||record.tokens>upperBound)flags.push('REVIEW_TOKENS_SPIKE');
    if(record.xp>1000000)flags.push('REVIEW_XP_SPIKE');
    if(record.inventory.length>400)flags.push('REVIEW_INVENTORY_SPIKE');
-   const entry={uid:doc.id,sourceHash:digest(record.raw),sourceUpdatedAt,
+   const entry={uid:doc.id,nickname:record.nickname,sourceHash:digest(record.raw),sourceUpdatedAt,
     tokens:record.tokens,xp:record.xp,inventory:record.inventory,
     ageDays:days,maxPlausibleTokensEstimate:upperBound,flags};
    entries.push(entry);
-   console.log(doc.id+' XP='+record.xp+' TT='+record.tokens+
+   console.log(doc.id+' ('+record.nickname+') XP='+record.xp+' TT='+record.tokens+
      ' inventory='+record.inventory.length+' flags='+flags.join(','));
   }
   const report={project,scannedAt:new Date().toISOString(),readOnly:true,
@@ -77,7 +88,9 @@ const legacyState=data=>{
  if(report.project!==project||approvals.project!==project||approvals.reviewed!==true ||
     !Array.isArray(approvals.entries))throw Error('Project mismatch or review not confirmed');
  const indexed=new Map(report.entries.map(x=>[x.uid,x]));
- if(approvals.entries.length!==report.entries.length)throw Error('Every legacy user must be explicitly reviewed');
+ if(approvals.entries.length!==report.entries.length ||
+    new Set(approvals.entries.map(x=>x.uid)).size!==approvals.entries.length)
+   throw Error('Every legacy user must be reviewed exactly once');
  for(const decision of approvals.entries){
   const source=indexed.get(decision.uid);
   if(!source)throw Error('Unknown UID '+decision.uid);
@@ -89,7 +102,8 @@ const legacyState=data=>{
     throw Error('Invalid approval for '+decision.uid);
   }
   // Re-read legacy snapshot inside a transaction: never import stale data.
-  const legacy=db.doc('users/'+decision.uid),wallet=db.doc('users/'+decision.uid+'/wallet/tokens');
+  const legacy=db.doc('users/'+decision.uid),wallet=db.doc('users/'+decision.uid+'/wallet/tokens'),
+    verified=db.doc('verifiedProfiles/'+decision.uid);
   await db.runTransaction(async tx=>{
    const [old,existing]=await tx.getAll(legacy,wallet);
    if(existing.exists)throw Error('Wallet already exists for '+decision.uid+'; refusing overwrite');
@@ -99,6 +113,10 @@ const legacyState=data=>{
      inventory:[...new Set(decision.inventory)],migrationApproved:true,version:1,
      migrationSourceHash:source.sourceHash,createdAt:FieldValue.serverTimestamp(),
      updatedAt:FieldValue.serverTimestamp()});
+   // Owner-reviewed verified level is created atomically alongside the wallet.
+   // This backfills pre-existing wallets BEFORE Cloud Functions triggers exist.
+   const level=1+Math.floor(Math.sqrt(decision.xp/110));
+   tx.set(verified,{verified:true,level,updatedAt:FieldValue.serverTimestamp()});
   });
   console.log('APPROVED AND CREATED '+decision.uid+' TT='+decision.tokens+' XP='+decision.xp);
  }
