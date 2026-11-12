@@ -14,6 +14,11 @@ on:
       - 'scripts/show-wallet-summary.cjs'
       - 'scripts/seed-server-catalog.cjs'
       - 'scripts/test-server-question-bank.cjs'
+      - 'scripts/test-exam-question-policy.cjs'
+      - 'public/shared/exam-question-policy.js'
+      - 'public/dsai/test-01/app.js'
+      - 'public/daily/app.js'
+      - 'public/nawi/test-01/index.html'
       - 'scripts/test-exam-pool.cjs'
       - 'public/shared/exam-question-policy.js'
       - 'public/daily/questions.js'
@@ -66,6 +71,8 @@ jobs:
         run: node scripts/seed-server-catalog.cjs --project demo-studyverse-rules
       - name: Confirm trainer answers match the private server bank
         run: node scripts/test-server-question-bank.cjs
+      - name: Reject notebook-specific facts from all exam simulations
+        run: node scripts/test-exam-question-policy.cjs
       - name: Validate exam-only pool across Daily, Chemverse and Dsaiverse
         run: node scripts/test-exam-pool.cjs
       - name: Ensure both copies of Firestore rules are identical
