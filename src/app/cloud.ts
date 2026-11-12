@@ -14,7 +14,7 @@ export interface CloudSnapshot{
 }
 export interface PublicPlayer {uid:string;nickname:string;avatar:string;title:string}
 /** Moderator-controlled notice. No client can write or choose who gets one. */
-export interface AccountNotice {id:string;kind:'fairplay-warning'}
+export interface AccountNotice {id:string;kind:'fairplay-warning'|'nickname-blocked'}
 
 interface CloudConfig{apiKey:string;projectId:string}
 export interface CloudSession{uid:string;username:string;idToken:string;refreshToken:string;expiresAt:number}
@@ -222,9 +222,10 @@ export class StudyverseCloud{
     };
     if(!response.ok)throw Error(body.error?.message||'Verwarnung konnte nicht geladen werden ('+response.status+').');
     const id=body.fields?.id?.stringValue||'';
-    if(body.fields?.active?.booleanValue!==true||body.fields?.kind?.stringValue!=='fairplay-warning'||
+    if(body.fields?.active?.booleanValue!==true||
+      !['fairplay-warning','nickname-blocked'].includes(body.fields?.kind?.stringValue||'')||
       !/^[a-z0-9][a-z0-9-]{4,79}$/.test(id))return null;
-    return {id,kind:'fairplay-warning'};
+    return {id,kind:body.fields!.kind!.stringValue as AccountNotice['kind']};
   }
   /** The acknowledgement is a display preference, NOT tamperproof evidence
    * that the user actually read the warning. All enforcement is manual.
