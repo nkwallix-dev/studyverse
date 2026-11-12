@@ -258,7 +258,14 @@ async function main(){
   assert.equal(displayedTokens,tokensBefore,
    'Modal shows the actual current TT balance, including earned level bonuses');
   await rewardModal.getByRole('button',{name:/Kaufen.*Ausrüsten/}).click();
-  assert((await rewardModal.locator('.reward-counter').innerText()).includes('2 VON 4'),
+  await rewardPage.waitForTimeout(150);
+  const firstCounter=await rewardModal.locator('.reward-counter').innerText();
+  console.log('REWARD AFTER FIRST BUY:',firstCounter,
+   JSON.stringify(await rewardPage.evaluate(()=>{
+    const p=JSON.parse(localStorage.getItem('studyverse_profile_v1')||'{}');
+    return {tokens:p.tokens,inventory:p.inventory,queue:p.rewardQueue,pos:p.rewardBatchPosition,total:p.rewardBatchTotal};
+   })));
+  assert(firstCounter.includes('2 VON 4'),
    'Buying the first reward must advance directly to second, not dismiss the whole batch');
   const afterPurchase=await rewardPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
   assert.equal(afterPurchase.tokens,tokensBefore-90,'Purchase deducts the existing Data-Bot 90 TT exactly once');
