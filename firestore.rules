@@ -1,12 +1,7 @@
-// StudyVerse Firestore rules
-// PRIVATE progress: owner-only saves. Values in /users are UNVERIFIED.
-// FRIENDS: /publicProfiles is an authenticated social directory ONLY.
-// Legacy "level" values remain stored, but owners can neither change them
-// nor copy them into a public ranking. The client NEVER displays old levels.
-// COMPETITIVE RANKS: /verifiedProfiles is writable only by trusted Admin SDK.
-//
-// IMPORTANT: GitHub Pages does NOT deploy this file to Firebase.
-// Publish manually under Firebase Console > Firestore Database > Rules.
+// Studyverse Firestore rules
+// Private progress is owner-only and UNVERIFIED.
+// Friend cards are social data only; never trust legacy level or XP.
+// Verified leaderboard data and moderation notices are admin-only writes.
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -38,16 +33,14 @@ service cloud.firestore {
     }
 
     match /publicProfiles/{userId} {
-      // Read social data only for signed-in classmates.
+      // Signed-in classmates can view friend cards, never legacy ranks.
       allow get, list: if request.auth != null;
-      // A newly created card may carry only display fields – no XP or level.
+      // New cards contain only display fields and no scores.
       allow create: if request.auth != null
         && request.auth.uid == userId
         && request.resource.data.keys().hasOnly(['nickname', 'avatar', 'selectedTitle', 'updatedAt'])
         && validFriendProfile();
-      // Old public records may still have level/title fields. Those fields
-      // are immutable for clients, preserving moderator edits and blocking
-      // forged level updates through REST requests or imported JSON.
+      // Updates cannot modify legacy level/title or any other admin fields.
       allow update: if request.auth != null
         && request.auth.uid == userId
         && request.resource.data.diff(resource.data).affectedKeys()
@@ -56,42 +49,28 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-
-    // Account-specific sanctions are issued by an administrator, NEVER by
-    // another user or by locally modified JSON.
     match /accountNotices/{userId} {
+      // Moderation notices are created/updated by administrators only.
       allow get: if request.auth != null && request.auth.uid == userId;
       allow list, create, update, delete: if false;
     }
 
-    // Owner-visible "dismissed" state, not evidence of guilt or a
-    // tamper-proof admission. No automated bans use these acknowledgements.
     match /accountNoticeAcks/{userId} {
+      // Recipient-owned acknowledgement; this is not proof of guilt.
       allow get: if request.auth != null && request.auth.uid == userId;
       allow list, delete: if false;
       allow create, update: if request.auth != null
         && request.auth.uid == userId
-        && request.resource.data.keys().hasOnly(['noticeId','acknowledgedAt'])
-        && request.resource.data.keys().hasAll(['noticeId','acknowledgedAt'])
+        && request.resource.data.keys().hasOnly(['noticeId', 'acknowledgedAt'])
+        && request.resource.data.keys().hasAll(['noticeId', 'acknowledgedAt'])
         && request.resource.data.noticeId is string
-        && request.resource.data.noticeId.matches('^[a-z0-9][a-z0-9-]{4,79}
-      allow get, list: if request.auth != null;
-      // Only Admin SDK/Cloud Functions with service credentials can write.
-      allow create, update, delete: if false;
-    }
-
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-)
+        && request.resource.data.noticeId.matches('^[a-z0-9][a-z0-9-]{4,79}$')
         && request.resource.data.acknowledgedAt is timestamp;
     }
 
     match /verifiedProfiles/{userId} {
       allow get, list: if request.auth != null;
-      // Only Admin SDK/Cloud Functions with service credentials can write.
+      // Only trusted backend credentials can write verified ranks.
       allow create, update, delete: if false;
     }
 
