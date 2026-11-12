@@ -31,8 +31,11 @@ JavaScript-Lektionen ist vollständig aus dem öffentlich deployten Katalog
 entfernt. **Mathematik bleibt als gesperrte Lernwelt („Coming Soon“) erhalten**,
 bis der neue Schularbeitsstoff hinzugefügt wird. Die zwei bisherigen Mathe-
 Shop-Items (`maths_avatar_pi`, `maths_title_integral`) sind nicht mehr
-im Katalog enthalten. Bestehende Lernstände/Wallet-Kopien werden nicht
-automatisch verändert oder gelöscht.
+im Shop-Katalog enthalten. **Wer eines der beiden früher gekauft hat, behält
+es weiterhin im Inventar und kann es ausrüsten.** Die archivierten Einträge
+in `src/app/legacy-owned-items.ts` sind ausschließlich zur Anzeige bereits
+besessener Items da; sie sind nicht neu kaufbar. Bestehende
+Lernstände/Wallet-Kopien werden nicht automatisch verändert oder gelöscht.
 
 ## XP, TT und Sicherheitsmigration
 
