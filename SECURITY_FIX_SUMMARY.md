@@ -61,6 +61,43 @@ Do **not** run `--apply` until account-by-account values have been checked
 with the owner, suspicious values corrected, the production database backed up,
 and the maintenance/cutover plan agreed.
 
+## Owner correction of an offensive name (separate from wallet cheating)
+
+Studyverse has **two names**: a cosmetic public `profile.nickname` and an
+**authentication login handle**, represented by
+`<login>@accounts.studyverse.example.com` in Firebase Auth. Changing just
+`publicProfiles.nickname` does **not** change the person's login.
+
+The player can already edit their **display name** in
+**Mein Profil → Profil bearbeiten → Dein Anzeigename**. An administrator can
+also use the following owner-only script from Cloud Shell. It updates only the
+display name across the old save, social card, and newer practice save;
+**no XP, Tokens, inventory, titles, or PINs are changed**.
+
+```sh
+# Read-only preview, no Firestore/Auth writes:
+node scripts/admin-rename-user.cjs --project studyverse-logins \
+  --uid "USER_UID_FROM_PRIVATE_REPORT" \
+  --display-name "Spieler123" --acknowledge-production-read
+
+# Optional: to also change the ACCOUNT LOGIN NAME, add:
+# --new-login spieler123
+# Only after inspecting the preview, the owner may add both flags:
+# --apply --confirm-rename
+```
+
+The `--new-login` option changes the synthetic Firebase Auth email, so the
+person must subsequently log in with the new handle and their existing PIN.
+**This is a sensitive admin action; it never runs automatically.** If the
+user has a currently open session, have them log out and back in before
+continuing. Avoid embedding UIDs or credentials in public GitHub issues.
+
+**Re-run the read-only migration scan after any rename**, because changing
+the old profile alters its source hash and invalidates the previous approvals.
+
+Unacceptable public names are a **content moderation** issue, *not evidence of
+wallet cheating*. The wallet scan now marks `REVIEW_NICKNAME` separately.
+
 ## Owner-only rollout: DO NOT reverse this order
 
 1. Create a full Firestore backup / export. Review GitHub PR changes and CI.
