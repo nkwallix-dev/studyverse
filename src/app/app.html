@@ -442,18 +442,27 @@
       <small>Ein Studyverse-Backup ersetzt den bestehenden Stand nach Rückfrage. Vorher wird eine lokale Rückfallkopie angelegt. Alte Chemverse-Daten lassen sich einmalig übernehmen.</small>
     </div>
   </div>
-  <div class="veil reward-unlock-veil" *ngIf="nextReward as reward" role="dialog" aria-modal="true" aria-labelledby="reward-unlock-title">
+  <div class="veil reward-unlock-veil" *ngIf="nextReward as reward" role="alertdialog" aria-modal="true" aria-labelledby="reward-unlock-title" aria-describedby="reward-unlock-description">
     <div class="modal reward-unlock-modal">
-      <span class="eyebrow">🏆 LERNZIEL ERREICHT</span>
-      <div class="reward-unlock-art" aria-hidden="true">{{reward.icon}}</div>
-      <h2 id="reward-unlock-title">Gegenstand <span>freigeschaltet!</span></h2>
-      <h3>{{itemDisplayName(reward)}}</h3>
-      <p>Du hast dein Lernziel in <strong>{{dropLabel(reward.drop)}}</strong> erreicht: {{requirementLabel(reward)}}. Das Item ist jetzt für <strong>{{reward.cost | number}} TT</strong> kaufbar.</p>
-      <div class="reward-unlock-actions">
-        <button type="button" class="btn secondary" (click)="acceptReward()">✓ Annehmen</button>
-        <button type="button" class="btn primary" (click)="showRewardInShop()">Zeig's mir ↗</button>
+      <div class="reward-unlock-top">
+        <span class="eyebrow">🏆 DEINE FREISCHALTUNGEN</span>
+        <span class="reward-unlock-counter" aria-live="polite">{{rewardStep}} von {{rewardCount}}</span>
       </div>
-      <small>„Annehmen“ schließt diese Meldung. „Zeig's mir“ öffnet den passenden Test-Shop. Gekauft wird erst im Shop.</small>
+      <div class="reward-unlock-track" aria-hidden="true"><i [style.width.%]="100*rewardStep/rewardCount"></i></div>
+      <div class="reward-unlock-art" aria-hidden="true">{{reward.icon}}</div>
+      <h2 id="reward-unlock-title">Neues Cosmetic <span>freigeschaltet!</span></h2>
+      <h3>{{itemDisplayName(reward)}}</h3>
+      <p id="reward-unlock-description">{{dropLabel(reward.drop)}} · {{requirementLabel(reward)}}. Dieses Item ist jetzt kaufbar.</p>
+      <div class="reward-unlock-economy">
+        <span>🪙 Deine TastyTokens <strong>{{profile.tokens | number}} TT</strong></span>
+        <span>Preis <strong>{{reward.cost | number}} TT</strong></span>
+      </div>
+      <div class="reward-unlock-actions">
+        <button type="button" class="btn primary" (click)="purchaseAndEquipReward()" [disabled]="profile.tokens < reward.cost">🛍️ Kaufen &amp; Ausrüsten</button>
+        <button type="button" class="btn secondary" (click)="advanceReward()">{{rewardLast?'✓ Annehmen':'Weiter →'}}</button>
+      </div>
+      <small *ngIf="profile.tokens < reward.cost">Du brauchst noch {{(reward.cost-profile.tokens) | number}} TT für dieses Item.</small>
+      <small>Du kannst alle freigeschalteten Items auch später im Item-Shop kaufen. Nicht gekaufte Belohnungen bleiben dort verfügbar.</small>
     </div>
   </div>
   <div class="veil shop-preview-veil" *ngIf="previewed as item" role="dialog" aria-modal="true" aria-label="Live-Vorschau für ein Cosmetic">
