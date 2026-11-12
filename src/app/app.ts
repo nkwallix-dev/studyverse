@@ -15,13 +15,13 @@ interface Profile {
   chemverseSave?:Record<string,unknown>; claimedLevels:Record<string,boolean>;
   activity:Activity[]; customSubjects?:{id:string;name:string;emoji:string}[];
   trainerSaves?:Record<string,Record<string,unknown>>; shopDropMigrationV1?:boolean; achievementTokenClaims?:Record<string,boolean>;
- rewardSeen?:Record<string,boolean>; rewardQueue?:string[];
+ rewardSeen?:Record<string,boolean>; rewardQueue?:string[]; rewardBatchTotal?:number; rewardBatchPosition?:number;
   [key:string]:unknown;
 }
 const KEY='studyverse_profile_v1', INTRO='studyverse_import_prompt_seen_v1';
 const CHEM='chemverse_niklas_v1', BRIDGE='studyverse_trainer_launch_v2', RESTORE='studyverse_before_restore_v1', LOCAL_ARCHIVE='studyverse_before_first_cloud_login_v1';
 const defaultEquip=()=>({theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'});
-const initial=():Profile=>({xp:0,tokens:0,nickname:'Explorer',inventory:[],equipped:defaultEquip(),claimedLevels:{},activity:[],customSubjects:[],shopDropMigrationV1:true});
+const initial=():Profile=>({xp:0,tokens:0,nickname:'Explorer',inventory:[],equipped:defaultEquip(),claimedLevels:{},activity:[],customSubjects:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],rewardBatchTotal:0,rewardBatchPosition:0});
 const safe=(n:unknown):number=>typeof n==='number'&&Number.isFinite(n)?Math.max(0,Math.floor(n)):0;
 const isObj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v);
 const validChem=(v:unknown):v is Record<string,unknown>=>isObj(v)&&typeof v['xp']==='number'&&typeof v['coins']==='number'&&['learned','solved','earned','purchased'].every(k=>isObj(v[k]));
@@ -57,7 +57,7 @@ export class App implements OnInit,OnDestroy {
  readonly subjects=SUBJECTS;
  readonly items=SHOP_ITEMS;
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
- shopDrop='global'; spotlightRewardId=''; rewardPopupSuppressed=false; shopTab:'catalog'|'inventory'|'earn'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
+ shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'earn'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  readonly cloud=new StudyverseCloud();
  cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
@@ -73,7 +73,7 @@ export class App implements OnInit,OnDestroy {
  private noticeCheckId=0;
  achievementSubject='Alle';achievementTest='Alle';achievementSort:'open'|'done'|'progress'|'reward'|'title'='open';
  profile:Profile=this.load(); public today=new Date();
- private onReturn=()=>{this.rewardPopupSuppressed=false;this.syncChemverse();this.grantAchievementTokens();this.checkRewardUnlocks();this.queueCloudSave();};
+ private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.checkRewardUnlocks();this.queueCloudSave();};
  ngOnInit(){
    this.nicknameEdit=this.profile.nickname;
    // Standalone Verses link to the shared player profile; resolve the hash
@@ -637,12 +637,17 @@ export class App implements OnInit,OnDestroy {
  /** Persistent per-user reward notifications. Previously earned items appear in the
   * catalog without generating a wall of retroactive popups on first upgrade. */
  private checkRewardUnlocks(){
-  const unlocked=this.items.filter(i=>i.drop!=='global'&&this.isUnlocked(i)&&!this.owns(i));
+  // Keep one ordered, persistent reveal queue. Do not pop only the first
+  // reward and show the rest on later page visits.
+  const unlocked=this.items.filter(i=>i.drop!=='global'&&this.isUnlocked(i)&&!this.owns(i))
+   .sort((a,b)=>(a.requirement?.value||0)-(b.requirement?.value||0)
+     ||a.drop.localeCompare(b.drop)||a.name.localeCompare(b.name,'de'));
   if(!isObj(this.profile.rewardSeen)){
+   // Existing players may already have unlocked several cosmetics before
+   // this feature was installed; they can still buy them in the shop.
    this.profile.rewardSeen=Object.fromEntries(unlocked.map(i=>[i.id,true]));
    this.profile.rewardQueue=[];
-   this.save();
-   return;
+   this.save();return;
   }
   const seen=this.profile.rewardSeen;
   const queue=Array.isArray(this.profile.rewardQueue)?this.profile.rewardQueue.filter(id=>typeof id==='string'):[];
@@ -655,31 +660,45 @@ export class App implements OnInit,OnDestroy {
    const item=this.items.find(i=>i.id===id);
    return !!item&&!this.owns(item)&&this.isUnlocked(item);
   });
+  if(this.profile.rewardQueue.length){
+   const progress=Math.max(0,safe(this.profile.rewardBatchPosition));
+   this.profile.rewardBatchPosition=progress;
+   this.profile.rewardBatchTotal=Math.max(
+    safe(this.profile.rewardBatchTotal),progress+this.profile.rewardQueue.length);
+  }else{
+   this.profile.rewardBatchTotal=0;this.profile.rewardBatchPosition=0;
+  }
   this.save();this.changeDetector.markForCheck();
  }
  get nextReward():ShopItem|null{
-  if(this.rewardPopupSuppressed)return null;
   const id=this.profile.rewardQueue?.[0];
   return this.items.find(i=>i.id===id&&!this.owns(i)&&this.isUnlocked(i))||null;
  }
+ get rewardStep(){return safe(this.profile.rewardBatchPosition)+1;}
+ get rewardTotal(){return Math.max(this.rewardStep,safe(this.profile.rewardBatchTotal));}
+ private finishRewardItem(id:string){
+  if(this.profile.rewardQueue?.[0]!==id)return;
+  this.profile.rewardQueue=this.profile.rewardQueue.slice(1);
+  this.profile.rewardBatchPosition=safe(this.profile.rewardBatchPosition)+1;
+  if(!this.profile.rewardQueue.length){
+   this.profile.rewardBatchTotal=0;
+   this.profile.rewardBatchPosition=0;
+  }
+  this.save();this.changeDetector.markForCheck();
+ }
  acceptReward(){
   const item=this.nextReward;
-  if(!item)return;
-  // Accept the notification only; learning goals grant PURCHASE ELIGIBILITY,
-  // never free inventory. Existing TT, XP and cosmetics remain untouched.
-  this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
-  this.rewardPopupSuppressed=true;
-  this.save();
-  this.changeDetector.markForCheck();
+  if(item)this.finishRewardItem(item.id);
  }
- showRewardInShop(){
+ buyAndEquipReward(){
   const item=this.nextReward;
-  if(!item)return;
-  this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
-  this.rewardPopupSuppressed=true;
-  this.go('shop');this.shopTab='catalog';this.shopGroup='Alle';this.shopDrop=item.drop;
-  this.spotlightRewardId=item.id;
-  this.save();this.changeDetector.markForCheck();
+  if(!item||!this.isUnlocked(item)||this.owns(item)||this.profile.tokens<item.cost)return;
+  // Item purchase deducts EXACTLY the existing listed TT price, once.
+  this.buyOrEquip(item);
+  if(!this.owns(item))return;
+  const key=item.group,value=key==='avatar'?item.icon:(item.equip||item.id);
+  this.profile.equipped[key]=value;
+  this.finishRewardItem(item.id);
  }
  get title(){return [...this.items,...LEGACY_OWNED_ITEMS].find(i=>i.id===this.profile.equipped['title'])?.name || 'Weltenentdecker';}
  get currentTheme(){return this.profile.equipped['theme'] || 'base';}
@@ -894,7 +913,9 @@ export class App implements OnInit,OnDestroy {
     date:new Date().toISOString(),amount:-item.cost
    },...this.profile.activity].slice(0,30);
    this.alert(item.icon+' '+this.itemDisplayName(item)+' gekauft!');
-   this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
+   // Modal completion owns queue advancement; direct shop buys remove their item.
+   if(this.profile.rewardQueue?.[0]!==item.id)
+    this.profile.rewardQueue=(this.profile.rewardQueue||[]).filter(id=>id!==item.id);
   }else{
    const key=item.group,value=key==='avatar'?item.icon:(item.equip||item.id);
    this.profile.equipped[key]=this.active(item)?this.equipDefault(key):value;

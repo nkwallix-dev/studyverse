@@ -45,21 +45,21 @@ assert(host.includes('this.items.some(i=>i.drop===d.id&&this.isUnlocked(i))'),
 assert(host.includes('.filter(i=>!this.owns(i)'), 'Owned cosmetics may never appear in shop catalog');
 assert(host.includes("this.profile.tokens-=item.cost;")&&host.includes("if(this.profile.tokens<item.cost)"),
  'All purchases, including test items, must deduct TT after checking available balance');
-const accept=host.slice(host.indexOf('acceptReward(){'),host.indexOf('showRewardInShop(){'));
-assert(accept.includes('this.profile.rewardQueue=')&&accept.includes('this.rewardPopupSuppressed=true')&&accept.includes('this.save()'),
- 'Annehmen should acknowledge unlock notification');
-assert(!accept.includes('this.buyOrEquip')&&!accept.includes('this.profile.inventory')&&!accept.includes('this.profile.tokens'),
- 'Annehmen must NOT buy/grant rewards or change TT');
+const accept=host.slice(host.indexOf('acceptReward(){'),host.indexOf('buyAndEquipReward(){'));
+assert(accept.includes('this.finishRewardItem(item.id)'),
+ 'Weiter/Annehmen must advance exactly one reward in the batch');
+assert(!accept.includes('this.buyOrEquip')&&!accept.includes('this.profile.inventory')&&!accept.includes('this.profile.tokens-='),
+ 'Weiter must not buy/grant rewards or change TT');
 assert(host.includes('this.profile.rewardQueue')&&host.includes('this.profile.rewardSeen'),
  'Reward notification queue and seen ledger must persist in player profile');
 assert(host.includes('this.checkRewardUnlocks();'),'Unlock notifications must be checked after trainer return');
-assert(host.includes('get nextReward():ShopItem|null')&&host.includes('acceptReward()')&&host.includes('showRewardInShop()'),
- 'Both unlock-popup actions must be functional');
+assert(host.includes('get nextReward():ShopItem|null')&&host.includes('acceptReward()')&&host.includes('buyAndEquipReward()'),
+ 'Both sequential popup actions must be functional');
 assert(html.includes('*ngIf="nextReward as reward"')&&html.includes('role="dialog"'),
  'New unlock popup must be accessible and conditional');
-assert(html.includes('(click)="acceptReward()"')&&html.includes('(click)="showRewardInShop()"'),
+assert(html.includes('(click)="acceptReward()"')&&html.includes('(click)="buyAndEquipReward()"'),
  'Both popup buttons must be wired');
-assert(html.includes("Zeig's mir ↗")&&html.includes('✓ Annehmen'));
+assert(html.includes('Kaufen &amp; Ausrüsten')&&html.includes('Weiter →'));
 assert(!html.includes('[(ngModel)]="hideOwnedItems"'),'Hide-owned toggle no longer needed');
 const catalog=html.slice(html.indexOf('<div class="item-grid drop-item-grid">'),
   html.indexOf('class="item-grid drop-item-grid inventory-item-grid"'));
@@ -72,4 +72,4 @@ assert(html.includes('class="item-grid drop-item-grid inventory-item-grid"'),
 assert(css.includes('.reward-unlock-modal')&&css.includes('.reward-unlock-actions'),
  'Reward popup must have specific styles');
 console.log('PASS: '+global.length+' paid Essentials + '+testItems.length+
- ' paid test items; learning unlocks, popup without purchase, inventory separation, MathsVerse lock.');
+ ' paid test items; learning unlock carousel, buy-and-equip, inventory separation, MathsVerse lock.');
