@@ -26,7 +26,11 @@ assert(!dsai.includes('sidebar-bottom')&&!dsai.includes('Dein Fortschritt bleibt
 assert(djs.includes('querySelectorAll("#sidebar button[data-nav]")')&&
  djs.includes('$("sidebar").addEventListener("click"'),
  'Dsaiverse pinned Boss/Sources must update active state and navigate');
-assert(/class="verse-endgame"[^>]*>[\s\S]*?endgameLink\('boss'[^\n]*endgameLink\('sources'[^\n]*<\/div><\/aside>/.test(sharp),
+const sharpSidebar=sharp.slice(sharp.indexOf('function sidebar(){'),sharp.indexOf('function home(){'));
+assert(sharpSidebar.includes('class="verse-endgame"')&&
+ sharpSidebar.indexOf("endgameLink('boss'")>0&&
+ sharpSidebar.indexOf("endgameLink('boss'")<sharpSidebar.indexOf("endgameLink('sources'")&&
+ sharpSidebar.includes("'</div></aside>';"),
  'Sharpverse endgame must be the last group: custom Boss label then Sources');
 assert(!sharp.includes('<div class="nav-bottom">')&&!sharp.includes('<small>DEIN FORTSCHRITT</small>'),
  'Sharpverse sidebar progress and cloud storage advertising must be removed');
