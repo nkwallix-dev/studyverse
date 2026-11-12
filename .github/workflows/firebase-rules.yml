@@ -54,8 +54,7 @@ jobs:
     if: >-
       github.event_name != 'pull_request' &&
       github.ref == 'refs/heads/main' &&
-      vars.FIREBASE_WIF_PROVIDER != '' &&
-      vars.FIREBASE_DEPLOY_SA != ''
+      true
     runs-on: ubuntu-latest
     environment: firebase-production
     permissions:
@@ -67,10 +66,10 @@ jobs:
         with:
           node-version: '22'
       - name: Authenticate via GitHub OIDC
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ vars.FIREBASE_WIF_PROVIDER }}
-          service_account: ${{ vars.FIREBASE_DEPLOY_SA }}
+          workload_identity_provider: projects/916049777071/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: studyverse-github-deploy@studyverse-logins.iam.gserviceaccount.com
           project_id: studyverse-logins
       - name: Install Firebase CLI
         run: npm install --global firebase-tools
