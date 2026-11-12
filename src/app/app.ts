@@ -368,7 +368,8 @@ export class App implements OnInit,OnDestroy {
        await this.cloud.save(this.cloudSnapshot());
      }
      this.cloudMaySave=true;this.cloudStatus='✓ Online gespeichert';this.cloudPin='';this.cloudUsername='';
-     void this.publishFriendCard();
+     // Publishing happens after hydration finishes; otherwise registration
+     // inadvertently suppresses creation of the player's friends card.
      void this.checkOwnAccountNotice();
      this.cloudMessage='';
    }catch(e){
@@ -387,6 +388,11 @@ export class App implements OnInit,OnDestroy {
      }
    }finally{
      this.cloudHydrating=false;this.cloudBusy=false;this.cloudStage='';
+     // Successful registration and login both create/repair the owner's
+     // public social card after the private save finished hydrating.
+     // Never publish client-editable XP/TT or overwrite legacy levels.
+     if(this.cloud.session&&this.cloudMaySave&&this.cloudStatus==='✓ Online gespeichert')
+       void this.publishFriendCard();
      // Angular's zoneless change detection needs an explicit notification after fetch promises.
      // Notify it when cloud data is loaded, so the login modal closes without an extra click.
      this.changeDetector.markForCheck();
