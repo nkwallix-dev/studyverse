@@ -102,8 +102,9 @@ export const submitDailyBoss = onCall({region: FUNCTION_REGION}, async request =
     throw new HttpsError("invalid-argument", "Bossfragen müssen unterschiedlich sein");
   }
   const questions = await db.getAll(...typed.map(x => db.doc(`questionBank/${x.challengeId}`)));
-  if (questions.some(q => !q.exists || q.data()?.active !== true || q.data()?.kind !== "quiz")) {
-    throw new HttpsError("invalid-argument", "Boss enthält unbekannte Fragen");
+  if (questions.some(q => !q.exists || q.data()?.active !== true ||
+      q.data()?.kind !== "quiz" || q.data()?.examEligible !== true)) {
+    throw new HttpsError("invalid-argument", "Boss enthält Fragen, die nicht für die Prüfungssimulation zugelassen sind");
   }
   const correct = questions.filter((q, i) => q.data()?.answer === typed[i].answer).length;
   if (correct < 14) return {passed: false, correct, tokensAwarded: 0, xpAwarded: 0};
