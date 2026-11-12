@@ -14,6 +14,7 @@ interface Profile {
   chemverseSave?:Record<string,unknown>; claimedLevels:Record<string,boolean>;
   activity:Activity[]; customSubjects?:{id:string;name:string;emoji:string}[];
   trainerSaves?:Record<string,Record<string,unknown>>; shopDropMigrationV1?:boolean; achievementTokenClaims?:Record<string,boolean>;
+ rewardSeen?:Record<string,boolean>; rewardQueue?:string[];
   [key:string]:unknown;
 }
 const KEY='studyverse_profile_v1', INTRO='studyverse_import_prompt_seen_v1';
@@ -55,7 +56,7 @@ export class App implements OnInit,OnDestroy {
  readonly subjects=SUBJECTS;
  readonly items=SHOP_ITEMS;
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
- shopDrop='nawi-test-01'; hideOwnedItems=false; shopTab:'catalog'|'inventory'|'earn'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
+ shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'earn'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  readonly cloud=new StudyverseCloud();
  cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
@@ -71,7 +72,7 @@ export class App implements OnInit,OnDestroy {
  private noticeCheckId=0;
  achievementSubject='Alle';achievementTest='Alle';achievementSort:'open'|'done'|'progress'|'reward'|'title'='open';
  profile:Profile=this.load(); public today=new Date();
- private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.queueCloudSave();};
+ private onReturn=()=>{this.syncChemverse();this.grantAchievementTokens();this.checkRewardUnlocks();this.queueCloudSave();};
  ngOnInit(){
    this.nicknameEdit=this.profile.nickname;
    // Standalone Verses link to the shared player profile; resolve the hash
@@ -81,7 +82,8 @@ export class App implements OnInit,OnDestroy {
      window.history.replaceState(null,'',window.location.pathname+window.location.search);
    }
    this.syncChemverse();
-   const bonus=this.grantAchievementTokens();
+  this.checkRewardUnlocks();
+  const bonus=this.grantAchievementTokens();
    if(bonus)this.alert('🏆 Deine bereits erreichten Achievements bringen dir rückwirkend +'+bonus+' TT!');
    window.addEventListener('pageshow',this.onReturn);
    void this.startCloud();
@@ -239,7 +241,8 @@ export class App implements OnInit,OnDestroy {
      throw e;
    }
    this.profile=this.load();this.nicknameEdit=this.profile.nickname;
-   this.intro=false;this.importOpen=false;
+  this.checkRewardUnlocks();
+  this.intro=false;this.importOpen=false;
    this.syncTrainer();
  }
  private queueCloudSave(){
@@ -427,9 +430,10 @@ export class App implements OnInit,OnDestroy {
  get activeSubjects(){return this.orderedSubjects.filter(s=>this.subjectHasTrainer(s.id));}
  get filteredSubjects(){return this.orderedSubjects.filter(s=>(this.group==='Alle'||s.group===this.group)&&
  (s.name+' '+s.short+' '+s.desc).toLowerCase().includes(this.search.toLowerCase().trim()));}
- get drops(){return SHOP_DROPS;}
+ /** Show a test in the dropdown only once at least one prize is unlocked. */
+ get drops(){return SHOP_DROPS.filter(d=>d.id==='global'||this.items.some(i=>i.drop===d.id&&this.isUnlocked(i)));}
  get selectedDrop(){return this.drops.find(d=>d.id===this.shopDrop)||this.drops[0];}
- get dropItems(){return this.items.filter(i=>i.drop===this.shopDrop);}
+ get dropItems(){return this.items.filter(i=>i.drop===this.selectedDrop.id);}
  get dropOwned(){return this.dropItems.filter(i=>this.owns(i)).length;}
  dropItemCount(id:string){return this.items.filter(i=>i.drop===id).length;}
  dropOwnedCount(id:string){return this.items.filter(i=>i.drop===id&&this.owns(i)).length;}
@@ -463,14 +467,14 @@ export class App implements OnInit,OnDestroy {
 
  get dropUnlocked(){return this.dropItems.filter(i=>this.owns(i)||this.isUnlocked(i)).length;}
  get filteredItems(){return this.dropItems
-   .filter(i=>(this.shopGroup==='Alle'||i.group===this.shopGroup)&&(!this.hideOwnedItems||!this.owns(i)))
-   .sort((a,b)=>Number(this.owns(a))-Number(this.owns(b))
-     ||this.sortRequirement(a)-this.sortRequirement(b)||a.name.localeCompare(b.name,'de'));}
+  .filter(i=>!this.owns(i)&&(this.shopGroup==='Alle'||i.group===this.shopGroup))
+  .sort((a,b)=>Number(this.isUnlocked(b))-Number(this.isUnlocked(a))
+    ||this.sortRequirement(a)-this.sortRequirement(b)||a.name.localeCompare(b.name,'de'));}
  private sortRequirement(item:ShopItem){return item.drop==='global'?(item.level||1)*10:(item.requirement?.value||0);}
  // Every test uses the same category tabs, even when it has no items in one category.
  get shopCategories(){return ['Alle',...new Set(this.items.map(i=>i.group))];}
  get selectedCategoryHasItems(){return this.shopGroup==='Alle'||this.dropItems.some(i=>i.group===this.shopGroup);}
- chooseDrop(id:string){this.shopDrop=id;this.previewed=null;}
+ chooseDrop(id:string){if(!this.drops.some(d=>d.id===id))return;this.shopDrop=id;this.shopGroup='Alle';this.previewed=null;this.spotlightRewardId='';}
  metricProgress(drop:string,metric:ShopRequirement['metric']):number{
    const trainer=TRAINERS.find(t=>t.id===drop);if(!trainer)return 0;
    const save=this.snapshot(trainer),solved=isObj(save['solved'])?save['solved']:{};
@@ -517,7 +521,7 @@ export class App implements OnInit,OnDestroy {
    return {total,remaining,done:total-remaining,
      reward:totals.reduce((sum,t)=>sum+t.reward,0)};
  }
- get shopTotalRemainingCost(){return this.items.filter(item=>!this.owns(item)).reduce((sum,item)=>sum+item.cost,0);}
+ get shopTotalRemainingCost(){return this.items.filter(item=>item.drop==='global'&&!this.owns(item)).reduce((sum,item)=>sum+item.cost,0);}
  get shopTotalTokenGap(){return Math.max(0,this.shopTotalRemainingCost-this.profile.tokens);}
  get dailyChem(){
    // Global daily budget: 20 quiz payouts and one boss payout shared by all Ver(s)es.
@@ -541,7 +545,7 @@ export class App implements OnInit,OnDestroy {
    const count=Math.min(20,unique.size);
    return {questions:count,boss,quizRemaining:(20-count)*25,bossRemaining:boss?0:250};
  }
- get shopCollectionCost(){return this.dropItems.filter(i=>!this.owns(i)).reduce((n,i)=>n+i.cost,0);}
+ get shopCollectionCost(){return this.dropItems.filter(i=>i.drop==='global'&&!this.owns(i)).reduce((n,i)=>n+i.cost,0);}
  get shopTokenGap(){return Math.max(0,this.shopCollectionCost-this.profile.tokens);}
  goEarnTokens(mode:'quiz'|'boss'|'academy'){
    const trainer=TRAINERS.find(t=>t.id===this.shopDrop)||TRAINERS[0];
@@ -554,7 +558,7 @@ export class App implements OnInit,OnDestroy {
  closePreview(){this.previewed=null;}
 
  get categories(){return ['Alle','Informatik','Naturwissenschaften','Wirtschaft','Gesellschaft','Andere'];}
- get claimed(){return this.profile.inventory.length;}
+ get claimed(){return this.ownedCatalogItems.length;}
  get ownedCatalogItems(){return this.items.filter(item=>this.owns(item));}
  get inventoryDrops(){return ['Alle',...new Set(this.ownedCatalogItems.map(item=>item.drop))];}
  get inventoryCategories(){
@@ -812,7 +816,7 @@ export class App implements OnInit,OnDestroy {
    return total;
  }
  private awardLevelFreebies(){
-   const free=this.items.filter(i=>i.cost===0&&(i.level||1)<=this.level);
+   const free=this.items.filter(i=>i.drop==='global'&&i.cost===0&&(i.level||1)<=this.level);
    this.profile.inventory=[...new Set([...this.profile.inventory,...free.map(i=>i.id)])];
  }
  owns(item:ShopItem){return this.profile.inventory.includes(item.id);}
@@ -904,7 +908,8 @@ export class App implements OnInit,OnDestroy {
    this.awardLevelFreebies();
    if(gained)this.profile.activity=[{label:trainer.title+' · Lernrunde',date:new Date().toISOString(),amount:gained},...this.profile.activity].slice(0,30);
    this.save();try{localStorage.removeItem(BRIDGE)}catch{}
-   const achievementBonus=this.grantAchievementTokens();
+  this.checkRewardUnlocks();
+  const achievementBonus=this.grantAchievementTokens();
    if(gained||levelBonus||achievementBonus)this.alert('Willkommen zurück! '+(gained?'+'+gained+' XP ':'')+(levelBonus?'· +'+levelBonus+' Level-TT':'')+(achievementBonus?' · 🏆 +'+achievementBonus+' Achievement-TT':'')+' synchronisiert.');
  }
 }
