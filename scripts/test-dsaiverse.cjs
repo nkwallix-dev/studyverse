@@ -10,7 +10,7 @@ vm.runInNewContext(data,sandbox);
 vm.runInNewContext(questions,sandbox);
 const C=sandbox.window.DSAI_CONTENT,Q=sandbox.window.DSAI_QUESTIONS;
 assert.equal(C.lessons.length,16);
-assert.equal(Q.length,106);
+assert.equal(Q.length,109);
 assert.equal(new Set(Q.map(q=>q.id)).size,Q.length,'Unique question IDs required');
 assert.equal(Q.filter(q=>q.code).length,23,'Expected the uploaded notebooks to drive 23 code-recognition questions');
 const pandasUnique=Q.find(q=>q.id==='q93');
@@ -67,7 +67,8 @@ const document={
  body:{dataset:{}},getElementById:id=>elements[id],
  querySelectorAll:()=>[],addEventListener(){}
 };
-const window={DSAI_CONTENT:C,DSAI_QUESTIONS:Q,scrollTo(){}};
+const {isExamQuestion}=require('../public/shared/exam-question-policy.js');
+const window={DSAI_CONTENT:C,DSAI_QUESTIONS:Q,STUDYVERSE_IS_EXAM_QUESTION:isExamQuestion,scrollTo(){}};
 const ctx={window,document,localStorage,location:{hash:''},console,setTimeout,clearTimeout,Date,Math};
 vm.runInNewContext(app,ctx);
 assert(elements.main.innerHTML.includes('Von Null zum'),'Dashboard should render immediately');
@@ -92,7 +93,7 @@ assert(elements.main.innerHTML.includes('y = 15,71'),'Festival-Forecast must use
 clickAction('start-boss');
 assert(elements.main.innerHTML.includes('data-bossanswer='),'Boss must show MC questions');
 
-console.log('DSAIVERSE PASS: 16 lessons, 106 MC questions, 23 snippets, all Finish modes, game runtime and Boss.');
+console.log('DSAIVERSE PASS: 16 lessons, 109 MC questions, 23 snippets, all Finish modes, game runtime and Boss.');
 
 // Pipeline requires full mastery: no solution spoilers and mistakes restart from phase 1.
 assert(app.includes('if(!run.correct){run.step=0;prepare();render();return}'),'Wrong pipeline answers must reset the entire process to step 1');

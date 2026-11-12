@@ -1,0 +1,38 @@
+name: Verify exam question pools
+
+on:
+  pull_request:
+    paths:
+      - 'public/shared/exam-question-policy.js'
+      - 'public/daily/**'
+      - 'public/nawi/test-01/index.html'
+      - 'public/dsai/test-01/**'
+      - 'scripts/test-exam-pool.cjs'
+      - 'scripts/test-chemverse.cjs'
+      - 'scripts/test-dsaiverse.cjs'
+      - 'scripts/test-daily.cjs'
+      - '.github/workflows/verify-exam.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-exams:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate exam questions and existing learning worlds
+        run: |
+          node scripts/test-exam-pool.cjs
+          node scripts/test-dsaiverse.cjs
+          node scripts/test-chemverse.cjs
+          node scripts/test-daily.cjs
+      - name: Build Studyverse
+        run: npm run build -- --base-href /studyverse/
