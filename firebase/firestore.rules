@@ -61,8 +61,8 @@ service cloud.firestore {
       allow list, delete: if false;
       allow create, update: if request.auth != null
         && request.auth.uid == userId
-        && request.resource.data.keys().hasOnly(['noticeId', 'acknowledgedAt'])
-        && request.resource.data.keys().hasAll(['noticeId', 'acknowledgedAt'])
+        && request.resource.data.keys().hasOnly(['noticeId','acknowledgedAt'])
+        && request.resource.data.keys().hasAll(['noticeId','acknowledgedAt'])
         && request.resource.data.noticeId is string
         && request.resource.data.noticeId.matches('^[a-z0-9][a-z0-9-]{4,79}$')
         && request.resource.data.acknowledgedAt is timestamp;
