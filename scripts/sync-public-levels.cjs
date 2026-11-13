@@ -11,6 +11,12 @@ const PROJECT='studyverse-logins';
 const BASE='https://firestore.googleapis.com/v1/projects/'+PROJECT+'/databases/(default)/documents';
 const levelFor=xp=>1+Math.floor(Math.sqrt(xp/110));
 const validUid=uid=>/^[A-Za-z0-9_-]{6,160}$/.test(uid);
+const trainerKeys={
+ 'nawi-test-01':'chemverse_niklas_v1',
+ 'dsai-test-01':'dsai_studyverse_v1',
+ 'pos-pa-01':'sharpverse_pa01_v1',
+ 'maths-hw-02':'mathsverse_hw02_v1'
+};
 function profileFromDoc(doc){
  try{
   const raw=doc?.fields?.profile?.stringValue;
@@ -19,6 +25,23 @@ function profileFromDoc(doc){
   if(!p||typeof p!=='object'||!Number.isSafeInteger(p.xp)||p.xp<0)return null;
   return p;
  }catch{return null}
+}
+// Standalone learning worlds upload their progress before the home page applies
+// the XP delta. Project that pending delta for display without changing the
+// private save. trainerSaves records how much was already included globally.
+function displayXpFromDoc(doc,p){
+ try{
+  const envelope=JSON.parse(doc.fields.profile.stringValue);
+  const bridge=envelope.bridge,id=bridge?.id;
+  if(!Object.hasOwn(trainerKeys,id)||bridge.saveKey!==trainerKeys[id]||
+   !Number.isSafeInteger(bridge.xp)||bridge.xp<0)return p.xp;
+  const next=envelope.trainers?.[id]?.xp;
+  const included=p.trainerSaves?.[id]?.xp;
+  if(!Number.isSafeInteger(next)||next<0||
+   (included!==undefined&&(!Number.isSafeInteger(included)||included<0)))return p.xp;
+  const xp=p.xp+Math.max(0,next-Math.max(bridge.xp,included??0));
+  return Number.isSafeInteger(xp)?xp:p.xp;
+ }catch{return p.xp}
 }
 function allowedName(v){
  if(typeof v!=='string')return false;
@@ -55,7 +78,8 @@ async function run({token,fetcher=fetch,base=BASE,project=PROJECT,readOnly=false
   if(!validUid(uid||'')||!p){skipped++;continue;}
   const url=base+'/publicProfiles/'+encodeURIComponent(uid);
   const existing=await api(url);
-  const desired=String(levelFor(p.xp));
+  const displayXp=displayXpFromDoc(doc,p);
+  const desired=String(levelFor(displayXp));
   if(existing){
    // Preserve owner/admin-corrected nicknames, moderator titles, avatars.
    if(existing.fields?.level?.integerValue===desired){skipped++;continue;}
@@ -64,7 +88,7 @@ async function run({token,fetcher=fetch,base=BASE,project=PROJECT,readOnly=false
    patched++;
   }else if(allowedName(p.nickname)){
    // Repair older failed registrations without modifying private balance.
-   if(!readOnly)await api(url,'PATCH',{fields:fieldsForNewCard(p)});
+   if(!readOnly)await api(url,'PATCH',{fields:fieldsForNewCard({...p,xp:displayXp})});
    created++;
   }else skipped++;
  }
@@ -78,4 +102,4 @@ if(require.main===module){
  const token=process.env.GCLOUD_ACCESS_TOKEN;
  run({token,readOnly:process.argv.includes('--dry-run')}).catch(e=>{console.error('Rank sync failed:',e.message);process.exitCode=1});
 }
-module.exports={levelFor,profileFromDoc,allowedName,fieldsForNewCard,run};
+module.exports={levelFor,profileFromDoc,displayXpFromDoc,allowedName,fieldsForNewCard,run};

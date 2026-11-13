@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const {levelFor,profileFromDoc,allowedName,fieldsForNewCard,run}=require('./sync-public-levels.cjs');
+const {levelFor,profileFromDoc,displayXpFromDoc,allowedName,fieldsForNewCard,run}=require('./sync-public-levels.cjs');
 const host=fs.readFileSync('src/app/app.ts','utf8');
 const html=fs.readFileSync('src/app/app.html','utf8');
 assert.equal(levelFor(0),1);
@@ -10,6 +10,26 @@ assert.equal(levelFor(5768),8);
 assert.equal(levelFor(2740),5);
 assert.equal(profileFromDoc({fields:{profile:{stringValue:JSON.stringify({profile:{xp:5768,nickname:'Niki'}})}}}).xp,5768);
 assert.equal(profileFromDoc({fields:{profile:{stringValue:'broken'}}}),null);
+const pending={fields:{profile:{stringValue:JSON.stringify({
+ profile:{xp:0,nickname:'Spielerin',trainerSaves:{'dsai-test-01':{xp:0}}},
+ trainers:{'dsai-test-01':{xp:5768}},
+ bridge:{id:'dsai-test-01',saveKey:'dsai_studyverse_v1',xp:0}
+})}}};
+assert.equal(displayXpFromDoc(pending,profileFromDoc(pending)),5768,
+ 'Standalone verse XP must count toward the public display before returning home');
+const partlyApplied={fields:{profile:{stringValue:JSON.stringify({
+ profile:{xp:500,nickname:'Spielerin',trainerSaves:{'dsai-test-01':{xp:500}}},
+ trainers:{'dsai-test-01':{xp:5768}},
+ bridge:{id:'dsai-test-01',saveKey:'dsai_studyverse_v1',xp:0}
+})}}};
+assert.equal(displayXpFromDoc(partlyApplied,profileFromDoc(partlyApplied)),5768,
+ 'Previously applied verse XP must not be counted twice');
+const untrusted={fields:{profile:{stringValue:JSON.stringify({
+ profile:{xp:0},trainers:{'dsai-test-01':{xp:5768}},
+ bridge:{id:'dsai-test-01',saveKey:'some-other-game',xp:0}
+})}}};
+assert.equal(displayXpFromDoc(untrusted,profileFromDoc(untrusted)),0,
+ 'Only an expected trainer bridge can contribute pending XP');
 assert(allowedName('Julian')&&!allowedName('n1gga')&&!allowedName('admin'));
 assert.deepEqual(Object.keys(fieldsForNewCard({nickname:'Julian',xp:120,equipped:{avatar:'🐼'}})).sort(),
  ['nickname','avatar','selectedTitle','updatedAt','level'].sort());
