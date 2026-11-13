@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
 import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
-import { StudyverseCloud, CloudSnapshot, PublicPlayer, AccountNotice, CLOUD_DAILY_KEY, CLOUD_SESSION_KEY, cloudError, isAllowedNickname } from './cloud';
+import { StudyverseCloud, CloudSnapshot, PublicPlayer, PublicShowcase, PublicCourseProgress, AccountNotice, CLOUD_DAILY_KEY, CLOUD_SESSION_KEY, cloudError, isAllowedNickname } from './cloud';
 
 type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements' | 'friends';
 interface Subject { id:string; short:string; name:string; icon:string; group:string; color:string; desc:string; }
@@ -63,7 +63,7 @@ export class App implements OnInit,OnDestroy {
  cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
  cloudMode:'register'|'login'='register'; cloudUsername=''; cloudPin=''; cloudMessage=''; cloudStage='';
  cloudStatus='Lokal'; private cloudTimer:ReturnType<typeof setTimeout>|null=null;
- publicPlayers:PublicPlayer[]=[]; friendsLoading=false; friendsError=''; 
+ publicPlayers:PublicPlayer[]=[]; friendsLoading=false; friendsError=''; selectedPlayer:PublicPlayer|null=null; 
  private cloudWrites:Promise<void>=Promise.resolve();
  private friendSync:Promise<void>=Promise.resolve();
  private friendProfileStamp='';
@@ -179,11 +179,12 @@ export class App implements OnInit,OnDestroy {
    const uid=this.cloud.session.uid;
    const nickname=this.profile.nickname,avatar=this.currentAvatar,title=this.title;
    if(!isAllowedNickname(nickname))return Promise.resolve();
-   const stamp=uid+'|'+nickname+'|'+avatar+'|'+title;
+   const showcase=this.ownPublicShowcase();
+   const stamp=uid+'|'+nickname+'|'+avatar+'|'+title+'|'+JSON.stringify(showcase);
    if(!rename&&stamp===this.friendProfileStamp)return this.friendSync;
    this.friendSync=this.friendSync.catch(()=>{}).then(async()=>{
      if(this.cloud.session?.uid!==uid||!this.cloudMaySave)return;
-     await this.cloud.publishFriendProfile(nickname,avatar,title,rename);
+     await this.cloud.publishFriendProfile(nickname,avatar,title,rename,showcase);
      this.friendProfileStamp=stamp;
    }).catch(error=>{
      // Directory errors must never prevent saving personal learning progress.
@@ -193,6 +194,45 @@ export class App implements OnInit,OnDestroy {
      }
    });
    return this.friendSync;
+ }
+
+ /** Only publish aggregated academy results, not raw saves, tokens, XP or exercises. */
+ private ownPublicShowcase():PublicShowcase {
+   const equipped=this.profile.equipped;
+   const cosmetics={
+     theme:equipped['theme']||'base',frame:equipped['frame']||'none',
+     banner:equipped['banner']||'default',font:equipped['font']||'standard',
+     atm:equipped['atm']||'none',fx:equipped['fx']||'none'
+   };
+   const totals:Record<string,number>={'nawi-test-01':13,'dsai-test-01':16,'pos-pa-01':20};
+   const courses:PublicCourseProgress[]=[];
+   for(const trainer of TRAINERS){
+     const total=totals[trainer.id];
+     if(!total)continue;
+     const snapshot=this.snapshot(trainer);
+     const completed=isObj(snapshot['courseDone'])?snapshot['courseDone']:{};
+     const done=Math.min(total,Object.values(completed).filter(v=>v===true).length);
+     if(done>0)courses.push({id:trainer.id,done,total,percent:Math.round(done/total*100)});
+   }
+   return {...cosmetics,courses};
+ }
+ openPlayerProfile(player:PublicPlayer):void {
+   this.selectedPlayer=this.isOwnPlayer(player)
+     ?{...player,avatar:this.currentAvatar,title:this.title,level:this.level,
+       showcase:this.ownPublicShowcase()}:player;
+   this.changeDetector.markForCheck();
+ }
+ closePlayerProfile():void{this.selectedPlayer=null;this.changeDetector.markForCheck();}
+ playerCosmetic(player:PublicPlayer,group:string):string {
+   const value=player.showcase[group as keyof PublicShowcase];
+   const item=[...SHOP_ITEMS,...LEGACY_OWNED_ITEMS].find(x=>x.group===group&&(x.equip||x.id)===value);
+   return item?this.itemDisplayName(item):group==='theme'?'Studyverse Standard':
+     group==='frame'?'Kein Rahmen':group==='banner'?'Standard-Banner':
+     group==='font'?'Standardschrift':group==='atm'?'Kein Hintergrund':'Kein Effekt';
+ }
+ playerCourse(id:string):{name:string;icon:string}{
+   const trainer=TRAINERS.find(t=>t.id===id);
+   return {name:trainer?.title||'Lernwelt',icon:trainer?.subjectId==='nawi'?'🧪':trainer?.subjectId==='dsai'?'🤖':'♯'};
  }
  private async refreshExclusiveTitle():Promise<void>{
    const uid=this.cloud.session?.uid;
@@ -461,7 +501,7 @@ export class App implements OnInit,OnDestroy {
      this.alert('Cloud-Speicherung fehlgeschlagen. Exportiere zur Sicherheit ein Backup und versuche es erneut, bevor du dich abmeldest.');
      return;
    }
-   this.cloud.signOut();this.cloudMaySave=false;this.publicPlayers=[];this.friendsError='';this.friendProfileStamp='';this.exclusiveCheaterTitle=false;this.moderationNotice=null;this.noticePreview=false;this.noticeError='';this.noticeCheckId++;this.clearDeviceProgress();
+   this.cloud.signOut();this.cloudMaySave=false;this.publicPlayers=[];this.selectedPlayer=null;this.friendsError='';this.friendProfileStamp='';this.exclusiveCheaterTitle=false;this.moderationNotice=null;this.noticePreview=false;this.noticeError='';this.noticeCheckId++;this.clearDeviceProgress();
    this.profile=initial();this.nicknameEdit=this.profile.nickname;
    this.cloudMode='login';this.cloudStatus='Abgemeldet';this.cloudMessage='';
    this.view='dashboard';this.intro=false;write(INTRO,'1');
