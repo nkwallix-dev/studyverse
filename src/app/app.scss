@@ -632,3 +632,93 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
 @media(max-width:520px){.reward-unlock-modal{padding:20px 12px}.reward-unlock-actions{gap:8px}}
 
 
+
+
+/* Community showcase: a player's equipped style, not the viewer's style. */
+.friend-profile-button{order:3;flex:0 0 auto;border:1px solid color-mix(in srgb,var(--accent),transparent 55%);border-radius:12px;background:color-mix(in srgb,var(--accent),transparent 88%);color:var(--accent);padding:10px 15px;font-weight:850;font-size:12px;white-space:nowrap;transition:transform .2s,border-color .2s}
+.friend-profile-button:hover{transform:translateY(-2px);border-color:var(--accent)}
+.friend-profile-button span{margin-left:5px}
+.friend-showcase-veil{z-index:90;position:fixed;inset:0;display:grid;place-items:center;background:#050715dc;backdrop-filter:blur(15px);padding:18px;overflow:auto}
+.friend-showcase.universe{display:block;min-height:0;width:min(780px,100%);max-height:calc(100dvh - 36px);overflow-y:auto;position:relative;isolation:isolate;border:2px solid var(--border);border-radius:25px;background:var(--card2);box-shadow:0 35px 120px #000c,0 0 70px color-mix(in srgb,var(--glow),transparent 78%);color:var(--text)}
+.friend-showcase-close{position:absolute;z-index:15;top:16px;right:16px;width:41px;height:41px;border:1px solid #ffffff69;border-radius:13px;background:#101629c9;color:white;font-size:18px;display:grid;place-items:center}
+.friend-showcase-close:hover{background:#32344f}
+.friend-showcase-cover.hero{width:100%;min-height:280px;margin:0;padding:60px 32px 28px;border:0;border-radius:0;display:flex;align-items:end;position:relative;overflow:hidden;background:radial-gradient(circle at 77% 45%,#7759b6b0,transparent 42%),linear-gradient(120deg,#191b44,#30265e)}
+.friend-showcase-cover .banner-scenery{border-radius:0}
+.friend-showcase-cover-shade{position:absolute;z-index:2;inset:0;background:linear-gradient(180deg,#090d2108 15%,#090d2170 54%,#080e20ed 100%);pointer-events:none}
+.friend-showcase-cover-tag{position:absolute;z-index:4;top:19px;left:30px;font-size:10px;font-weight:950;letter-spacing:2px;color:#f1e6ff;text-shadow:0 2px 9px #000}
+.friend-showcase-heading{position:relative;z-index:5;display:flex;align-items:center;gap:19px;width:100%;min-width:0;color:#fff}
+.friend-showcase-avatar{flex:0 0 112px;width:112px;height:112px;display:grid;place-items:center;border:2px solid #ffffff80;border-radius:28px;background:#10172cbb;backdrop-filter:blur(12px);font-size:65px;box-shadow:0 12px 30px #0006}
+.friend-showcase-identity{flex:1;min-width:0}
+.friend-showcase-overline{font-size:10px;font-weight:900;letter-spacing:1.7px;color:#c8e6ff}
+.friend-showcase-identity h2{font-size:clamp(29px,4vw,44px);line-height:1.08;letter-spacing:-1.4px;margin:7px 0;overflow-wrap:anywhere;text-shadow:0 3px 15px #000a}
+.friend-showcase-title{font-size:clamp(16px,2.5vw,22px)!important;line-height:1.35;margin:0;font-weight:800;color:#fff1bc!important;text-shadow:0 2px 12px #000b;overflow-wrap:anywhere}
+.friend-showcase-level{flex:0 0 auto;display:grid;justify-items:center;min-width:85px;padding:12px 14px;border-radius:17px;border:1px solid #ffffff5e;background:#10172cbd;backdrop-filter:blur(12px)}
+.friend-showcase-level small{font-size:10px;font-weight:900;letter-spacing:1.6px;color:#dadcf9}
+.friend-showcase-level strong{font-size:36px;line-height:1.1;color:#fff}
+.friend-showcase-body{padding:27px 30px 29px;background:linear-gradient(155deg,color-mix(in srgb,var(--accent),transparent 94%),var(--card2) 45%);position:relative;z-index:3}
+.friend-showcase-section-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 20px;margin:0 0 13px}
+.friend-showcase-section-heading>span{font-size:12px;font-weight:950;letter-spacing:1.8px;color:var(--accent)}
+.friend-showcase-section-heading>small{font-size:12px;color:var(--muted)}
+.friend-showcase-loadout{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.friend-showcase-cosmetic{display:flex;align-items:center;gap:12px;padding:15px 12px;min-width:0;border-radius:15px;border:1px solid var(--border);background:var(--card)}
+.friend-showcase-cosmetic>span{font-size:26px;flex:0 0 auto}
+.friend-showcase-cosmetic>div{min-width:0}
+.friend-showcase-cosmetic small{display:block;color:var(--muted);font-weight:900;font-size:10px;letter-spacing:1px}
+.friend-showcase-cosmetic strong{display:block;font-size:13px;line-height:1.3;margin-top:4px;overflow-wrap:anywhere}
+.friend-showcase-course-heading{margin-top:28px}
+.friend-showcase-courses{display:grid;gap:11px}
+.friend-showcase-course{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:15px 18px}
+.friend-showcase-course-top{display:flex;align-items:center;gap:12px}
+.friend-showcase-course-icon{font-size:26px}
+.friend-showcase-course-name{flex:1;min-width:0}
+.friend-showcase-course-name strong{display:block;font-size:15px;overflow-wrap:anywhere}
+.friend-showcase-course-name small{color:var(--muted);font-size:12px}
+.friend-showcase-course-top>b{font-size:21px;color:var(--accent2)}
+.friend-showcase-track{height:8px;border-radius:20px;background:#ffffff25;overflow:hidden;margin-top:12px}
+.friend-showcase-track>i{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.friend-showcase-no-courses{padding:26px;text-align:center;border:1px dashed var(--border);border-radius:14px;color:var(--muted)}
+.friend-showcase-disclaimer{margin:18px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+.friend-showcase.universe[data-frame="gold"]{border:3px solid #e3bd5a;box-shadow:0 0 0 2px #f1d78366,0 28px 100px #000b,0 0 50px #e3bd5a44}
+.friend-showcase.universe[data-frame="legend"]{border:6px double #ffe49c;box-shadow:0 0 32px #ffd26977,0 32px 100px #000c}
+.friend-showcase.universe[data-frame="pixel"]{border:4px solid #b78aff;border-radius:3px;box-shadow:6px 6px 0 #5deeea,0 32px 90px #000b}
+.friend-showcase.universe[data-frame="safety"]{border:5px solid #e5c33a;border-image:repeating-linear-gradient(130deg,#ffdf55 0 14px,#252236 14px 27px) 5}
+.friend-showcase.universe[data-frame="glow"]{border-color:#91ffec;box-shadow:0 0 28px #7dfade6e,0 32px 100px #000a}
+.friend-showcase.universe[data-frame="prism"]{border-color:#f28ddd;box-shadow:5px 0 20px #76eee599,-5px 0 20px #ffc17c80,0 30px 100px #000b}
+.friend-showcase.universe[data-frame="dashed"]{border:3px dashed #c69fea}
+.friend-showcase.universe[data-frame="neural"]{border:3px solid #bf8aff;box-shadow:0 0 28px #be7dff88,0 32px 100px #000a}
+.friend-showcase.universe[data-frame="dataframe"]{border:3px solid #58d7e4;box-shadow:0 0 0 3px #62e7ff33,0 32px 100px #000b}
+.friend-showcase.universe[data-frame="soft"]{border-radius:34px;border-color:#b3cafb}
+.friend-showcase.universe[data-frame="glass"]{border-color:#e3efff77;backdrop-filter:blur(20px)}
+.friend-showcase.universe[data-font="mono"]{font-family:"Cascadia Code",Consolas,monospace}
+.friend-showcase.universe[data-font="serif"]{font-family:Georgia,serif}
+.friend-showcase.universe[data-font="comic"]{font-family:"Comic Sans MS","Trebuchet MS",cursive}
+.friend-showcase.universe[data-font="wide"]{font-family:"Trebuchet MS",Verdana,sans-serif}
+.friend-showcase.universe[data-font="compact"]{font-family:"Arial Narrow","Segoe UI",sans-serif}
+.friend-showcase.universe[data-font="velvet_voltage"]{font-family:"Unbounded","Trebuchet MS",sans-serif}
+@media(max-width:700px){
+  .friend-card{flex-wrap:wrap}
+  .friend-profile-button{padding:8px 10px;font-size:11px}
+  .friend-showcase-cover.hero{min-height:255px;padding:62px 18px 20px}
+  .friend-showcase-cover-tag{left:18px}
+  .friend-showcase-avatar{width:83px;height:83px;flex-basis:83px;font-size:49px;border-radius:21px}
+  .friend-showcase-heading{gap:10px}
+  .friend-showcase-level{min-width:58px;padding:9px}
+  .friend-showcase-level strong{font-size:27px}
+  .friend-showcase-body{padding:23px 18px}
+  .friend-showcase-loadout{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .friend-showcase-cosmetic{padding:12px 10px}
+}
+@media(max-width:410px){
+  .friend-card .friend-profile-button{order:4;width:100%}
+  .friend-showcase-veil{padding:8px}
+  .friend-showcase.universe{max-height:calc(100dvh - 16px)}
+  .friend-showcase-avatar{width:70px;height:70px;flex-basis:70px;font-size:42px}
+  .friend-showcase-level{min-width:51px}
+  .friend-showcase-level strong{font-size:23px}
+  .friend-showcase-identity h2{font-size:26px}
+  .friend-showcase-title{font-size:15px!important}
+  .friend-showcase-loadout{gap:8px}
+  .friend-showcase-cosmetic{gap:7px}
+  .friend-showcase-cosmetic>span{font-size:20px}
+  .friend-showcase-cosmetic strong{font-size:11px}
+}
