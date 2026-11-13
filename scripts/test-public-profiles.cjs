@@ -29,6 +29,10 @@ assert(html.includes("displayPlayerLevel(player) === null ? '–' : displayPlaye
  'Own level appears immediately while other cards use the admin snapshot');
 assert(html.includes('friend-profile-button')&&html.includes('friend-showcase-veil')&&html.includes('friend-showcase-courses')&&angular.includes('openPlayerProfile(player:PublicPlayer)'),
  'Public player profiles show cosmetics, level, and completed lessons in a modal');
+assert(shopCss.includes('.friend-showcase-veil > .friend-showcase.universe{display:block;')
+ &&shopCss.includes('.friend-showcase.universe > .friend-showcase-cover.hero{width:100%;')
+ &&shopCss.includes('.friend-showcase-loadout{grid-template-columns:1fr;gap:8px}'),
+ 'The modal must override the page flex layout and keep cosmetic names readable on phones');
 assert(!html.includes('friends-summary')&&!html.includes('friends-directory-note')&&!html.includes('friends-refresh'),
  'Friends page removes clutter and manual refresh button');
 assert(html.includes('friends-list')&&html.includes('friend-character'),

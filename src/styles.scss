@@ -848,11 +848,11 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .friend-profile-button{order:3;flex:0 0 auto;border:1px solid color-mix(in srgb,var(--accent),transparent 55%);border-radius:12px;background:color-mix(in srgb,var(--accent),transparent 88%);color:var(--accent);padding:10px 15px;font-weight:850;font-size:12px;white-space:nowrap;transition:transform .2s,border-color .2s}
 .friend-profile-button:hover{transform:translateY(-2px);border-color:var(--accent)}
 .friend-profile-button span{margin-left:5px}
-.friend-showcase-veil{z-index:90;position:fixed;inset:0;display:grid;place-items:center;background:#050715dc;backdrop-filter:blur(15px);padding:18px;overflow:auto}
-.friend-showcase.universe{display:block;min-height:0;width:min(780px,100%);max-height:calc(100dvh - 36px);overflow-y:auto;position:relative;isolation:isolate;border:2px solid var(--border);border-radius:25px;background:var(--card2);box-shadow:0 35px 120px #000c,0 0 70px color-mix(in srgb,var(--glow),transparent 78%);color:var(--text)}
+.veil.friend-showcase-veil{z-index:90;position:fixed;inset:0;display:grid;place-items:center;background:#050715dc;backdrop-filter:blur(15px);padding:18px;overflow:auto}
+.friend-showcase-veil > .friend-showcase.universe{display:block;min-height:0;width:min(780px,100%);max-height:calc(100dvh - 36px);overflow-y:auto;position:relative;isolation:isolate;border:2px solid var(--border);border-radius:25px;background:var(--card2);box-shadow:0 35px 120px #000c,0 0 70px color-mix(in srgb,var(--glow),transparent 78%);color:var(--text)}
 .friend-showcase-close{position:absolute;z-index:15;top:16px;right:16px;width:41px;height:41px;border:1px solid #ffffff69;border-radius:13px;background:#101629c9;color:white;font-size:18px;display:grid;place-items:center}
 .friend-showcase-close:hover{background:#32344f}
-.friend-showcase-cover.hero{width:100%;min-height:280px;margin:0;padding:60px 32px 28px;border:0;border-radius:0;display:flex;align-items:end;position:relative;overflow:hidden;background:radial-gradient(circle at 77% 45%,#7759b6b0,transparent 42%),linear-gradient(120deg,#191b44,#30265e)}
+.friend-showcase.universe > .friend-showcase-cover.hero{width:100%;min-height:280px;margin:0;padding:60px 32px 28px;border:0;border-radius:0;display:flex;align-items:end;position:relative;overflow:hidden;background:radial-gradient(circle at 77% 45%,#7759b6b0,transparent 42%),linear-gradient(120deg,#191b44,#30265e)}
 .friend-showcase-cover .banner-scenery{border-radius:0}
 .friend-showcase-cover-shade{position:absolute;z-index:2;inset:0;background:linear-gradient(180deg,#090d2108 15%,#090d2170 54%,#080e20ed 100%);pointer-events:none}
 .friend-showcase-cover-tag{position:absolute;z-index:4;top:19px;left:30px;font-size:10px;font-weight:950;letter-spacing:2px;color:#f1e6ff;text-shadow:0 2px 9px #000}
@@ -865,7 +865,7 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .friend-showcase-level{flex:0 0 auto;display:grid;justify-items:center;min-width:85px;padding:12px 14px;border-radius:17px;border:1px solid #ffffff5e;background:#10172cbd;backdrop-filter:blur(12px)}
 .friend-showcase-level small{font-size:10px;font-weight:900;letter-spacing:1.6px;color:#dadcf9}
 .friend-showcase-level strong{font-size:36px;line-height:1.1;color:#fff}
-.friend-showcase-body{padding:27px 30px 29px;background:linear-gradient(155deg,color-mix(in srgb,var(--accent),transparent 94%),var(--card2) 45%);position:relative;z-index:3}
+.friend-showcase-body{width:100%;min-width:0;padding:27px 30px 29px;background:linear-gradient(155deg,color-mix(in srgb,var(--accent),transparent 94%),var(--card2) 45%);position:relative;z-index:3}
 .friend-showcase-section-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 20px;margin:0 0 13px}
 .friend-showcase-section-heading>span{font-size:12px;font-weight:950;letter-spacing:1.8px;color:var(--accent)}
 .friend-showcase-section-heading>small{font-size:12px;color:var(--muted)}
@@ -908,7 +908,7 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @media(max-width:700px){
   .friend-card{flex-wrap:wrap}
   .friend-profile-button{padding:8px 10px;font-size:11px}
-  .friend-showcase-cover.hero{min-height:255px;padding:62px 18px 20px}
+  .friend-showcase.universe > .friend-showcase-cover.hero{min-height:255px;padding:62px 18px 20px}
   .friend-showcase-cover-tag{left:18px}
   .friend-showcase-avatar{width:83px;height:83px;flex-basis:83px;font-size:49px;border-radius:21px}
   .friend-showcase-heading{gap:10px}
@@ -921,16 +921,16 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @media(max-width:410px){
   .friend-card .friend-profile-button{order:4;width:100%}
   .friend-showcase-veil{padding:8px}
-  .friend-showcase.universe{max-height:calc(100dvh - 16px)}
+  .friend-showcase-veil > .friend-showcase.universe{max-height:calc(100dvh - 16px)}
   .friend-showcase-avatar{width:70px;height:70px;flex-basis:70px;font-size:42px}
   .friend-showcase-level{min-width:51px}
   .friend-showcase-level strong{font-size:23px}
   .friend-showcase-identity h2{font-size:26px}
   .friend-showcase-title{font-size:15px!important}
-  .friend-showcase-loadout{gap:8px}
+  .friend-showcase-loadout{grid-template-columns:1fr;gap:8px}
   .friend-showcase-cosmetic{gap:7px}
   .friend-showcase-cosmetic>span{font-size:20px}
-  .friend-showcase-cosmetic strong{font-size:11px}
+  .friend-showcase-cosmetic strong{font-size:13px}
 }
 
 
