@@ -19,7 +19,7 @@ service cloud.firestore {
     }
 
     function validFriendProfile() {
-      return request.resource.data.keys().hasAll(['nickname', 'avatar', 'selectedTitle', 'updatedAt'])
+      return request.resource.data.keys().hasAll(['nickname', 'avatar', 'selectedTitle', 'showcase', 'updatedAt'])
         && request.resource.data.nickname is string
         && request.resource.data.nickname.size() >= 2
         && request.resource.data.nickname.size() <= 24
@@ -29,6 +29,8 @@ service cloud.firestore {
         && request.resource.data.selectedTitle is string
         && request.resource.data.selectedTitle.size() > 0
         && request.resource.data.selectedTitle.size() <= 80
+        && request.resource.data.showcase is string
+        && request.resource.data.showcase.size() <= 3000
         && request.resource.data.updatedAt is timestamp;
     }
 
@@ -38,13 +40,13 @@ service cloud.firestore {
       // New cards contain only display fields and no scores.
       allow create: if request.auth != null
         && request.auth.uid == userId
-        && request.resource.data.keys().hasOnly(['nickname', 'avatar', 'selectedTitle', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['nickname', 'avatar', 'selectedTitle', 'showcase', 'updatedAt'])
         && validFriendProfile();
       // Updates cannot modify legacy level/title or any other admin fields.
       allow update: if request.auth != null
         && request.auth.uid == userId
         && request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['nickname', 'avatar', 'selectedTitle', 'updatedAt'])
+            .hasOnly(['nickname', 'avatar', 'selectedTitle', 'showcase', 'updatedAt'])
         && validFriendProfile();
       allow delete: if false;
     }
