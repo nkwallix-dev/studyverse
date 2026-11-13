@@ -318,6 +318,7 @@
                 <div class="friend-rank" [class.friend-rank-podium]="i < 3">#{{i+1}}</div>
                 <div class="friend-monogram friend-character" [attr.aria-label]="'Character: '+(player.avatar || '🧪')">{{player.avatar || '🧪'}}</div>
                 <div class="friend-name"><strong>{{player.nickname}}</strong><span class="friend-equipped-title">🏅 {{player.title || 'Weltenentdecker'}}</span><small *ngIf="isOwnPlayer(player)">Das bist du ✦</small></div>
+                <button type="button" class="friend-profile-button" (click)="openPlayerProfile(player)" [attr.aria-label]="'Profil von '+player.nickname+' anzeigen'">Profil anzeigen <span>↗</span></button>
                 <div class="friend-level"><small>LEVEL</small><strong>{{displayPlayerLevel(player) === null ? '–' : displayPlayerLevel(player)}}</strong></div>
               </article>
             </div>
@@ -384,6 +385,74 @@
       </ng-container>
     </main>
     <footer>✦ STUDYVERSE <span>Made for learning, built for legends · {{cloudConfigured?'Cloud-Sync für angemeldete Accounts':'Lokale Speicherung'}}</span></footer>
+  </div>
+
+
+  <div class="veil friend-showcase-veil" *ngIf="selectedPlayer as player" role="dialog" aria-modal="true"
+       aria-labelledby="friend-showcase-name" (click)="closePlayerProfile()" (keydown.escape)="closePlayerProfile()">
+    <section class="universe friend-showcase" [attr.data-theme]="player.showcase.theme"
+      [attr.data-frame]="player.showcase.frame" [attr.data-banner]="player.showcase.banner"
+      [attr.data-font]="player.showcase.font" [attr.data-atm]="player.showcase.atm"
+      [attr.data-fx]="player.showcase.fx" (click)="$event.stopPropagation()">
+      <button type="button" class="friend-showcase-close" (click)="closePlayerProfile()" aria-label="Profil schließen">✕</button>
+      <div class="friend-showcase-cover hero">
+        <div class="banner-scenery" aria-hidden="true">
+  <div class="banner-scene scene-gold"><div class="gold-rays"></div><div class="gold-trophy">🏆</div><span class="gold-spark sp1">✦</span><span class="gold-spark sp2">✧</span><span class="gold-spark sp3">✦</span></div>
+  <div class="banner-scene scene-warning"><div class="warning-chevrons"></div><div class="warning-flask">⚗️</div><div class="warning-bio">☣</div><span class="warning-ident">LAB · 001 / HAZARD</span></div>
+  <div class="banner-scene scene-galaxy"><div class="galaxy-halo"></div><div class="galaxy-orbit a"></div><div class="galaxy-orbit b"></div><div class="galaxy-core"></div><span class="galaxy-star a">✦</span><span class="galaxy-star b">✧</span><span class="galaxy-star c">✶</span></div>
+  <div class="banner-scene scene-molecule"><div class="molecule-link a"></div><div class="molecule-link b"></div><div class="molecule-link c"></div><div class="molecule-link d"></div><span class="molecule-atom a">C</span><span class="molecule-atom b">H</span><span class="molecule-atom c">O</span><span class="molecule-atom d">N</span><span class="molecule-atom e">H</span></div>
+  <div class="banner-scene scene-flow"><div class="flow-steps"><span><b>01</b><small>DATA</small></span><i>→</i><span><b>02</b><small>MODEL</small></span><i>→</i><span><b>03</b><small>INSIGHT</small></span></div></div>
+  <div class="banner-scene scene-curve"><div class="curve-grid"></div><svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid meet"><path d="M22 198 C86 193 106 146 152 135 S232 113 273 65 S331 61 383 18" fill="none" stroke="#78ffdc" stroke-width="7" stroke-linecap="round"/><path d="M22 198 C86 193 106 146 152 135 S232 113 273 65 S331 61 383 18 L383 239 L22 239Z" fill="#5fffd022"/><circle cx="152" cy="135" r="10" fill="#ffc77e"/><circle cx="273" cy="65" r="10" fill="#ffc77e"/></svg><span class="curve-label">PREDICTION ↗</span></div>
+  <div class="banner-scene scene-cloud"><span class="cloud-blob cloud-one">☁</span><span class="cloud-blob cloud-two">☁</span><span class="cloud-blob cloud-three">☁</span><span class="cloud-sun">☀</span></div>
+  <div class="banner-scene scene-solitaire">
+    <div class="sol-table"></div>
+    <span class="sol-card c1">A<b>♠</b></span><span class="sol-card c2">7<b>♥</b></span><span class="sol-card c3">K<b>♦</b></span>
+    <span class="sol-card c4">Q<b>♣</b></span><span class="sol-card c5">J<b>♥</b></span><span class="sol-star s1">✦</span><span class="sol-star s2">✧</span>
+  </div>
+  <div class="banner-scene scene-pink">
+    <div class="pink-cloud p1"></div><div class="pink-cloud p2"></div>
+    <span class="pink-heart h1">♥</span><span class="pink-heart h2">♥</span><span class="pink-heart h3">♥</span><span class="pink-heart h4">♥</span>
+    <span class="pink-spark p1">✦</span><span class="pink-spark p2">✧</span><span class="pink-spark p3">✧</span>
+  </div>
+  <div class="banner-scene scene-parallel"><div class="parallel-grid"></div><span class="parallel-signal a">●</span><span class="parallel-signal b">●</span><span class="parallel-signal c">●</span><span class="parallel-symbol">♯</span></div>
+</div>
+        <div class="friend-showcase-cover-shade"></div>
+        <span class="friend-showcase-cover-tag">✦ STUDYVERSE PLAYER CARD</span>
+        <div class="friend-showcase-heading">
+          <div class="friend-showcase-avatar">{{player.avatar || '🧪'}}</div>
+          <div class="friend-showcase-identity">
+            <span class="friend-showcase-overline">PLAYER PROFILE · {{isOwnPlayer(player)?'DEIN PROFIL':'COMMUNITY'}}</span>
+            <h2 id="friend-showcase-name">{{player.nickname}}</h2>
+            <p class="friend-showcase-title">✦ {{player.title || 'Weltenentdecker'}}</p>
+          </div>
+          <div class="friend-showcase-level"><small>LEVEL</small><strong>{{displayPlayerLevel(player) === null ? '–' : displayPlayerLevel(player)}}</strong></div>
+        </div>
+      </div>
+      <div class="friend-showcase-body">
+        <div class="friend-showcase-section-heading"><span>✦ EQUIPPED LOADOUT</span><small>Was {{isOwnPlayer(player)?'du':player.nickname}} gerade ausgerüstet hat</small></div>
+        <div class="friend-showcase-loadout">
+          <div class="friend-showcase-cosmetic"><span>🎨</span><div><small>THEME</small><strong>{{playerCosmetic(player,'theme')}}</strong></div></div>
+          <div class="friend-showcase-cosmetic"><span>🖼️</span><div><small>RAHMEN</small><strong>{{playerCosmetic(player,'frame')}}</strong></div></div>
+          <div class="friend-showcase-cosmetic"><span>🌌</span><div><small>BANNER</small><strong>{{playerCosmetic(player,'banner')}}</strong></div></div>
+          <div class="friend-showcase-cosmetic"><span>✍️</span><div><small>SCHRIFT</small><strong>{{playerCosmetic(player,'font')}}</strong></div></div>
+          <div class="friend-showcase-cosmetic"><span>🌠</span><div><small>HINTERGRUND</small><strong>{{playerCosmetic(player,'atm')}}</strong></div></div>
+          <div class="friend-showcase-cosmetic"><span>✨</span><div><small>EFFEKT</small><strong>{{playerCosmetic(player,'fx')}}</strong></div></div>
+        </div>
+        <div class="friend-showcase-section-heading friend-showcase-course-heading"><span>🎓 LERNFORTSCHRITT</span><small>Abgeschlossene Lektionen</small></div>
+        <div class="friend-showcase-courses" *ngIf="player.showcase.courses.length;else noPlayerCourses">
+          <article class="friend-showcase-course" *ngFor="let course of player.showcase.courses">
+            <div class="friend-showcase-course-top">
+              <span class="friend-showcase-course-icon">{{playerCourse(course.id).icon}}</span>
+              <div class="friend-showcase-course-name"><strong>{{playerCourse(course.id).name}}</strong><small>{{course.done}} von {{course.total}} Lektionen</small></div>
+              <b>{{course.percent}}%</b>
+            </div>
+            <div class="friend-showcase-track"><i [style.width.%]="course.percent"></i></div>
+          </article>
+        </div>
+        <ng-template #noPlayerCourses><div class="friend-showcase-no-courses">🪐 Noch kein abgeschlossener Kursfortschritt veröffentlicht.</div></ng-template>
+        <p class="friend-showcase-disclaimer">Cosmetics und Kursfortschritt sind selbst gemeldete Profilangaben. Verifizierte Ranglistenwerte bleiben davon getrennt.</p>
+      </div>
+    </section>
   </div>
 
   <div class="veil avatar-picker-veil" *ngIf="avatarPickerOpen" role="dialog" aria-modal="true" aria-label="Avatar auswählen" (click)="closeAvatarPicker()">
