@@ -23,8 +23,10 @@ assert(/match \/verifiedProfiles\/\{userId\}\s*\{[\s\S]*?allow get, list: if req
 assert(!angular.includes('publishPlayerProfile('),'No user-supplied level publishing allowed');
 assert(source.includes('documents/publicProfiles')&&!source.includes('documents/verifiedProfiles'),
  'The friends directory must be distinct from the verified ranking system');
-assert(html.includes("player.level === null ? '–' : player.level")&&html.includes('#{{i+1}}'),
- 'Level and placement return to friends display without claiming verification');
+assert(html.includes("displayPlayerLevel(player) === null ? '–' : displayPlayerLevel(player)")
+ &&html.includes('*ngFor="let player of displayedPlayers; let i = index"')
+ &&html.includes('#{{i+1}}')&&angular.includes('return this.isOwnPlayer(player)?this.level:player.level'),
+ 'Own level appears immediately while other cards use the admin snapshot');
 assert(!html.includes('friends-summary')&&!html.includes('friends-directory-note')&&!html.includes('friends-refresh'),
  'Friends page removes clutter and manual refresh button');
 assert(html.includes('friends-list')&&html.includes('friend-character'),

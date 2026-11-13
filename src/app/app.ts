@@ -235,6 +235,16 @@ export class App implements OnInit,OnDestroy {
    }finally{this.friendsLoading=false;this.changeDetector.markForCheck();}
  }
  isOwnPlayer(player:PublicPlayer):boolean{return player.uid===this.cloud.session?.uid;}
+ // The signed-in player's already loaded progress is fresher than the
+ // admin-published directory snapshot, which may still be waiting for a sync.
+ displayPlayerLevel(player:PublicPlayer):number|null{
+   return this.isOwnPlayer(player)?this.level:player.level;
+ }
+ get displayedPlayers():PublicPlayer[]{
+   return [...this.publicPlayers].sort((a,b)=>
+     (this.displayPlayerLevel(b)??-1)-(this.displayPlayerLevel(a)??-1)
+     ||a.nickname.localeCompare(b.nickname,'de'));
+ }
 
  private cloudSnapshot():CloudSnapshot{
    const trainers:Record<string,Record<string,unknown>>={...(this.profile.trainerSaves||{})};

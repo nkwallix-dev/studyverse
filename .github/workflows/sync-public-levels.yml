@@ -5,6 +5,8 @@ on:
     # GitHub may drop scheduled jobs during peak load at the top of the hour.
     # Offset the five-minute sync and refresh its scheduled-workflow actor.
     - cron: '3-59/5 * * * *'
+    # A second offset gives a skipped scheduled run another chance shortly after.
+    - cron: '1-59/5 * * * *'
   push:
     branches: [main]
     paths:

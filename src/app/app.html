@@ -314,11 +314,11 @@
             <div class="friends-loading" *ngIf="friendsLoading">⏳ Spielerliste wird geladen …</div>
             <div class="friends-message" *ngIf="friendsError && !friendsLoading">{{friendsError}}</div>
             <div class="friends-list" *ngIf="!friendsLoading && !friendsError && publicPlayers.length">
-              <article class="friend-card" *ngFor="let player of publicPlayers; let i = index" [class.friend-self]="isOwnPlayer(player)">
+              <article class="friend-card" *ngFor="let player of displayedPlayers; let i = index" [class.friend-self]="isOwnPlayer(player)">
                 <div class="friend-rank" [class.friend-rank-podium]="i < 3">#{{i+1}}</div>
                 <div class="friend-monogram friend-character" [attr.aria-label]="'Character: '+(player.avatar || '🧪')">{{player.avatar || '🧪'}}</div>
                 <div class="friend-name"><strong>{{player.nickname}}</strong><span class="friend-equipped-title">🏅 {{player.title || 'Weltenentdecker'}}</span><small *ngIf="isOwnPlayer(player)">Das bist du ✦</small></div>
-                <div class="friend-level"><small>LEVEL</small><strong>{{player.level === null ? '–' : player.level}}</strong></div>
+                <div class="friend-level"><small>LEVEL</small><strong>{{displayPlayerLevel(player) === null ? '–' : displayPlayerLevel(player)}}</strong></div>
               </article>
             </div>
             <div class="friends-empty" *ngIf="!friendsLoading && !friendsError && !publicPlayers.length">Noch keine öffentlichen Spielerprofile vorhanden. Neue Spieler erscheinen nach dem Anmelden automatisch.</div>
