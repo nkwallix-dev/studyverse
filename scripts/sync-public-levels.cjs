@@ -50,9 +50,32 @@ function allowedName(v){
   .replace(/[1!|]/g,'i').replace(/0/g,'o').replace(/9/g,'g').replace(/[^a-z]/g,'');
  return !/n(?:i)?gg(?:a|e|er|ers)|^(?:admin|administrator|moderator|support|studyverse)$/.test(n);
 }
-function fieldsForNewCard(p){
+const courseTotals={'nawi-test-01':13,'dsai-test-01':16,'pos-pa-01':20};
+function showcaseFromDoc(doc,p){
+ const defaults={theme:'base',frame:'none',banner:'default',font:'standard',atm:'none',fx:'none'};
+ const equipped=p.equipped&&typeof p.equipped==='object'?p.equipped:{};
+ const showcase={};
+ for(const [key,fallback] of Object.entries(defaults)){
+  const value=equipped[key];
+  showcase[key]=typeof value==='string'&&/^[a-z0-9_-]{1,40}$/.test(value)?value:fallback;
+ }
+ let envelope={};
+ try{envelope=JSON.parse(doc?.fields?.profile?.stringValue||'{}')}catch{}
+ const trainers=envelope.trainers&&typeof envelope.trainers==='object'?envelope.trainers:{};
+ const saved=p.trainerSaves&&typeof p.trainerSaves==='object'?p.trainerSaves:{};
+ showcase.courses=[];
+ for(const [id,total] of Object.entries(courseTotals)){
+  const trainer=trainers[id]||saved[id]||(id==='nawi-test-01'?p.chemverseSave:null);
+  const completed=trainer?.courseDone;
+  if(!completed||typeof completed!=='object'||Array.isArray(completed))continue;
+  const done=Math.min(total,Object.values(completed).filter(v=>v===true).length);
+  if(done)showcase.courses.push({id,done,total,percent:Math.round(done/total*100)});
+ }
+ return JSON.stringify(showcase);
+}
+function fieldsForNewCard(p,doc){
  return {nickname:{stringValue:p.nickname},avatar:{stringValue:typeof p.equipped?.avatar==='string'&&p.equipped.avatar.length<=20?p.equipped.avatar:'🧪'},
-  selectedTitle:{stringValue:'Weltenentdecker'},updatedAt:{timestampValue:new Date().toISOString()},
+  selectedTitle:{stringValue:'Weltenentdecker'},showcase:{stringValue:showcaseFromDoc(doc,p)},updatedAt:{timestampValue:new Date().toISOString()},
   level:{integerValue:String(levelFor(p.xp))}};
 }
 async function run({token,fetcher=fetch,base=BASE,project=PROJECT,readOnly=false}){
@@ -72,7 +95,7 @@ async function run({token,fetcher=fetch,base=BASE,project=PROJECT,readOnly=false
   users.push(...(data.documents||[]));cursor=data.nextPageToken||'';if(!cursor)break;
   if(page===99)throw Error('User pagination safety cap reached');
  }
- let patched=0,created=0,skipped=0,pendingVerse=0;
+ let patched=0,created=0,skipped=0,pendingVerse=0,showcasesBackfilled=0;
  const globalLevels={},projectedLevels={},publicLevels={};
  const count=(counts,level)=>{counts[level]=(counts[level]||0)+1};
  for(const doc of users){
@@ -87,18 +110,25 @@ async function run({token,fetcher=fetch,base=BASE,project=PROJECT,readOnly=false
   if(existing)count(publicLevels,existing.fields?.level?.integerValue||'unset');
   if(existing){
    // Preserve owner/admin-corrected nicknames, moderator titles, avatars.
-   if(existing.fields?.level?.integerValue===desired){skipped++;continue;}
-   if(!readOnly)await api(url+'?updateMask.fieldPaths=level','PATCH',
-    {fields:{level:{integerValue:desired}}});
+   const fields={};
+   if(existing.fields?.level?.integerValue!==desired)fields.level={integerValue:desired};
+   // Older cards had no showcase. Fill that gap without overwriting a player's
+   // newer self-published cosmetics or their administrator-managed fields.
+   if(existing.fields?.showcase?.stringValue===undefined){
+    fields.showcase={stringValue:showcaseFromDoc(doc,p)};
+    showcasesBackfilled++;
+   }
+   if(!Object.keys(fields).length){skipped++;continue;}
+   if(!readOnly)await api(url+'?'+Object.keys(fields).map(k=>'updateMask.fieldPaths='+k).join('&'),'PATCH',{fields});
    patched++;
   }else if(allowedName(p.nickname)){
    // Repair older failed registrations without modifying private balance.
-   if(!readOnly)await api(url,'PATCH',{fields:fieldsForNewCard({...p,xp:displayXp})});
+   if(!readOnly)await api(url,'PATCH',{fields:fieldsForNewCard({...p,xp:displayXp},doc)});
    created++;
   }else skipped++;
  }
  console.log('Studyverse provisional public levels: scanned='+users.length+
-  ' updated='+patched+' missing_cards_created='+created+' unchanged_or_skipped='+skipped+
+  ' updated='+patched+' missing_cards_created='+created+' showcases_backfilled='+showcasesBackfilled+' unchanged_or_skipped='+skipped+
   (readOnly?' (dry run)':''));
  console.log('XP remains user-editable until backend verification; this is a DISPLAY rank only.');
  console.log('Rank diagnostics (aggregate): global='+JSON.stringify(globalLevels)+
@@ -110,4 +140,4 @@ if(require.main===module){
  const token=process.env.GCLOUD_ACCESS_TOKEN;
  run({token,readOnly:process.argv.includes('--dry-run')}).catch(e=>{console.error('Rank sync failed:',e.message);process.exitCode=1});
 }
-module.exports={levelFor,profileFromDoc,displayXpFromDoc,allowedName,fieldsForNewCard,run};
+module.exports={levelFor,profileFromDoc,displayXpFromDoc,allowedName,showcaseFromDoc,fieldsForNewCard,run};
