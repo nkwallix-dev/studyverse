@@ -674,10 +674,9 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 
 /* A single compact Drop selector replaces the old multi-row collection cards.
    Native select works on phones and with keyboard navigation. */
-.shop-items-heading{display:flex;align-items:center;justify-content:space-between;gap:13px;margin:18px 0 12px!important;flex-wrap:wrap}
-.shop-items-heading-main{min-width:0;flex:1 1 240px}
-.shop-items-heading-main h2{margin:0 0 3px}
-.shop-current-drop{display:block;color:var(--muted);font-size:11px;font-weight:750}
+.shop-items-heading{display:flex;align-items:center;justify-content:flex-start;gap:16px;margin:18px 0 12px!important;flex-wrap:wrap}
+.shop-items-heading-main{min-width:0;flex:0 0 auto}
+.shop-items-heading-main h2{margin:0}
 .shop-drop-picker{display:flex;align-items:center;gap:11px;flex:0 1 390px;min-width:0}
 .shop-drop-picker>span{font-size:10px;font-weight:900;letter-spacing:1px;color:var(--muted);white-space:nowrap}
 .shop-drop-picker select{
@@ -689,16 +688,14 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 }
 .shop-drop-picker select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .shop-drop-picker option{background:var(--card2);color:var(--text)}
-.shop-drop-hint{font-size:11px;line-height:1.5;margin:0 0 11px;color:var(--muted)}
 .shop-items-heading+.shop-category-chips{margin-top:10px}
 @media(max-width:660px){
-  .shop-items-heading{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.45fr);gap:8px;align-items:center}
+  .shop-items-heading{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center}
   .shop-items-heading-main{min-width:0}
   .shop-items-heading-main h2{font-size:clamp(19px,5.2vw,23px);white-space:nowrap}
   .shop-drop-picker{width:100%;min-width:0;gap:0}
   .shop-drop-picker>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
   .shop-drop-picker select{width:100%;max-width:100%;font-size:clamp(10px,3vw,12px);min-height:42px;padding:8px 6px}
-  .shop-current-drop{font-size:9px;line-height:1.3}
 }
 
 

@@ -1,10 +1,45 @@
 # Studyverse — Lernziel-Freischaltungen & Token-Shop (November 2026)
 
+## Aktuelle Preis- und Belohnungsregeln
+
+- Im Shop stehen „Alle Items“ und die Auswahl „Kollektion auswählen“ nebeneinander.
+  Test-Kollektionen erscheinen nach der ersten Freischaltung und verschwinden,
+  sobald alle ihre Items gekauft wurden. Essentials bleiben immer auswählbar.
+- `src/app/shop-items.ts` berechnet die Preise zentral mit `itemPrice`: Test-Items
+  kosten nach Kategorie gleich viel, unabhängig von der Reihenfolge der Verses.
+  Boss-Titel bei 80 % kosten 800 TT, Professorentitel bei 100 % 1.200 TT;
+  Zeichen-Theme-Upgrades kosten 900 TT, der Sharpverse-Goldrahmen 500 TT. Essentials steigen mit dem nötigen
+  Profil-Level im Preis. Galaxy auf Level 20 kostet 1.000 TT.
+- Die **einmaligen Token-Quellen** jedes Verse finanzieren genau seinen Shop:
+
+  | Verse | Lernaufgaben und Boss | Achievements | Shop gesamt |
+  | --- | ---: | ---: | ---: |
+  | Chemverse | 4.100 TT | 4.200 TT | 8.300 TT |
+  | Dsaiverse | 4.300 TT | 3.300 TT | 7.600 TT |
+  | Sharpverse | 1.900 TT | 4.700 TT | 6.600 TT |
+
+- Optionale Chemverse-Orbitalübungen und der separate 50-%-Boss-Meilenstein
+  geben weiterhin XP, aber keine zusätzlichen TT. So hängt die Verse-Bilanz
+  nicht davon ab, ob jemand optionale Aufgaben vor den Pflichtaufgaben macht.
+- Die gemeinsame Tagesgrenze ist **20 verschiedene richtige Fragen × 10 TT**
+  plus **ein Boss ab 70 % × 100 TT**, also höchstens **300 TT pro Tag** über
+  Chemverse, Dsaiverse und die Tagesarena zusammen. Die ersten 20 Quizfragen
+  am Tag können zusätzlich ihre einmaligen Erfüllungs-TT einbringen.
+- Globale Level-TT sind für Essentials gedacht und werden getrennt von der
+  Verse-Bilanz gerechnet. Alle TT landen weiterhin im selben Geldbeutel;
+  Spieler können sie frei zwischen Verses ausgeben.
+- Bereits gezahlte Achievement-Claims, gekaufte Items und bestehende Wallets
+  bleiben unverändert. Neue Auszahlungen verwenden die neuen Beträge. Beim
+  späteren Cutover der separaten Draft-PR #15 müssen dessen Wallet- und
+  Belohnungsregeln mit diesem aktuellen Stand abgeglichen werden.
+- Neue Verses brauchen eine eigene Bilanzprüfung: Summe der einmaligen
+  Aufgaben-TT plus Achievements = Summe der Itempreise; tägliche TT zählen
+  nicht hinein.
+
 ## Shop und Inventar: neues Wirtschaftsmodell
 
 - **ALLE noch nicht gekauften Cosmetics kosten TastyTokens**, auch Test-Items.
-  Die bisherigen Preise, Item-IDs und die XP-/Token-Verdienstregeln bleiben
-  unverändert. Es gibt keine kostenlosen Test-Items.
+  Item-IDs und XP-Verdienstregeln bleiben erhalten. Es gibt keine kostenlosen Test-Items.
 - **Essentials** können nach Erreichen des jeweiligen Profil-Levels gekauft
   werden. **Test-Items** werden erst durch **nachweisbaren Lernfortschritt**
   im zugehörigen Test **zum Kauf freigeschaltet**.
@@ -18,8 +53,8 @@
   dort ausrüstbar. Auf einer Test-Shop-Seite sieht man **freigeschaltete**
   und **gesperrte** Items inklusive Lernziel, Fortschritt und TT-Preis.
 - Der Shop-Dropdown zeigt **Essentials immer**; einen Test nur,
-  nachdem mindestens ein Item in diesem Test freigeschaltet wurde –
-  auch wenn inzwischen schon alle seine Items gekauft wurden.
+  nachdem mindestens ein noch nicht gekauftes Item in diesem Test freigeschaltet
+  wurde. Vollständig gekaufte Test-Kollektionen verschwinden aus der Auswahl.
 - Freigeschaltete Alt-Items bleiben kaufbar, ohne die Nutzer mit vielen
   rückwirkenden Popups zu nerven. Eine gespeicherte Seen-/Queue-Liste
   verhindert doppelte Hinweise und überlebt den Cloud-Sync.
@@ -39,8 +74,8 @@ Lernstände/Wallet-Kopien werden nicht automatisch verändert oder gelöscht.
 
 ## XP, TT und Sicherheitsmigration
 
-**Dieser Umbau verändert keine XP-Formel, Level-Schwellen oder bestehenden
-TT-Verdienstmöglichkeiten.** Die am 12. November erstellten zwölf inaktiven
+**Dieser Umbau verändert keine XP-Formel oder Level-Schwellen; die TT-Beträge
+folgen der aktuellen Preis- und Belohnungsregel oben.** Die am 12. November erstellten zwölf inaktiven
 Shadow-Wallets werden ebenfalls nicht angerührt. Bestehende Cloud-Accounts
 nutzen vor PR #15 weiterhin das bisherige Cloud-Save-Format.
 Die Shop-Freischaltung benutzt wie bisher den lokalen oder synchronisierten
@@ -50,7 +85,7 @@ mit einem vertrauenswürdigen Backend nachziehen; PR #15 bleibt bis dahin Draft.
 
 ---
 
-## Vorherige Shop-/Economy-Regeln (historischer Kontext)
+## Vorherige Shop-/Economy-Regeln (historischer Kontext; Beträge unten sind veraltet)
 
 ## Dauerhafte Regel für neue Lernwelten
 Mit **jedem neuen Test-Trainer** kommt ein neuer, eigener kosmetischer **Verse-Drop** in den globalen STUDYVERSE-Item-Shop.

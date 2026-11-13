@@ -1,5 +1,5 @@
 /* Shared daily reward ledger for every trainer on the same GitHub Pages origin.
-   Maximum 20 unique correct quiz questions (+25 TT) and one 70% boss (+250 TT) per local day.
+   Maximum 20 unique correct quiz questions (+10 TT) and one 70% boss (+100 TT) per local day.
    Legacy trainer daily payouts are imported so updating cannot accidentally pay twice. */
 (function(root){
   'use strict';

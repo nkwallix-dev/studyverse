@@ -67,6 +67,7 @@ export class App implements OnInit,OnDestroy {
  private cloudWrites:Promise<void>=Promise.resolve();
  private friendSync:Promise<void>=Promise.resolve();
  private friendProfileStamp='';
+ exclusiveCheaterTitle=false;
  // An admin-issued notice is tied to Firebase UID, not an editable nickname.
  moderationNotice:AccountNotice|null=null;
  noticePreview=false;noticeSaving=false;noticeError='';
@@ -193,6 +194,22 @@ export class App implements OnInit,OnDestroy {
    });
    return this.friendSync;
  }
+ private async refreshExclusiveTitle():Promise<void>{
+   const uid=this.cloud.session?.uid;
+   if(!uid)return;
+   try{
+     const granted=await this.cloud.hasExclusiveCheaterTitle();
+     if(this.cloud.session?.uid!==uid)return;
+     this.exclusiveCheaterTitle=granted;
+     if(!granted&&this.profile.equipped['title']==='exclusive_title_cheater'){
+       this.profile.equipped['title']='';
+       this.save();
+     }
+     this.changeDetector.markForCheck();
+   }catch{
+     // A temporary directory error must not revoke a previously loaded entitlement.
+   }
+ }
  async refreshFriends():Promise<void>{
    const uid=this.cloud.session?.uid;
    if(!uid||!this.cloudConfigured){
@@ -203,6 +220,7 @@ export class App implements OnInit,OnDestroy {
    this.friendsLoading=true;this.friendsError='';
    this.changeDetector.markForCheck();
    try{
+     await this.refreshExclusiveTitle();
      await this.publishFriendCard();
      const entries=await this.cloud.listPublicProfiles();
      if(this.cloud.session?.uid===uid){this.publicPlayers=entries;this.friendsError='';}
@@ -320,7 +338,7 @@ export class App implements OnInit,OnDestroy {
      this.cloudConfigured=this.cloud.configured;this.cloudReady=true;
      if(this.cloud.session&&this.cloudMaySave){
        void this.checkOwnAccountNotice();
-       void this.publishFriendCard();
+       void this.refreshExclusiveTitle().then(()=>this.publishFriendCard());
        this.queueCloudSave();
      }
      this.changeDetector.markForCheck();
@@ -416,7 +434,7 @@ export class App implements OnInit,OnDestroy {
      // public social card after the private save finished hydrating.
      // Never publish client-editable XP/TT or overwrite legacy levels.
      if(this.cloud.session&&this.cloudMaySave&&this.cloudStatus==='✓ Online gespeichert')
-       void this.publishFriendCard();
+       void this.refreshExclusiveTitle().then(()=>this.publishFriendCard());
      // Angular's zoneless change detection needs an explicit notification after fetch promises.
      // Notify it when cloud data is loaded, so the login modal closes without an extra click.
      this.changeDetector.markForCheck();
@@ -433,7 +451,7 @@ export class App implements OnInit,OnDestroy {
      this.alert('Cloud-Speicherung fehlgeschlagen. Exportiere zur Sicherheit ein Backup und versuche es erneut, bevor du dich abmeldest.');
      return;
    }
-   this.cloud.signOut();this.cloudMaySave=false;this.publicPlayers=[];this.friendsError='';this.friendProfileStamp='';this.moderationNotice=null;this.noticePreview=false;this.noticeError='';this.noticeCheckId++;this.clearDeviceProgress();
+   this.cloud.signOut();this.cloudMaySave=false;this.publicPlayers=[];this.friendsError='';this.friendProfileStamp='';this.exclusiveCheaterTitle=false;this.moderationNotice=null;this.noticePreview=false;this.noticeError='';this.noticeCheckId++;this.clearDeviceProgress();
    this.profile=initial();this.nicknameEdit=this.profile.nickname;
    this.cloudMode='login';this.cloudStatus='Abgemeldet';this.cloudMessage='';
    this.view='dashboard';this.intro=false;write(INTRO,'1');
@@ -461,8 +479,9 @@ export class App implements OnInit,OnDestroy {
  get activeSubjects(){return this.orderedSubjects.filter(s=>this.subjectHasTrainer(s.id));}
  get filteredSubjects(){return this.orderedSubjects.filter(s=>(this.group==='Alle'||s.group===this.group)&&
  (s.name+' '+s.short+' '+s.desc).toLowerCase().includes(this.search.toLowerCase().trim()));}
- /** Show a test in the dropdown only once at least one prize is unlocked. */
- get drops(){return SHOP_DROPS.filter(d=>d.id==='global'||this.items.some(i=>i.drop===d.id&&this.isUnlocked(i)));}
+ /** Hide a test collection after every item has been bought. */
+ get drops(){return SHOP_DROPS.filter(d=>d.id==='global'||
+   (this.items.some(i=>i.drop===d.id&&this.isUnlocked(i))&&this.items.some(i=>i.drop===d.id&&!this.owns(i))));}
  get selectedDrop(){return this.drops.find(d=>d.id===this.shopDrop)||this.drops[0];}
  get dropItems(){return this.items.filter(i=>i.drop===this.selectedDrop.id);}
  get dropOwned(){return this.dropItems.filter(i=>this.owns(i)).length;}
@@ -574,7 +593,7 @@ export class App implements OnInit,OnDestroy {
      boss=boss||daily['bossPaid']===true;
    }
    const count=Math.min(20,unique.size);
-   return {questions:count,boss,quizRemaining:(20-count)*25,bossRemaining:boss?0:250};
+   return {questions:count,boss,quizRemaining:(20-count)*10,bossRemaining:boss?0:100};
  }
  get shopCollectionCost(){return this.dropItems.filter(i=>!this.owns(i)).reduce((n,i)=>n+i.cost,0);}
  get shopTokenGap(){return Math.max(0,this.shopCollectionCost-this.profile.tokens);}
@@ -604,7 +623,7 @@ export class App implements OnInit,OnDestroy {
    ).sort((a,b)=>Number(this.active(b))-Number(this.active(a))||a.name.localeCompare(b.name,'de'));
  }
  get inventoryEquippedCount(){return this.ownedCatalogItems.filter(item=>this.active(item)).length;}
- dropLabel(id:string){return this.drops.find(drop=>drop.id===id)?.title||(id==='maths-hw-02'?'MathsVerse · Archiv':id);}
+ dropLabel(id:string){return this.drops.find(drop=>drop.id===id)?.title||(id==='maths-hw-02'?'MathsVerse · Archiv':id==='exclusive'?'Exklusiv':id);}
  changeInventoryDrop(id:string){this.inventoryDrop=id;this.inventoryGroup='Alle';}
  setShopTab(tab:'catalog'|'inventory'|'earn'){this.shopTab=tab;this.previewed=null;window.scrollTo({top:0,behavior:'smooth'});}
  openInventory(){this.go('shop');this.setShopTab('inventory');}
@@ -724,7 +743,9 @@ export class App implements OnInit,OnDestroy {
   this.profile.equipped[key]=value;
   this.finishRewardItem(item.id);
  }
- get title(){return [...this.items,...LEGACY_OWNED_ITEMS].find(i=>i.id===this.profile.equipped['title'])?.name || 'Weltenentdecker';}
+ get title(){return [...this.items,...LEGACY_OWNED_ITEMS].find(i=>
+   i.id===this.profile.equipped['title']&&(i.id!=='exclusive_title_cheater'||this.exclusiveCheaterTitle)
+ )?.name || 'Weltenentdecker';}
  get currentTheme(){return this.profile.equipped['theme'] || 'base';}
  // Keep the equipped design on the real homepage; only the modal showcases a candidate item.
  get previewTheme(){return this.currentTheme;}
@@ -916,7 +937,7 @@ export class App implements OnInit,OnDestroy {
    const free=this.items.filter(i=>i.drop==='global'&&i.cost===0&&(i.level||1)<=this.level);
    this.profile.inventory=[...new Set([...this.profile.inventory,...free.map(i=>i.id)])];
  }
- owns(item:ShopItem){return this.profile.inventory.includes(item.id);}
+ owns(item:ShopItem){return item.id==='exclusive_title_cheater'?this.exclusiveCheaterTitle:this.profile.inventory.includes(item.id);}
  active(item:ShopItem){
    const key=item.group;const value=key==='avatar'?item.icon:(item.equip||item.id);
    return this.profile.equipped[key]===value;

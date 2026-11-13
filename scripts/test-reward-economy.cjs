@@ -20,7 +20,7 @@ for(const item of global){
  assert(Number.isInteger(item.level)&&item.level>=1,'Essentials retain global level gates: '+item.id);
 }
 for(const item of testItems){
- assert(Number.isInteger(item.cost)&&item.cost>0,'Test items must retain their original TT price: '+item.id);
+ assert(Number.isInteger(item.cost)&&item.cost>0,'Test items need a positive TT price: '+item.id);
  assert(item.requirement?.metric&&item.requirement?.value>0,
   'Every test item must have a measurable learning goal: '+item.id);
  assert(!('level' in item),'Test rewards cannot be locked behind global profile level: '+item.id);
@@ -40,8 +40,24 @@ assert(host.includes('MathsVerse · Archiv'),'Archived MathsVerse inventory cate
 assert(host.includes("id:'mat',short:'AM'"),'MathsVerse tile remains visible while locked');
 assert(host.includes('get drops(){return SHOP_DROPS.filter(d=>d.id===\'global\''),
  'Show test dropdown only after user unlocks an item');
-assert(host.includes('this.items.some(i=>i.drop===d.id&&this.isUnlocked(i))'),
- 'Test dropdown must depend on actual goals');
+assert(host.includes('this.items.some(i=>i.drop===d.id&&this.isUnlocked(i))&&this.items.some(i=>i.drop===d.id&&!this.owns(i))'),
+ 'Test dropdown must keep locked unowned items visible and disappear after the collection is bought');
+const dropExpression=host.match(/get drops\(\)\{return ([^;]+);\}/)?.[1];
+assert(dropExpression,'Collection visibility rule must be present');
+const dropState={
+ items:[{id:'a',drop:'global'},{id:'b',drop:'dsai-test-01'},{id:'c',drop:'dsai-test-01'}],
+ owned:new Set(),owns(i){return this.owned.has(i.id)},isUnlocked(i){return i.id==='b'}
+};
+const visibleDrops=new Function('SHOP_DROPS','return '+dropExpression).bind(dropState,[{id:'global'},{id:'dsai-test-01'}]);
+assert.equal(visibleDrops().length,2,'First unlocked item reveals the Verse');
+dropState.owned.add('b');
+assert.equal(visibleDrops().length,2,'Locked unowned items keep the Verse in the dropdown');
+dropState.owned.add('c');
+assert.equal(visibleDrops().length,1,'Buying the final item removes the Verse');
+assert(html.includes('<h2>Alle Items <span>✦</span></h2>')&&html.includes('Kollektion auswählen'),
+ 'Shop heading and collection dropdown need a compact shared row');
+assert(!html.includes('shop-test-explainer')&&!html.includes('shop-current-drop')&&!html.includes('shop-drop-hint'),
+ 'Explanatory shop notes should be removed');
 assert(host.includes('.filter(i=>!this.owns(i)'), 'Owned cosmetics may never appear in shop catalog');
 assert(host.includes("this.profile.tokens-=item.cost;")&&host.includes("if(this.profile.tokens<item.cost)"),
  'All purchases, including test items, must deduct TT after checking available balance');

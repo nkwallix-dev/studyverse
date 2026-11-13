@@ -45,11 +45,11 @@ function refreshOptions(){if(session&&session.pos<session.questions.length)sessi
 function progressBar(n,total){return '<div class="bar"><i style="width:'+Math.round(n/total*100)+'%"></i></div>'}
 function stats(){
  const d=DAILY.get(),quiz=d.quizIds.length;
- return '<div class="stats"><div class="stat"><small>⚡ TAGESQUIZ</small><b>'+quiz+'/20</b><small>Richtige einzigartige Fragen vergütet</small>'+progressBar(quiz,20)+'</div><div class="stat"><small>🪙 HEUTE NOCH MÖGLICH</small><b>'+((20-quiz)*25+(d.bossPaid?0:250))+' TT</b><small>Maximal 750 TT pro Tag</small></div><div class="stat"><small>👾 BOSS-TAGESBONUS</small><b>'+(d.bossPaid?'✓ Erledigt':'250 TT')+'</b><small>Einmal täglich bei mindestens 70 %</small></div></div>';
+ return '<div class="stats"><div class="stat"><small>⚡ TAGESQUIZ</small><b>'+quiz+'/20</b><small>Richtige einzigartige Fragen vergütet</small>'+progressBar(quiz,20)+'</div><div class="stat"><small>🪙 HEUTE NOCH MÖGLICH</small><b>'+((20-quiz)*10+(d.bossPaid?0:100))+' TT</b><small>Maximal 300 TT pro Tag</small></div><div class="stat"><small>👾 BOSS-TAGESBONUS</small><b>'+(d.bossPaid?'✓ Erledigt':'100 TT')+'</b><small>Einmal täglich bei mindestens 70 %</small></div></div>';
 }
 function startScreen(){
  return '<div class="hero"><div><div class="eyebrow">✦ STUDYVERSE · GEMEINSAME DAILY ARENA</div><h1>Dein täglicher<br><span>XP-Check.</span></h1><p>20 wechselnde Fragen aus CHEMVERSE und Dsaiverse. Beide Fächer können auftauchen, auch im Bosskampf. Deine TastyTokens landen direkt im globalen Profil.</p><div class="actions"><button class="btn" data-action="quiz">⚡ Tägliches Quiz</button><button class="btn secondary" data-action="boss">👾 Bosskampf</button></div></div><div class="hero-icon">⚡</div></div>'+stats()+
- '<div class="card"><h2>⚡ Quiz oder 👾 Boss?</h2><p>Im Quiz zählen bis zu 20 unterschiedliche richtig gelöste Fragen pro Tag für je 25 TT. Beim Boss gibt es einmal täglich 250 TT, wenn mindestens 70 % von 20 Fragen richtig sind. Fragen und Antwortpositionen werden neu gemischt.</p><div class="notice">Die täglichen Limits gelten <b>gemeinsam</b> für CHEMVERSE, Dsaiverse und diese Arena – kein doppeltes Kassieren durch Fachwechsel.</div></div>';
+ '<div class="card"><h2>⚡ Quiz oder 👾 Boss?</h2><p>Im Quiz zählen bis zu 20 unterschiedliche richtig gelöste Fragen pro Tag für je 10 TT. Beim Boss gibt es einmal täglich 100 TT, wenn mindestens 70 % von 20 Fragen richtig sind. Fragen und Antwortpositionen werden neu gemischt.</p><div class="notice">Die täglichen Limits gelten <b>gemeinsam</b> für CHEMVERSE, Dsaiverse und diese Arena – kein doppeltes Kassieren durch Fachwechsel.</div></div>';
 }
 function questionScreen(){
  const s=session,q=s.questions[s.pos],d=DAILY.get();
@@ -60,11 +60,11 @@ function questionScreen(){
  (q.code?'<pre class="snippet">'+safe(q.code)+'</pre>':'')+
  '<div class="question">'+safe(q.question)+'</div><div class="choices">'+choices+'</div>'+
  (s.answered?'<div class="feedback '+(correct?'':'bad')+'"><b>'+(correct?'✅ Richtig!':'❌ Leider falsch.')+'</b><p>'+safe(q.why)+'</p></div><div class="actions"><button class="btn" data-action="next">'+(s.pos+1===s.questions.length?'Ergebnis ansehen 🏆':'Nächste Frage →')+'</button></div>':'')+'</div>'+
- '<div class="notice">'+(mode==="quiz"?'Für neue richtige Fragen gibt es +25 TT, solange die gemeinsame Tagesgrenze von 20 nicht erreicht ist.':'Der Boss bringt +250 TT, wenn du mindestens 14 von 20 Fragen richtig hast und den heutigen Bonus noch nicht kassiert hast.')+'</div>';
+ '<div class="notice">'+(mode==="quiz"?'Für neue richtige Fragen gibt es +10 TT, solange die gemeinsame Tagesgrenze von 20 nicht erreicht ist.':'Der Boss bringt +100 TT, wenn du mindestens 14 von 20 Fragen richtig hast und den heutigen Bonus noch nicht kassiert hast.')+'</div>';
 }
 function resultScreen(){
  const percent=Math.round(100*session.score/session.questions.length);
- return '<div class="card result"><div class="emoji">'+(mode==="boss"?(percent>=70?'👑':'🤖'):'🏅')+'</div><div class="eyebrow">RUNDE ABGESCHLOSSEN</div><h1>'+session.score+'/20 <span>richtig</span></h1><h2>'+percent+' %</h2><p>'+(mode==="boss"?(percent>=70?'Boss bestanden! Ab 70 % gibt’s einmal am Tag die 250 TT.':'Noch keine 70 %. Trainier weiter, dann zerlegst du den Boss.'): 'GG! Du hast wieder Chemie und DSAI zusammen trainiert. Die TastyTokens für unterschiedliche richtige Antworten sind direkt in deinem Profil.')+'</p><div class="actions" style="justify-content:center"><button class="btn" data-action="'+mode+'">🔁 Nochmal</button><button class="btn secondary" data-action="overview">Tagesübersicht</button><a class="btn secondary" href="../">↩ STUDYVERSE</a></div></div>'+stats();
+ return '<div class="card result"><div class="emoji">'+(mode==="boss"?(percent>=70?'👑':'🤖'):'🏅')+'</div><div class="eyebrow">RUNDE ABGESCHLOSSEN</div><h1>'+session.score+'/20 <span>richtig</span></h1><h2>'+percent+' %</h2><p>'+(mode==="boss"?(percent>=70?'Boss bestanden! Ab 70 % gibt’s einmal am Tag die 100 TT.':'Noch keine 70 %. Trainier weiter, dann zerlegst du den Boss.'): 'GG! Du hast wieder Chemie und DSAI zusammen trainiert. Die TastyTokens für unterschiedliche richtige Antworten sind direkt in deinem Profil.')+'</p><div class="actions" style="justify-content:center"><button class="btn" data-action="'+mode+'">🔁 Nochmal</button><button class="btn secondary" data-action="overview">Tagesübersicht</button><a class="btn secondary" href="../">↩ STUDYVERSE</a></div></div>'+stats();
 }
 function render(){
  document.getElementById("quizTab").classList.toggle("active",mode==="quiz");
@@ -78,7 +78,7 @@ function answer(i){
   session.score++;
   if(mode==="quiz"){
    const q=session.questions[session.pos];
-   if(DAILY.claimQuiz(q.subject,q.id.split(":")[1]))addTT(25,"Tagesquiz · "+(q.subject==="chem"?"CHEMVERSE":"Dsaiverse"));
+   if(DAILY.claimQuiz(q.subject,q.id.split(":")[1]))addTT(10,"Tagesquiz · "+(q.subject==="chem"?"CHEMVERSE":"Dsaiverse"));
   }
  }
  render();
@@ -89,7 +89,7 @@ function next(){
  if(session.pos>=session.questions.length){
   if(mode==="boss"){
    const p=Math.round(100*session.score/session.questions.length);
-   if(p>=70&&DAILY.claimBoss())addTT(250,"Tagesboss · CHEMVERSE & Dsaiverse");
+   if(p>=70&&DAILY.claimBoss())addTT(100,"Tagesboss · CHEMVERSE & Dsaiverse");
   }
   render();scrollTo(0,0);return;
  }

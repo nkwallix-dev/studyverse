@@ -22,18 +22,18 @@ const rewardFactory=new Function('state','dayString','save','toast','window',
   ';return {dailyCoinState,awardDailyQuiz,awardDailyBoss};');
 const {awardDailyQuiz,awardDailyBoss}=rewardFactory(state,()=>today,()=>writes++,()=>{},{});
 for(let i=0;i<20;i++)assert.equal(awardDailyQuiz('q'+i),true);
-assert.equal(state.coins,500,'20 unique correct quiz answers = 500 Tokens');
+assert.equal(state.coins,200,'20 unique correct quiz answers = 200 Tokens');
 assert.equal(awardDailyQuiz('q0'),false,'No duplicate payment for the same question on the same day');
 assert.equal(awardDailyQuiz('q20'),false,'No more than 20 unique quiz payments each day');
-assert.equal(state.coins,500);
+assert.equal(state.coins,200);
 assert.equal(awardDailyBoss(69),false,'Boss below 70% must not pay');
-assert.equal(awardDailyBoss(70),true,'Boss at 70% pays 250');
+assert.equal(awardDailyBoss(70),true,'Boss at 70% pays 100');
 assert.equal(awardDailyBoss(100),false,'Boss pays at most once per day');
-assert.equal(state.coins,750);
+assert.equal(state.coins,300);
 today='2026-11-10';
 assert.equal(awardDailyQuiz('q0'),true,'Daily quiz resets the next day');
 assert.equal(awardDailyBoss(85),true,'Daily Boss resets the next day');
-assert.equal(state.coins,1025);
+assert.equal(state.coins,410);
 
 const shuffleFactory=new Function('state','shuffledIndices','save',
   extract('function randomizedChoices(','function coinRain(')+
@@ -239,7 +239,7 @@ assert(!shopTemplate.includes(' Tokens'),'Use TT, not old Tokens, in visible wal
 assert(!shopTemplate.includes('TastyTT'),'Do not corrupt full currency name when shortening the label');
 assert(shopTemplate.includes("goEarnTokens('quiz')")&&shopTemplate.includes("goEarnTokens('boss')"),
  'Daily TT shortcuts must still call the real Angular method');
-assert(js.includes('25 TastyTokens (TT)')&&js.includes('250 zusätzliche TT'),'Chemverse must use TT in practice descriptions');
+assert(js.includes('10 TastyTokens (TT)')&&js.includes('100 zusätzliche TT'),'Chemverse must use TT in practice descriptions');
 console.log('Shop reward honesty and TastyTokens wording verified.');
 
 // Profile editor: avatar brush and title dropdown must live beside the name input.

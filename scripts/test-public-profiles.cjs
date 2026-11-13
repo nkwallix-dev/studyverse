@@ -49,9 +49,9 @@ assert(angular.includes('publishFriendCard(')&&angular.includes('this.cloud.publ
 const registerPath=angular.slice(angular.indexOf('async submitCloudAccount(){'),
  angular.indexOf('private clearDeviceProgress(){'));
 const afterHydration=registerPath.indexOf("this.cloudHydrating=false;this.cloudBusy=false;this.cloudStage='';");
-const publishes=registerPath.indexOf("void this.publishFriendCard();");
+const publishes=registerPath.indexOf("void this.refreshExclusiveTitle().then(()=>this.publishFriendCard());");
 assert(afterHydration>0&&publishes>afterHydration,
- 'New registrations and sign-ins must publish their public card AFTER hydration ends');
+ 'New registrations and sign-ins must load entitlements before publishing their public card after hydration');
 assert(registerPath.includes("if(this.cloud.session&&this.cloudMaySave&&this.cloudStatus==='✓ Online gespeichert')"),
  'Only a fully saved online account may publish its public social card');
 assert(registerPath.includes("await this.cloud.save(this.cloudSnapshot());"),
@@ -78,7 +78,7 @@ const fetch=async(url,opts={})=>{
  if(url.endsWith('cloud-config.json'))return {ok:true,json:async()=>({apiKey:'public-example-key-over-fifteen',projectId:'studyverse-unit-tests'})};
  if(url.includes('/publicProfiles?')){
   const docs=page++===0?
-   [doc('user-123','Korrigierter Name',31,'Cheater'),
+   [doc('user-123','Korrigierter Name',31,'Cheater',{selectedTitle:{stringValue:'Weltenentdecker'}}),
     doc('a','Gwendi',3),doc('bad','n*gga',70000)]:
    [doc('b','Kogi',99999),doc('c','Niki',5)];
   return {ok:true,json:async()=>({documents:docs,...(page===1?{nextPageToken:'next-page'}:{})})};
@@ -104,10 +104,18 @@ const sandbox={module:moduleStub,exports:moduleStub.exports,fetch,
  document:{baseURI:'https://example.com/studyverse/'},URL,URLSearchParams,AbortController,Date,
  setTimeout,clearTimeout,console};
 vm.runInNewContext(out,sandbox);
-const {StudyverseCloud,isAllowedNickname}=moduleStub.exports;
+const {StudyverseCloud,isAllowedNickname,hasExclusiveCheaterTitle,visiblePublicTitle}=moduleStub.exports;
 assert(isAllowedNickname('Niko')&&isAllowedNickname('Johannes 42'),'Legitimate nicknames permitted');
 assert(!isAllowedNickname('n*gga')&&!isAllowedNickname('n1gga')&&!isAllowedNickname('admin'),
  'Known abusive or impersonating nicknames filtered');
+assert.equal(visiblePublicTitle({title:{stringValue:'Cheater'},selectedTitle:{stringValue:'Weltenentdecker'}}),'Weltenentdecker');
+assert.equal(visiblePublicTitle({title:{stringValue:'Cheater'},selectedTitle:{stringValue:'Cheater'}}),'Cheater');
+assert.equal(visiblePublicTitle({selectedTitle:{stringValue:'Cheater'}}),'Weltenentdecker',
+ 'Client-supplied title alone cannot forge the exclusive title in the public directory');
+assert.equal(hasExclusiveCheaterTitle({exclusiveItems:{arrayValue:{values:[{stringValue:'exclusive_title_cheater'}]}}}),true);
+assert(angular.includes("item.id==='exclusive_title_cheater'?this.exclusiveCheaterTitle")&&
+ angular.includes("i.id!=='exclusive_title_cheater'||this.exclusiveCheaterTitle"),
+ 'Exclusive item ownership and equipped display must require the admin entitlement');
 (async()=>{
  const cloud=new StudyverseCloud();
  await cloud.initialize();
@@ -117,9 +125,11 @@ assert(!isAllowedNickname('n*gga')&&!isAllowedNickname('n1gga')&&!isAllowedNickn
   'Friends sort by historical level descending, not by nickname');
  assert.equal(entries.map(x=>x.level).join(','),'99999,31,5,3',
   'Read existing immutable public level only; never source it from localStorage');
- assert.equal(entries.find(x=>x.uid==='user-123').title,'Cheater',
-  'Manually awarded special title must survive reopening the friends list');
+ assert.equal(entries.find(x=>x.uid==='user-123').title,'Weltenentdecker',
+  'The exclusive title must not override the actually equipped title');
  assert.equal(entries.find(x=>x.uid==='user-123').level,31,'Existing level may be shown as a provisional value');
+ assert.equal(await cloud.hasExclusiveCheaterTitle(),true,
+  'The old admin-only title grants the exclusive inventory entitlement');
  await cloud.publishFriendProfile('Altes Profil','🐱','Matheprofi');
  const update=requests.at(-1);
  assert.equal(update.method,'PATCH');
@@ -129,7 +139,7 @@ assert(!isAllowedNickname('n*gga')&&!isAllowedNickname('n1gga')&&!isAllowedNickn
   'Automatic owner sync must NEVER overwrite unverified levels or moderator-assigned titles');
  assert.equal(existing.fields.nickname.stringValue,'Korrigierter Name','Admin-corrected nickname preserved');
  assert.equal(existing.fields.title.stringValue,'Cheater','Cheater title preserved');
- assert.equal(existing.fields.level.integerValue,'31','Legacy level remains unchanged (but is never displayed)');
+ assert.equal(existing.fields.level.integerValue,'31','Existing public level is never overwritten by the browser');
  await cloud.publishFriendProfile('Neuer Name','🐱','Matheprofi',true);
  assert.equal(existing.fields.nickname.stringValue,'Neuer Name','Explicit user nickname change must sync');
  cloud.session={...session,uid:'new-user'};

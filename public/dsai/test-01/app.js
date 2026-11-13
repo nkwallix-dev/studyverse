@@ -16,8 +16,8 @@ function toast(t){let e=$("toast");e.textContent=t;e.classList.add("show");clear
 function date(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function daily(){if(s.dailyCoin?.date!==date())s.dailyCoin={date:date(),quizIds:[],bossPaid:false};return s.dailyCoin}
 function payFirst(id,xp,tt){if(s.solved[id])return false;s.solved[id]=true;s.xp+=xp;s.coins+=tt;store();toast(`✨ Erstmals geschafft: +${xp} XP · +${tt} TT`);return true}
-function payDailyQuiz(id){let d=daily();if(!Array.isArray(d.quizIds))d.quizIds=[];if(d.quizIds.includes(id)||d.quizIds.length>=20)return;if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimQuiz('dsai',id))return;d.quizIds.push(id);s.coins+=25;store();toast(`🪙 Tägliche Quizbelohnung: +25 TT (${d.quizIds.length}/20)`)}
-function payDailyBoss(p){let d=daily();if(p<70||d.bossPaid)return;if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimBoss())return;d.bossPaid=true;s.coins+=250;store();toast("🪙 Tagesboss geschafft: +250 TT")}
+function payDailyQuiz(id){let d=daily();if(!Array.isArray(d.quizIds))d.quizIds=[];if(d.quizIds.includes(id)||d.quizIds.length>=20)return;if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimQuiz('dsai',id))return;d.quizIds.push(id);s.coins+=10;store();toast(`🪙 Tägliche Quizbelohnung: +10 TT (${d.quizIds.length}/20)`)}
+function payDailyBoss(p){let d=daily();if(p<70||d.bossPaid)return;if(window.STUDYVERSE_DAILY&&!window.STUDYVERSE_DAILY.claimBoss())return;d.bossPaid=true;s.coins+=100;store();toast("🪙 Tagesboss geschafft: +100 TT")}
 function ids(mode){return mode==="quiz"?Q.map(x=>x.id):mode==="code"?CODE.map(x=>"d"+x.id):mode==="sorter"?C.sort.map(x=>x.id):mode==="pipeline"?C.pipelines.map(x=>"p"+x.id):mode==="forecast"?FORE.map(x=>x.id):[]}
 function progress(mode){let a=ids(mode),done=a.filter(x=>s.solved[x]).length;return {total:a.length,done,left:a.length-done}}
 function learned(){return C.lessons.filter(l=>s.courseDone[l.id]).length}
@@ -88,7 +88,7 @@ function lesson(){
 function lessonAnswer(i){
  if(view!=="lesson"||s.courseDone[lessonId]||lessonAnswered||!lessonOpts[i])return;
  lessonAnswered=true;lessonPick=i;
- if(lessonOpts[i].correct){s.courseDone[lessonId]=true;s.learned[lessonId]=true;s.xp+=20;s.coins+=20;store();toast("🎓 Lektion gemeistert! +20 XP · +20 TT")}
+  if(lessonOpts[i].correct){s.courseDone[lessonId]=true;s.learned[lessonId]=true;s.xp+=20;s.coins+=30;store();toast("🎓 Lektion gemeistert! +20 XP · +30 TT")}
  render();
 }
 function begin(mode,focus){
@@ -125,7 +125,7 @@ function modePage(){
  let open=stat.left?`<details class="panel"><summary class="data-label">NOCH OFFEN · ${stat.left} AUFGABEN · DIREKT AUSWÄHLEN</summary><div class="inline-nav">${ids(run.mode).filter(x=>!s.solved[x]).map(x=>`<button data-open="${esc(x)}" class="${x===id?"active":""}">#${ids(run.mode).indexOf(x)+1}</button>`).join("")}</div></details>`:"";
  return `<div class="eyebrow">${meta.icon} ${esc(meta.title)} · ${run.focus?"NUR OFFENE AUFGABEN":"TRAININGSRUNDE"}</div><h1>${run.focus?"Fertig <span>stellen.</span>":"Wissen <span>anwenden.</span>"}</h1><p>Es zählt nur die richtige Antwort. Wiederholungen mischen die Optionen neu – so lernst du das Prinzip, nicht die Position.</p>
  <div class="actions">${stat.left?button("🎯 Fertig stellen ("+stat.left+")","finish:"+run.mode,"btn small"):""}${button("🔁 Alle Aufgaben","start:"+run.mode,"btn small secondary")}${navbtn("↩ Übersicht","home","btn small ghost")}</div>
- <div class="panel"><div class="eyebrow">MODUL-FORTSCHRITT</div><h2>${stat.done}/${stat.total} gemeistert</h2>${bar(stat.done,stat.total)}<small>Aktuelle Runde: ${run.at+1}/${run.items.length} · ${run.right} richtige Antworten</small>${run.mode==="quiz"?`<div class="info-strip">🪙 Heute ${Array.isArray(daily().quizIds)?daily().quizIds.length:0}/20 richtige unterschiedliche Quizfragen für je +25 TT vergütet</div>`:""}</div>
+ <div class="panel"><div class="eyebrow">MODUL-FORTSCHRITT</div><h2>${stat.done}/${stat.total} gemeistert</h2>${bar(stat.done,stat.total)}<small>Aktuelle Runde: ${run.at+1}/${run.items.length} · ${run.right} richtige Antworten</small>${run.mode==="quiz"?`<div class="info-strip">🪙 Heute ${Array.isArray(daily().quizIds)?daily().quizIds.length:0}/20 richtige unterschiedliche Quizfragen für je +10 TT vergütet</div>`:""}</div>
  ${run.focus?open:""}
  <div class="task-grid"><div class="question-card"><div class="eyebrow">${esc(p.category)} · ${run.at+1}/${run.items.length}</div>
  ${pipe?`<div class="puzzle-row">${pipe.parts.map((x,i)=>`<span class="puzzle-step ${i<run.step?"done":""}">${i<run.step?"✓ "+esc(x):i===run.step?"❔ "+(i+1):"🔒"}</span>`).join("")}</div>`:""}
@@ -141,10 +141,10 @@ function answer(i){
  if(run.correct){
   run.right++;s.combo++;s.maxCombo=Math.max(s.maxCombo||0,s.combo);
   let id=run.items[run.at];
-  if(run.mode==="quiz"){payFirst(id,13,12);payDailyQuiz(id)}
-  if(run.mode==="code")payFirst(id,20,18);
-  if(run.mode==="sorter")payFirst(id,15,14);
-  if(run.mode==="forecast")payFirst(id,20,18);
+   if(run.mode==="quiz"){payFirst(id,13,20);payDailyQuiz(id)}
+   if(run.mode==="code")payFirst(id,20,25);
+   if(run.mode==="sorter")payFirst(id,15,25);
+   if(run.mode==="forecast")payFirst(id,20,25);
  }else{s.combo=0;store()}
  render();
 }
@@ -154,7 +154,7 @@ function advance(){
   const p=C.pipelines.find(x=>"p"+x.id===run.items[run.at]);
   if(!run.correct){run.step=0;prepare();render();return}
   if(run.step<p.parts.length-1){run.step++;prepare();render();return}
-  payFirst("p"+p.id,55,45);run.step=0;
+   payFirst("p"+p.id,55,30);run.step=0;
  }
  run.at++;
  if(run.at>=run.items.length){view="result";render();window.scrollTo(0,0)}
@@ -165,8 +165,8 @@ function endRound(){
  return `<div class="result panel"><div class="icon">🏅</div><div class="eyebrow">RUNDE ABGESCHLOSSEN</div><h1>GG, <span>weiter so.</span></h1><p>${run.right} richtige Antworten in ${run.items.length} Aufgaben. Insgesamt ${p.done}/${p.total} dieses Modus geschafft.</p><div class="actions" style="justify-content:center">${p.left?button("🎯 Die "+p.left+" offenen fertig stellen","finish:"+run.mode):""}${button("Nochmal üben","start:"+run.mode,"btn secondary")}${navbtn("Übersicht","home","btn ghost")}</div></div>`;
 }
 function bossIntro(){
- return `<div class="eyebrow">👾 ENDGAME · Dsaiverse 1. TEST</div><h1>Finaler <span>AI-Boss.</span></h1><div class="panel"><h2>20 gemischte Multiple-Choice-Fragen</h2><p>Alle 16 Stoffbereiche, inklusive Code-Schnipsel. Die richtige Antwort wandert bei wiederholten Fragen auf andere Positionen. Ab 70 % gibt es einmal täglich +250 TT.</p>
- <div class="stats"><div class="stat"><b>${s.bestBoss||0}%</b><small>Bestes Ergebnis</small></div><div class="stat"><b>${s.bossRuns||0}</b><small>Bosskämpfe</small></div><div class="stat"><b>${daily().bossPaid?"✓":"250 TT"}</b><small>Täglicher Bonus</small></div><div class="stat"><b>70%</b><small>Für Tages-TT benötigt</small></div></div><div class="actions">${button("⚔️ Boss starten","start-boss")}${navbtn("Vorher lernen","academy","btn secondary")}</div></div>`;
+  return `<div class="eyebrow">👾 ENDGAME · Dsaiverse 1. TEST</div><h1>Finaler <span>AI-Boss.</span></h1><div class="panel"><h2>20 gemischte Multiple-Choice-Fragen</h2><p>Alle 16 Stoffbereiche, inklusive Code-Schnipsel. Die richtige Antwort wandert bei wiederholten Fragen auf andere Positionen. Ab 70 % gibt es einmal täglich +100 TT.</p>
+  <div class="stats"><div class="stat"><b>${s.bestBoss||0}%</b><small>Bestes Ergebnis</small></div><div class="stat"><b>${s.bossRuns||0}</b><small>Bosskämpfe</small></div><div class="stat"><b>${daily().bossPaid?"✓":"100 TT"}</b><small>Täglicher Bonus</small></div><div class="stat"><b>70%</b><small>Für Tages-TT benötigt</small></div></div><div class="actions">${button("⚔️ Boss starten","start-boss")}${navbtn("Vorher lernen","academy","btn secondary")}</div></div>`;
 }
 function startBoss(){
  const eligible=window.STUDYVERSE_IS_EXAM_QUESTION;
@@ -198,7 +198,7 @@ function bossNext(){
  if(run.at<run.items.length){prepare();render();window.scrollTo(0,0);return}
  bossPercent=Math.round(run.right/run.items.length*100);
  s.bossRuns++;s.bestBoss=Math.max(s.bestBoss||0,bossPercent);
- if(bossPercent>=70)payFirst("boss70",150,130);
+  if(bossPercent>=70)payFirst("boss70",150,100);
  payDailyBoss(bossPercent);store();view="boss-result";render();window.scrollTo(0,0);
 }
 function bossEnd(){

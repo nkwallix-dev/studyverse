@@ -55,7 +55,7 @@ function toast(message){
 function doneLesson(id){
  if(!s.courseDone[id]){
   s.courseDone[id]=true;s.learned[id]=true;
-  reward('lesson:'+id,35,25);
+   reward('lesson:'+id,35,25);
   save();toast('🎓 Lektion gemeistert · +35 XP · +25 TastyTokens');
  }
  show('academy');
@@ -104,8 +104,8 @@ function markAnswer(id,pick){
   s.combo++;s.maxCombo=Math.max(s.maxCombo,s.combo);
   if(!s.solved['d'+id]){
    s.solved['d'+id]=true;
-   const paid=reward('question:'+id,24,18);
-   if(paid)toast('⚡ Richtig! +24 XP · +18 TastyTokens');
+    const paid=reward('question:'+id,24,25);
+    if(paid)toast('⚡ Richtig! +24 XP · +25 TastyTokens');
   }
  }else{s.combo=0;save();}
  render();
@@ -153,7 +153,7 @@ function nextBoss(){
  if(boss.at>=boss.items.length){
   boss.finished=true;boss.percent=Math.round(100*boss.right/boss.items.length);
   if(boss.percent>s.bestBoss){s.bestBoss=boss.percent;save();}
-  if(boss.percent>=80&&reward('boss80',150,150))toast('👑 Boss bezwungen · +150 XP · +150 TastyTokens');
+   if(boss.percent>=80&&reward('boss80',150,100))toast('👑 Boss bezwungen · +150 XP · +100 TastyTokens');
   save();
  }
  render();
@@ -164,7 +164,7 @@ function finishWriting(){
  const value=el.value.trim();
  // Deterministic syntax pattern check: a teaching aid, not actual C# compilation.
  if(task.check.test(value)){
-  if(!s.writingDone[task.id]){s.writingDone[task.id]=true;s.solved['p'+task.id]=true;reward('writing:'+task.id,40,30);save();toast('✅ Syntax stimmt! +40 XP · +30 TastyTokens');}
+   if(!s.writingDone[task.id]){s.writingDone[task.id]=true;s.solved['p'+task.id]=true;reward('writing:'+task.id,40,25);save();toast('✅ Syntax stimmt! +40 XP · +25 TastyTokens');}
   lastFeedback={id:task.id,correct:true};
  }else lastFeedback={id:task.id,correct:false};
  render();

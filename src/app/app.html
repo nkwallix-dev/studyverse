@@ -189,21 +189,16 @@
 
           <div class="section-heading lower shop-items-heading">
             <div class="shop-items-heading-main">
-              <h2>{{selectedDrop.id==='global'?'Essentials':'Lernziel-Belohnungen'}} <span>✦</span></h2>
-              <small class="shop-current-drop">{{selectedDrop.icon}} {{filteredItems.length}} noch offen · {{selectedDrop.title}}</small>
+              <h2>Alle Items <span>✦</span></h2>
             </div>
             <label class="shop-drop-picker">
-              <span>ESSENTIALS / FREIGESCHALTETE TESTS</span>
-              <select id="shop-drop-select" aria-label="Test oder Essentials-Kollektion auswählen" aria-describedby="shop-test-explainer"
-                [ngModel]="shopDrop" (ngModelChange)="chooseDrop($event)">
+              <span>Kollektion auswählen</span>
+              <select id="shop-drop-select" aria-label="Kollektion auswählen"
+                [ngModel]="selectedDrop.id" (ngModelChange)="chooseDrop($event)">
                 <option *ngFor="let drop of drops" [value]="drop.id">{{drop.icon}} {{drop.title}}{{drop.status==='upcoming'?' · Bald verfügbar':''}}</option>
               </select>
             </label>
           </div>
-          <p class="shop-test-explainer" id="shop-test-explainer">🎨 Im Dropdown erscheinen nur Tests, bei denen du mindestens ein Item freigeschaltet hast. Gesperrte Items zeigen ihr Lernziel; bereits erhaltene Items gehören ins Inventar.</p>
-          <p class="shop-drop-hint" *ngIf="selectedDrop.id==='global'">◉ Essentials kosten TastyTokens und werden durch dein Profil-Level freigeschaltet.</p>
-           <p class="shop-drop-hint" *ngIf="selectedDrop.id!=='global'">🏆 Lernziele schalten die Kaufmöglichkeit frei – danach bezahlst du wie gewohnt mit TastyTokens.</p>
-          <p class="shop-drop-hint" *ngIf="selectedDrop.status==='upcoming'">✧ Diese Kollektion ist noch nicht spielbar. Wähle einen anderen Drop.</p>
           <div class="chips shop-category-chips">
             <button type="button" *ngFor="let g of shopCategories" [class.selected]="shopGroup===g" (click)="shopGroup=g">
               {{g==='Alle'?'Alle':groupLabel(g)}} <small *ngIf="g==='Alle'">({{dropItems.length}})</small>
@@ -300,10 +295,10 @@
                 <p *ngIf="earningAchievementStatus.remaining>0">{{earningAchievementStatus.remaining}} Achievements in deinen Lernwelten sind noch offen. Nur dafür kannst du noch einmalige TT erhalten.</p>
                 <button (click)="go('achievements')">{{earningAchievementStatus.remaining>0?'Offene Achievements ansehen ↗':'Achievements ansehen ↗'}}</button></div>
               <div class="earning-tile"><span class="earn-icon">⚡</span><div class="earn-type">TÄGLICHES QUIZ</div><strong>{{dailyChem.questions}} / 20 <span>Fragen</span></strong>
-                <p>Chemverse und Dsaiverse gemischt: 20 richtige unterschiedliche Fragen pro Tag, je 25 TT. Noch {{dailyChem.quizRemaining}} TT möglich.</p>
+                <p>Chemverse und Dsaiverse gemischt: 20 richtige unterschiedliche Fragen pro Tag, je 10 TT. Noch {{dailyChem.quizRemaining}} TT möglich.</p>
                 <button (click)="goEarnTokens('quiz')">Gemischtes Quiz starten ↗</button></div>
-              <div class="earning-tile"><span class="earn-icon">👹</span><div class="earn-type">TÄGLICHER BOSSKAMPF</div><strong>{{dailyChem.boss?'✓ Erledigt':'+250 TT'}}</strong>
-                <p>Chemverse + Dsaiverse gemeinsam: einmal täglich 250 TT bei mindestens 70 % im gemischten Bosskampf. Antwortpositionen werden neu gemischt.</p>
+              <div class="earning-tile"><span class="earn-icon">👹</span><div class="earn-type">TÄGLICHER BOSSKAMPF</div><strong>{{dailyChem.boss?'✓ Erledigt':'+100 TT'}}</strong>
+                <p>Chemverse + Dsaiverse gemeinsam: einmal täglich 100 TT bei mindestens 70 % im gemischten Bosskampf. Antwortpositionen werden neu gemischt.</p>
                 <button (click)="goEarnTokens('boss')">Boss herausfordern ↗</button></div>
             </div>
             <div class="coin-earning-foot">💡 Lernen schaltet Test-Cosmetics zum Kauf frei. Deine TastyTokens sind weiterhin für Essentials und Test-Items gedacht. Wiederholungsboni werden pro Browser-Tag zurückgesetzt.</div>

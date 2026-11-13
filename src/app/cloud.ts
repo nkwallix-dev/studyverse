@@ -13,6 +13,25 @@ export interface CloudSnapshot{
   bridge?:unknown;
 }
 export interface PublicPlayer {uid:string;nickname:string;avatar:string;title:string;level:number|null}
+type PublicTitleFields={
+  title?:{stringValue?:string};selectedTitle?:{stringValue?:string};moderatorTitle?:{stringValue?:string};
+  exclusiveItems?:{arrayValue?:{values?:Array<{stringValue?:string}>}};
+};
+const isCheaterTitle=(value:string)=>value.trim().toLowerCase()==='cheater';
+/** Legacy admin title and the new admin-only entitlement both grant the item. */
+export function hasExclusiveCheaterTitle(fields:PublicTitleFields|undefined):boolean{
+  return isCheaterTitle(fields?.title?.stringValue||'')||
+    isCheaterTitle(fields?.moderatorTitle?.stringValue||'')||
+    fields?.exclusiveItems?.arrayValue?.values?.some(v=>v.stringValue==='exclusive_title_cheater')===true;
+}
+export function visiblePublicTitle(fields:PublicTitleFields|undefined):string{
+  const selected=fields?.selectedTitle?.stringValue||'';
+  const moderator=fields?.moderatorTitle?.stringValue||'';
+  const legacy=fields?.title?.stringValue||'';
+  if(moderator&&!isCheaterTitle(moderator))return moderator;
+  if(selected)return isCheaterTitle(selected)&&!hasExclusiveCheaterTitle(fields)?'Weltenentdecker':selected;
+  return legacy&&!isCheaterTitle(legacy)?legacy:'Weltenentdecker';
+}
 /** Moderator-controlled notice. No client can write or choose who gets one. */
 export interface AccountNotice {id:string;kind:'fairplay-warning'}
 
@@ -248,6 +267,15 @@ export class StudyverseCloud{
       throw Error(error.error?.message||'Freundesprofil konnte nicht gespeichert werden ('+response.status+').');
     }
   }
+  async hasExclusiveCheaterTitle():Promise<boolean>{
+    if(!this.session)throw Error('Bitte zuerst anmelden.');
+    const response=await fetchCloud(this.friendDirectoryEndpoint()+'/'+encodeURIComponent(this.session.uid),
+      {headers:{Authorization:'Bearer '+await this.token()}});
+    if(response.status===404)return false;
+    const body=await response.json() as {fields?:PublicTitleFields;error?:{message?:string}};
+    if(!response.ok)throw Error(body.error?.message||'Exklusive Titel konnten nicht geladen werden.');
+    return hasExclusiveCheaterTitle(body.fields);
+  }
   async listPublicProfiles():Promise<PublicPlayer[]>{
     if(!this.session)throw Error('Bitte zuerst anmelden.');
     const players:PublicPlayer[]=[];
@@ -258,19 +286,14 @@ export class StudyverseCloud{
       const body=await response.json() as {documents?:Array<{name?:string;fields?:{
         nickname?:{stringValue?:string};avatar?:{stringValue?:string};
         title?:{stringValue?:string};selectedTitle?:{stringValue?:string};
-        moderatorTitle?:{stringValue?:string};level?:{integerValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
+        moderatorTitle?:{stringValue?:string};exclusiveItems?:{arrayValue?:{values?:Array<{stringValue?:string}>}};
+        level?:{integerValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
       if(!response.ok)throw Error(body.error?.message||'Freundesliste konnte nicht geladen werden ('+response.status+').');
       for(const doc of body.documents||[]){
         const uid=doc.name?.split('/').pop()||'';
         const nickname=doc.fields?.nickname?.stringValue?.trim()||'';
         const avatar=doc.fields?.avatar?.stringValue||'🧪';
-        const oldTitle=doc.fields?.title?.stringValue||'';
-        const selectedTitle=doc.fields?.selectedTitle?.stringValue||'';
-        const moderatorTitle=doc.fields?.moderatorTitle?.stringValue||'';
-        // Preserve existing hand-assigned titles, e.g. the classmate's
-        // exclusive "Cheater" title, without letting owner edits overwrite it.
-        const customLegacy=oldTitle&&oldTitle.toLowerCase()==='cheater'?oldTitle:'';
-        const title=moderatorTitle||customLegacy||selectedTitle||oldTitle||'Weltenentdecker';
+        const title=visiblePublicTitle(doc.fields);
         // Read legacy public level as a provisional display value, never as verified XP.
         const parsedLevel=Number(doc.fields?.level?.integerValue);
         const level=doc.fields?.level?.integerValue!==undefined &&
