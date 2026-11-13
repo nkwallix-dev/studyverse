@@ -12,7 +12,46 @@ export interface CloudSnapshot{
   daily?:unknown;
   bridge?:unknown;
 }
-export interface PublicPlayer {uid:string;nickname:string;avatar:string;title:string;level:number|null}
+export interface PublicCourseProgress {id:string;done:number;total:number;percent:number}
+export interface PublicShowcase {
+  theme:string;frame:string;banner:string;font:string;atm:string;fx:string;
+  courses:PublicCourseProgress[];
+}
+export interface PublicPlayer {
+  uid:string;nickname:string;avatar:string;title:string;level:number|null;showcase:PublicShowcase;
+}
+export const emptyPublicShowcase=():PublicShowcase=>({
+  theme:'base',frame:'none',banner:'default',font:'standard',atm:'none',fx:'none',courses:[]
+});
+/** Only equipped cosmetics and aggregated lesson counts are public, never a private save. */
+export function parsePublicShowcase(text:string|undefined):PublicShowcase {
+  const fallback=emptyPublicShowcase();
+  if(typeof text!=='string'||text.length>3000)return fallback;
+  let raw:unknown;
+  try{raw=JSON.parse(text);}catch{return fallback;}
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))return fallback;
+  const data=raw as Record<string,unknown>;
+  const style=(key:keyof Omit<PublicShowcase,'courses'>,defaultValue:string):string=>{
+    const value=data[key];
+    return typeof value==='string'&&/^[a-z0-9_-]{1,40}$/.test(value)?value:defaultValue;
+  };
+  const courses:Array<PublicCourseProgress>=[];
+  const seen=new Set<string>();
+  if(Array.isArray(data['courses']))for(const entry of data['courses'].slice(0,24)){
+    if(!entry||typeof entry!=='object'||Array.isArray(entry))continue;
+    const c=entry as Record<string,unknown>,id=c['id'],done=c['done'],total=c['total'];
+    if(typeof id!=='string'||!/^[a-z0-9_-]{1,64}$/.test(id)||seen.has(id)||
+      typeof done!=='number'||!Number.isInteger(done)||done<1||
+      typeof total!=='number'||!Number.isInteger(total)||total<1||total>200||done>total)continue;
+    seen.add(id);
+    courses.push({id,done,total,percent:Math.round(100*done/total)});
+  }
+  return {
+    theme:style('theme',fallback.theme),frame:style('frame',fallback.frame),
+    banner:style('banner',fallback.banner),font:style('font',fallback.font),
+    atm:style('atm',fallback.atm),fx:style('fx',fallback.fx),courses
+  };
+}
 type PublicTitleFields={
   title?:{stringValue?:string};selectedTitle?:{stringValue?:string};moderatorTitle?:{stringValue?:string};
   exclusiveItems?:{arrayValue?:{values?:Array<{stringValue?:string}>}};
@@ -235,7 +274,7 @@ export class StudyverseCloud{
    * The default sync does not overwrite an admin-corrected public nickname.
    * Renaming intentionally via "Mein Profil" permits updating the nickname.
    */
-  async publishFriendProfile(nickname:string,avatar:string,title:string,rename=false):Promise<void>{
+  async publishFriendProfile(nickname:string,avatar:string,title:string,rename=false,showcase:PublicShowcase=emptyPublicShowcase()):Promise<void>{
     if(!this.session)throw Error('Bitte zuerst anmelden.');
     if(!isAllowedNickname(nickname))return;
     if(!avatar||avatar.length>20||/[\u0000-\u001f\u007f]/.test(avatar))throw Error('Avatar ungültig.');
@@ -253,6 +292,7 @@ export class StudyverseCloud{
     const fields:Record<string,{stringValue?:string;timestampValue?:string}>={
       avatar:{stringValue:avatar},
       selectedTitle:{stringValue:title},
+      showcase:{stringValue:JSON.stringify(parsePublicShowcase(JSON.stringify(showcase)))},
       updatedAt:{timestampValue:new Date().toISOString()}
     };
     if(create||rename)fields['nickname']={stringValue:nickname};
@@ -287,7 +327,7 @@ export class StudyverseCloud{
         nickname?:{stringValue?:string};avatar?:{stringValue?:string};
         title?:{stringValue?:string};selectedTitle?:{stringValue?:string};
         moderatorTitle?:{stringValue?:string};exclusiveItems?:{arrayValue?:{values?:Array<{stringValue?:string}>}};
-        level?:{integerValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
+        level?:{integerValue?:string};showcase?:{stringValue?:string}}}>;nextPageToken?:string;error?:{message?:string}};
       if(!response.ok)throw Error(body.error?.message||'Freundesliste konnte nicht geladen werden ('+response.status+').');
       for(const doc of body.documents||[]){
         const uid=doc.name?.split('/').pop()||'';
@@ -300,7 +340,8 @@ export class StudyverseCloud{
           Number.isSafeInteger(parsedLevel) && parsedLevel>=1?parsedLevel:null;
         if(uid&&isAllowedNickname(nickname)){
           players.push({uid,nickname,avatar:avatar.length<=20?avatar:'🧪',
-            title:title.length<=80?title:'Weltenentdecker',level});
+            title:title.length<=80?title:'Weltenentdecker',level,
+            showcase:parsePublicShowcase(doc.fields?.showcase?.stringValue)});
         }
       }
       next=body.nextPageToken||'';
