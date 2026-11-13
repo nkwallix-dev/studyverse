@@ -1,0 +1,60 @@
+name: Deploy public level sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions-public/**'
+      - 'firebase.json'
+      - '.github/workflows/deploy-public-rank.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: firebase-public-rank
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions-public/package-lock.json
+      - name: Install function dependencies
+        run: npm ci
+        working-directory: functions-public
+      - name: Compile and test level projection
+        run: npm test
+        working-directory: functions-public
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: firebase-production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install and compile functions
+        run: npm ci && npm run build
+        working-directory: functions-public
+      - name: Authenticate via GitHub OIDC
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/916949777071/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: studyverse-github-deploy@studyverse-logins.iam.gserviceaccount.com
+          project_id: studyverse-logins
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+      - name: Publish public level triggers
+        run: firebase deploy --only functions:public-rank --project studyverse-logins --non-interactive
