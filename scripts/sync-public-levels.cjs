@@ -72,7 +72,9 @@ async function run({token,fetcher=fetch,base=BASE,project=PROJECT,readOnly=false
   users.push(...(data.documents||[]));cursor=data.nextPageToken||'';if(!cursor)break;
   if(page===99)throw Error('User pagination safety cap reached');
  }
- let patched=0,created=0,skipped=0;
+ let patched=0,created=0,skipped=0,pendingVerse=0;
+ const globalLevels={},projectedLevels={},publicLevels={};
+ const count=(counts,level)=>{counts[level]=(counts[level]||0)+1};
  for(const doc of users){
   const uid=doc.name?.split('/').pop(),p=profileFromDoc(doc);
   if(!validUid(uid||'')||!p){skipped++;continue;}
@@ -80,6 +82,9 @@ async function run({token,fetcher=fetch,base=BASE,project=PROJECT,readOnly=false
   const existing=await api(url);
   const displayXp=displayXpFromDoc(doc,p);
   const desired=String(levelFor(displayXp));
+  count(globalLevels,levelFor(p.xp));count(projectedLevels,Number(desired));
+  if(displayXp>p.xp)pendingVerse++;
+  if(existing)count(publicLevels,existing.fields?.level?.integerValue||'unset');
   if(existing){
    // Preserve owner/admin-corrected nicknames, moderator titles, avatars.
    if(existing.fields?.level?.integerValue===desired){skipped++;continue;}
@@ -96,6 +101,9 @@ async function run({token,fetcher=fetch,base=BASE,project=PROJECT,readOnly=false
   ' updated='+patched+' missing_cards_created='+created+' unchanged_or_skipped='+skipped+
   (readOnly?' (dry run)':''));
  console.log('XP remains user-editable until backend verification; this is a DISPLAY rank only.');
+ console.log('Rank diagnostics (aggregate): global='+JSON.stringify(globalLevels)+
+  ' projected='+JSON.stringify(projectedLevels)+' public='+JSON.stringify(publicLevels)+
+  ' pending_verse='+pendingVerse);
  return {scanned:users.length,patched,created,skipped};
 }
 if(require.main===module){
