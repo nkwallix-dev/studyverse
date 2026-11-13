@@ -133,8 +133,10 @@ async function main(){
      assert((await page.locator('.item-name-type').count())>0,
       'Product names should visibly include the cosmetic kind');
      await select.selectOption('global');
-     assert((await page.locator('.shop-current-drop').innerText()).includes('STUDYVERSE'),
-      'Dropdown must update selected collection and items');
+     assert.equal(await select.inputValue(),'global',
+      'Dropdown must select Studyverse Essentials');
+     assert((await select.locator('option:checked').innerText()).includes('STUDYVERSE'),
+      'Dropdown must show the selected collection');
      const layout=await page.evaluate(()=>{
       const head=document.querySelector('.shop-items-heading-main h2').getBoundingClientRect();
       const select=document.querySelector('#shop-drop-select').getBoundingClientRect();
