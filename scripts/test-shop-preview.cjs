@@ -95,7 +95,7 @@ assert(h.includes('class="sidebar-live-courses"'),'All playable trainer shortcut
 assert(h.includes('*ngFor="let trainer of trainers"')&&h.includes('openTrainer(trainer.id)'),
  'Sidebar shortcuts must derive from registry so all verses, including future ones, appear automatically');
 const bannerCount=(h.match(/class="banner-scenery"/g)||[]).length;
-assert.equal(bannerCount,2,'Both home and shop preview need full scene-based banners');
+assert.equal(bannerCount,3,'Home, shop preview, and public player showcase need full scene-based banners');
 for(const banner of ['gold','warning','galaxy','molecule','flow','curve','cloud','solitaire','pink_paradise','parallel_pulse']){
  assert(c.includes('.universe[data-banner="'+banner+'"] .hero:has(.banner-scenery)'),banner+' needs its own full hero design');
  const scene=({pink_paradise:'pink',parallel_pulse:'parallel'})[banner]||banner;
