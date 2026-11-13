@@ -14,9 +14,9 @@ assert(/match \/users\/\{userId\}/.test(rules)&&rules.includes('request.auth.uid
  'Private cloud saves must remain owner-only');
 assert(/match \/publicProfiles\/\{userId\}/.test(rules)
  &&rules.includes('allow get, list: if request.auth != null;')
- &&rules.includes("request.resource.data.keys().hasOnly(['nickname', 'avatar', 'selectedTitle', 'updatedAt'])")
+ &&rules.includes("request.resource.data.keys().hasOnly(['nickname', 'avatar', 'selectedTitle', 'showcase', 'updatedAt'])")
  &&rules.includes("request.resource.data.diff(resource.data).affectedKeys()")
- &&rules.includes(".hasOnly(['nickname', 'avatar', 'selectedTitle', 'updatedAt'])"),
+ &&rules.includes(".hasOnly(['nickname', 'avatar', 'selectedTitle', 'showcase', 'updatedAt'])"),
  'Friend cards may be updated only by their owner and never edit an existing level field');
 assert(/match \/verifiedProfiles\/\{userId\}\s*\{[\s\S]*?allow get, list: if request.auth != null;[\s\S]*?allow create, update, delete: if false;/.test(rules),
  'The true competitive leaderboard stays server-only');
@@ -27,6 +27,8 @@ assert(html.includes("displayPlayerLevel(player) === null ? '–' : displayPlaye
  &&html.includes('*ngFor="let player of displayedPlayers; let i = index"')
  &&html.includes('#{{i+1}}')&&angular.includes('return this.isOwnPlayer(player)?this.level:player.level'),
  'Own level appears immediately while other cards use the admin snapshot');
+assert(html.includes('friend-profile-button')&&html.includes('friend-showcase-veil')&&html.includes('friend-showcase-courses')&&angular.includes('openPlayerProfile(player:PublicPlayer)'),
+ 'Public player profiles show cosmetics, level, and completed lessons in a modal');
 assert(!html.includes('friends-summary')&&!html.includes('friends-directory-note')&&!html.includes('friends-refresh'),
  'Friends page removes clutter and manual refresh button');
 assert(html.includes('friends-list')&&html.includes('friend-character'),
@@ -106,7 +108,14 @@ const sandbox={module:moduleStub,exports:moduleStub.exports,fetch,
  document:{baseURI:'https://example.com/studyverse/'},URL,URLSearchParams,AbortController,Date,
  setTimeout,clearTimeout,console};
 vm.runInNewContext(out,sandbox);
-const {StudyverseCloud,isAllowedNickname,hasExclusiveCheaterTitle,visiblePublicTitle}=moduleStub.exports;
+const {StudyverseCloud,isAllowedNickname,hasExclusiveCheaterTitle,visiblePublicTitle,parsePublicShowcase}=moduleStub.exports;
+assert.equal(parsePublicShowcase(JSON.stringify({
+  theme:'gold',frame:'gold',banner:'pink_paradise',font:'serif',
+  courses:[{id:'dsai-test-01',done:8,total:16,percent:999}]
+})).courses[0].percent,50,'Recalculate percentages from validated completion totals');
+assert.equal(parsePublicShowcase('broken').theme,'base','Old and corrupted cards use safe defaults');
+assert.equal(parsePublicShowcase(JSON.stringify({theme:'url(evil)',courses:[{id:'x',done:999,total:1}]})).courses.length,0,
+ 'Reject CSS injection and invalid progression data');
 assert(isAllowedNickname('Niko')&&isAllowedNickname('Johannes 42'),'Legitimate nicknames permitted');
 assert(!isAllowedNickname('n*gga')&&!isAllowedNickname('n1gga')&&!isAllowedNickname('admin'),
  'Known abusive or impersonating nicknames filtered');
@@ -147,7 +156,7 @@ assert(angular.includes("item.id==='exclusive_title_cheater'?this.exclusiveCheat
  cloud.session={...session,uid:'new-user'};
  await cloud.publishFriendProfile('NeuDabei','🧪','Weltenentdecker');
  const create=requests.at(-1);
- assert.deepEqual(Object.keys(create.body.fields).sort(),['avatar','nickname','selectedTitle','updatedAt'].sort(),
+ assert.deepEqual(Object.keys(create.body.fields).sort(),['avatar','nickname','selectedTitle','showcase','updatedAt'].sort(),
   'New public cards contain no level, XP or token balances');
  assert(!requests.some(x=>x.url.includes('/verifiedProfiles')||x.url.includes('/users/')),
   'Publishing friends never touches competitive scores or private saves');
