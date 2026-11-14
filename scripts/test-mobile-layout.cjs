@@ -217,11 +217,12 @@ async function main(){
    await dinoPage.locator('.kenny-reveal-modal').waitFor();
    await dinoPage.locator('.kenny-reveal-modal button').click();
    if(n===3){
-    await dinoPage.locator('.kenny-reveal-modal').waitFor();
+    await dinoPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Level 2'));
     assert((await dinoPage.locator('#kenny-reveal-title').innerText()).includes('Level 2'),
       'Third feed must reveal Kenny level 2');
     await dinoPage.locator('.kenny-reveal-modal button').click();
    }
+   await dinoPage.locator('.kenny-reveal-modal').waitFor({state:'hidden'});
   }
   const dinoProfile=await dinoPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
   assert.equal(dinoProfile.dinoSeasons['kenny-2026'].feeds,3);
