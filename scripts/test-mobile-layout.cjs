@@ -127,6 +127,19 @@ async function main(){
     await page.waitForTimeout(100);
     await check(page,'Studyverse '+label+' '+width);
     if(label==='Item-Shop'){
+     await page.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+     await page.locator('.kenny-stage').waitFor({state:'visible'});
+     const dinoLayout=await page.evaluate(()=>({
+      viewport:innerHeight,scroll:document.documentElement.scrollHeight,
+      stage:document.querySelector('.kenny-stage').getBoundingClientRect().height,
+      feedBottom:document.querySelector('.kenny-feed-btn').getBoundingClientRect().bottom,
+      countdownBottom:document.querySelector('.kenny-season-foot').getBoundingClientRect().bottom
+     }));
+     assert(dinoLayout.scroll<=dinoLayout.viewport+3&&dinoLayout.stage>100&&
+      dinoLayout.feedBottom<=dinoLayout.viewport&&dinoLayout.countdownBottom<=dinoLayout.viewport,
+      'Kenny must fit on-screen without vertical page scrolling at '+width+'px: '+JSON.stringify(dinoLayout));
+     if(width===390)await page.screenshot({path:path.join(screenshots,'kenny-390.png')});
+     await page.locator('.shop-view-tabs button').filter({hasText:'Item-Shop'}).click();
      const select=page.locator('#shop-drop-select');
      assert(await select.isVisible(),'Drop selector should be beside Alle Items at '+width+'px');
      assert.equal(await page.locator('.shop-drop-card').count(),0,'No old chunky drop cards');
@@ -186,6 +199,41 @@ async function main(){
    assert(!errors.length,'Studyverse script errors at '+width+': '+errors.join('; '));
    await context.close();
   }
+  // Feeding spends one shared wallet, awards a reveal for each draw and reaches
+  // level 2 after precisely three feeds without granting study XP.
+  const dinoContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const dinoPage=await dinoContext.newPage();
+  await dinoPage.addInitScript(()=>{
+   localStorage.setItem('studyverse_import_prompt_seen_v1','1');
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:10000,nickname:'DinoTester',
+    inventory:[],equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+    claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
+  });
+  await dinoPage.goto(base,{waitUntil:'load'});
+  await dinoPage.locator('.navigation button[aria-label="Item-Shop"]').click();
+  await dinoPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  for(let n=1;n<=3;n++){
+   await dinoPage.locator('.kenny-feed-btn').click();
+   await dinoPage.locator('.kenny-reveal-modal').waitFor();
+   await dinoPage.locator('.kenny-reveal-modal button').click();
+   if(n===3){
+    await dinoPage.locator('.kenny-reveal-modal').waitFor();
+    assert((await dinoPage.locator('#kenny-reveal-title').innerText()).includes('Level 2'),
+      'Third feed must reveal Kenny level 2');
+    await dinoPage.locator('.kenny-reveal-modal button').click();
+   }
+  }
+  const dinoProfile=await dinoPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
+  assert.equal(dinoProfile.dinoSeasons['kenny-2026'].feeds,3);
+  assert.equal(dinoProfile.xp,0,'Feeding must never grant learning XP');
+  assert(dinoProfile.tokens>=9100,'300 TT per feed, net of random Token rewards');
+  await dinoPage.locator('.kenny-style-btn').click();
+  const unlockedSkins=dinoProfile.inventory.filter(id=>id.startsWith('kenny_skin_')).length;
+  assert.equal(await dinoPage.locator('.kenny-skin-grid button:disabled').count(),3-unlockedSkins,
+   'Only skins actually obtained from the drop pool may be selected');
+  await dinoPage.locator('.kenny-dialog-close').click();
+  await dinoContext.close();
+  console.log('PASS: Kenny viewport, three feeds, reward reveals, XP isolation and locked skins.');
   for(const [world,url,mainSelector,header] of [
    ['Chemverse','nawi/test-01/','#pages','.studyverse-profile-link'],
    ['Dsaiverse','dsai/test-01/','#main','.studyverse-profile-link'],

@@ -1,4 +1,4 @@
-<div class="universe" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
+<div class="universe" [class.kenny-mode]="view==='shop' && shopTab==='kenny'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
   <div class="ambient a"></div><div class="ambient b"></div>
   <aside class="sidebar">
     <button class="brand" (click)="go('dashboard')">
@@ -30,7 +30,7 @@
     <header class="topbar">
       <div class="topbar-left">
         <div class="breadcrumbs"><span>✧</span><span class="top-brand-name">STUDYVERSE</span><span class="slash">/</span>
-          <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='earn'?'TastyTokens verdienen':'Item-Shop'):view==='achievements'?'Achievements':view==='friends'?'Freunde':'Mein Profil'}}</strong>
+          <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='earn'?'TastyTokens verdienen':shopTab==='kenny'?'Kenny':'Item-Shop'):view==='achievements'?'Achievements':view==='friends'?'Freunde':'Mein Profil'}}</strong>
         </div>
       </div>
       <div class="top-pills">
@@ -40,7 +40,7 @@
           <span>👥</span><span class="top-friends-text">Freunde</span>
         </button>
         <button type="button" class="top-profile-link" [class.active]="view==='profile'" (click)="go('profile')" aria-label="Mein Profil öffnen" title="Mein Profil">
-          <span class="top-profile-avatar">{{currentAvatar}}</span><span class="top-profile-text">Mein Profil</span>
+          <span class="top-profile-avatar"><img *ngIf="currentAvatar==='🦖';else topAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #topAvatarText>{{currentAvatar}}</ng-template></span><span class="top-profile-text">Mein Profil</span>
         </button>
       </div>
     </header>
@@ -77,6 +77,7 @@
     <span class="pink-spark p1">✦</span><span class="pink-spark p2">✧</span><span class="pink-spark p3">✧</span>
   </div>
   <div class="banner-scene scene-parallel"><div class="parallel-grid"></div><span class="parallel-signal a">●</span><span class="parallel-signal b">●</span><span class="parallel-signal c">●</span><span class="parallel-symbol">♯</span></div>
+  <div class="banner-scene scene-kenny-volcano"><span class="kenny-banner-sun"></span><span class="kenny-banner-volcano"></span><span class="kenny-banner-smoke">☁</span><span class="kenny-banner-fern">🌿</span></div>
 </div><div class="planet-stage"><div class="planet-glow"></div><div class="planet-orbit orbit-1"></div><div class="planet-orbit orbit-2"></div><div class="planet"><span>✦</span></div><div class="orbit-spark s1">✧</div><div class="orbit-spark s2">✦</div></div>
           </div>
           <section class="level-card dashboard-level" aria-label="Dein Level-Fortschritt">
@@ -168,13 +169,15 @@
           <h1 class="page-title" *ngIf="shopTab==='catalog'">Der <span>Item-Shop.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='inventory'">Dein <span>Inventar.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='earn'">TastyTokens <span>verdienen.</span></h1>
+          <h1 class="page-title" *ngIf="shopTab==='kenny'">Kenny <span>füttern.</span></h1>
           <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Essentials sind über dein Profil-Level kaufbar.</strong> Test-Items musst du zuerst durch Lernziele freischalten, anschließend kaufst du sie mit TastyTokens. Bereits gekaufte Items findest du im Inventar.</p>
           <p class="page-subtitle" *ngIf="shopTab==='inventory'">Alle deine Cosmetics an einem Ort. Nach Drop und Kategorie filtern, Styles anschauen und direkt ausrüsten.</p>
           <p class="page-subtitle" *ngIf="shopTab==='earn'">Sammle TastyTokens mit Achievements, Quizfragen und Bosskämpfen. Damit kaufst du Essentials und freigeschaltete Test-Items.</p>
-          <div class="shop-view-tabs" role="tablist" aria-label="Item-Shop, Inventar und TastyTokens verdienen">
+          <div class="shop-view-tabs" role="tablist" aria-label="Item-Shop, Inventar, TastyTokens verdienen und Kenny">
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='catalog'" [class.selected]="shopTab==='catalog'" (click)="setShopTab('catalog')">◇ Item-Shop</button>
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='inventory'" [class.selected]="shopTab==='inventory'" (click)="setShopTab('inventory')">🎒 Inventar <span>{{ownedCatalogItems.length}}</span></button>
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='earn'" [class.selected]="shopTab==='earn'" (click)="setShopTab('earn')">🪙 TastyTokens verdienen</button>
+            <button type="button" role="tab" [attr.aria-selected]="shopTab==='kenny'" [class.selected]="shopTab==='kenny'" (click)="setShopTab('kenny')">🦖 Kenny</button>
           </div>
           <ng-container *ngIf="shopTab==='catalog'">
 
@@ -212,7 +215,7 @@
             <div class="item-grid drop-item-grid">
               <article class="item drop-item" *ngFor="let item of filteredItems" [attr.data-category]="item.group" [class.locked]="!isUnlocked(item)" [class.reward-spotlight]="spotlightRewardId===item.id">
                 <div class="item-art drop-item-art" [class.avatar-art]="item.group==='avatar'" [class.panda-art]="item.id==='dsai_panda'" [style.background]="themeStyle(item)">
-                  <span class="item-spark one">✦</span><span class="big-item-icon">{{item.icon}}</span><span class="item-spark two">✧</span>
+                  <span class="item-spark one">✦</span><span class="big-item-icon"><img *ngIf="item.id==='kenny_avatar';else shopItemIcon" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt=""><ng-template #shopItemIcon>{{item.icon}}</ng-template></span><span class="item-spark two">✧</span>
                 </div>
                 <div class="item-meta"><span class="item-kind">{{groupLabel(item.group)}}</span></div>
                 <h3 class="item-title-row"><span class="item-name">{{item.name}}<span class="item-name-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></span>
@@ -258,7 +261,7 @@
             <div class="item-grid drop-item-grid inventory-item-grid" *ngIf="inventoryItems.length">
               <article class="item inventory-item" *ngFor="let item of inventoryItems" [attr.data-category]="item.group" [class.equipped]="active(item)">
                 <div class="item-art drop-item-art" [class.avatar-art]="item.group==='avatar'" [class.panda-art]="item.id==='dsai_panda'" [style.background]="themeStyle(item)">
-                  <span class="item-spark one">✦</span><span class="big-item-icon">{{item.icon}}</span>
+                  <span class="item-spark one">✦</span><span class="big-item-icon"><img *ngIf="item.id==='kenny_avatar';else inventoryItemIcon" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt=""><ng-template #inventoryItemIcon>{{item.icon}}</ng-template></span>
                   <span class="item-spark two">✧</span>
                 </div>
                 <div class="inventory-item-detail"><small>{{dropLabel(item.drop)}} · {{groupLabel(item.group)}}</small>
@@ -304,6 +307,48 @@
             <div class="coin-earning-foot">💡 Lernen schaltet Test-Cosmetics zum Kauf frei. Deine TastyTokens sind weiterhin für Essentials und Test-Items gedacht. Wiederholungsboni werden pro Browser-Tag zurückgesetzt.</div>
           </section>
           </ng-container>
+          <section class="kenny-page" *ngIf="shopTab==='kenny'" aria-label="Kennys Dino-Season">
+            <div class="kenny-play">
+              <div class="kenny-stage">
+                <div class="kenny-sun"></div><div class="kenny-mountain left"></div><div class="kenny-mountain right"></div>
+                <div class="kenny-volcano"><i></i></div><div class="kenny-lava"></div>
+                <div class="kenny-ground"></div><div class="kenny-fern fern-left">🌿</div><div class="kenny-fern fern-right">🌿</div>
+                <span class="kenny-stage-label">🦖 DINO-VERSE · SEASON 01</span>
+                <img class="kenny-sprite" src="kenny/kenny-avatar.png" alt="Kenny, der blaue Raptor" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyLevel-1)*0.07">
+                <div class="kenny-stage-name"><strong>KENNY</strong><span>DEIN URZEIT-GEFÄHRTE</span></div>
+                <div class="kenny-level-medal"><small>LEVEL</small><strong>{{kennyLevel}}</strong><span>/ 5</span></div>
+              </div>
+              <div class="kenny-controls">
+                <div class="kenny-progress-top"><span>{{kennyLevel===5?'MAX-LEVEL ERREICHT':'NÄCHSTES LEVEL'}}</span><strong>{{kennyLevel===5?'∞ WEITERFÜTTERN':kennyRemainingFeeds+' FÜTTERUNGEN FEHLEN'}}</strong></div>
+                <div class="kenny-progress-track" role="progressbar" [attr.aria-valuenow]="kennyProgress" aria-valuemin="0" aria-valuemax="100" aria-label="Kenny-Level-Fortschritt"><i [style.width.%]="kennyProgress"></i></div>
+                <div class="kenny-action-row">
+                  <div class="kenny-wallet"><small>DEIN GUTHABEN</small><strong>◉ {{profile.tokens | number}} TT</strong></div>
+                  <button type="button" class="kenny-feed-btn" [disabled]="!kennyCanFeed" (click)="feedKenny()">{{kennyBusy?'Kenny mampft …':kennyActive?'🥩 Füttern · 300 TT':'Season beendet'}}</button>
+                  <button type="button" class="kenny-style-btn" (click)="kennyCustomizeOpen=true" aria-label="Kenny personalisieren">🎨 <span>Personalisieren</span></button>
+                </div>
+                <p class="kenny-hint" *ngIf="kennyLevel===5 && kennyActive">✦ Max-Level! Von deinen weiteren Fütterungen bekommst du nach Saisonende 50 % der Nettokosten zurück. Aktuell: <b>{{kennyCashback | number}} TT</b>.</p>
+                <p class="kenny-hint" *ngIf="!kennyActive">Kennys Season ist vorbei. Erhaltene Items bleiben in deinem Inventar.</p>
+                <p class="kenny-hint" *ngIf="kennyPoolEmpty && kennyActive">Du hast alle verfügbaren Items eingesammelt. Kenny ist satt!</p>
+                <p class="kenny-error" *ngIf="kennyError">{{kennyError}}</p>
+              </div>
+            </div>
+            <aside class="kenny-loot">
+              <div class="kenny-loot-head"><span>✦ MÖGLICHE GEWINNE</span><small>Chancen für Level {{kennyLevel}}</small></div>
+              <div class="kenny-token-prizes">
+                <div><span>🪙</span><strong>250 TT</strong><small>{{kennyOdds.token250}} %</small></div>
+                <div><span>🪙</span><strong>500 TT</strong><small>{{kennyOdds.token500}} %</small></div>
+                <div class="jackpot"><span>💎</span><strong>1.000 TT</strong><small>{{kennyOdds.token1000}} %</small></div>
+              </div>
+              <div class="kenny-loot-subhead"><strong>KENNY-EXKLUSIV</strong><span>{{kennyOdds.event | number:'1.0-1'}} % gesamt</span></div>
+              <div class="kenny-exclusives">
+                <div *ngFor="let item of kennyEventItems" [class.collected]="owns(item)"><span>{{item.icon}}</span><strong>{{item.name}}</strong><small>{{owns(item)?'✓':'🔒'}}</small></div>
+              </div>
+              <div class="kenny-loot-subhead"><strong>AUS ALLEN LERNWELTEN</strong><span>ohne 100-%-Boss-Titel</span></div>
+              <div class="kenny-tiers"><div *ngFor="let tier of kennyPoolPreview.slice(1)"><span>{{tier.name}}</span><b>{{tier.chance | number:'1.0-1'}} %</b></div></div>
+              <button type="button" class="kenny-pool-button" (click)="kennyPoolOpen=true">Alle möglichen Items ansehen ↗</button>
+            </aside>
+            <div class="kenny-season-foot"><span>✦ LEVEL 5 BIS SAISONENDE: URZEIT-FOSSILRAHMEN</span><span>⏳ {{kennyCountdown}}</span><button type="button" (click)="kennyPoolOpen=true">Gewinne ansehen ↗</button></div>
+          </section>
         </ng-container>
 
 
@@ -316,7 +361,7 @@
             <div class="friends-list" *ngIf="!friendsLoading && !friendsError && publicPlayers.length">
               <article class="friend-card" *ngFor="let player of displayedPlayers; let i = index" [class.friend-self]="isOwnPlayer(player)">
                 <div class="friend-rank" [class.friend-rank-podium]="i < 3">#{{i+1}}</div>
-                <div class="friend-monogram friend-character" [attr.aria-label]="'Character: '+(player.avatar || '🧪')">{{player.avatar || '🧪'}}</div>
+                <div class="friend-monogram friend-character" [attr.aria-label]="'Character: '+(player.avatar || '🧪')"><img *ngIf="player.avatar==='🦖';else friendAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #friendAvatarText>{{player.avatar || '🧪'}}</ng-template></div>
                 <div class="friend-name"><strong>{{player.nickname}}</strong><span class="friend-equipped-title">🏅 {{player.title || 'Weltenentdecker'}}</span><small *ngIf="isOwnPlayer(player)">Das bist du ✦</small></div>
                 <button type="button" class="friend-profile-button" (click)="openPlayerProfile(player)" [attr.aria-label]="'Profil von '+player.nickname+' anzeigen'">Profil anzeigen <span>↗</span></button>
                 <div class="friend-level"><small>LEVEL</small><strong>{{displayPlayerLevel(player) === null ? '–' : displayPlayerLevel(player)}}</strong></div>
@@ -330,7 +375,7 @@
           <div class="eyebrow">PLAYER PROFILE</div><h1 class="page-title">Dein <span>Profil.</span></h1>
           <p class="page-subtitle">Globale XP, Items und alle Lernwelten an einem Ort. {{cloudConfigured?'Dein Fortschritt wird über dein Onlinekonto synchronisiert.':'Bis zur Firebase-Aktivierung wird weiterhin lokal gespeichert.'}}</p>
           <div class="profile-grid"><div class="profile-panel"><div class="profile-avatar-wrap">
-     <div class="large-avatar">{{currentAvatar}}</div>
+     <div class="large-avatar"><img *ngIf="currentAvatar==='🦖';else largeAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #largeAvatarText>{{currentAvatar}}</ng-template></div>
      <button type="button" class="profile-avatar-brush" (click)="openAvatarPicker()" aria-label="Avatar ändern" title="Avatar ändern">🖌️</button>
    </div><h2>{{profile.nickname}}</h2><p class="profile-current-title">✦ {{title}}</p><span class="pill">⚡ LEVEL {{level}}</span><div class="progress-track"><i [style.width.%]="levelProgress"></i></div><p>{{profile.xp | number}} XP gesammelt</p><div class="profile-stats"><div><b>{{profile.tokens | number}}</b><small>TT</small></div><div><b>{{claimed}}</b><small>Items</small></div><div><b>{{subjectsAll.length}}</b><small>Fächer</small></div></div></div>
           <div class="profile-panel settings">
@@ -348,7 +393,7 @@
 <div class="profile-edit-field">
   <label>Dein Avatar</label>
   <div class="profile-avatar-edit">
-    <div class="profile-avatar-edit-preview">{{currentAvatar}}</div>
+    <div class="profile-avatar-edit-preview"><img *ngIf="currentAvatar==='🦖';else editAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #editAvatarText>{{currentAvatar}}</ng-template></div>
     <div class="profile-avatar-edit-meta"><strong>Aktueller Avatar</strong><small>{{unlockedAvatars.length}} zusätzliche Avatare freigeschaltet</small></div>
     <button type="button" class="btn secondary profile-avatar-edit-btn" (click)="openAvatarPicker()">🖌️ Avatar ändern</button>
   </div>
@@ -415,11 +460,12 @@
     <span class="pink-spark p1">✦</span><span class="pink-spark p2">✧</span><span class="pink-spark p3">✧</span>
   </div>
   <div class="banner-scene scene-parallel"><div class="parallel-grid"></div><span class="parallel-signal a">●</span><span class="parallel-signal b">●</span><span class="parallel-signal c">●</span><span class="parallel-symbol">♯</span></div>
+  <div class="banner-scene scene-kenny-volcano"><span class="kenny-banner-sun"></span><span class="kenny-banner-volcano"></span><span class="kenny-banner-smoke">☁</span><span class="kenny-banner-fern">🌿</span></div>
 </div>
         <div class="friend-showcase-cover-shade"></div>
         <span class="friend-showcase-cover-tag">✦ STUDYVERSE PLAYER CARD</span>
         <div class="friend-showcase-heading">
-          <div class="friend-showcase-avatar">{{player.avatar || '🧪'}}</div>
+          <div class="friend-showcase-avatar"><img *ngIf="player.avatar==='🦖';else showcaseAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #showcaseAvatarText>{{player.avatar || '🧪'}}</ng-template></div>
           <div class="friend-showcase-identity">
             <span class="friend-showcase-overline">PLAYER PROFILE · {{isOwnPlayer(player)?'DEIN PROFIL':'COMMUNITY'}}</span>
             <h2 id="friend-showcase-name">{{player.nickname}}</h2>
@@ -454,6 +500,54 @@
     </section>
   </div>
 
+  <div class="veil kenny-reveal-veil" *ngIf="kennyCurrentReveal as reveal" role="dialog" aria-modal="true" aria-labelledby="kenny-reveal-title">
+    <div class="modal kenny-reveal-modal">
+      <div class="eyebrow">🦖 {{reveal.kind==='level'?'KENNY LEVEL UP':reveal.kind==='season'?'SEASON-FINALE':'KENNY HAT ETWAS GEFUNDEN'}}</div>
+      <div class="kenny-reveal-art" [class.kenny-reveal-item]="reveal.kind==='drop' && !!reveal.drop?.item">
+        <img *ngIf="reveal.kind==='level'||reveal.kind==='season'" src="kenny/kenny-avatar.png" alt="Kenny feiert" [attr.data-skin]="kennySkin">
+        <img *ngIf="reveal.drop?.item?.id==='kenny_avatar'" src="kenny/kenny-avatar.png" alt="Kenny-Avatar">
+        <span *ngIf="reveal.kind==='drop' && reveal.drop?.item?.id!=='kenny_avatar'">{{reveal.drop?.item?.icon || '🪙'}}</span>
+      </div>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='level'">Kenny ist jetzt <span>Level {{reveal.level}}!</span></h2>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop'">{{reveal.drop?.item?'Neues Item!':'Token-Drop!'}} <span>{{reveal.drop?.item?.name || (reveal.drop?.tokens | number)+' TT'}}</span></h2>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='season'">Kennys Season <span>ist vorbei!</span></h2>
+      <p *ngIf="reveal.kind==='level' && reveal.level!==5">Weiterfüttern erhöht deine Chance auf wertvollere und exklusive Items.</p>
+      <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! Ab jetzt bekommst du am Saisonende 50 % der Nettokosten weiterer Fütterungen zurück.</p>
+      <p *ngIf="reveal.kind==='drop' && reveal.drop?.item">{{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
+      <p *ngIf="reveal.kind==='drop' && !reveal.drop?.item">Kenny hat dir {{reveal.drop?.tokens | number}} TastyTokens zurückgebracht.</p>
+      <p *ngIf="reveal.kind==='season'">{{reveal.tokens ? (reveal.tokens | number)+' TT Cashback' : 'Kein Cashback'}}<span *ngIf="reveal.item"> · {{reveal.item.name}} freigeschaltet</span></p>
+      <button type="button" class="btn primary full" (click)="acknowledgeKennyReveal()">Annehmen</button>
+    </div>
+  </div>
+
+  <div class="veil kenny-dialog-veil" *ngIf="kennyCustomizeOpen" role="dialog" aria-modal="true" aria-label="Kenny personalisieren" (click)="kennyCustomizeOpen=false">
+    <div class="modal kenny-dialog" (click)="$event.stopPropagation()">
+      <button type="button" class="kenny-dialog-close" (click)="kennyCustomizeOpen=false" aria-label="Schließen">✕</button>
+      <span class="eyebrow">🎨 DINO-PERSONALISIERUNG</span><h2>Kennys <span>Skins.</span></h2>
+      <p>Deine Farben aus Kennys Season. Gesperrte Skins kannst du beim Füttern finden.</p>
+      <div class="kenny-skin-grid">
+        <button type="button" *ngFor="let skin of kennySkins" [disabled]="!skin.owned" [class.selected]="kennySkin===skin.id" (click)="setKennySkin(skin.id)">
+          <img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id"><strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Ausgewählt':'Ausrüsten'):'🔒 Gesperrt'}}</small>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="veil kenny-dialog-veil" *ngIf="kennyPoolOpen" role="dialog" aria-modal="true" aria-label="Kennys mögliche Gewinne" (click)="kennyPoolOpen=false">
+    <div class="modal kenny-dialog kenny-pool-dialog" (click)="$event.stopPropagation()">
+      <button type="button" class="kenny-dialog-close" (click)="kennyPoolOpen=false" aria-label="Schließen">✕</button>
+      <span class="eyebrow">✦ KENNY · LEVEL {{kennyLevel}}</span><h2>Alle <span>Gewinne.</span></h2>
+      <p>Ein Futter kostet 300 TT. Du erhältst entweder TT oder genau ein Item. Bereits besessene Items werden nicht erneut gezogen.</p>
+      <div class="kenny-pool-scroll">
+        <div class="kenny-pool-section"><strong>🪙 TOKEN-DROPS</strong><span>250 TT · {{kennyOdds.token250}} % &nbsp; 500 TT · {{kennyOdds.token500}} % &nbsp; 1.000 TT · {{kennyOdds.token1000}} %</span></div>
+        <div class="kenny-pool-section" *ngFor="let tier of kennyPoolPreview">
+          <strong>{{tier.name}} · {{tier.chance | number:'1.0-1'}} %</strong>
+          <div class="kenny-pool-items"><span *ngFor="let item of tier.items">{{item.icon}} {{item.name}}</span><small *ngIf="!tier.items.length">Alles aus dieser Kategorie eingesammelt.</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="veil avatar-picker-veil" *ngIf="avatarPickerOpen" role="dialog" aria-modal="true" aria-label="Avatar auswählen" (click)="closeAvatarPicker()">
     <div class="modal avatar-picker-modal" (click)="$event.stopPropagation()">
       <div class="eyebrow">🖌️ PERSONALISIERUNG</div>
@@ -462,7 +556,7 @@
       <div class="avatar-pick-grid">
         <button type="button" class="avatar-pick-item" [class.picked]="currentAvatar==='🧪'" (click)="selectProfileAvatar('default')"><span>🧪</span><b>Standard</b><small>{{currentAvatar==='🧪'?'✓ Ausgewählt':'Gratis'}}</small></button>
         <button type="button" class="avatar-pick-item" *ngFor="let item of unlockedAvatars" [class.picked]="currentAvatar===item.icon" (click)="selectProfileAvatar(item.id)">
-          <span>{{item.icon}}</span><b>{{itemDisplayName(item)}}</b><small>{{currentAvatar===item.icon?'✓ Ausgewählt':'Ausrüsten'}}</small>
+          <span><img *ngIf="item.id==='kenny_avatar';else pickerAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt=""><ng-template #pickerAvatarText>{{item.icon}}</ng-template></span><b>{{itemDisplayName(item)}}</b><small>{{currentAvatar===item.icon?'✓ Ausgewählt':'Ausrüsten'}}</small>
         </button>
       </div>
       <p *ngIf="unlockedAvatars.length===0" class="avatar-picker-hint">Weitere Avatare findest du in den Drops des Item-Shops.</p>
@@ -556,6 +650,7 @@
     <span class="pink-spark p1">✦</span><span class="pink-spark p2">✧</span><span class="pink-spark p3">✧</span>
   </div>
   <div class="banner-scene scene-parallel"><div class="parallel-grid"></div><span class="parallel-signal a">●</span><span class="parallel-signal b">●</span><span class="parallel-signal c">●</span><span class="parallel-symbol">♯</span></div>
+  <div class="banner-scene scene-kenny-volcano"><span class="kenny-banner-sun"></span><span class="kenny-banner-volcano"></span><span class="kenny-banner-smoke">☁</span><span class="kenny-banner-fern">🌿</span></div>
 </div>
         </div>
         <div class="shop-live-cards">
@@ -566,7 +661,7 @@
           <span *ngFor="let particle of previewParticleSlots; let i=index" [style.--particle-index]="i">{{previewParticle(item)}}</span>
         </div>
       </div>
-      <div class="preview-visual" *ngIf="item.group==='avatar'||item.group==='title'" [style.background]="themeStyle(item)"><span>{{item.icon}}</span><i>✦</i></div>
+      <div class="preview-visual" *ngIf="item.group==='avatar'||item.group==='title'" [style.background]="themeStyle(item)"><span><img *ngIf="item.id==='kenny_avatar';else previewAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt=""><ng-template #previewAvatarText>{{item.icon}}</ng-template></span><i>✦</i></div>
       <div class="eyebrow">LIVE-VORSCHAU · {{item.drop==='global'?'STUDYVERSE GLOBAL':item.drop==='dsai-test-01'?'Dsaiverse DROP':item.drop==='pos-pa-01'?'Sharpverse DROP':'CHEMVERSE DROP'}}</div>
       <h2 class="preview-item-name">{{item.name}}<span class="preview-item-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></h2><p>{{item.desc}}</p>
       <div class="preview-requirement" [class.ready]="itemProgressPercent(item)===100">

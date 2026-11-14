@@ -51,6 +51,9 @@ jobs:
       - name: Test live cosmetics preview and locked learning worlds
         run: node scripts/test-shop-preview.cjs
 
+      - name: Test Kenny season economy, level gates and finale
+        run: node scripts/test-dino-season.cjs
+
       - name: Verify cross-verse daily arena and shared TT caps
         run: node scripts/test-daily.cjs
 

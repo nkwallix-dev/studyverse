@@ -233,7 +233,7 @@ assert(shopTemplate.includes('earningAchievementStatus.remaining===0'),'Completi
 assert(!shopTemplate.includes('Bis zu {{achievementRewardTotal'),'Do not advertise lifetime total as still obtainable');
 assert(shopTemplate.includes("shopTab==='earn'") && shopTemplate.includes('SO VERDIENST DU WEITERE TASTYTOKENS'),'TastyTokens must have their own earning tab and full name');
 assert(shopTemplate.includes('openTokenEarning()'),'Earning tab must appear below Inventory in the sidebar');
-assert(shopTs.includes("setShopTab(tab:'catalog'|'inventory'|'earn')"),'Three shop tabs must support navigation');
+assert(shopTs.includes("setShopTab(tab:'catalog'|'inventory'|'earn'|'kenny')"),'Four shop tabs must support navigation');
 assert(shopTemplate.includes('TastyTokens (TT)'),'Wallet must explain the renamed currency');
 assert(!shopTemplate.includes(' Tokens'),'Use TT, not old Tokens, in visible wallet UI');
 assert(!shopTemplate.includes('TastyTT'),'Do not corrupt full currency name when shortening the label');

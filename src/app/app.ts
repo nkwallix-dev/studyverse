@@ -5,6 +5,9 @@ import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items'
 import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
 import { StudyverseCloud, CloudSnapshot, PublicPlayer, PublicShowcase, PublicCourseProgress, AccountNotice, CLOUD_DAILY_KEY, CLOUD_SESSION_KEY, cloudError, isAllowedNickname } from './cloud';
+import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, DinoSeasonState, DinoDrop,
+  freshDinoState, normalizeDinoState, dinoLevel, nextDinoLevel, isKennyActive, cashbackDue, kennyCountdown,
+  eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason } from './dino-season';
 
 type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements' | 'friends';
 interface Subject { id:string; short:string; name:string; icon:string; group:string; color:string; desc:string; }
@@ -16,12 +19,13 @@ interface Profile {
   activity:Activity[]; customSubjects?:{id:string;name:string;emoji:string}[];
   trainerSaves?:Record<string,Record<string,unknown>>; shopDropMigrationV1?:boolean; achievementTokenClaims?:Record<string,boolean>;
  rewardSeen?:Record<string,boolean>; rewardQueue?:string[]; rewardBatchTotal?:number; rewardBatchPosition?:number;
+ dinoSeasons?:Record<string,DinoSeasonState>;
   [key:string]:unknown;
 }
 const KEY='studyverse_profile_v1', INTRO='studyverse_import_prompt_seen_v1';
 const CHEM='chemverse_niklas_v1', BRIDGE='studyverse_trainer_launch_v2', RESTORE='studyverse_before_restore_v1', LOCAL_ARCHIVE='studyverse_before_first_cloud_login_v1';
 const defaultEquip=()=>({theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'});
-const initial=():Profile=>({xp:0,tokens:0,nickname:'Explorer',inventory:[],equipped:defaultEquip(),claimedLevels:{},activity:[],customSubjects:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],rewardBatchTotal:0,rewardBatchPosition:0});
+const initial=():Profile=>({xp:0,tokens:0,nickname:'Explorer',inventory:[],equipped:defaultEquip(),claimedLevels:{},activity:[],customSubjects:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],rewardBatchTotal:0,rewardBatchPosition:0,dinoSeasons:{}});
 const safe=(n:unknown):number=>typeof n==='number'&&Number.isFinite(n)?Math.max(0,Math.floor(n)):0;
 const isObj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&!Array.isArray(v);
 const validChem=(v:unknown):v is Record<string,unknown>=>isObj(v)&&typeof v['xp']==='number'&&typeof v['coins']==='number'&&['learned','solved','earned','purchased'].every(k=>isObj(v[k]));
@@ -55,9 +59,12 @@ export const SUBJECTS:Subject[]=[
 export class App implements OnInit,OnDestroy {
  private readonly changeDetector=inject(ChangeDetectorRef);
  readonly subjects=SUBJECTS;
- readonly items=SHOP_ITEMS;
+ readonly items=[...SHOP_ITEMS,...KENNY_ITEMS];
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
- shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'earn'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
+ shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'earn'|'kenny'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
+ kennyClock=Date.now();kennyBusy=false;kennyError='';kennyCustomizeOpen=false;kennyPoolOpen=false;
+ kennyReveals:Array<{kind:'drop'|'level'|'season';drop?:DinoDrop;level?:number;tokens?:number;item?:ShopItem}>=[];
+ private kennyTimer:ReturnType<typeof setInterval>|null=null;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  readonly cloud=new StudyverseCloud();
  cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
@@ -82,6 +89,7 @@ export class App implements OnInit,OnDestroy {
   this.syncChemverse();this.grantAchievementTokens();this.checkRewardUnlocks();this.queueCloudSave();
  };
  ngOnInit(){
+   this.kennyTimer=setInterval(()=>{this.kennyClock=Date.now();this.settleKennyIfExpired();this.changeDetector.markForCheck();},60_000);
    this.nicknameEdit=this.profile.nickname;
    // Standalone Verses link to the shared player profile; resolve the hash
    // without changing the single-page app's existing navigation model.
@@ -100,7 +108,7 @@ export class App implements OnInit,OnDestroy {
    window.addEventListener('pageshow',this.onReturn);
    void this.startCloud();
  }
- ngOnDestroy(){window.removeEventListener('pageshow',this.onReturn);}
+ ngOnDestroy(){window.removeEventListener('pageshow',this.onReturn);if(this.kennyTimer)clearInterval(this.kennyTimer);}
  private load():Profile {
    const raw=parse(read(KEY));const fresh=initial();
    if(!isObj(raw))return fresh;
@@ -109,7 +117,9 @@ export class App implements OnInit,OnDestroy {
     inventory:Array.isArray(raw['inventory'])?raw['inventory'].filter(v=>typeof v==='string') as string[]:[],
     claimedLevels:isObj(raw['claimedLevels'])?raw['claimedLevels'] as Record<string,boolean>:{},
     equipped:{...defaultEquip(),...(isObj(raw['equipped'])?raw['equipped']:{} as Record<string,string>)},
-    activity:Array.isArray(raw['activity'])?raw['activity'] as Activity[]:[]};
+    activity:Array.isArray(raw['activity'])?raw['activity'] as Activity[]:[],
+    dinoSeasons:{...(isObj(raw['dinoSeasons'])?raw['dinoSeasons']:{}),
+      [KENNY_SEASON.id]:normalizeDinoState(isObj(raw['dinoSeasons'])?raw['dinoSeasons'][KENNY_SEASON.id]:null)}};
    // Existing Froschlabor purchases retain avatar_frog; update only the currently equipped emoji.
    if(restored.equipped['avatar']==='🐸'){
      restored.equipped['avatar']='🐟';
@@ -379,6 +389,7 @@ export class App implements OnInit,OnDestroy {
        }
        this.cloudMaySave=true;
        this.cloudHydrating=false;
+       this.settleKennyIfExpired();
      }
    }catch(e){
      this.cloudMessage=cloudError(e);this.cloudStatus='⚠ Cloud-Laden fehlgeschlagen';
@@ -460,6 +471,7 @@ export class App implements OnInit,OnDestroy {
        await this.cloud.save(this.cloudSnapshot());
      }
      this.cloudMaySave=true;this.cloudStatus='✓ Online gespeichert';this.cloudPin='';this.cloudUsername='';
+     this.settleKennyIfExpired();
      // Publishing happens after hydration finishes; otherwise registration
      // inadvertently suppresses creation of the player's friends card.
      void this.checkOwnAccountNotice();
@@ -545,13 +557,13 @@ export class App implements OnInit,OnDestroy {
    return Math.min(100,Math.floor(100*this.metricProgress(item.drop,item.requirement.metric)/item.requirement.value));
  }
  groupLabel(group:string):string{
-   const labels:Record<string,string>={theme:'Themes',atm:'Hintergründe',avatar:'Avatare',frame:'Rahmen',font:'Schriften',banner:'Banner',title:'Titel',fx:'Effekte'};
+   const labels:Record<string,string>={theme:'Themes',atm:'Hintergründe',avatar:'Avatare',frame:'Rahmen',font:'Schriften',banner:'Banner',title:'Titel',fx:'Effekte',dinoSkin:'Dino-Skins'};
    return labels[group]||group;
  }
  // The product category belongs in its readable name, not only in tiny metadata.
  // Item IDs and stored base names are deliberately unchanged for old inventories.
  itemTypeName(group:string):string{
-   const labels:Record<string,string>={theme:'Theme',atm:'Hintergrund',avatar:'Avatar',frame:'Rahmen',font:'Schriftart',banner:'Banner',title:'Titel',fx:'Effekt'};
+   const labels:Record<string,string>={theme:'Theme',atm:'Hintergrund',avatar:'Avatar',frame:'Rahmen',font:'Schriftart',banner:'Banner',title:'Titel',fx:'Effekt',dinoSkin:'Skin'};
    return labels[group]||'Cosmetic';
  }
  itemNameSuffix(item:ShopItem):string{
@@ -572,7 +584,7 @@ export class App implements OnInit,OnDestroy {
     ||this.sortRequirement(a)-this.sortRequirement(b)||a.name.localeCompare(b.name,'de'));}
  private sortRequirement(item:ShopItem){return item.drop==='global'?(item.level||1)*10:(item.requirement?.value||0);}
  // Every test uses the same category tabs, even when it has no items in one category.
- get shopCategories(){return ['Alle',...new Set(this.items.map(i=>i.group))];}
+ get shopCategories(){return ['Alle',...new Set(SHOP_ITEMS.map(i=>i.group))];}
  get selectedCategoryHasItems(){return this.shopGroup==='Alle'||this.dropItems.some(i=>i.group===this.shopGroup);}
  chooseDrop(id:string){if(!this.drops.some(d=>d.id===id))return;this.shopDrop=id;this.shopGroup='Alle';this.previewed=null;this.spotlightRewardId='';}
  metricProgress(drop:string,metric:ShopRequirement['metric']):number{
@@ -673,11 +685,104 @@ export class App implements OnInit,OnDestroy {
    ).sort((a,b)=>Number(this.active(b))-Number(this.active(a))||a.name.localeCompare(b.name,'de'));
  }
  get inventoryEquippedCount(){return this.ownedCatalogItems.filter(item=>this.active(item)).length;}
- dropLabel(id:string){return this.drops.find(drop=>drop.id===id)?.title||(id==='maths-hw-02'?'MathsVerse · Archiv':id==='exclusive'?'Exklusiv':id);}
+ dropLabel(id:string){return this.drops.find(drop=>drop.id===id)?.title||(id===KENNY_SEASON.id?'Kenny · Season 1':id==='maths-hw-02'?'MathsVerse · Archiv':id==='exclusive'?'Exklusiv':id);}
  changeInventoryDrop(id:string){this.inventoryDrop=id;this.inventoryGroup='Alle';}
- setShopTab(tab:'catalog'|'inventory'|'earn'){this.shopTab=tab;this.previewed=null;window.scrollTo({top:0,behavior:'smooth'});}
+ setShopTab(tab:'catalog'|'inventory'|'earn'|'kenny'){
+   this.shopTab=tab;this.previewed=null;this.kennyClock=Date.now();
+   if(tab==='kenny')this.settleKennyIfExpired();
+   window.scrollTo({top:0,behavior:'instant'});
+ }
  openInventory(){this.go('shop');this.setShopTab('inventory');}
  openTokenEarning(){this.go('shop');this.setShopTab('earn');}
+ get kennySeason(){return KENNY_SEASON;}
+ readonly kennyEventItems=KENNY_EVENT_ITEMS;
+ get kennyState():DinoSeasonState{return normalizeDinoState(this.profile.dinoSeasons?.[KENNY_SEASON.id]);}
+ get kennyLevel():number{return dinoLevel(this.kennyState.feeds);}
+ get kennyActive():boolean{return isKennyActive(this.kennyClock);}
+ get kennyCountdown():string{return kennyCountdown(this.kennyClock);}
+ get kennyRemainingFeeds():number{return Math.max(0,nextDinoLevel(this.kennyState.feeds)-this.kennyState.feeds);}
+ get kennyProgress():number{
+   if(this.kennyLevel===5)return 100;
+   const begin=KENNY_THRESHOLDS[this.kennyLevel-1],end=KENNY_THRESHOLDS[this.kennyLevel];
+   return Math.round(100*(this.kennyState.feeds-begin)/(end-begin));
+ }
+ get kennySkin():DinoSeasonState['skin']{
+   const selected=this.kennyState.skin;
+   return selected==='blue'||this.profile.inventory.includes('kenny_skin_'+selected)?selected:'blue';
+ }
+ get kennySkins(){return [{id:'blue',name:'Kenny Blau',icon:'💙',owned:true},
+   ...KENNY_EVENT_ITEMS.filter(i=>i.group==='dinoSkin').map(i=>({id:i.equip||'',name:i.name,icon:i.icon,owned:this.owns(i)}))];}
+ get kennyPools(){return eligibleDinoItems(SHOP_ITEMS,new Set(this.profile.inventory));}
+ get kennyOdds(){return actualDinoOdds(this.kennyLevel,this.kennyPools);}
+ get kennyPoolEmpty(){return !Object.values(this.kennyPools).some(items=>items.length);}
+ get kennyCanFeed(){return this.kennyActive&&!this.kennyBusy&&!this.kennyReveals.length&&
+   !this.kennyPoolEmpty&&this.profile.tokens>=KENNY_SEASON.price&&this.cloudReady&&
+   (!this.cloudConfigured||!!this.cloud.session&&this.cloudMaySave);}
+ get kennyCashback():number{return cashbackDue(this.kennyState);}
+ get kennyPoolPreview(){
+   const pools=this.kennyPools;
+   return ([{key:'event',name:'Saisonexklusiv'},{key:'large',name:'Prestige-Items'},
+     {key:'medium',name:'Mittlere Items'},{key:'small',name:'Kleine Items'}] as const)
+     .map(category=>({...category,items:pools[category.key],chance:this.kennyOdds[category.key]}));
+ }
+ get kennyCurrentReveal(){return this.kennyReveals[0]||null;}
+ acknowledgeKennyReveal(){this.kennyReveals.shift();this.changeDetector.markForCheck();}
+ setKennySkin(skin:string){
+   if(!['blue','pink','green','red'].includes(skin)||
+     skin!=='blue'&&!this.profile.inventory.includes('kenny_skin_'+skin))return;
+   const state=this.kennyState;
+   state.skin=skin as DinoSeasonState['skin'];
+   this.profile.dinoSeasons={...(this.profile.dinoSeasons||{}),[KENNY_SEASON.id]:state};
+   this.profile.equipped['dinoSkin']=skin;
+   this.save();this.changeDetector.markForCheck();
+ }
+ private randomDino():number{
+   const bytes=new Uint32Array(1);
+   crypto.getRandomValues(bytes);
+   return bytes[0]/4294967296;
+ }
+ async feedKenny():Promise<void>{
+   this.kennyClock=Date.now();this.kennyError='';
+   if(!this.kennyCanFeed)return;
+   const previous=structuredClone(this.profile),before=this.kennyState;
+   const priorLevel=dinoLevel(before.feeds);
+   const prize=drawDinoReward(priorLevel,this.kennyPools,()=>this.randomDino());
+   const next={...before,feeds:before.feeds+1};
+   if(priorLevel===5){next.overfeeds++;next.overTokenWins+=prize.tokens;}
+   this.kennyBusy=true;
+   this.profile.tokens=this.profile.tokens-KENNY_SEASON.price+prize.tokens;
+   this.profile.dinoSeasons={...(this.profile.dinoSeasons||{}),[KENNY_SEASON.id]:next};
+   if(prize.item)this.profile.inventory=[...new Set([...this.profile.inventory,prize.item.id])];
+   this.profile.activity=[{label:'🦖 Kenny gefüttert · '+(prize.item?.name||prize.tokens+' TT'),
+     date:new Date().toISOString(),amount:prize.tokens-KENNY_SEASON.price},...this.profile.activity].slice(0,30);
+   write(KEY,JSON.stringify(this.profile));
+   if(this.cloudConfigured&&this.cloud.session){
+     await this.syncCloudNow();
+     if(this.cloudStatus!=='✓ Online gespeichert'){
+       this.profile=previous;write(KEY,JSON.stringify(previous));
+       this.kennyError='Fütterung nicht gespeichert. Deine 300 TT wurden wiederhergestellt. Versuch es erneut.';
+       this.kennyBusy=false;this.changeDetector.markForCheck();return;
+     }
+   }
+   this.kennyReveals.push({kind:'drop',drop:prize});
+   if(dinoLevel(next.feeds)>priorLevel)this.kennyReveals.push({kind:'level',level:dinoLevel(next.feeds)});
+   this.kennyBusy=false;this.changeDetector.markForCheck();
+ }
+ private settleKennyIfExpired():void{
+   if(!this.cloudReady)return;
+   if(this.cloudConfigured&&!this.cloudMaySave)return;
+   const result=settleDinoSeason(this.kennyState,Date.now());
+   if(!result)return;
+   this.profile.dinoSeasons={...(this.profile.dinoSeasons||{}),[KENNY_SEASON.id]:result.state};
+   if(result.tokens)this.profile.tokens+=result.tokens;
+   if(result.item)this.profile.inventory=[...new Set([...this.profile.inventory,result.item.id])];
+   if(result.tokens||result.item){
+     this.profile.activity=[{label:'🦖 Kennys Season beendet · Cashback und Finale',
+       date:new Date().toISOString(),amount:result.tokens},...this.profile.activity].slice(0,30);
+     this.kennyReveals.push({kind:'season',tokens:result.tokens,item:result.item});
+   }
+   this.save();
+ }
  get trainers(){return TRAINERS;}
  get achievementSubjects(){return ['Alle',...new Set(TRAINERS.map(t=>t.subjectId))];}
  get achievementTests(){return TRAINERS.filter(t=>this.achievementSubject==='Alle'||t.subjectId===this.achievementSubject);}
@@ -989,6 +1094,7 @@ export class App implements OnInit,OnDestroy {
  }
  owns(item:ShopItem){return item.id==='exclusive_title_cheater'?this.exclusiveCheaterTitle:this.profile.inventory.includes(item.id);}
  active(item:ShopItem){
+   if(item.group==='dinoSkin')return this.kennySkin===item.equip;
    const key=item.group;const value=key==='avatar'?item.icon:(item.equip||item.id);
    return this.profile.equipped[key]===value;
  }
@@ -998,6 +1104,10 @@ export class App implements OnInit,OnDestroy {
   return '◉ '+item.cost+' TT kaufen';
  }
  buyOrEquip(item:ShopItem){
+  if(item.group==='dinoSkin'){
+   if(this.owns(item))this.setKennySkin(this.active(item)?'blue':item.equip||'blue');
+   return;
+  }
   if(!this.owns(item)){
    if(!this.isUnlocked(item)){this.alert('Erst freischalten: '+this.requirementLabel(item));return;}
    if(this.profile.tokens<item.cost){this.alert('Nicht genug TastyTokens, Bruder. 💀');return;}

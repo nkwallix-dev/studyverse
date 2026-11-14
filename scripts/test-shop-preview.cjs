@@ -10,8 +10,8 @@ const preview=h.slice(h.indexOf('<div class="veil shop-preview-veil"'),h.indexOf
 
 // Item-Shop filters have a fixed catalog-wide set and keep the selected category
 // when switching tests, including tests that do not offer that cosmetic type.
-assert(t.includes("get shopCategories(){return ['Alle',...new Set(this.items.map(i=>i.group))];}"),
- 'Shop category tabs must be derived from ALL items, not only selected-test items');
+assert(t.includes("get shopCategories(){return ['Alle',...new Set(SHOP_ITEMS.map(i=>i.group))];}"),
+ 'Shop category tabs must cover the full purchasable catalog, not only the selected test or dinosaur skins');
 assert(t.includes("chooseDrop(id:string){if(!this.drops.some(d=>d.id===id))return;"),
  'Only genuinely unlocked test drops may be selected');
 assert(h.indexOf('class="chips shop-category-chips"')<h.indexOf('<ng-container *ngIf="selectedDrop.status===\'live\'">'),

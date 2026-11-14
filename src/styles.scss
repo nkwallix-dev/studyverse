@@ -957,3 +957,88 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .friend-showcase.universe[data-banner="solitaire"]>.friend-showcase-cover.hero{background:radial-gradient(circle at 74% 40%,#72edaa88,transparent 40%),linear-gradient(115deg,#0d4438,#187357)!important}
 .friend-showcase.universe[data-banner="pink_paradise"]>.friend-showcase-cover.hero{background:radial-gradient(circle at 80% 30%,#f9c5e799,transparent 37%),linear-gradient(115deg,#6f2a5a,#c26f9f)!important}
 .friend-showcase.universe[data-banner="parallel_pulse"]>.friend-showcase-cover.hero{background:repeating-linear-gradient(122deg,#172043 0 15px,#213e60 16px 17px,#161d3d 18px 37px)!important}
+
+/* Kenny's first Dino-Verse season. The stage fits in the viewport; longer prize
+   lists live in their own dialog instead of expanding the shop page. */
+.universe.kenny-mode.kenny-mode{height:100dvh;min-height:0;overflow:hidden}
+.universe.kenny-mode .workspace{height:100dvh;min-height:0;min-width:0;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0}
+.universe.kenny-mode main{width:100%;min-width:0;min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden;padding:16px clamp(14px,2.5vw,34px) 12px}
+.universe.kenny-mode main>.eyebrow{font-size:9px}
+.universe.kenny-mode main>.page-title{font-size:clamp(25px,3vw,37px);margin:3px 0 2px}
+.universe.kenny-mode .shop-view-tabs{flex:0 0 auto;margin:6px 0 10px}
+.universe.kenny-mode footer{display:none}
+.kenny-page{min-height:0;flex:1;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(310px,.75fr);grid-template-rows:minmax(0,1fr) auto;gap:12px;color:#f5f3ff;font-family:Inter,"Segoe UI",system-ui,sans-serif}
+.kenny-play{min-width:0;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:10px}
+.kenny-stage{position:relative;min-height:0;isolation:isolate;overflow:hidden;border:1px solid #ca9c8866;border-radius:24px;background:radial-gradient(circle at 65% 24%,#faad65a9,transparent 27%),linear-gradient(180deg,#2b1b37 0%,#7c3e54 44%,#b16e48 73%,#25392f 100%);box-shadow:inset 0 -35px 60px #07192085,0 14px 38px #0006}
+.kenny-stage:after{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;background:repeating-linear-gradient(125deg,transparent 0 80px,#ffffff05 81px 82px)}
+.kenny-sun{position:absolute;width:120px;height:120px;right:12%;top:10%;border-radius:50%;background:#ffd9a1;box-shadow:0 0 80px 35px #fcb86b88}
+.kenny-mountain{position:absolute;bottom:17%;width:75%;height:47%;background:#423a48;clip-path:polygon(0 100%,38% 10%,100% 100%);opacity:.55}
+.kenny-mountain.left{left:-15%}.kenny-mountain.right{right:-28%;height:62%;background:#382e41}
+.kenny-volcano{position:absolute;z-index:1;right:8%;bottom:21%;width:46%;height:62%;background:linear-gradient(115deg,#262533,#55404a 65%,#231d30);clip-path:polygon(0 100%,36% 20%,46% 22%,54% 19%,64% 20%,100% 100%)}
+.kenny-volcano i{position:absolute;left:35%;top:16%;width:30%;height:62%;background:linear-gradient(#ffcb72,#ed512f,#6e2c37);clip-path:polygon(40% 0,60% 0,70% 26%,58% 44%,77% 100%,28% 100%,42% 43%,30% 24%);filter:drop-shadow(0 0 18px #ff7427)}
+.kenny-lava{position:absolute;z-index:1;right:25%;bottom:53%;width:45px;height:55px;border-radius:50%;background:#ffad6e66;filter:blur(22px);box-shadow:0 -85px 45px #ef806882,45px -120px 50px #e99e8a77}
+.kenny-ground{position:absolute;z-index:2;inset:auto 0 0;height:30%;background:linear-gradient(180deg,transparent,#17272c 56%,#111e26)}
+.kenny-fern{position:absolute;z-index:5;bottom:-14px;font-size:clamp(70px,11vw,135px);filter:brightness(.37) saturate(.8) drop-shadow(0 0 14px #080f13)}
+.kenny-fern.fern-left{left:-24px;transform:rotate(-22deg)}.kenny-fern.fern-right{right:-24px;transform:scaleX(-1) rotate(-22deg)}
+.kenny-stage-label{position:absolute;z-index:7;left:22px;top:17px;font-weight:950;font-size:10px;letter-spacing:2px;color:#ffdfba;text-shadow:0 2px 12px #1c1725}
+.kenny-sprite{position:absolute;z-index:6;left:50%;bottom:4%;height:min(72%,400px);width:auto;max-width:62%;object-fit:contain;transform:translateX(-50%) scale(var(--kenny-scale,1));transform-origin:center bottom;filter:drop-shadow(0 15px 16px #080d1d8c);image-rendering:auto}
+@keyframes kenny-breathe{0%,100%{transform:translateX(-50%) translateY(0) scale(var(--kenny-scale,1)) rotate(-1deg)}50%{transform:translateX(-50%) translateY(-9px) scale(calc(var(--kenny-scale,1)*1.015)) rotate(1deg)}}
+.kenny-sprite{animation:kenny-breathe 3.2s ease-in-out infinite}
+@keyframes kenny-celebrate{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+.kenny-reveal-art img{animation:kenny-celebrate 1.2s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.kenny-sprite,.kenny-reveal-art img{animation:none}}
+.kenny-sprite[data-skin="pink"],.kenny-skin-grid img[data-skin="pink"],.kenny-reveal-art img[data-skin="pink"]{filter:hue-rotate(105deg) saturate(1.15) drop-shadow(0 12px 16px #10122382)}
+.kenny-sprite[data-skin="green"],.kenny-skin-grid img[data-skin="green"],.kenny-reveal-art img[data-skin="green"]{filter:hue-rotate(225deg) saturate(1.15) drop-shadow(0 12px 16px #10122382)}
+.kenny-sprite[data-skin="red"],.kenny-skin-grid img[data-skin="red"],.kenny-reveal-art img[data-skin="red"]{filter:hue-rotate(125deg) saturate(1.8) drop-shadow(0 12px 16px #10122382)}
+.kenny-stage-name{position:absolute;z-index:7;left:24px;bottom:23px;display:grid;line-height:1.06;text-shadow:0 3px 14px #0a1019}
+.kenny-stage-name strong{font-size:clamp(26px,3vw,42px);letter-spacing:2px}.kenny-stage-name span{font-size:9px;letter-spacing:1.5px;font-weight:900;color:#c9e7e7}
+.kenny-level-medal{position:absolute;z-index:7;right:22px;bottom:18px;background:#101b2bc9;border:1px solid #d5e7e784;border-radius:16px;padding:7px 15px;display:flex;align-items:baseline;gap:5px;backdrop-filter:blur(12px)}
+.kenny-level-medal small{font-size:9px;font-weight:950;letter-spacing:1px}.kenny-level-medal strong{font-size:31px;line-height:1}.kenny-level-medal span{font-size:12px;color:#b8ced6}
+.kenny-controls{border:1px solid #535169;border-radius:19px;background:linear-gradient(120deg,#171629,#211a38);padding:14px 18px;min-width:0;box-shadow:0 8px 25px #0004}
+.kenny-progress-top{display:flex;justify-content:space-between;gap:9px;font-weight:950;letter-spacing:1px;font-size:10px}.kenny-progress-top strong{color:#ffcd8e;text-align:right}
+.kenny-progress-track{margin:8px 0 13px;border-radius:12px;height:8px;background:#ffffff24;overflow:hidden}.kenny-progress-track i{display:block;height:100%;border-radius:12px;background:linear-gradient(90deg,#73dff5,#a49dff,#ffc784)}
+.kenny-action-row{display:flex;align-items:stretch;gap:10px}.kenny-wallet{min-width:110px;display:grid;align-content:center}.kenny-wallet small{font-size:9px;letter-spacing:.8px;color:#b3b8d0;font-weight:900}.kenny-wallet strong{font-size:19px;color:#ffe2aa;white-space:nowrap}
+.kenny-feed-btn{flex:1;min-height:47px;border:0;border-radius:13px;background:linear-gradient(110deg,#f9ba76,#fa7e72);color:#2a1324;font-size:15px;font-weight:950;box-shadow:0 7px 17px #f2774b3b;white-space:nowrap}.kenny-feed-btn:not(:disabled):hover{filter:brightness(1.09);transform:translateY(-2px)}.kenny-feed-btn:disabled{opacity:.48;cursor:not-allowed}
+.kenny-style-btn{display:flex;align-items:center;gap:6px;justify-content:center;border:1px solid #8d8ca1;background:#ffffff11;border-radius:12px;padding:0 14px;color:#fff;font-weight:850;font-size:11px}
+.kenny-hint,.kenny-error{font-size:11px;margin:10px 0 0;line-height:1.35;color:#cdd9f1}.kenny-hint b{color:#ffdc9f}.kenny-error{color:#ffc4b1}
+.kenny-loot{min-width:0;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:9px;border:1px solid #81739e88;border-radius:22px;background:linear-gradient(165deg,#1d1936,#141b30 75%);padding:17px;box-shadow:0 14px 40px #0005}
+.kenny-loot-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.kenny-loot-head>span{font-size:12px;letter-spacing:1px;color:#dcb3ff;font-weight:950}.kenny-loot-head small{font-size:10px;color:#aab5d1;white-space:nowrap}
+.kenny-token-prizes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.kenny-token-prizes>div{min-width:0;text-align:center;border:1px solid #61617d;border-radius:12px;background:#39304c77;padding:8px 3px;display:grid;gap:2px}.kenny-token-prizes span{font-size:19px}.kenny-token-prizes strong{font-size:12px;white-space:nowrap}.kenny-token-prizes small{font-size:11px;color:#ffd599;font-weight:900}.kenny-token-prizes .jackpot{border-color:#edb771;background:#7b493b75}
+.kenny-loot-subhead{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:10px;font-weight:900;letter-spacing:.7px;color:#ead3fc}.kenny-loot-subhead span{letter-spacing:0;color:#aab5d1;text-align:right}
+.kenny-exclusives{min-height:0;flex:1;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:6px}.kenny-exclusives>div{min-width:0;display:flex;align-items:center;gap:5px;background:#ffffff0b;border:1px solid #ffffff22;border-radius:10px;padding:7px}.kenny-exclusives>div.collected{border-color:#67d4ae;color:#9ee5c3}.kenny-exclusives span{font-size:19px}.kenny-exclusives strong{flex:1;min-width:0;font-size:10px;line-height:1.2;overflow-wrap:anywhere}.kenny-exclusives small{font-size:10px}
+.kenny-tiers{display:grid;gap:5px}.kenny-tiers>div{display:flex;justify-content:space-between;gap:7px;font-size:11px;border-bottom:1px solid #ffffff1a;padding-bottom:3px}.kenny-tiers b{color:#ffcd8e}
+.kenny-pool-button{border:1px solid #8c7eb0;border-radius:11px;background:#ffffff14;color:#f3e9ff;font-size:11px;font-weight:900;padding:9px}
+.kenny-season-foot{grid-column:1/-1;display:flex;justify-content:space-between;gap:9px;align-items:center;font-size:10px;letter-spacing:.6px;color:#d9cfdd;font-weight:850}.kenny-season-foot span:nth-child(2){margin-left:auto;color:#ffd8a4}.kenny-season-foot button{display:none;background:none;border:0;color:#e7c6ff;font-weight:900}
+.kenny-avatar-image{display:block;max-height:100%;max-width:100%;width:100%;height:100%;object-fit:contain}
+.big-item-icon .kenny-avatar-image{width:95px;height:95px}.friend-character .kenny-avatar-image{width:100%;height:100%}
+.universe[data-frame="kenny_fossil"] :is(.stat,.subject-card,.item,.profile-panel,.test-row,.level-card,.activity-card,.loot-card){border:2px solid #ead4ab!important;box-shadow:0 0 0 3px #bd9e7145,0 8px 20px #0005!important}
+.friend-showcase.universe[data-frame="kenny_fossil"]{border:5px ridge #d9bf96;box-shadow:0 0 0 3px #897655,0 30px 100px #000b}
+/* The exclusive volcano banner is available on the homepage and in player profiles. */
+.universe[data-banner="kenny_volcano"] .hero:has(.banner-scenery){background:radial-gradient(circle at 72% 28%,#ffcb9d9c,transparent 28%),linear-gradient(160deg,#30223d,#8a494d 55%,#1e3640)!important;border-color:#eeb681}
+.universe[data-banner="kenny_volcano"] .scene-kenny-volcano{display:block}.scene-kenny-volcano .kenny-banner-sun{position:absolute;right:25%;top:10%;width:130px;height:130px;border-radius:50%;background:#ffd3a0;box-shadow:0 0 80px #fca768}
+.scene-kenny-volcano .kenny-banner-volcano{position:absolute;right:6%;bottom:-8%;width:49%;height:94%;clip-path:polygon(0 100%,37% 20%,48% 24%,57% 20%,100% 100%);background:linear-gradient(110deg,#242637,#663b3d 60%,#301e31)}
+.scene-kenny-volcano .kenny-banner-volcano:after{content:"";position:absolute;left:39%;top:20%;width:18%;height:65%;background:linear-gradient(#ffd17c,#e84931,transparent);clip-path:polygon(20% 0,80% 0,65% 100%,30% 100%)}
+.scene-kenny-volcano .kenny-banner-smoke{position:absolute;right:22%;top:-15%;font-size:140px;color:#efb7af8a;filter:blur(10px)}.scene-kenny-volcano .kenny-banner-fern{position:absolute;right:-2%;bottom:-43%;font-size:190px;filter:brightness(.35)}
+.shop-live-stage.universe[data-banner="kenny_volcano"]>.shop-live-hero.hero{background:radial-gradient(circle at 72% 28%,#ffcb9d9c,transparent 28%),linear-gradient(160deg,#30223d,#8a494d 55%,#1e3640)!important}
+.shop-live-stage.universe .scene-kenny-volcano{display:none!important}.shop-live-stage.universe[data-banner="kenny_volcano"] .scene-kenny-volcano{display:block!important}
+.universe .friend-showcase .friend-showcase-cover .banner-scenery>.scene-kenny-volcano{display:none!important}
+.universe .friend-showcase[data-banner="kenny_volcano"] .friend-showcase-cover .scene-kenny-volcano{display:block!important}
+.friend-showcase.universe[data-banner="kenny_volcano"]>.friend-showcase-cover.hero{background:radial-gradient(circle at 72% 28%,#ffcb9d9c,transparent 28%),linear-gradient(160deg,#30223d,#8a494d 55%,#1e3640)!important}
+.kenny-reveal-veil,.kenny-dialog-veil{z-index:100!important}.kenny-reveal-modal{width:min(440px,100%);text-align:center;background:radial-gradient(circle at 50% 16%,#754d6699,transparent 46%),linear-gradient(155deg,#262442,#111c2d);border-color:#eba775;padding:25px}.kenny-reveal-art{height:min(30dvh,200px);display:grid;place-items:center;margin:8px auto 13px}.kenny-reveal-art img{max-height:100%;max-width:100%;object-fit:contain;filter:drop-shadow(0 12px 18px #0007)}.kenny-reveal-art span{font-size:clamp(72px,11vw,128px)}.kenny-reveal-modal h2{font-size:clamp(25px,4vw,33px)}.kenny-reveal-modal h2 span{color:#ffcb87}.kenny-reveal-modal p{font-size:13px}.kenny-reveal-modal .btn.primary{background:linear-gradient(110deg,#ffbc75,#f28e88)}
+.kenny-dialog{width:min(700px,100%);max-height:calc(100dvh - 28px);overflow:auto;text-align:left;position:relative;background:linear-gradient(155deg,#28233b,#14223a);border-color:#c9929a}.kenny-dialog h2{font-size:30px}.kenny-dialog-close{position:absolute;right:12px;top:12px;border:1px solid #ffffff58;background:#1b2339;color:#fff;border-radius:10px;width:37px;height:37px}.kenny-skin-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.kenny-skin-grid button{min-width:0;border:1px solid #737595;background:#ffffff10;color:#fff;border-radius:14px;padding:10px;display:grid;justify-items:center;gap:6px}.kenny-skin-grid button.selected{border-color:#ffc680;box-shadow:0 0 0 2px #ffba7950}.kenny-skin-grid button:disabled{opacity:.49;cursor:not-allowed}.kenny-skin-grid img{height:90px;max-width:100%;object-fit:contain}.kenny-skin-grid strong{font-size:12px}.kenny-skin-grid small{font-size:10px}
+.kenny-pool-dialog{display:flex;flex-direction:column}.kenny-pool-scroll{min-height:0;overflow:auto;display:grid;gap:12px}.kenny-pool-section{border:1px solid #ffffff29;background:#ffffff0b;border-radius:12px;padding:12px;display:grid;gap:7px}.kenny-pool-section>strong{font-size:11px;color:#ffd6a1;letter-spacing:.7px}.kenny-pool-section>span{font-size:12px}.kenny-pool-items{display:flex;gap:7px;flex-wrap:wrap}.kenny-pool-items>span{background:#ffffff12;border-radius:8px;padding:5px 8px;font-size:11px}.kenny-pool-items small{color:#b8b9cb}
+@media(max-width:900px){.kenny-page{grid-template-columns:minmax(0,1fr) minmax(260px,.7fr)}.kenny-loot{padding:12px}.kenny-exclusives{grid-template-columns:1fr}}
+@media(max-width:700px){
+ .universe.kenny-mode .workspace{height:calc(100dvh - 68px);padding-bottom:0}
+ .universe.kenny-mode main{padding:7px 10px 7px}
+ .universe.kenny-mode main>.eyebrow{display:none}
+ .universe.kenny-mode main>.page-title{font-size:26px;margin:0}
+ .universe.kenny-mode .shop-view-tabs{margin:5px 0 7px;padding:4px}
+ .universe.kenny-mode .shop-view-tabs button{min-height:34px;padding:3px 5px;font-size:11px}
+ .kenny-page{grid-template-columns:minmax(0,1fr);gap:6px}
+ .kenny-loot{display:none}.kenny-season-foot{font-size:9px}.kenny-season-foot>span:first-child{display:none}.kenny-season-foot button{display:inline}
+ .kenny-controls{padding:9px 10px}.kenny-progress-track{margin:5px 0 8px}.kenny-action-row{gap:6px}.kenny-wallet{min-width:89px}.kenny-wallet strong{font-size:14px}.kenny-wallet small{font-size:8px}.kenny-feed-btn{min-height:42px;font-size:12px}.kenny-style-btn{padding:0 8px}.kenny-style-btn span{display:none}
+ .kenny-stage-label{top:11px;left:12px;font-size:8px}.kenny-stage-name{left:12px;bottom:12px}.kenny-stage-name strong{font-size:25px}.kenny-stage-name span{font-size:7px}.kenny-level-medal{right:9px;bottom:9px;padding:4px 8px}.kenny-level-medal strong{font-size:22px}
+ .kenny-sprite{height:min(72%,330px);max-width:70%}.kenny-skin-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-height:650px){.universe.kenny-mode .topbar{min-height:49px;padding-top:5px;padding-bottom:5px}.universe.kenny-mode .shop-view-tabs button{min-height:30px}.kenny-controls{padding:7px 10px}.kenny-hint{font-size:9px;margin-top:5px}.kenny-stage-label{top:7px}}
