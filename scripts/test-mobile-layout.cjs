@@ -229,6 +229,7 @@ async function main(){
   assert.equal(dinoProfile.xp,0,'Feeding must never grant learning XP');
   assert(dinoProfile.tokens>=9100,'300 TT per feed, net of random Token rewards');
   await dinoPage.locator('.kenny-style-btn').click();
+  await dinoPage.locator('.kenny-skin-grid').waitFor({state:'visible'});
   const unlockedSkins=dinoProfile.inventory.filter(id=>id.startsWith('kenny_skin_')).length;
   assert.equal(await dinoPage.locator('.kenny-skin-grid button:disabled').count(),3-unlockedSkins,
    'Only skins actually obtained from the drop pool may be selected');
