@@ -256,6 +256,41 @@ async function main(){
   await dinoPage.locator('.kenny-dialog-close').click();
   await dinoContext.close();
   console.log('PASS: Kenny viewport, three feeds, reward reveals, XP isolation and locked skins.');
+  // Force the exclusive avatar as a unique remaining item. Its reveal must
+  // display Kenny's full body and use copy that does not say he spat himself out.
+  const allIds=[...fs.readFileSync('src/app/shop-items.ts','utf8').matchAll(/\{id:'([^']+)'/g),
+   ...fs.readFileSync('src/app/dino-season.ts','utf8').matchAll(/\{id:'([^']+)'/g)]
+   .map(match=>match[1]).filter(id=>id!=='kenny_avatar');
+  const avatarContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const avatarPage=await avatarContext.newPage();
+  await avatarPage.addInitScript(ids=>{
+   localStorage.setItem('studyverse_import_prompt_seen_v1','1');
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:1000,nickname:'AvatarTester',
+    inventory:ids,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+    claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
+   const original=crypto.getRandomValues.bind(crypto);
+   crypto.getRandomValues=array=>{
+    if(array instanceof Uint32Array){array[0]=0;return array;}
+    return original(array);
+   };
+  },allIds);
+  await avatarPage.goto(base,{waitUntil:'load'});
+  await avatarPage.locator('.navigation button[aria-label="Item-Shop"]').click();
+  await avatarPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await avatarPage.locator('.kenny-feed-btn').click();
+  await avatarPage.locator('.kenny-reveal-modal').waitFor();
+  const avatarTitle=await avatarPage.locator('#kenny-reveal-title').innerText();
+  assert(avatarTitle.includes('als Avatar!')&&!avatarTitle.includes('ausgespuckt'),
+   'Kenny avatar reveal must use its own sensible copy: '+avatarTitle);
+  const avatarArt=await avatarPage.locator('.kenny-reveal-art img').evaluate(el=>({
+   width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,
+   naturalWidth:el.naturalWidth,naturalHeight:el.naturalHeight
+  }));
+  assert(avatarArt.naturalWidth>0&&avatarArt.width>70&&avatarArt.width<190&&avatarArt.height<=160,
+   'The full Kenny avatar should fit inside the reveal art area: '+JSON.stringify(avatarArt));
+  await avatarPage.screenshot({path:path.join(screenshots,'kenny-avatar-reveal-390.png')});
+  await avatarContext.close();
+  console.log('PASS: Kenny avatar reveal copy and full-body art.');
   for(const [world,url,mainSelector,header] of [
    ['Chemverse','nawi/test-01/','#pages','.studyverse-profile-link'],
    ['Dsaiverse','dsai/test-01/','#main','.studyverse-profile-link'],

@@ -511,7 +511,9 @@
         <span *ngIf="reveal.kind==='drop' && reveal.drop?.item?.id!=='kenny_avatar'">{{reveal.drop?.item?.icon || '🪙'}}</span>
       </div>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='level'">Kenny ist jetzt <span>Level {{reveal.level}}!</span></h2>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop'">{{reveal.drop?.item?'Kenny hat dir etwas ausgespuckt:':'Kenny hat TT gefunden:'}} <span>{{reveal.drop?.item?.name || (reveal.drop?.tokens | number)+' TT'}}</span></h2>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item?.id==='kenny_avatar'">Kenny begleitet dich jetzt <span>als Avatar!</span></h2>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.id!=='kenny_avatar'">Kenny hat dir etwas mitgebracht: <span>{{reveal.drop?.item?.name}}</span></h2>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && !reveal.drop?.item">Kenny hat TT gefunden: <span>{{reveal.drop?.tokens | number}} TT</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='season'">Kennys Season <span>ist vorbei!</span></h2>
       <p *ngIf="reveal.kind==='level' && reveal.level!==5">Weiterfüttern erhöht deine Chance auf wertvollere und exklusive Items.</p>
       <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! Ab jetzt bekommst du am Saisonende 50 % der Nettokosten weiterer Fütterungen zurück.</p>
