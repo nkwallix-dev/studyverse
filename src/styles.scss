@@ -986,8 +986,9 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @keyframes kenny-feed-frames{0%,20%{background-position:0% 0}21%,39%{background-position:33.333% 0}40%,68%{background-position:66.667% 0}69%,100%{background-position:100% 0}}
 @keyframes kenny-feed-step{0%,15%,100%{transform:translateX(-50%) scale(var(--kenny-scale,1))}32%,73%{transform:translateX(calc(-50% + clamp(25px,5vw,65px))) scale(var(--kenny-scale,1))}}
 .kenny-stage.kenny-feeding .kenny-sprite{background-image:url('assets/kenny/kenny-feed-strip.png');animation:kenny-feed-frames 3.2s steps(1) both,kenny-feed-step 3.2s ease-in-out both}
-.kenny-feed-bowl{position:absolute;z-index:5;left:calc(50% + 80px);bottom:3%;width:70px;height:20px;border:3px solid #958677;border-radius:50%;background:radial-gradient(ellipse,#bc9c79,#574d50);box-shadow:0 8px 12px #0008;opacity:0;pointer-events:none}
-.kenny-meat{position:absolute;z-index:7;left:calc(50% + 95px);bottom:8%;font-size:40px;opacity:0;pointer-events:none;filter:drop-shadow(0 5px 6px #0006)}
+.kenny-feed-bowl{position:absolute;z-index:5;left:calc(50% + 75px);bottom:22%;width:70px;height:20px;border:3px solid #958677;border-radius:50%;background:radial-gradient(ellipse,#bc9c79,#574d50);box-shadow:0 8px 12px #0008;opacity:0;pointer-events:none}
+.kenny-feed-bowl:before{content:"";position:absolute;z-index:-1;top:12px;left:13px;width:40px;height:70px;background:linear-gradient(#706b68,#343a3c);clip-path:polygon(18% 0,82% 0,100% 100%,0 100%)}
+.kenny-meat{position:absolute;z-index:7;left:calc(50% + 95px);bottom:26%;font-size:40px;opacity:0;pointer-events:none;filter:drop-shadow(0 5px 6px #0006)}
 @keyframes kenny-bowl-show{0%,14%,100%{opacity:0}22%,84%{opacity:1}}
 @keyframes kenny-meat-toss{0%{opacity:0;transform:translate(100px,-155px) rotate(80deg) scale(.6)}12%{opacity:1}32%{opacity:1;transform:translate(0,0) rotate(-20deg) scale(1)}50%{opacity:1;transform:translate(0,0) rotate(-20deg) scale(.85)}62%,100%{opacity:0;transform:translate(0,4px) rotate(-20deg) scale(.4)}}
 .kenny-stage.kenny-feeding .kenny-feed-bowl{animation:kenny-bowl-show 3.2s both}.kenny-stage.kenny-feeding .kenny-meat{animation:kenny-meat-toss 3.2s both}

@@ -226,6 +226,7 @@ async function main(){
     await dinoPage.screenshot({path:path.join(screenshots,'kenny-feeding-390.png')});
    }
    await dinoPage.locator('.kenny-reveal-modal').waitFor();
+   if(n===1)await dinoPage.screenshot({path:path.join(screenshots,'kenny-drop-390.png')});
    await dinoPage.locator('.kenny-reveal-modal button').click();
    if(n===3){
     await dinoPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Level 2'));
