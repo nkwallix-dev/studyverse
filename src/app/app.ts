@@ -62,8 +62,8 @@ export class App implements OnInit,OnDestroy {
  readonly items=[...SHOP_ITEMS,...KENNY_ITEMS];
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
  shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'earn'|'kenny'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
- kennyClock=Date.now();kennyBusy=false;kennyError='';kennyCustomizeOpen=false;kennyPoolOpen=false;
- kennyReveals:Array<{kind:'drop'|'level'|'season';drop?:DinoDrop;level?:number;tokens?:number;item?:ShopItem}>=[];
+ kennyClock=Date.now();kennyBusy=false;kennyFeeding=false;kennyVisibleFeeds:number|null=null;kennyError='';kennyCustomizeOpen=false;kennyPoolOpen=false;
+ kennyReveals:Array<{kind:'drop'|'level'|'season';drop?:DinoDrop;level?:number;tokens?:number;item?:ShopItem;line?:string}>=[];
  private kennyTimer:ReturnType<typeof setInterval>|null=null;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  readonly cloud=new StudyverseCloud();
@@ -698,6 +698,7 @@ export class App implements OnInit,OnDestroy {
  readonly kennyEventItems=KENNY_EVENT_ITEMS;
  get kennyState():DinoSeasonState{return normalizeDinoState(this.profile.dinoSeasons?.[KENNY_SEASON.id]);}
  get kennyLevel():number{return dinoLevel(this.kennyState.feeds);}
+ get kennyVisualLevel():number{return dinoLevel(this.kennyVisibleFeeds??this.kennyState.feeds);}
  get kennyActive():boolean{return isKennyActive(this.kennyClock);}
  get kennyCountdown():string{return kennyCountdown(this.kennyClock);}
  get kennyRemainingFeeds():number{return Math.max(0,nextDinoLevel(this.kennyState.feeds)-this.kennyState.feeds);}
@@ -749,7 +750,10 @@ export class App implements OnInit,OnDestroy {
    const prize=drawDinoReward(priorLevel,this.kennyPools,()=>this.randomDino());
    const next={...before,feeds:before.feeds+1};
    if(priorLevel===5){next.overfeeds++;next.overTokenWins+=prize.tokens;}
-   this.kennyBusy=true;
+   this.kennyBusy=true;this.kennyFeeding=true;this.kennyVisibleFeeds=before.feeds;this.changeDetector.markForCheck();
+   const feedingAnimation=new Promise<void>(resolve=>window.setTimeout(resolve,3200));
+   const flavor=['Kenny hat das Futter verputzt.','Kenny schnappt zufrieden zu.','Kenny hat sich das Fleisch schmecken lassen.','Kenny schaut dich erwartungsvoll an.'];
+   const line=flavor[Math.floor(this.randomDino()*flavor.length)];
    this.profile.tokens=this.profile.tokens-KENNY_SEASON.price+prize.tokens;
    this.profile.dinoSeasons={...(this.profile.dinoSeasons||{}),[KENNY_SEASON.id]:next};
    if(prize.item)this.profile.inventory=[...new Set([...this.profile.inventory,prize.item.id])];
@@ -757,14 +761,15 @@ export class App implements OnInit,OnDestroy {
      date:new Date().toISOString(),amount:prize.tokens-KENNY_SEASON.price},...this.profile.activity].slice(0,30);
    write(KEY,JSON.stringify(this.profile));
    if(this.cloudConfigured&&this.cloud.session){
-     await this.syncCloudNow();
+     await Promise.all([this.syncCloudNow(),feedingAnimation]);
      if(this.cloudStatus!=='✓ Online gespeichert'){
        this.profile=previous;write(KEY,JSON.stringify(previous));
        this.kennyError='Fütterung nicht gespeichert. Deine 300 TT wurden wiederhergestellt. Versuch es erneut.';
-       this.kennyBusy=false;this.changeDetector.markForCheck();return;
+       this.kennyFeeding=false;this.kennyVisibleFeeds=null;this.kennyBusy=false;this.changeDetector.markForCheck();return;
      }
-   }
-   this.kennyReveals.push({kind:'drop',drop:prize});
+   }else await feedingAnimation;
+   this.kennyFeeding=false;this.kennyVisibleFeeds=null;
+   this.kennyReveals.push({kind:'drop',drop:prize,line});
    if(dinoLevel(next.feeds)>priorLevel)this.kennyReveals.push({kind:'level',level:dinoLevel(next.feeds)});
    this.kennyBusy=false;this.changeDetector.markForCheck();
  }

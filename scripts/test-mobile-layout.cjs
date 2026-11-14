@@ -177,6 +177,8 @@ async function main(){
      assert(dinoLayout.scroll<=dinoLayout.viewport+3&&dinoLayout.stage>100&&
       dinoLayout.feedBottom<=dinoLayout.viewport&&dinoLayout.countdownBottom<=dinoLayout.viewport,
       'Kenny must fit on-screen without vertical page scrolling at '+width+'px: '+JSON.stringify(dinoLayout));
+     assert(await page.locator('.kenny-sprite').evaluate(el=>el.getBoundingClientRect().width>90),
+      'Kenny sprite must have a visible, nonzero width at '+width+'px');
      if(width===390)await page.screenshot({path:path.join(screenshots,'kenny-390.png')});
     }
     if(width===390&&label==='Achievements')
@@ -214,12 +216,29 @@ async function main(){
   await dinoPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
   for(let n=1;n<=3;n++){
    await dinoPage.locator('.kenny-feed-btn').click();
+   await dinoPage.locator('.kenny-stage.kenny-feeding').waitFor();
+   assert.equal(await dinoPage.locator('.kenny-reveal-modal').count(),0,
+    'Reward must wait while Kenny walks to his meal');
+   if(n===1){
+    await dinoPage.waitForTimeout(1100);
+    assert.equal(await dinoPage.locator('.kenny-reveal-modal').count(),0,
+     'Feeding animation must remain visible for more than a brief flash');
+    await dinoPage.screenshot({path:path.join(screenshots,'kenny-feeding-390.png')});
+   }
    await dinoPage.locator('.kenny-reveal-modal').waitFor();
    await dinoPage.locator('.kenny-reveal-modal button').click();
    if(n===3){
     await dinoPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Level 2'));
     assert((await dinoPage.locator('#kenny-reveal-title').innerText()).includes('Level 2'),
       'Third feed must reveal Kenny level 2');
+    const revealLayout=await dinoPage.evaluate(()=>({
+     art:document.querySelector('.kenny-reveal-art').getBoundingClientRect().bottom,
+     title:document.querySelector('#kenny-reveal-title').getBoundingClientRect().top,
+     sprite:document.querySelector('.kenny-mini-sprite').getBoundingClientRect().width
+    }));
+    assert(revealLayout.art<=revealLayout.title&&revealLayout.sprite>40,
+     'Kenny level-up artwork must stay above and separate from the text: '+JSON.stringify(revealLayout));
+    await dinoPage.screenshot({path:path.join(screenshots,'kenny-level-390.png')});
     await dinoPage.locator('.kenny-reveal-modal button').click();
    }
    await dinoPage.locator('.kenny-reveal-modal').waitFor({state:'hidden'});

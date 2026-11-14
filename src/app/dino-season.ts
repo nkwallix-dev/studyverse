@@ -72,10 +72,8 @@ export function actualDinoOdds(level:number,pools:ReturnType<typeof eligibleDino
   const base=KENNY_ODDS[Math.max(0,Math.min(4,level-1))];
   const odds={...base};
   const itemTiers=['small','medium','large','event'] as const;
-  const missing=itemTiers.reduce((n,tier)=>n+(pools[tier].length?0:odds[tier]),0);
-  const available=itemTiers.reduce((n,tier)=>n+(pools[tier].length?odds[tier]:0),0);
   for(const tier of itemTiers){
-    odds[tier]=pools[tier].length?odds[tier]+(available?missing*odds[tier]/available:0):0;
+    if(!pools[tier].length){odds.token250+=odds[tier];odds[tier]=0;}
   }
   return odds;
 }

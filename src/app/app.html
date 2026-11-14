@@ -309,23 +309,25 @@
           </ng-container>
           <section class="kenny-page" *ngIf="shopTab==='kenny'" aria-label="Kennys Dino-Season">
             <div class="kenny-play">
-              <div class="kenny-stage">
+              <div class="kenny-stage" [class.kenny-feeding]="kennyFeeding">
                 <div class="kenny-sun"></div><div class="kenny-mountain left"></div><div class="kenny-mountain right"></div>
                 <div class="kenny-volcano"><i></i></div><div class="kenny-lava"></div>
                 <div class="kenny-ground"></div><div class="kenny-fern fern-left">🌿</div><div class="kenny-fern fern-right">🌿</div>
                 <span class="kenny-stage-label">🦖 DINO-VERSE · SEASON 01</span>
-                <img class="kenny-sprite" src="kenny/kenny-avatar.png" alt="Kenny, der blaue Raptor" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyLevel-1)*0.07">
+                <div class="kenny-feed-bowl" aria-hidden="true"></div><span class="kenny-meat" aria-hidden="true">🥩</span>
+                <div class="kenny-sprite" role="img" aria-label="Kenny, der blaue Raptor" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyVisualLevel-1)*0.07"></div>
                 <div class="kenny-stage-name"><strong>KENNY</strong><span>DEIN URZEIT-GEFÄHRTE</span></div>
-                <div class="kenny-level-medal"><small>LEVEL</small><strong>{{kennyLevel}}</strong><span>/ 5</span></div>
+                <div class="kenny-level-medal"><small>LEVEL</small><strong>{{kennyVisualLevel}}</strong><span>/ 5</span></div>
               </div>
               <div class="kenny-controls">
-                <div class="kenny-progress-top"><span>{{kennyLevel===5?'MAX-LEVEL ERREICHT':'NÄCHSTES LEVEL'}}</span><strong>{{kennyLevel===5?'∞ WEITERFÜTTERN':kennyRemainingFeeds+' FÜTTERUNGEN FEHLEN'}}</strong></div>
+                <div class="kenny-progress-top"><span>{{kennyLevel===5?'MAX-LEVEL ERREICHT':'NÄCHSTES LEVEL'}}</span><strong>{{kennyLevel===5?'∞ WEITERFÜTTERN':kennyRemainingFeeds===1?'NOCH 1× → LEVEL '+(kennyLevel+1):kennyRemainingFeeds+' FÜTTERUNGEN FEHLEN'}}</strong></div>
                 <div class="kenny-progress-track" role="progressbar" [attr.aria-valuenow]="kennyProgress" aria-valuemin="0" aria-valuemax="100" aria-label="Kenny-Level-Fortschritt"><i [style.width.%]="kennyProgress"></i></div>
                 <div class="kenny-action-row">
                   <div class="kenny-wallet"><small>DEIN GUTHABEN</small><strong>◉ {{profile.tokens | number}} TT</strong></div>
                   <button type="button" class="kenny-feed-btn" [disabled]="!kennyCanFeed" (click)="feedKenny()">{{kennyBusy?'Kenny mampft …':kennyActive?'🥩 Füttern · 300 TT':'Season beendet'}}</button>
                   <button type="button" class="kenny-style-btn" (click)="kennyCustomizeOpen=true" aria-label="Kenny personalisieren">🎨 <span>Personalisieren</span></button>
                 </div>
+                <p class="kenny-last-feed" *ngIf="kennyRemainingFeeds===1 && kennyLevel<5 && !kennyFeeding">Bravo! Noch einmal füttern, dann ist Kenny Level {{kennyLevel+1}}.</p>
                 <p class="kenny-hint" *ngIf="kennyLevel===5 && kennyActive">✦ Max-Level! Von deinen weiteren Fütterungen bekommst du nach Saisonende 50 % der Nettokosten zurück. Aktuell: <b>{{kennyCashback | number}} TT</b>.</p>
                 <p class="kenny-hint" *ngIf="!kennyActive">Kennys Season ist vorbei. Erhaltene Items bleiben in deinem Inventar.</p>
                 <p class="kenny-hint" *ngIf="kennyPoolEmpty && kennyActive">Du hast alle verfügbaren Items eingesammelt. Kenny ist satt!</p>
@@ -502,19 +504,19 @@
 
   <div class="veil kenny-reveal-veil" *ngIf="kennyCurrentReveal as reveal" role="dialog" aria-modal="true" aria-labelledby="kenny-reveal-title">
     <div class="modal kenny-reveal-modal">
-      <div class="eyebrow">🦖 {{reveal.kind==='level'?'KENNY LEVEL UP':reveal.kind==='season'?'SEASON-FINALE':'KENNY HAT ETWAS GEFUNDEN'}}</div>
+      <div class="eyebrow">🦖 {{reveal.kind==='level'?'KENNY LEVEL UP':reveal.kind==='season'?'SEASON-FINALE':'KENNY HAT AUFGEGESSEN'}}</div>
       <div class="kenny-reveal-art" [class.kenny-reveal-item]="reveal.kind==='drop' && !!reveal.drop?.item">
-        <img *ngIf="reveal.kind==='level'||reveal.kind==='season'" src="kenny/kenny-avatar.png" alt="Kenny feiert" [attr.data-skin]="kennySkin">
+        <div *ngIf="reveal.kind==='level'||reveal.kind==='season'" class="kenny-mini-sprite" role="img" aria-label="Kenny freut sich" [attr.data-skin]="kennySkin"></div>
         <img *ngIf="reveal.drop?.item?.id==='kenny_avatar'" src="kenny/kenny-avatar.png" alt="Kenny-Avatar">
         <span *ngIf="reveal.kind==='drop' && reveal.drop?.item?.id!=='kenny_avatar'">{{reveal.drop?.item?.icon || '🪙'}}</span>
       </div>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='level'">Kenny ist jetzt <span>Level {{reveal.level}}!</span></h2>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop'">{{reveal.drop?.item?'Neues Item!':'Token-Drop!'}} <span>{{reveal.drop?.item?.name || (reveal.drop?.tokens | number)+' TT'}}</span></h2>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop'">{{reveal.drop?.item?'Kenny hat dir etwas ausgespuckt:':'Kenny hat TT gefunden:'}} <span>{{reveal.drop?.item?.name || (reveal.drop?.tokens | number)+' TT'}}</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='season'">Kennys Season <span>ist vorbei!</span></h2>
       <p *ngIf="reveal.kind==='level' && reveal.level!==5">Weiterfüttern erhöht deine Chance auf wertvollere und exklusive Items.</p>
       <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! Ab jetzt bekommst du am Saisonende 50 % der Nettokosten weiterer Fütterungen zurück.</p>
-      <p *ngIf="reveal.kind==='drop' && reveal.drop?.item">{{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
-      <p *ngIf="reveal.kind==='drop' && !reveal.drop?.item">Kenny hat dir {{reveal.drop?.tokens | number}} TastyTokens zurückgebracht.</p>
+      <p *ngIf="reveal.kind==='drop' && reveal.drop?.item">{{reveal.line}} {{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
+      <p *ngIf="reveal.kind==='drop' && !reveal.drop?.item">{{reveal.line}} {{reveal.drop?.tokens | number}} TT landen in deinem Guthaben.</p>
       <p *ngIf="reveal.kind==='season'">{{reveal.tokens ? (reveal.tokens | number)+' TT Cashback' : 'Kein Cashback'}}<span *ngIf="reveal.item"> · {{reveal.item.name}} freigeschaltet</span></p>
       <button type="button" class="btn primary full" (click)="acknowledgeKennyReveal()">Annehmen</button>
     </div>
