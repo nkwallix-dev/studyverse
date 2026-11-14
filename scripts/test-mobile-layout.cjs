@@ -127,19 +127,6 @@ async function main(){
     await page.waitForTimeout(100);
     await check(page,'Studyverse '+label+' '+width);
     if(label==='Item-Shop'){
-     await page.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
-     await page.locator('.kenny-stage').waitFor({state:'visible'});
-     const dinoLayout=await page.evaluate(()=>({
-      viewport:innerHeight,scroll:document.documentElement.scrollHeight,
-      stage:document.querySelector('.kenny-stage').getBoundingClientRect().height,
-      feedBottom:document.querySelector('.kenny-feed-btn').getBoundingClientRect().bottom,
-      countdownBottom:document.querySelector('.kenny-season-foot').getBoundingClientRect().bottom
-     }));
-     assert(dinoLayout.scroll<=dinoLayout.viewport+3&&dinoLayout.stage>100&&
-      dinoLayout.feedBottom<=dinoLayout.viewport&&dinoLayout.countdownBottom<=dinoLayout.viewport,
-      'Kenny must fit on-screen without vertical page scrolling at '+width+'px: '+JSON.stringify(dinoLayout));
-     if(width===390)await page.screenshot({path:path.join(screenshots,'kenny-390.png')});
-     await page.locator('.shop-view-tabs button').filter({hasText:'Item-Shop'}).click();
      const select=page.locator('#shop-drop-select');
      assert(await select.isVisible(),'Drop selector should be beside Alle Items at '+width+'px');
      assert.equal(await page.locator('.shop-drop-card').count(),0,'No old chunky drop cards');
@@ -178,8 +165,21 @@ async function main(){
      assert(!options.includes('nawi-test-01'),
       'New user without Chemverse progress must not see locked Chemverse drop');
      await check(page,'Studyverse Shop-Drop-Selector '+width);
+     if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-item-shop-390.png'),fullPage:true});
+     await page.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+     await page.locator('.kenny-stage').waitFor({state:'visible'});
+     const dinoLayout=await page.evaluate(()=>({
+      viewport:innerHeight,scroll:document.documentElement.scrollHeight,
+      stage:document.querySelector('.kenny-stage').getBoundingClientRect().height,
+      feedBottom:document.querySelector('.kenny-feed-btn').getBoundingClientRect().bottom,
+      countdownBottom:document.querySelector('.kenny-season-foot').getBoundingClientRect().bottom
+     }));
+     assert(dinoLayout.scroll<=dinoLayout.viewport+3&&dinoLayout.stage>100&&
+      dinoLayout.feedBottom<=dinoLayout.viewport&&dinoLayout.countdownBottom<=dinoLayout.viewport,
+      'Kenny must fit on-screen without vertical page scrolling at '+width+'px: '+JSON.stringify(dinoLayout));
+     if(width===390)await page.screenshot({path:path.join(screenshots,'kenny-390.png')});
     }
-    if(width===390&&['Item-Shop','Achievements'].includes(label))
+    if(width===390&&label==='Achievements')
      await page.screenshot({path:path.join(screenshots,'studyverse-'+label.toLowerCase()+'-390.png'),fullPage:true});
    }
    await page.locator('.top-friends-link').click();
