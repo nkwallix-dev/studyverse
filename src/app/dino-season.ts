@@ -6,20 +6,26 @@ export const KENNY_SEASON={
   end:Date.parse('2027-01-14T00:00:00+01:00')
 } as const;
 export const KENNY_THRESHOLDS=[0,3,8,15,25] as const;
-export type DinoTier='small'|'medium'|'large'|'event'|'token100'|'token500'|'token1000';
+export type DinoTier='small'|'medium'|'large'|'event'|'zebra'|'token100'|'token500'|'token1000';
 export const KENNY_ODDS:ReadonlyArray<Readonly<Record<DinoTier,number>>>=[
-  {small:34,medium:24,large:5,event:1,token100:30,token500:5,token1000:1},
-  {small:32,medium:24,large:6,event:3,token100:29,token500:5,token1000:1},
-  {small:29,medium:25,large:7,event:5,token100:28,token500:5,token1000:1},
-  {small:26,medium:25,large:8,event:7,token100:27,token500:5,token1000:2},
-  {small:23,medium:26,large:9,event:9,token100:26,token500:5,token1000:2}
+  {small:33.9,medium:24,large:5,event:1,zebra:0.1,token100:30,token500:5,token1000:1},
+  {small:31.8,medium:24,large:6,event:3,zebra:0.2,token100:29,token500:5,token1000:1},
+  {small:28.7,medium:25,large:7,event:5,zebra:0.3,token100:28,token500:5,token1000:1},
+  {small:25.6,medium:25,large:8,event:7,zebra:0.4,token100:27,token500:5,token1000:2},
+  {small:22.5,medium:26,large:9,event:9,zebra:0.5,token100:26,token500:5,token1000:2}
 ];
+export const KENNY_ZEBRA_SKIN:ShopItem={
+  id:'kenny_skin_zebra',kind:'dinoSkin',icon:'🦓',name:'Kenny Zebra',cost:0,
+  desc:'ULTRA RARE: weiß mit schwarzen Zebrastreifen. Selbst auf Level 5 nur 0,5 % Dropchance.',
+  group:'dinoSkin',equip:'zebra',drop:KENNY_SEASON.id
+};
 export const KENNY_EVENT_ITEMS:ShopItem[]=[
   {id:'kenny_volcano_banner',kind:'banner',icon:'🌋',name:'Kennys Urzeit',cost:0,desc:'Vulkan und Urzeitlandschaft – nur in Kennys Season.',group:'banner',equip:'kenny_volcano',drop:KENNY_SEASON.id},
   {id:'kenny_pangea_title',kind:'title',icon:'🦕',name:'Hat Pangea überlebt',cost:0,desc:'Kennys exklusiver Titel. Pangea hatte keine Chance.',group:'title',drop:KENNY_SEASON.id},
-  {id:'kenny_skin_pink',kind:'dinoSkin',icon:'🩷',name:'Kenny Pink',cost:0,desc:'Rosa Look für Kenny – inklusive pinkem Kenny-Avatar.',group:'dinoSkin',equip:'pink',drop:KENNY_SEASON.id},
-  {id:'kenny_skin_green',kind:'dinoSkin',icon:'💚',name:'Kenny Grün',cost:0,desc:'Grüner Look für Kenny – inklusive grünem Kenny-Avatar.',group:'dinoSkin',equip:'green',drop:KENNY_SEASON.id},
-  {id:'kenny_skin_red',kind:'dinoSkin',icon:'❤️',name:'Kenny Rot',cost:0,desc:'Roter Look für Kenny – inklusive rotem Kenny-Avatar.',group:'dinoSkin',equip:'red',drop:KENNY_SEASON.id}
+  {id:'kenny_skin_pink',kind:'dinoSkin',icon:'🩷',name:'Kenny Pink',cost:0,desc:'Rosa Look für Kenny – mit eigenem pinken Kenny-Avatar.',group:'dinoSkin',equip:'pink',drop:KENNY_SEASON.id},
+  {id:'kenny_skin_green',kind:'dinoSkin',icon:'💚',name:'Kenny Grün',cost:0,desc:'Grüner Look für Kenny – mit eigenem grünen Kenny-Avatar.',group:'dinoSkin',equip:'green',drop:KENNY_SEASON.id},
+  {id:'kenny_skin_red',kind:'dinoSkin',icon:'❤️',name:'Kenny Rot',cost:0,desc:'Roter Look für Kenny und ein eigener roter Kenny-Avatar.',group:'dinoSkin',equip:'red',drop:KENNY_SEASON.id},
+  KENNY_ZEBRA_SKIN
 ];
 export const KENNY_BLUE_AVATAR:ShopItem={
   id:'kenny_avatar',kind:'avatar',icon:'🦖',name:'Kenny Blau',cost:0,
@@ -29,19 +35,21 @@ export const KENNY_BLUE_SKIN:ShopItem={
   id:'kenny_skin_blue',kind:'dinoSkin',icon:'💙',name:'Kenny Blau',cost:0,
   desc:'Kennys ursprüngliche Farbe – im Inventar, sobald du eine andere Farbe ziehst.',group:'dinoSkin',equip:'blue',drop:KENNY_SEASON.id
 };
-// These accompany the corresponding skin; they never occupy separate reward slots.
+// Matching avatars are granted by the same draw but shown as separate rewards.
 export const KENNY_SKIN_AVATARS:ShopItem[]=[
   {id:'kenny_avatar_pink',kind:'avatar',icon:'🦖',name:'Kenny Pink',cost:0,desc:'Dein pinker Kenny-Avatar zum pinken Dino-Skin.',group:'avatar',drop:KENNY_SEASON.id},
   {id:'kenny_avatar_green',kind:'avatar',icon:'🦖',name:'Kenny Grün',cost:0,desc:'Dein grüner Kenny-Avatar zum grünen Dino-Skin.',group:'avatar',drop:KENNY_SEASON.id},
-  {id:'kenny_avatar_red',kind:'avatar',icon:'🦖',name:'Kenny Rot',cost:0,desc:'Dein roter Kenny-Avatar zum roten Dino-Skin.',group:'avatar',drop:KENNY_SEASON.id}
+  {id:'kenny_avatar_red',kind:'avatar',icon:'🦖',name:'Kenny Rot',cost:0,desc:'Dein roter Kenny-Avatar zum roten Dino-Skin.',group:'avatar',drop:KENNY_SEASON.id},
+  {id:'kenny_avatar_zebra',kind:'avatar',icon:'🦓',name:'Kenny Zebra',cost:0,desc:'Dein exklusiver Zebra-Avatar, getrennt vom Zebra-Skin.',group:'avatar',drop:KENNY_SEASON.id}
 ];
 export function kennyAvatarForSkin(id:string|undefined):ShopItem|undefined{
   return KENNY_SKIN_AVATARS.find(item=>id==='kenny_skin_'+item.id.slice('kenny_avatar_'.length));
 }
-export function kennyAvatarSkin(value:string):'blue'|'pink'|'green'|'red'|null{
+export type KennySkin='blue'|'pink'|'green'|'red'|'zebra';
+export function kennyAvatarSkin(value:string):KennySkin|null{
   if(value==='🦖'||value==='kenny_avatar')return 'blue';
   const skin=value.startsWith('kenny_avatar_')?value.slice('kenny_avatar_'.length):'';
-  return skin==='pink'||skin==='green'||skin==='red'?skin:null;
+  return skin==='pink'||skin==='green'||skin==='red'||skin==='zebra'?skin:null;
 }
 export const KENNY_FINALE_ITEM:ShopItem={
   id:'kenny_fossil_frame',kind:'frame',icon:'🦴',name:'Urzeit-Fossilrahmen',cost:0,
@@ -50,7 +58,7 @@ export const KENNY_FINALE_ITEM:ShopItem={
 export const KENNY_ITEMS=[...KENNY_EVENT_ITEMS,KENNY_BLUE_SKIN,KENNY_BLUE_AVATAR,...KENNY_SKIN_AVATARS,KENNY_FINALE_ITEM];
 
 export interface DinoSeasonState {
-  feeds:number;overfeeds:number;overTokenWins:number;skin:'blue'|'pink'|'green'|'red';
+  feeds:number;overfeeds:number;overTokenWins:number;skin:KennySkin;
   settled:boolean;settlement:number;
 }
 export const freshDinoState=():DinoSeasonState=>({feeds:0,overfeeds:0,overTokenWins:0,skin:'blue',settled:false,settlement:0});
@@ -59,7 +67,7 @@ export function normalizeDinoState(value:unknown):DinoSeasonState{
   if(!value||typeof value!=='object'||Array.isArray(value))return freshDinoState();
   const data=value as Record<string,unknown>;
   const feeds=count(data['feeds']);
-  const skin=['blue','pink','green','red'].includes(String(data['skin']))?data['skin'] as DinoSeasonState['skin']:'blue';
+  const skin=['blue','pink','green','red','zebra'].includes(String(data['skin']))?data['skin'] as DinoSeasonState['skin']:'blue';
   // Every feed beyond the 25th is eligible, including feeds saved by older clients.
   return {feeds,overfeeds:Math.max(0,feeds-25),
     overTokenWins:count(data['overTokenWins']),skin,settled:data['settled']===true,
@@ -80,7 +88,7 @@ export function kennyCountdown(now:number):string{
   const days=Math.floor(minutes/1440),hours=Math.floor((minutes%1440)/60);
   return days?`${days} Tage · ${hours} Std.`:`${hours} Std. · ${minutes%60} Min.`;
 }
-export function eligibleDinoItems(items:ShopItem[],owned:Set<string>):Record<'small'|'medium'|'large'|'event',ShopItem[]>{
+export function eligibleDinoItems(items:ShopItem[],owned:Set<string>):Record<'small'|'medium'|'large'|'event'|'zebra',ShopItem[]>{
   const regular=items.filter(item=>(item.drop==='nawi-test-01'||item.drop==='dsai-test-01')
     &&!(item.group==='title'&&item.requirement?.metric==='boss'&&item.requirement.value===100));
   // Perfect-boss professor titles are deliberately never in Kenny's pool.
@@ -88,12 +96,13 @@ export function eligibleDinoItems(items:ShopItem[],owned:Set<string>):Record<'sm
   return {small:learn.filter(item=>item.cost<=300),
     medium:learn.filter(item=>item.cost>300&&item.cost<=800),
     large:learn.filter(item=>item.cost>800),
-    event:KENNY_EVENT_ITEMS.filter(item=>!owned.has(item.id))};
+    event:KENNY_EVENT_ITEMS.filter(item=>item.id!==KENNY_ZEBRA_SKIN.id&&!owned.has(item.id)),
+    zebra:owned.has(KENNY_ZEBRA_SKIN.id)?[]:[KENNY_ZEBRA_SKIN]};
 }
 export function actualDinoOdds(level:number,pools:ReturnType<typeof eligibleDinoItems>):Record<DinoTier,number>{
   const base=KENNY_ODDS[Math.max(0,Math.min(4,level-1))];
   const odds={...base};
-  const itemTiers=['small','medium','large','event'] as const;
+  const itemTiers=['small','medium','large','event','zebra'] as const;
   for(const tier of itemTiers){
     if(!pools[tier].length){odds.token100+=odds[tier];odds[tier]=0;}
   }
