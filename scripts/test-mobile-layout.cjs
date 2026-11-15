@@ -426,6 +426,49 @@ async function main(){
   const allIds=[...fs.readFileSync('src/app/shop-items.ts','utf8').matchAll(/\{id:'([^']+)'/g),
    ...fs.readFileSync('src/app/dino-season.ts','utf8').matchAll(/\{id:'([^']+)'/g)]
    .map(match=>match[1]).concat('kenny_skin_zebra').filter(id=>id!=='kenny_avatar');
+
+  // A nearly complete Kenny collection should see the ENTIRE prize dialog
+  // on one screen, not a tiny scroll box below redundant help text.
+  for(const width of [390,1365]){
+   const poolContext=await browser.newContext({viewport:{width,height:800},deviceScaleFactor:1});
+   const poolPage=await poolContext.newPage();
+   await poolPage.addInitScript(owned=>{
+    localStorage.setItem('studyverse_import_prompt_seen_v1','1');
+    localStorage.setItem('studyverse_profile_v1',JSON.stringify({
+     xp:0,tokens:900,nickname:'PrizePreview',
+     inventory:owned,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+     claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
+     dinoSeasons:{'kenny-2026':{feeds:25,skin:'blue',overfeeds:0,overTokenWins:0,settled:false,settlement:0}}
+    }));
+   },allIds.filter(id=>id!=='kenny_skin_zebra'));
+   await poolPage.goto(base,{waitUntil:'load'});
+   await poolPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
+   assert.equal(await poolPage.locator('.kenny-test-unlock').count(),0,
+    'The temporary free drop is not available without an authenticated cloud account');
+   await poolPage.locator('.kenny-pool-button').click();
+   await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
+   const modal=await poolPage.evaluate(()=>{
+    const root=document.querySelector('.kenny-pool-dialog');
+    const list=document.querySelector('.kenny-pool-scroll');
+    const rect=root.getBoundingClientRect();
+    const rows=[...list.children].map(el=>el.getBoundingClientRect());
+    const listRect=list.getBoundingClientRect();
+    return {viewport:innerHeight,modalTop:rect.top,modalBottom:rect.bottom,
+      modalScroll:root.scrollHeight,modalClient:root.clientHeight,
+      listScroll:list.scrollHeight,listClient:list.clientHeight,
+      sectionCount:rows.length,contentBottom:Math.max(...rows.map(r=>r.bottom)),
+      listBottom:listRect.bottom,overflow:document.documentElement.scrollHeight-innerHeight};
+   });
+   assert(modal.sectionCount===5&&modal.modalTop>=-1&&modal.modalBottom<=modal.viewport+2&&
+     modal.modalScroll<=modal.modalClient+3&&modal.listScroll<=modal.listClient+3&&
+     modal.contentBottom<=modal.listBottom+3&&modal.overflow<=3,
+     'The compact full-prize popup must fit the whole viewport without scrolling at '+width+': '+JSON.stringify(modal));
+   assert.equal(await poolPage.locator('.kenny-pool-dialog > p').count(),0,
+    'Redundant explanation paragraphs must not use modal height');
+   await poolPage.screenshot({path:path.join(screenshots,'kenny-prize-modal-'+width+'.png')});
+   await poolContext.close();
+  }
+  console.log('PASS: Kenny complete-collection prize dialog and temporary reward gating.');
   const avatarContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
   const avatarPage=await avatarContext.newPage();
   await avatarPage.addInitScript(ids=>{
