@@ -55,5 +55,5 @@ const html=fs.readFileSync('src/app/app.html','utf8'),css=fs.readFileSync('src/s
 assert(html.includes('kenny-sprite')&&html.includes('kenny-avatar.png')&&html.includes('kenny-feeding'));
 assert(html.includes("(click)=\"setShopTab('kenny')\"")&&html.includes('kenny-reveal-modal'));
 assert(css.includes('.universe.kenny-mode.kenny-mode{height:100dvh;min-height:0;overflow:hidden}'));
-assert(css.includes('kenny-idle-strip.png')&&css.includes('kenny-feed-strip.png')&&css.includes('kenny-meat-toss'));
+assert(css.includes('kenny-idle-strip.png')&&css.includes('kenny-feed-strip.png')&&css.includes('kenny-drone-flight')&&css.includes('kenny-meat-drop'));
 console.log('PASS: Kenny odds, professor exclusions, unique items, levels, cashback and one-time finale.');

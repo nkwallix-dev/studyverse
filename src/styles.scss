@@ -332,14 +332,14 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 }
 .drop-item .item-art.drop-item-art.avatar-art,
 .inventory-item .item-art.drop-item-art.avatar-art{
-  height:146px;
-  min-height:146px;
+  height:126px;
+  min-height:126px;
   background-position:center;
 }
 .drop-item .item-art.drop-item-art.avatar-art::before,
 .inventory-item .item-art.drop-item-art.avatar-art::before{
   content:"";position:absolute;z-index:0;pointer-events:none;
-  width:126px;height:126px;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:110px;height:110px;left:50%;top:50%;transform:translate(-50%,-50%);
   border-radius:50%;
   background:radial-gradient(circle,#eefaff33 0%,#add2ff13 58%,transparent 74%);
 }
@@ -983,19 +983,29 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .kenny-stage-label{position:absolute;z-index:7;left:22px;top:17px;font-weight:950;font-size:10px;letter-spacing:2px;color:#ffdfba;text-shadow:0 2px 12px #1c1725}
 .kenny-sprite{position:absolute;z-index:6;left:50%;bottom:4%;height:min(72%,400px);width:auto;aspect-ratio:541 / 727;max-width:62%;background:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;transform:translateX(-50%) scale(var(--kenny-scale,1));transform-origin:center bottom;filter:drop-shadow(0 15px 16px #080d1d8c);animation:kenny-look 6.4s steps(1) infinite}
 @keyframes kenny-look{0%,26%{background-position:0% 0}27%,48%{background-position:33.333% 0}49%,67%{background-position:66.667% 0}68%,100%{background-position:100% 0}}
-@keyframes kenny-feed-frames{0%,20%{background-position:0% 0}21%,39%{background-position:33.333% 0}40%,68%{background-position:66.667% 0}69%,100%{background-position:100% 0}}
-@keyframes kenny-feed-step{0%,15%,100%{transform:translateX(-50%) scale(var(--kenny-scale,1))}32%,73%{transform:translateX(calc(-50% + clamp(25px,5vw,65px))) scale(var(--kenny-scale,1))}}
+@keyframes kenny-feed-frames{0%,37%{background-position:0% 0}38%,55%{background-position:33.333% 0}56%,80%{background-position:66.667% 0}81%,100%{background-position:100% 0}}
+@keyframes kenny-feed-step{0%,38%,100%{transform:translateX(-50%) scale(var(--kenny-scale,1))}56%,81%{transform:translateX(calc(-50% + clamp(42px,13vw,170px))) scale(var(--kenny-scale,1))}}
 .kenny-stage.kenny-feeding .kenny-sprite{background-image:url('assets/kenny/kenny-feed-strip.png');animation:kenny-feed-frames 3.2s steps(1) both,kenny-feed-step 3.2s ease-in-out both}
-.kenny-feed-bowl{position:absolute;z-index:5;left:calc(50% + 75px);bottom:22%;width:70px;height:20px;border:3px solid #958677;border-radius:50%;background:radial-gradient(ellipse,#bc9c79,#574d50);box-shadow:0 8px 12px #0008;opacity:0;pointer-events:none}
-.kenny-feed-bowl:before{content:"";position:absolute;z-index:-1;top:12px;left:13px;width:40px;height:70px;background:linear-gradient(#706b68,#343a3c);clip-path:polygon(18% 0,82% 0,100% 100%,0 100%)}
-.kenny-meat{position:absolute;z-index:7;left:calc(50% + 95px);bottom:26%;font-size:40px;opacity:0;pointer-events:none;filter:drop-shadow(0 5px 6px #0006)}
-@keyframes kenny-bowl-show{0%,14%,100%{opacity:0}22%,84%{opacity:1}}
-@keyframes kenny-meat-toss{0%{opacity:0;transform:translate(100px,-155px) rotate(80deg) scale(.6)}12%{opacity:1}32%{opacity:1;transform:translate(0,0) rotate(-20deg) scale(1)}50%{opacity:1;transform:translate(0,0) rotate(-20deg) scale(.85)}62%,100%{opacity:0;transform:translate(0,4px) rotate(-20deg) scale(.4)}}
-.kenny-stage.kenny-feeding .kenny-feed-bowl{animation:kenny-bowl-show 3.2s both}.kenny-stage.kenny-feeding .kenny-meat{animation:kenny-meat-toss 3.2s both}
+.kenny-landing-pad{position:absolute;z-index:5;left:80%;bottom:14%;width:72px;height:13px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#c39669,#413b40);box-shadow:0 8px 12px #0008;opacity:0;pointer-events:none}
+.kenny-drone{position:absolute;z-index:9;top:9%;left:calc(100% + 90px);width:82px;height:34px;transform:translateX(-50%);opacity:0;pointer-events:none;filter:drop-shadow(0 8px 8px #12152588)}
+.kenny-drone-body{position:absolute;inset:4px 16px 0;display:grid;place-items:center;border:2px solid #b7d8dc;border-radius:13px 13px 9px 9px;background:linear-gradient(135deg,#7189a0,#303e60);color:#ffe6a2;font-size:15px;box-shadow:inset 0 -6px 0 #17243b}
+.kenny-drone-body:before,.kenny-drone-body:after{content:"";position:absolute;top:10px;width:21px;height:5px;background:#a9c9cd}.kenny-drone-body:before{right:100%}.kenny-drone-body:after{left:100%}
+.kenny-drone-rotor{position:absolute;z-index:2;top:-10px;width:32px;height:7px;border-radius:50%;background:#c1e8ed;box-shadow:0 2px 0 #26384d}.kenny-drone-rotor.left{left:0}.kenny-drone-rotor.right{right:0}
+.kenny-drone-crate{position:absolute;top:34px;left:24px;width:34px;height:30px;display:grid;place-items:center;border:2px solid #ffdf9a;border-radius:5px;background:linear-gradient(145deg,#c58a54,#89553e);font-size:15px;box-shadow:inset 0 -5px 0 #533b3d,0 3px 8px #0006}
+.kenny-drone-crate:before{content:"";position:absolute;bottom:100%;height:9px;border-left:2px solid #c5dee3}
+.kenny-meat{position:absolute;z-index:5;left:80%;top:22%;font-size:27px;opacity:0;pointer-events:none;filter:drop-shadow(0 5px 6px #0008)}
+@keyframes kenny-drone-flight{0%{left:calc(100% + 90px);transform:translate(-50%,-18px);opacity:0}12%{opacity:1}23%,37%{left:80%;transform:translate(-50%,0);opacity:1}56%{left:-110px;transform:translate(-50%,-34px);opacity:1}57%,100%{left:-110px;transform:translate(-50%,-34px);opacity:0}}
+@keyframes kenny-crate-release{0%,29%{opacity:1}30%,100%{opacity:0}}
+@keyframes kenny-meat-drop{0%,29%{opacity:0;top:22%;transform:translate(-50%,-12px) scale(.7)}30%{opacity:1}45%,57%{opacity:1;top:76%;transform:translate(-50%,0) scale(1)}75%,100%{opacity:0;top:76%;transform:translate(-50%,5px) scale(.55)}}
+@keyframes kenny-pad-show{0%,35%,100%{opacity:0}44%,82%{opacity:1}}
+.kenny-stage.kenny-feeding .kenny-drone{animation:kenny-drone-flight 3.2s ease-in-out both}
+.kenny-stage.kenny-feeding .kenny-drone-crate{animation:kenny-crate-release 3.2s both}
+.kenny-stage.kenny-feeding .kenny-meat{animation:kenny-meat-drop 3.2s both}
+.kenny-stage.kenny-feeding .kenny-landing-pad{animation:kenny-pad-show 3.2s both}
 .kenny-sprite[data-skin="pink"],.kenny-mini-sprite[data-skin="pink"],.kenny-skin-grid img[data-skin="pink"],.kenny-reveal-art img[data-skin="pink"]{filter:hue-rotate(105deg) saturate(1.15) drop-shadow(0 12px 16px #10122382)}
 .kenny-sprite[data-skin="green"],.kenny-mini-sprite[data-skin="green"],.kenny-skin-grid img[data-skin="green"],.kenny-reveal-art img[data-skin="green"]{filter:hue-rotate(225deg) saturate(1.15) drop-shadow(0 12px 16px #10122382)}
 .kenny-sprite[data-skin="red"],.kenny-mini-sprite[data-skin="red"],.kenny-skin-grid img[data-skin="red"],.kenny-reveal-art img[data-skin="red"]{filter:hue-rotate(125deg) saturate(1.8) drop-shadow(0 12px 16px #10122382)}
-@media(prefers-reduced-motion:reduce){.kenny-sprite{animation:none}.kenny-stage.kenny-feeding .kenny-sprite{animation:kenny-feed-frames 3.2s steps(1) both}.kenny-stage.kenny-feeding .kenny-meat{animation:none}}
+@media(prefers-reduced-motion:reduce){.kenny-sprite{animation:none}.kenny-stage.kenny-feeding .kenny-sprite{animation:kenny-feed-frames 3.2s steps(1) both}.kenny-stage.kenny-feeding .kenny-drone,.kenny-stage.kenny-feeding .kenny-meat{animation:none}.kenny-stage.kenny-feeding .kenny-landing-pad{animation:none;opacity:1}}
 .kenny-stage-name{position:absolute;z-index:7;left:24px;bottom:23px;display:grid;line-height:1.06;text-shadow:0 3px 14px #0a1019}
 .kenny-stage-name strong{font-size:clamp(26px,3vw,42px);letter-spacing:2px}.kenny-stage-name span{font-size:9px;letter-spacing:1.5px;font-weight:900;color:#c9e7e7}
 .kenny-level-medal{position:absolute;z-index:7;right:22px;bottom:18px;background:#101b2bc9;border:1px solid #d5e7e784;border-radius:16px;padding:7px 15px;display:flex;align-items:baseline;gap:5px;backdrop-filter:blur(12px)}
@@ -1035,6 +1045,8 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .friend-showcase.universe[data-banner="kenny_volcano"]>.friend-showcase-cover.hero{background:radial-gradient(circle at 72% 28%,#ffcb9d9c,transparent 28%),linear-gradient(160deg,#30223d,#8a494d 55%,#1e3640)!important}
 .kenny-reveal-veil,.kenny-dialog-veil{z-index:100!important}.kenny-reveal-modal{width:min(440px,100%);max-height:calc(100dvh - 28px);overflow:auto;display:flex;flex-direction:column;align-items:center;text-align:center;background:radial-gradient(circle at 50% 16%,#754d6699,transparent 46%),linear-gradient(155deg,#262442,#111c2d);border-color:#eba775;padding:24px 20px}.kenny-reveal-art{width:100%;height:min(23dvh,160px);flex:0 0 auto;min-height:0;display:grid;place-items:center;overflow:hidden;isolation:isolate;margin:8px auto 12px}.kenny-reveal-art img{max-height:100%;max-width:100%;object-fit:contain;filter:drop-shadow(0 12px 18px #0007)}.kenny-mini-sprite{height:100%;aspect-ratio:541 / 727;background:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;animation:kenny-look 3.6s steps(1) infinite}.kenny-reveal-art span{font-size:clamp(72px,11vw,128px)}.kenny-reveal-modal h2{position:relative;z-index:1;width:100%;font-size:clamp(23px,4vw,32px);line-height:1.17;margin:3px 0 8px;overflow-wrap:anywhere}.kenny-reveal-modal h2 span{display:block;color:#ffcb87}.kenny-reveal-modal p{font-size:13px;margin:6px 0 9px}.kenny-reveal-modal .btn.primary{background:linear-gradient(110deg,#ffbc75,#f28e88)}
 .kenny-reveal-art img{display:block;width:auto;height:100%;max-width:100%;min-height:0;object-fit:contain}
+.kenny-reveal-actions{width:100%;display:flex;gap:9px;margin-top:10px}.kenny-reveal-actions .btn{flex:1;min-width:0}.kenny-reveal-actions .kenny-inventory-btn{border:1px solid #ae9dd6;background:#ffffff13;color:#f5edff}
+@media(max-width:480px){.kenny-reveal-actions{flex-direction:column}.kenny-reveal-actions .btn{width:100%}}
 .kenny-dialog{width:min(700px,100%);max-height:calc(100dvh - 28px);overflow:auto;text-align:left;position:relative;background:linear-gradient(155deg,#28233b,#14223a);border-color:#c9929a}.kenny-dialog h2{font-size:30px}.kenny-dialog-close{position:absolute;right:12px;top:12px;border:1px solid #ffffff58;background:#1b2339;color:#fff;border-radius:10px;width:37px;height:37px}.kenny-skin-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.kenny-skin-grid button{min-width:0;border:1px solid #737595;background:#ffffff10;color:#fff;border-radius:14px;padding:10px;display:grid;justify-items:center;gap:6px}.kenny-skin-grid button.selected{border-color:#ffc680;box-shadow:0 0 0 2px #ffba7950}.kenny-skin-grid button:disabled{opacity:.49;cursor:not-allowed}.kenny-skin-grid img{height:90px;max-width:100%;object-fit:contain}.kenny-skin-grid strong{font-size:12px}.kenny-skin-grid small{font-size:10px}
 .kenny-pool-dialog{display:flex;flex-direction:column}.kenny-pool-scroll{min-height:0;overflow:auto;display:grid;gap:12px}.kenny-pool-section{border:1px solid #ffffff29;background:#ffffff0b;border-radius:12px;padding:12px;display:grid;gap:7px}.kenny-pool-section>strong{font-size:11px;color:#ffd6a1;letter-spacing:.7px}.kenny-pool-section>span{font-size:12px}.kenny-pool-items{display:flex;gap:7px;flex-wrap:wrap}.kenny-pool-items>span{background:#ffffff12;border-radius:8px;padding:5px 8px;font-size:11px}.kenny-pool-items small{color:#b8b9cb}
 @media(max-width:900px){.kenny-page{grid-template-columns:minmax(0,1fr) minmax(260px,.7fr)}.kenny-loot{padding:12px}.kenny-exclusives{grid-template-columns:1fr}}

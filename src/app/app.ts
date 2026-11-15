@@ -633,8 +633,6 @@ export class App implements OnInit,OnDestroy {
    return {total,remaining,done:total-remaining,
      reward:totals.reduce((sum,t)=>sum+t.reward,0)};
  }
- get shopTotalRemainingCost(){return this.items.filter(item=>!this.owns(item)).reduce((sum,item)=>sum+item.cost,0);}
- get shopTotalTokenGap(){return Math.max(0,this.shopTotalRemainingCost-this.profile.tokens);}
  get dailyChem(){
    // Global daily budget: 20 quiz payouts and one boss payout shared by all Ver(s)es.
    // Include earlier per-trainer payouts when migrating from the original single-subject daily system.
@@ -728,6 +726,13 @@ export class App implements OnInit,OnDestroy {
  }
  get kennyCurrentReveal(){return this.kennyReveals[0]||null;}
  acknowledgeKennyReveal(){this.kennyReveals.shift();this.changeDetector.markForCheck();}
+ openKennyRewardInventory(){
+   const item=this.kennyCurrentReveal?.drop?.item||this.kennyCurrentReveal?.item;
+   if(!item)return;
+   this.acknowledgeKennyReveal();
+   this.openInventory();
+   this.inventoryDrop=item.drop;this.inventoryGroup=item.group;this.inventorySearch=item.name;
+ }
  setKennySkin(skin:string){
    if(!['blue','pink','green','red'].includes(skin)||
      skin!=='blue'&&!this.profile.inventory.includes('kenny_skin_'+skin))return;

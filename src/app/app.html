@@ -287,9 +287,6 @@
               <span class="coin-station-emoji">🪙</span>
               <div><div class="eyebrow">TASTYTOKENS · DEINE VERDIENSTMÖGLICHKEITEN</div><h2>SO VERDIENST DU WEITERE TASTYTOKENS</h2>
                 <p>Offene Achievements bringen einmalige Boni. Danach verdienst du durch tägliches Üben weiter TastyTokens.</p></div>
-              <div class="coin-station-value"><small>NOCH IM SHOP AUSZUGEBEN</small><strong>{{shopTotalRemainingCost | number}} TT</strong>
-                <span *ngIf="shopTotalTokenGap>0">Dir fehlen noch {{shopTotalTokenGap | number}} TT für alle noch nicht gekauften Cosmetics.</span>
-                <span *ngIf="shopTotalTokenGap===0">Dein Guthaben reicht theoretisch für alle noch nicht gekauften Cosmetics!</span></div>
             </div>
             <div class="coin-earning-grid">
               <div class="earning-tile"><span class="earn-icon">🏆</span><div class="earn-type">ACHIEVEMENTS · {{earningAchievementStatus.done}} / {{earningAchievementStatus.total}}</div>
@@ -304,7 +301,6 @@
                 <p>Chemverse + Dsaiverse gemeinsam: einmal täglich 100 TT bei mindestens 70 % im gemischten Bosskampf. Antwortpositionen werden neu gemischt.</p>
                 <button (click)="goEarnTokens('boss')">Boss herausfordern ↗</button></div>
             </div>
-            <div class="coin-earning-foot">💡 Lernen schaltet Test-Cosmetics zum Kauf frei. Deine TastyTokens sind weiterhin für Essentials und Test-Items gedacht. Wiederholungsboni werden pro Browser-Tag zurückgesetzt.</div>
           </section>
           </ng-container>
           <section class="kenny-page" *ngIf="shopTab==='kenny'" aria-label="Kennys Dino-Season">
@@ -314,7 +310,9 @@
                 <div class="kenny-volcano"><i></i></div><div class="kenny-lava"></div>
                 <div class="kenny-ground"></div><div class="kenny-fern fern-left">🌿</div><div class="kenny-fern fern-right">🌿</div>
                 <span class="kenny-stage-label">🦖 DINO-VERSE · SEASON 01</span>
-                <div class="kenny-feed-bowl" aria-hidden="true"></div><span class="kenny-meat" aria-hidden="true">🥩</span>
+                <div class="kenny-landing-pad" aria-hidden="true"></div>
+                <div class="kenny-drone" aria-hidden="true"><span class="kenny-drone-rotor left"></span><span class="kenny-drone-rotor right"></span><span class="kenny-drone-body">✦</span><span class="kenny-drone-crate">🥩</span></div>
+                <span class="kenny-meat" aria-hidden="true">🥩</span>
                 <div class="kenny-sprite" role="img" aria-label="Kenny, der blaue Raptor" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyVisualLevel-1)*0.07"></div>
                 <div class="kenny-stage-name"><strong>KENNY</strong><span>DEIN URZEIT-GEFÄHRTE</span></div>
                 <div class="kenny-level-medal"><small>LEVEL</small><strong>{{kennyVisualLevel}}</strong><span>/ 5</span></div>
@@ -520,7 +518,10 @@
       <p *ngIf="reveal.kind==='drop' && reveal.drop?.item">{{reveal.line}} {{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
       <p *ngIf="reveal.kind==='drop' && !reveal.drop?.item">{{reveal.line}} {{reveal.drop?.tokens | number}} TT landen in deinem Guthaben.</p>
       <p *ngIf="reveal.kind==='season'">{{reveal.tokens ? (reveal.tokens | number)+' TT Cashback' : 'Kein Cashback'}}<span *ngIf="reveal.item"> · {{reveal.item.name}} freigeschaltet</span></p>
-      <button type="button" class="btn primary full" (click)="acknowledgeKennyReveal()">Annehmen</button>
+      <div class="kenny-reveal-actions">
+        <button type="button" class="btn primary" (click)="acknowledgeKennyReveal()">Annehmen</button>
+        <button type="button" class="btn kenny-inventory-btn" *ngIf="reveal.drop?.item || reveal.item" (click)="openKennyRewardInventory()">🎒 Im Inventar ansehen</button>
+      </div>
     </div>
   </div>
 

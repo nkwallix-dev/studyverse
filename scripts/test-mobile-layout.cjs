@@ -223,7 +223,18 @@ async function main(){
     await dinoPage.waitForTimeout(1100);
     assert.equal(await dinoPage.locator('.kenny-reveal-modal').count(),0,
      'Feeding animation must remain visible for more than a brief flash');
+    const delivery=await dinoPage.evaluate(()=>{
+     const stage=document.querySelector('.kenny-stage').getBoundingClientRect();
+     const drone=document.querySelector('.kenny-drone');
+     const meat=document.querySelector('.kenny-meat');
+     return {stageRight:stage.right,droneLeft:drone.getBoundingClientRect().left,
+      droneOpacity:Number(getComputedStyle(drone).opacity),meatOpacity:Number(getComputedStyle(meat).opacity)};
+    });
+    assert(delivery.droneLeft<delivery.stageRight&&delivery.droneOpacity>.3&&delivery.meatOpacity>.3,
+     'The drone must fly into the stage and release the meat before Kenny eats: '+JSON.stringify(delivery));
     await dinoPage.screenshot({path:path.join(screenshots,'kenny-feeding-390.png')});
+    await dinoPage.waitForTimeout(900);
+    await dinoPage.screenshot({path:path.join(screenshots,'kenny-eating-390.png')});
    }
    await dinoPage.locator('.kenny-reveal-modal').waitFor();
    if(n===1)await dinoPage.screenshot({path:path.join(screenshots,'kenny-drop-390.png')});
@@ -289,14 +300,19 @@ async function main(){
   assert(avatarArt.naturalWidth>0&&avatarArt.width>70&&avatarArt.width<190&&avatarArt.height<=160,
    'The full Kenny avatar should fit inside the reveal art area: '+JSON.stringify(avatarArt));
   await avatarPage.screenshot({path:path.join(screenshots,'kenny-avatar-reveal-390.png')});
+  await avatarPage.locator('.kenny-inventory-btn').click();
+  await avatarPage.locator('.inventory-item').waitFor();
+  assert.equal(await avatarPage.locator('.inventory-item').count(),1,
+   'The reward inventory shortcut should filter to the newly won cosmetic');
+  assert((await avatarPage.locator('.inventory-item').innerText()).includes('Kenny Avatar'));
   await avatarContext.close();
-  console.log('PASS: Kenny avatar reveal copy and full-body art.');
+  console.log('PASS: Kenny avatar reveal copy, full-body art, and direct inventory shortcut.');
   const maxContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
   const maxPage=await maxContext.newPage();
   await maxPage.addInitScript(()=>{
    localStorage.setItem('studyverse_import_prompt_seen_v1','1');
    localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:6000,nickname:'MaxTester',
-    inventory:['dsai_bot','kenny_avatar'],
+    inventory:['dsai_bot','dsai_panda','sharp_sheep','kenny_avatar'],
     equipped:{theme:'base',atm:'none',frame:'none',avatar:'🦖',font:'standard',banner:'default',title:'',fx:'none'},
     claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
     dinoSeasons:{'kenny-2026':{feeds:32,overfeeds:0,overTokenWins:2000,skin:'blue',settled:false,settlement:0}}}));
@@ -322,6 +338,14 @@ async function main(){
    avatarLayout.imageWidth<=60&&avatarLayout.imageHeight<=60,
    'Kenny must have the same avatar tile size as the other avatars: '+JSON.stringify(avatarLayout));
   await maxPage.screenshot({path:path.join(screenshots,'kenny-avatar-picker-390.png')});
+  await maxPage.locator('.avatar-picker-modal .btn.secondary').click();
+  await maxPage.locator('.navigation button[aria-label="Item-Shop"]').click();
+  await maxPage.locator('.shop-view-tabs button').filter({hasText:'Inventar'}).click();
+  const artHeights=await maxPage.locator('.inventory-item .item-art').evaluateAll(elements=>
+   elements.map(element=>({name:element.closest('.inventory-item').querySelector('.item-name').textContent,
+    height:element.getBoundingClientRect().height})));
+  assert(artHeights.length>=4&&artHeights.every(art=>Math.abs(art.height-artHeights[0].height)<=1),
+   'Panda and sheep avatar panels should match the other inventory art: '+JSON.stringify(artHeights));
   await maxContext.close();
   console.log('PASS: retroactive level-5 cashback and matched avatar picker size.');
   // Owning every cosmetic must never prevent another 300 TT feeding. With an
