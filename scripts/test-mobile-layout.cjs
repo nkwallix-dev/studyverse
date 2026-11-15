@@ -611,8 +611,8 @@ async function main(){
   });
   await versePage.goto(base+'kennyverse/index.html',{waitUntil:'load'});
   await versePage.locator('.hero h1').waitFor({state:'visible'});
-  assert(await versePage.locator('#homeTab').isVisible(),
-   'A permanent Startseite tab must exist in Kennyverse');
+  assert.equal(await versePage.locator('#homeTab').count(),1,
+   'A permanent Startseite tab must exist in the Kennyverse desktop sidebar');
   assert(await versePage.locator('.kenny-mobile-nav [data-kenny-nav="overview"]').isVisible(),
    'The mobile bottom bar must have an always-accessible Home button');
   assert(await versePage.locator('.top .return').innerText()!=='BEGLEITER',
