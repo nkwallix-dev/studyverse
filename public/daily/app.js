@@ -2,11 +2,13 @@
 "use strict";
 const DATA=window.STUDYVERSE_DAILY_QUESTIONS||[],DAILY=window.STUDYVERSE_DAILY,ROOT=document.getElementById("root"),PROFILE="studyverse_profile_v1",ORDER="studyverse_daily_orders_v1";
 const ACCESS=window.STUDYVERSE_KENNY_ACCESS;
+const KENNY_PORTRAIT='<span class="kenny-visual"><img src="../kenny/kenny-avatar.png" alt="Kenny der Raptor"></span>';
+const URZEIT_BANNER='<div class="kenny-prehistoric-banner" aria-hidden="true"><span class="kenny-banner-sun"></span><span class="kenny-banner-mountain"></span><span class="kenny-banner-volcano"></span><span class="kenny-banner-smoke">☁</span><span class="kenny-banner-fern">🌿</span></div>';
 if(!DATA.length||!DAILY||!ACCESS){ROOT.textContent="Kennys Forschungsfragen konnten nicht geladen werden.";return}
 if(!ACCESS.available()){
  document.getElementById("quizTab").disabled=true;
  document.getElementById("bossTab").disabled=true;
- ROOT.innerHTML='<section class="card kenny-locked"><img src="../kenny/kenny-avatar.png" alt="Kenny"><div class="eyebrow">🔒 KENNYVERSE · SEASON 01</div><h1>Kenny ist <span>weitergezogen.</span></h1><p>Solange seine Season aktiv ist, kannst du mit Kenny täglich forschen. Ab Level 5 bleibt er nach Saisonende für immer bei dir. Deine gesammelten Items bleiben erhalten.</p><a class="btn" href="../#companions">Zurück zu den Begleitern ↗</a></section>';
+ ROOT.innerHTML='<section class="card kenny-locked">'+KENNY_PORTRAIT+'<div class="eyebrow">🔒 KENNYVERSE · SEASON 01</div><h1>Kenny ist <span>weitergezogen.</span></h1><p>Solange seine Season aktiv ist, kannst du mit Kenny täglich forschen. Ab Level 5 bleibt er nach Saisonende für immer bei dir. Deine gesammelten Items bleiben erhalten.</p><a class="btn" href="../#companions">Zurück zu den Begleitern ↗</a></section>';
  return;
 }
 const bySubject={chem:DATA.filter(q=>q.subject==="chem"),dsai:DATA.filter(q=>q.subject==="dsai")};
@@ -55,14 +57,14 @@ function stats(){
  return '<div class="stats"><div class="stat"><small>⚡ TAGESQUIZ</small><b>'+quiz+'/20</b><small>Richtige einzigartige Fragen vergütet</small>'+progressBar(quiz,20)+'</div><div class="stat"><small>🪙 HEUTE NOCH MÖGLICH</small><b>'+((20-quiz)*10+(d.bossPaid?0:100))+' TT</b><small>Maximal 300 TT pro Tag</small></div><div class="stat"><small>👾 BOSS-TAGESBONUS</small><b>'+(d.bossPaid?'✓ Erledigt':'100 TT')+'</b><small>Einmal täglich bei mindestens 70 %</small></div></div>';
 }
 function startScreen(){
- return '<div class="hero"><div><div class="eyebrow">🦖 KENNYVERSE · DEINE TÄGLICHE EXPEDITION</div><h1>Mit Kenny<br><span>Wissen entdecken.</span></h1><p>Begleite Kenny durch Forschungsmissionen zu Chemie und Data Science. Löse 20 Fragen, besiege den Expeditionsboss und sammle TastyTokens für deinen Studyverse-Account.</p><div class="actions"><button class="btn" data-action="quiz">⚡ Forschungsquiz</button><button class="btn secondary" data-action="boss">👾 Expeditionsboss</button></div></div><div class="hero-icon"><img src="../kenny/kenny-avatar.png" alt="Kenny der Raptor"></div></div>'+stats()+
+ return '<div class="hero"><div><div class="eyebrow">🦖 KENNYVERSE · DEINE TÄGLICHE EXPEDITION</div><h1>Mit Kenny<br><span>Wissen entdecken.</span></h1><p>Begleite Kenny durch Forschungsmissionen zu Chemie und Data Science. Löse 20 Fragen, besiege den Expeditionsboss und sammle TastyTokens für deinen Studyverse-Account.</p><div class="actions"><button class="btn" data-action="quiz">⚡ Forschungsquiz</button><button class="btn secondary" data-action="boss">👾 Expeditionsboss</button></div></div><div class="hero-icon">'+KENNY_PORTRAIT+'</div>'+URZEIT_BANNER+'</div>'+stats()+
  '<div class="card"><h2>🦖 Kennys Missionen</h2><p>Im Forschungsquiz belohnt Kenny bis zu 20 unterschiedliche richtige Antworten täglich mit jeweils 10 TT. Schaffst du beim Expeditionsboss mindestens 70 %, erhältst du einmalig 100 TT. Die Fragen werden jeden Durchlauf neu gemischt.</p><div class="notice">Kennyverse verwendet den Lernstoff aus Chemverse und Dsaiverse. Die täglichen Limits gelten mit beiden Lernwelten <b>gemeinsam</b> – maximal 300 TT insgesamt.</div></div>';
 }
 function questionScreen(){
  const s=session,q=s.questions[s.pos],d=DAILY.get();
  const choices=s.options.map((o,i)=>'<button class="choice '+(s.answered?(o.correct?'correct':s.picked===i?'wrong':''):'')+'" '+(s.answered?'disabled':'')+' data-answer="'+i+'"><span class="letter">'+("ABCD"[i])+'</span><span>'+safe(o.label)+'</span></button>').join("");
  const correct=s.answered?s.options[s.picked].correct:false;
- return '<div class="companion-banner"><img src="../kenny/kenny-avatar.png" alt=""><span>🦖 KENNY IST AN DEINER SEITE · SAMMLE WISSEN FÜR DEINE EXPEDITION</span></div><div class="eyebrow">'+(mode==="quiz"?"⚡ KENNYS FORSCHUNGSQUIZ":"👾 KENNYS EXPEDITIONSBOSS")+'</div><h1>Wissen <span>erforschen.</span></h1>'+stats()+
+ return '<div class="companion-banner">'+KENNY_PORTRAIT+'<span>🦖 KENNY IST AN DEINER SEITE · SAMMLE WISSEN FÜR DEINE EXPEDITION</span></div><div class="eyebrow">'+(mode==="quiz"?"⚡ KENNYS FORSCHUNGSQUIZ":"👾 KENNYS EXPEDITIONSBOSS")+'</div><h1>Wissen <span>erforschen.</span></h1>'+stats()+
  '<div class="card"><div class="tag">'+(q.subject==="chem"?'🧪 CHEMIE · FORSCHUNGSMISSION':'🤖 DATA SCIENCE · FORSCHUNGSMISSION')+'</div><div class="actions"><small>FRAGE '+(s.pos+1)+' / '+s.questions.length+'</small><small>· '+s.score+' richtig</small></div>'+progressBar(s.pos,s.questions.length)+
  (q.code?'<pre class="snippet">'+safe(q.code)+'</pre>':'')+
  '<div class="question">'+safe(q.question)+'</div><div class="choices">'+choices+'</div>'+

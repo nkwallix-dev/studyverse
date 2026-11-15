@@ -571,8 +571,9 @@ async function main(){
   const versePage=await verseContext.newPage();
   await versePage.addInitScript(()=>{
    localStorage.setItem('studyverse_profile_v1',JSON.stringify({
-    xp:0,tokens:0,nickname:'VerseTester',inventory:[],equipped:{},activity:[],
-    dinoSeasons:{'kenny-2026':{feeds:25,skin:'blue',settled:true,settlement:0}}
+    xp:0,tokens:0,nickname:'VerseTester',
+    inventory:['kenny_skin_red','kenny_skin_pink'],equipped:{dinoSkin:'red'},activity:[],
+    dinoSeasons:{'kenny-2026':{feeds:25,skin:'red',settled:true,settlement:0}}
    }));
    Date.now=()=>Date.parse('2027-02-15T12:00:00+01:00');
   });
@@ -581,10 +582,47 @@ async function main(){
   assert((await versePage.title()).includes('Kennyverse'));
   assert(await versePage.locator('.hero-icon img').isVisible(),
    'Kenny must be visibly present inside his Daily world');
+  const equippedAppearance=await versePage.evaluate(()=>{
+   const image=document.querySelector('.hero-icon .kenny-visual img');
+   const sidebar=document.querySelector('.kenny-side-art .kenny-visual img');
+   const root=getComputedStyle(document.documentElement);
+   return {skin:document.documentElement.dataset.kennySkin,
+    heroFilter:getComputedStyle(image).filter,
+    sidebarFilter:getComputedStyle(sidebar).filter,
+    accent:root.getPropertyValue('--kenny-primary').trim(),
+    sun:!!document.querySelector('.hero .kenny-banner-sun'),
+    volcano:!!document.querySelector('.hero .kenny-banner-volcano'),
+    fern:!!document.querySelector('.hero .kenny-banner-fern')};
+  });
+  assert(equippedAppearance.skin==='red'&&
+    equippedAppearance.heroFilter.includes('hue-rotate(125deg)')&&
+    equippedAppearance.sidebarFilter.includes('hue-rotate(125deg)')&&
+    equippedAppearance.accent==='#ffa397'&&
+    equippedAppearance.sun&&equippedAppearance.volcano&&equippedAppearance.fern,
+    'Kennyverse must render equipped red Kenny, a matching red UI and the prehistoric banner: '+
+     JSON.stringify(equippedAppearance));
   await versePage.locator('.hero button[data-action="quiz"]').click();
   await versePage.locator('.question').waitFor({state:'visible'});
   assert.equal(await versePage.locator('.choice').count(),4,
    'Kennyverse must keep four original answer options');
+  assert(await versePage.locator('.companion-banner .kenny-visual img').isVisible(),
+   'Research questions must also show the equipped Kenny companion');
+  await versePage.evaluate(()=>{
+    const profile=JSON.parse(localStorage.getItem('studyverse_profile_v1'));
+    profile.dinoSeasons['kenny-2026'].skin='pink';
+    profile.equipped.dinoSkin='pink';
+    localStorage.setItem('studyverse_profile_v1',JSON.stringify(profile));
+    window.dispatchEvent(new StorageEvent('storage',{key:'studyverse_profile_v1'}));
+  });
+  const updatedAppearance=await versePage.evaluate(()=>({
+    skin:document.documentElement.dataset.kennySkin,
+    questionFilter:getComputedStyle(document.querySelector('.companion-banner .kenny-visual img')).filter,
+    accent:getComputedStyle(document.documentElement).getPropertyValue('--kenny-primary').trim()
+  }));
+  assert(updatedAppearance.skin==='pink'&&updatedAppearance.questionFilter.includes('hue-rotate(105deg)')&&
+    updatedAppearance.accent==='#ffa7ed',
+    'Kennyverse must recolor the quiz companion and entire UI when equipped skin changes: '+
+     JSON.stringify(updatedAppearance));
   await check(versePage,'Kennyverse 390');
   await verseContext.close();
   const lockedContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});

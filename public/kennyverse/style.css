@@ -26,3 +26,125 @@ body:before{background:radial-gradient(ellipse at 84% 19%,#fa9d7066,transparent 
 .kenny-locked p{max-width:540px;margin:0 0 10px}
 @media(max-width:850px){.kenny-side-art img{max-height:55px}.kenny-side-art strong{display:none}.logo b{display:none}}
 @media(max-width:610px){.hero-icon{right:4px;top:36px;opacity:.28}.hero-icon img{max-height:160px}.companion-banner{font-size:10px}}
+
+
+/* The selected Dino Designer skin is reflected in the entire Kennyverse UI.
+ * The Urzeit/Vulkan banner remains constant; only the UI accent changes.
+ */
+:root,html[data-kenny-skin="blue"]{
+ --kenny-primary:#83f4dc;--kenny-secondary:#a7c9ff;
+ --kenny-panel:#1c3846;--kenny-panel2:#1a2c42;--kenny-line:#608c9c;
+ --kenny-soft:#75d9cc30;--kenny-glow:#5acdd450;
+ --aqua:var(--kenny-primary);--accent:var(--kenny-secondary);--line:var(--kenny-line)
+}
+html[data-kenny-skin="pink"]{
+ --kenny-primary:#ffa7ed;--kenny-secondary:#dfb8ff;
+ --kenny-panel:#402a48;--kenny-panel2:#322340;--kenny-line:#9e6fa4;
+ --kenny-soft:#ee9cda32;--kenny-glow:#ed8bcb4d
+}
+html[data-kenny-skin="green"]{
+ --kenny-primary:#a4f3ba;--kenny-secondary:#78e9ca;
+ --kenny-panel:#213f36;--kenny-panel2:#19382f;--kenny-line:#6b9e82;
+ --kenny-soft:#8eebac30;--kenny-glow:#61c8934d
+}
+html[data-kenny-skin="red"]{
+ --kenny-primary:#ffa397;--kenny-secondary:#ffc185;
+ --kenny-panel:#492c39;--kenny-panel2:#392633;--kenny-line:#b37e7d;
+ --kenny-soft:#f78e7e30;--kenny-glow:#fb85774d
+}
+html[data-kenny-skin="zebra"]{
+ --kenny-primary:#f5f2ff;--kenny-secondary:#c7c3dc;
+ --kenny-panel:#292937;--kenny-panel2:#222535;--kenny-line:#89899e;
+ --kenny-soft:#ddd9f02a;--kenny-glow:#aaa9c344
+}
+body:before{
+ background:radial-gradient(ellipse at 83% 17%,var(--kenny-glow),transparent 42%),
+ radial-gradient(ellipse at 26% 86%,var(--kenny-soft),transparent 48%),
+ radial-gradient(2px 2px at 25% 35%,#e3e3ed9e 99%,transparent);
+ background-size:auto,auto,160px 180px
+}
+.side{background:linear-gradient(160deg,var(--kenny-panel2),#121626 86%);border-color:var(--kenny-line)}
+.logo span{background:linear-gradient(140deg,var(--kenny-primary),var(--kenny-secondary))}
+.logo small,.kenny-side-art strong,.top strong{color:var(--kenny-primary)}
+.kenny-side-art{
+ border-color:var(--kenny-line);
+ background:radial-gradient(circle at 50% 60%,var(--kenny-glow),transparent 72%),
+ linear-gradient(155deg,var(--kenny-panel),#152333)
+}
+.navbtn:hover,.navbtn.active{border-color:var(--kenny-primary);background:var(--kenny-soft)}
+.top{background:color-mix(in srgb,var(--kenny-panel2),#121628 50%);border-color:var(--kenny-line)}
+.return{border-color:var(--kenny-line);background:var(--kenny-panel)}
+.stat,.card{background:linear-gradient(140deg,var(--kenny-panel),var(--kenny-panel2));border-color:var(--kenny-line)}
+.choice{background:var(--kenny-panel2);border-color:var(--kenny-line)}
+.choice:hover:not(:disabled){border-color:var(--kenny-primary)}
+.choice .letter{background:var(--kenny-soft)}
+.tag,.companion-banner{border-color:var(--kenny-line);background:var(--kenny-soft);color:var(--kenny-primary)}
+.bar{background:color-mix(in srgb,var(--kenny-panel),#c6b9d5 38%)}
+.notice{border-color:color-mix(in srgb,var(--kenny-secondary),#ffc184 55%);background:var(--kenny-soft);color:#f8e4cf}
+#toast{border-color:var(--kenny-line);background:var(--kenny-panel)}
+
+/* Match Studyverse's existing kenny_volcano / Urzeit banner artwork. */
+.hero{
+ isolation:isolate;
+ background:radial-gradient(circle at 72% 28%,#ffcb9d9c,transparent 28%),
+ linear-gradient(160deg,#30223d,#8a494d 55%,#1e3640);
+ border-color:#eeb681
+}
+.hero:before{
+ content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+ background:linear-gradient(90deg,#171628e8 0%,#201a30cd 40%,#201a3060 67%,transparent 85%)
+}
+.hero>div:first-child{position:relative;z-index:3}
+.hero-icon{position:relative;z-index:4}
+.hero .eyebrow{color:#ffcf99}
+.hero h1 span{color:var(--kenny-primary)}
+.hero .actions .btn{box-shadow:0 6px 20px #100d1d55}
+.kenny-prehistoric-banner{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;border-radius:inherit}
+.kenny-banner-sun{
+ position:absolute;right:25%;top:10%;width:clamp(70px,10vw,130px);aspect-ratio:1;
+ border-radius:50%;background:#ffd3a0;box-shadow:0 0 80px #fca768
+}
+.kenny-banner-mountain{
+ position:absolute;left:38%;bottom:-4%;height:60%;width:48%;
+ background:#382d3eaa;clip-path:polygon(0 100%,39% 19%,100% 100%)
+}
+.kenny-banner-volcano{
+ position:absolute;right:6%;bottom:-8%;width:49%;height:94%;
+ clip-path:polygon(0 100%,37% 20%,48% 24%,57% 20%,100% 100%);
+ background:linear-gradient(110deg,#242637,#663b3d 60%,#301e31)
+}
+.kenny-banner-volcano:after{
+ content:"";position:absolute;left:39%;top:20%;width:18%;height:65%;
+ background:linear-gradient(#ffd17c,#e84931,transparent);
+ clip-path:polygon(20% 0,80% 0,65% 100%,30% 100%)
+}
+.kenny-banner-smoke{position:absolute;right:22%;top:-15%;font-size:140px;color:#efb7af8a;filter:blur(10px)}
+.kenny-banner-fern{position:absolute;right:-2%;bottom:-43%;font-size:clamp(90px,11vw,190px);filter:brightness(.35)}
+
+/* One portrait wrapper for sidebar, volcano hero, questions and locked screen. */
+.kenny-visual{display:grid;place-items:center;position:relative;isolation:isolate;flex:0 0 auto}
+.kenny-visual img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;display:block;filter:drop-shadow(0 10px 15px #030a1577)}
+.kenny-side-art .kenny-visual{width:100%;height:145px}
+.hero-icon .kenny-visual{width:clamp(125px,17vw,210px);height:240px;max-height:100%}
+.companion-banner .kenny-visual{width:44px;height:44px}
+.kenny-locked .kenny-visual{width:170px;height:170px;filter:grayscale(1);opacity:.55}
+html[data-kenny-skin="pink"] .kenny-visual img{filter:hue-rotate(105deg) saturate(1.15) drop-shadow(0 10px 15px #030a1577)}
+html[data-kenny-skin="green"] .kenny-visual img{filter:hue-rotate(225deg) saturate(1.15) drop-shadow(0 10px 15px #030a1577)}
+html[data-kenny-skin="red"] .kenny-visual img{filter:hue-rotate(125deg) saturate(1.8) drop-shadow(0 10px 15px #030a1577)}
+html[data-kenny-skin="zebra"] .kenny-visual img{filter:grayscale(1) brightness(1.8) contrast(1.3) drop-shadow(0 10px 15px #030a1577)}
+html[data-kenny-skin="zebra"] .kenny-visual:after{
+ content:"";position:absolute;inset:0;pointer-events:none;opacity:.88;
+ background:repeating-linear-gradient(113deg,#fff 0 11px,#17171b 11px 17px,#fff 17px 28px,#101014 28px 35px);
+ -webkit-mask-image:url("../kenny/kenny-avatar.png");mask-image:url("../kenny/kenny-avatar.png");
+ -webkit-mask-size:contain;mask-size:contain;
+ -webkit-mask-position:center;mask-position:center;
+ -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat
+}
+@media(max-width:850px){
+ .kenny-side-art .kenny-visual{height:55px}
+}
+@media(max-width:610px){
+ .hero-icon .kenny-visual{height:160px;width:clamp(125px,29vw,160px)}
+ .hero:before{background:linear-gradient(90deg,#171628de 0%,#201a30b5 75%,#201a3080)}
+ .kenny-banner-fern{font-size:100px}
+}
