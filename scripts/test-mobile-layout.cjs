@@ -117,7 +117,7 @@ async function main(){
    if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-dashboard-390.png'),fullPage:true});
    for(const [label,nav] of [
     ['Lernwelten','Lernwelten'],['Achievements','Achievements'],['Item-Shop','Item-Shop'],
-    ['Inventar','Inventar'],['Begleiter','Begleiter']]){
+    ['Inventar','Inventar'],['Dino-Verse','Dino-Verse'],['Begleiter','Begleiter']]){
     // Inventory stays inside the Shop; companions are a full destination.
     const button=width<=700&&label==='Inventar'
      ?page.locator('.shop-view-tabs button').filter({hasText:'Inventar'})
@@ -138,7 +138,40 @@ async function main(){
       'Three companion slots must appear with the current Kenny');
      assert(await page.locator('.companion-enter').isVisible(),
       'Kennyverse must be enterable during the active season');
+     const companionLayout=await page.evaluate(()=>{
+      const box=selector=>document.querySelector(selector).getBoundingClientRect();
+      const cards=[...document.querySelectorAll('.companions-grid .companion-card')].map(el=>el.getBoundingClientRect());
+      return {viewport:innerHeight,scroll:document.documentElement.scrollHeight,
+       hintBottom:box('.companions-hint').bottom,cardBottom:Math.max(...cards.map(x=>x.bottom)),
+       cardWidths:cards.map(x=>x.width),visibleHeight:cards[0].height};
+     });
+     assert(companionLayout.scroll<=companionLayout.viewport+3&&
+       companionLayout.hintBottom<=companionLayout.viewport-(width<=700?68:0)+2&&
+       companionLayout.cardBottom<=companionLayout.viewport-(width<=700?68:0)+2&&
+       companionLayout.visibleHeight>95&&companionLayout.cardWidths.every(x=>x>90),
+       'Begleiter cards, actions and footer must fit without scrolling at '+width+': '+JSON.stringify(companionLayout));
      if(width===390)await page.screenshot({path:path.join(screenshots,'begleiter-390.png'),fullPage:true});
+    }
+    if(label==='Dino-Verse'){
+     await page.locator('.kenny-page').waitFor({state:'visible'});
+     assert(await page.locator('.kenny-feed-btn').isVisible(),
+      'Dino-Verse must remain a direct, independent feeding destination');
+     await page.locator('.kenny-style-btn').click();
+     await page.locator('.dino-designer-grid').waitFor({state:'visible'});
+     const designer=await page.evaluate(()=>{
+      const rect=selector=>document.querySelector(selector).getBoundingClientRect();
+      const cards=[...document.querySelectorAll('.dino-designer-card')].map(el=>el.getBoundingClientRect());
+      const skins=[...document.querySelectorAll('.dino-designer-skin-grid button')].map(el=>el.getBoundingClientRect());
+      return {viewport:innerHeight,scroll:document.documentElement.scrollHeight,
+       stageHeight:rect('.dino-designer-live').height,
+       cardBottom:Math.max(...cards.map(x=>x.bottom)),skinBottom:Math.max(...skins.map(x=>x.bottom)),
+       cardCount:cards.length,skinCount:skins.length};
+     });
+     assert(designer.scroll<=designer.viewport+3&&designer.cardCount===3&&designer.skinCount===5&&
+       designer.cardBottom<=designer.viewport-(width<=700?68:0)+3&&
+       designer.skinBottom<=designer.viewport-(width<=700?68:0)+3&&designer.stageHeight>65,
+       'The complete Dino Designer including five skin buttons must fit at '+width+': '+JSON.stringify(designer));
+     if(width===390)await page.screenshot({path:path.join(screenshots,'dino-designer-390.png'),fullPage:true});
     }
     if(label==='Item-Shop'){
      const select=page.locator('#shop-drop-select');
@@ -191,8 +224,7 @@ async function main(){
       'New user without Chemverse progress must not see locked Chemverse drop');
      await check(page,'Studyverse Shop-Drop-Selector '+width);
      if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-item-shop-390.png'),fullPage:true});
-     await page.locator('.navigation button[aria-label="Begleiter"]').click();
-     await page.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
+     await page.locator('.navigation button[aria-label="Dino-Verse"]').click();
      await page.locator('.kenny-page .kenny-stage').waitFor({state:'visible'});
      const dinoLayout=await page.evaluate(()=>({
       viewport:innerHeight,scroll:document.documentElement.scrollHeight,
@@ -221,9 +253,9 @@ async function main(){
    if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-profil-390.png'),fullPage:true});
    const navLabels=await page.locator('.navigation button .mobile-nav-label:visible').count();
    if(width<=430){
-    assert.equal(navLabels,5,'Five mobile main destinations must include Begleiter');
+    assert.equal(navLabels,6,'Phone navigation must include separate Dino-Verse and Begleiter destinations');
     const visibleNavButtons=await page.locator('.navigation button:visible').count();
-    assert.equal(visibleNavButtons,5,'Inventory stays in Shop, while Begleiter has its own mobile entry');
+    assert.equal(visibleNavButtons,6,'Inventory stays in Shop while Dino-Verse and Begleiter have distinct tabs');
    }
    assert(!errors.length,'Studyverse script errors at '+width+': '+errors.join('; '));
    await context.close();
@@ -476,9 +508,9 @@ async function main(){
   await maxPage.setViewportSize({width:1200,height:850});
   const sidebarAlignment=await maxPage.locator('.navigation button').evaluateAll(buttons=>
    buttons.map(button=>({name:button.getAttribute('aria-label'),left:button.getBoundingClientRect().left})))
-  assert(sidebarAlignment.some(button=>button.name==='Begleiter')&&
+  assert(sidebarAlignment.some(button=>button.name==='Begleiter')&&sidebarAlignment.some(button=>button.name==='Dino-Verse')&&
    sidebarAlignment.every(button=>Math.abs(button.left-sidebarAlignment[0].left)<=1),
-   'Shop, Inventory and Begleiter must align as peer sidebar destinations: '+JSON.stringify(sidebarAlignment));
+   'Shop, Inventory, Dino-Verse and Begleiter must align as peer sidebar destinations: '+JSON.stringify(sidebarAlignment));
   await maxPage.locator('.navigation button[aria-label="Begleiter"]').click();
   await maxPage.locator('.companion-stage').waitFor({state:'visible'});
   await maxPage.locator('.navigation button[aria-label="Dashboard"]').click();
