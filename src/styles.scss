@@ -1307,3 +1307,58 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .inventory-dino-designer-btn{flex:0 0 auto;min-width:205px;border:1px solid #d18dec;border-radius:14px;background:linear-gradient(120deg,#59316f,#35204d);color:white;padding:13px 18px;font-weight:900;cursor:pointer}
 .inventory-dino-designer-btn:hover{filter:brightness(1.14)}
 @media(max-width:650px){.inventory-summary{flex-wrap:wrap}.inventory-dino-designer-btn{width:100%}}
+
+
+/* Companion progression: each retained dino will have a standalone Daily Verse. */
+.companions-page{padding:0 0 30px;min-width:0}
+.companions-page>.page-subtitle{max-width:880px}
+.companions-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;align-items:start;margin:23px 0 16px}
+.companion-card{overflow:hidden;min-width:0;border:1px solid #7c639b;border-radius:22px;background:linear-gradient(156deg,#292043,#141932 85%);color:#f8f3ff;box-shadow:0 14px 30px #0004}
+.companion-stage{height:clamp(240px,26vw,345px);border:0;border-radius:0 0 18px 18px}
+.companion-stage .kenny-sprite{height:72%;max-width:70%}
+.companion-stage .kenny-stage-name{right:15px}.companion-stage .kenny-stage-name strong{font-size:clamp(24px,3vw,33px)}
+.companion-card-body{display:flex;flex-direction:column;gap:10px;padding:20px}
+.companion-status{font-size:10px;letter-spacing:1.5px;font-weight:950;color:#b5ffe8}
+.companion-card h2{font-size:clamp(21px,2vw,28px);line-height:1.2;margin:0}.companion-card h2 span{color:#e9a7ed}
+.companion-card p{margin:0;color:#ccc0df;font-size:12px;line-height:1.65}
+.companion-daily{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.companion-daily span{display:grid;gap:3px;border:1px solid #645b81;background:#ffffff0c;border-radius:11px;padding:9px 11px;font-size:10px;color:#beafd5}
+.companion-daily b{font-size:18px;color:#b6ffed}
+.companion-enter{width:100%;min-height:46px;border:0;border-radius:12px;padding:11px;background:linear-gradient(105deg,#85e9d7,#b2a5ff);color:#172034;font-weight:950;font-size:13px;cursor:pointer}
+.companion-enter:hover{filter:brightness(1.08)}
+.companion-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.companion-actions button,.companion-kenny-back button{border:1px solid #7a6995;background:#ffffff13;color:#f2e6ff;border-radius:11px;font-size:11px;font-weight:850;padding:11px 8px;cursor:pointer}
+.companion-actions button:hover,.companion-kenny-back button:hover{background:#ffffff26}
+.companion-card-body .companion-retain-hint{font-size:10px;color:#f6dba8}
+.companion-future{min-height:clamp(420px,48vw,550px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:13px;padding:24px}
+.companion-future .companion-status{color:#d7b7e9}
+.companion-future small{color:#d4baf5;font-size:10px;font-weight:900;letter-spacing:1.1px}
+.companion-mystery{position:relative;width:min(75%,190px);aspect-ratio:1;display:grid;place-items:center}
+.companion-mystery img{width:100%;height:100%;object-fit:contain;filter:brightness(0) drop-shadow(0 0 18px #9c8abd);opacity:.83}
+.companion-mystery strong{position:absolute;color:#f8defc;font-size:clamp(70px,7vw,104px);text-shadow:0 3px 18px #171022}
+.companions-hint{border:1px solid #8067a1;border-radius:13px;padding:12px 16px;background:#3323468a;color:#d2c4e5;font-size:11px;line-height:1.6}
+.companion-kenny-back{display:flex;gap:8px;justify-content:flex-end;margin:0 0 9px;flex-wrap:wrap}
+.companion-kenny-back button{font-size:11px;padding:8px 13px}
+.universe.shop-mode .shop-view-tabs{grid-template-columns:repeat(2,minmax(0,1fr));width:min(100%,570px)}
+@media(max-width:900px){.companions-grid{gap:9px}.companion-card-body{padding:12px}.companion-actions{grid-template-columns:1fr}}
+@media(max-width:700px){
+ .companions-grid{grid-template-columns:1fr;max-width:600px;margin-inline:auto}
+ .companion-stage{height:310px}.companion-future{min-height:230px}
+ .companion-mystery{width:105px}.companion-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .universe .sidebar .navigation{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .sidebar .navigation button{min-width:0}
+ .universe .sidebar .navigation button .mobile-nav-label{font-size:clamp(9px,2.6vw,11px)}
+}
+@media(max-width:350px){.universe .sidebar .navigation{grid-template-columns:repeat(5,minmax(0,1fr))}}
+
+
+/* Inventory actions must not sit behind the five-button fixed mobile bar. */
+@media(max-width:700px){
+ .universe.shop-mode .inventory-item-grid{
+   padding-bottom:calc(95px + env(safe-area-inset-bottom,0px));
+   scroll-padding-bottom:calc(95px + env(safe-area-inset-bottom,0px));
+ }
+ .universe.shop-mode .inventory-item-grid .inventory-actions{
+   scroll-margin-bottom:90px;
+ }
+}

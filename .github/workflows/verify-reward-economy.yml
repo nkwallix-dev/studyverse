@@ -6,6 +6,11 @@ on:
       - 'src/app/**'
       - 'public/maths/**'
       - 'scripts/test-dino-season.cjs'
+      - 'scripts/test-daily.cjs'
+      - 'scripts/test-mobile-layout.cjs'
+      - 'public/daily/**'
+      - 'public/kennyverse/**'
+      - 'public/shared/kenny-access.js'
       - 'scripts/test-reward-economy.cjs'
       - 'scripts/test-shop-preview.cjs'
       - 'scripts/test-mathsverse.cjs'
@@ -29,6 +34,7 @@ jobs:
       - name: Verify milestone-based shop and MathsVerse retirement
         run: |
           node scripts/test-dino-season.cjs
+          node scripts/test-daily.cjs
           node scripts/test-reward-economy.cjs
           node scripts/test-reward-carousel-and-ranks.cjs
           node scripts/test-shop-preview.cjs
@@ -41,5 +47,9 @@ jobs:
           node scripts/test-chemverse.cjs
           node scripts/test-dsaiverse.cjs
           node scripts/test-sharpverse.cjs
-      - name: Angular production build
-        run: npm run build -- --base-href /studyverse/
+      - name: Angular production build for GitHub Pages
+        run: npm run build -- --base-href /studyverse/ --output-path dist/site
+      - name: Install real browser driver
+        run: npm install --no-save --package-lock=false playwright
+      - name: Test mobile layouts and companion gameplay before merge
+        run: node scripts/test-mobile-layout.cjs

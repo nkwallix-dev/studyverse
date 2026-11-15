@@ -79,6 +79,18 @@ export function dinoLevel(feeds:number):number{
 }
 export function nextDinoLevel(feeds:number):number{return KENNY_THRESHOLDS[Math.min(4,dinoLevel(feeds))];}
 export function isKennyActive(now:number):boolean{return now>=KENNY_SEASON.start&&now<KENNY_SEASON.end;}
+/** During the season every player can explore Kennyverse. Level 5 permanently
+ * retains Kenny as a companion (and keeps his daily Verse open afterwards).
+ * A retired sub-level-5 dinosaur is not available as a companion, but all
+ * unlocked cosmetics stay in the inventory.
+ */
+export function hasKennyCompanion(state:DinoSeasonState,now:number):boolean{
+  return isKennyActive(now)||dinoLevel(state.feeds)===5;
+}
+export function kennyStaysAfterSeason(state:DinoSeasonState):boolean{
+  return dinoLevel(state.feeds)===5;
+}
+
 export function cashbackDue(state:DinoSeasonState):number{
   return Math.floor(state.overfeeds*KENNY_SEASON.price/2);
 }

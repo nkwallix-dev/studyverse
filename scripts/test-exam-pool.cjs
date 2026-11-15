@@ -50,7 +50,7 @@ assert(isExamQuestion(dsai.find(q=>q.id==='q52')),'Independent calculation quest
 const src=fs.readFileSync('public/dsai/test-01/app.js','utf8');
 const chem=fs.readFileSync('public/nawi/test-01/index.html','utf8');
 const dailyApp=fs.readFileSync('public/daily/app.js','utf8');
-for(const file of ['public/dsai/test-01/index.html','public/nawi/test-01/index.html','public/daily/index.html']){
+for(const file of ['public/dsai/test-01/index.html','public/nawi/test-01/index.html','public/kennyverse/index.html']){
  assert(fs.readFileSync(file,'utf8').includes('exam-question-policy.js'),file+' must load exam policy');
 }
 assert(src.includes('const examPool=Q.filter(eligible)'),'Dsaiverse Final Boss must use safe questions');

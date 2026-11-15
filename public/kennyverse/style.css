@@ -1,0 +1,28 @@
+
+:root{--bg:#0b1524;--side:#101d2a;--panel:#162b39;--panel2:#1e3245;--line:#3b626c;--accent:#f5b57d;--aqua:#82f4d7;--muted:#b5ccd0}
+body:before{background:radial-gradient(ellipse at 84% 19%,#fa9d7066,transparent 35%),radial-gradient(ellipse at 24% 88%,#186e7d88,transparent 48%),radial-gradient(2px 2px at 25% 35%,#e3f9e8bb 99%,transparent);background-size:auto,auto,160px 180px}
+.side{background:linear-gradient(160deg,#182b3d,#12152c 80%);border-color:#466473}
+.logo{flex-wrap:wrap;gap:6px;font-size:17px;margin-bottom:14px}
+.logo span{background:linear-gradient(140deg,#8bf5db,#6ebfd7);font-size:24px}
+.logo small{flex-basis:100%;margin-left:3px;color:#b3d1d5}
+.kenny-side-art{border:1px solid #70938777;border-radius:17px;background:radial-gradient(ellipse at 50% 60%,#39837d48,transparent 70%),linear-gradient(150deg,#223b4c,#152735);display:grid;place-items:center;padding:12px}
+.kenny-side-art img{height:145px;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 15px #030a1577)}
+.kenny-side-art strong{font-size:9px;letter-spacing:1.3px;color:#aaf6d9}
+.top{background:#122737ed;border-bottom-color:#33555c}
+.hero{background:radial-gradient(ellipse at 76% 34%,#f5b77f7b,transparent 40%),linear-gradient(110deg,#203e48,#1e4353 55%,#26314b);border-color:#96d2bcaa}
+.hero-icon{transform:none;filter:none;display:grid;place-items:center}
+.hero-icon img{max-height:240px;max-width:220px;width:clamp(125px,17vw,210px);object-fit:contain;filter:drop-shadow(0 12px 15px #071b2677)}
+.stat,.card{background:linear-gradient(135deg,#203642,#162637);border-color:#427280}
+.choice{background:#22394d;border-color:#507a85}
+.choice:hover:not(:disabled){border-color:#8ef6d7}
+.choice .letter{background:#93e8d533}
+.tag{border-color:#75d4bc77;background:#60bda52a;color:#b9ffe6}
+.notice{background:#bd8b4930;border-color:#e0ac7366}
+.companion-banner{display:flex;align-items:center;gap:10px;padding:11px 15px;border-radius:14px;background:#6fbba41e;border:1px solid #6da89977;color:#b9ffdf;font-size:11px;font-weight:800;margin-bottom:16px}
+.companion-banner img{width:44px;height:44px;object-fit:contain}
+.kenny-locked{margin-top:25px;padding:40px;text-align:center;display:grid;justify-items:center;gap:12px}
+.kenny-locked img{width:170px;max-width:100%;filter:grayscale(1);opacity:.55}
+.kenny-locked h1{font-size:clamp(28px,4vw,44px);margin:0}
+.kenny-locked p{max-width:540px;margin:0 0 10px}
+@media(max-width:850px){.kenny-side-art img{max-height:55px}.kenny-side-art strong{display:none}.logo b{display:none}}
+@media(max-width:610px){.hero-icon{right:4px;top:36px;opacity:.28}.hero-icon img{max-height:160px}.companion-banner{font-size:10px}}

@@ -117,23 +117,28 @@ async function main(){
    if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-dashboard-390.png'),fullPage:true});
    for(const [label,nav] of [
     ['Lernwelten','Lernwelten'],['Achievements','Achievements'],['Item-Shop','Item-Shop'],
-    ['Inventar','Inventar'],['TastyTokens','TastyTokens verdienen']]){
-    // On phones, Inventory and TastyTokens live within the Shop's own three tabs.
-    const button=width<=700&&['Inventar','TastyTokens'].includes(label)
-     ?page.locator('.shop-view-tabs button').filter({hasText:label==='Inventar'?'Inventar':'TastyTokens verdienen'})
+    ['Inventar','Inventar'],['Begleiter','Begleiter']]){
+    // Inventory stays inside the Shop; companions are a full destination.
+    const button=width<=700&&label==='Inventar'
+     ?page.locator('.shop-view-tabs button').filter({hasText:'Inventar'})
      :page.locator('.navigation button[aria-label="'+nav+'"]');
     await button.waitFor({state:'visible',timeout:5000});
     await button.click();
     await page.waitForTimeout(100);
     await check(page,'Studyverse '+label+' '+width);
-    if(['Item-Shop','Inventar','TastyTokens'].includes(label)){
+    if(['Item-Shop','Inventar'].includes(label)){
      const layout=await page.evaluate(()=>({viewport:innerHeight,page:document.documentElement.scrollHeight,
-      mainBottom:document.querySelector('main').getBoundingClientRect().bottom,
-      grid:document.querySelector('main .item-grid')?.getBoundingClientRect().height||0,
-      earningButtons:[...document.querySelectorAll('.coin-earning-grid button')].map(x=>x.getBoundingClientRect().bottom)}));
-     assert(layout.page<=layout.viewport+3&&layout.mainBottom<=layout.viewport+3&&
-      layout.earningButtons.every(bottom=>bottom<=layout.viewport-(width<=700?65:0)),
-      'Shop destinations should fit the screen, with only item grids scrolling at '+width+'px: '+JSON.stringify(layout));
+      mainBottom:document.querySelector('main').getBoundingClientRect().bottom}));
+     assert(layout.page<=layout.viewport+3&&layout.mainBottom<=layout.viewport+3,
+      'Shop destinations should fit the screen without page scrolling: '+JSON.stringify(layout));
+    }
+    if(label==='Begleiter'){
+     await page.locator('.companions-grid').waitFor({state:'visible'});
+     assert.equal(await page.locator('.companion-card').count(),3,
+      'Three companion slots must appear with the current Kenny');
+     assert(await page.locator('.companion-enter').isVisible(),
+      'Kennyverse must be enterable during the active season');
+     if(width===390)await page.screenshot({path:path.join(screenshots,'begleiter-390.png'),fullPage:true});
     }
     if(label==='Item-Shop'){
      const select=page.locator('#shop-drop-select');
@@ -186,8 +191,9 @@ async function main(){
       'New user without Chemverse progress must not see locked Chemverse drop');
      await check(page,'Studyverse Shop-Drop-Selector '+width);
      if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-item-shop-390.png'),fullPage:true});
-     await page.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
-     await page.locator('.kenny-stage').waitFor({state:'visible'});
+     await page.locator('.navigation button[aria-label="Begleiter"]').click();
+     await page.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
+     await page.locator('.kenny-page .kenny-stage').waitFor({state:'visible'});
      const dinoLayout=await page.evaluate(()=>({
       viewport:innerHeight,scroll:document.documentElement.scrollHeight,
       stage:document.querySelector('.kenny-stage').getBoundingClientRect().height,
@@ -200,6 +206,7 @@ async function main(){
      assert(await page.locator('.kenny-sprite').evaluate(el=>el.getBoundingClientRect().width>90),
       'Kenny sprite must have a visible, nonzero width at '+width+'px');
      if(width===390)await page.screenshot({path:path.join(screenshots,'kenny-390.png')});
+     await page.locator('.navigation button[aria-label="Item-Shop"]').click();
     }
     if(width===390&&label==='Achievements')
      await page.screenshot({path:path.join(screenshots,'studyverse-'+label.toLowerCase()+'-390.png'),fullPage:true});
@@ -214,9 +221,9 @@ async function main(){
    if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-profil-390.png'),fullPage:true});
    const navLabels=await page.locator('.navigation button .mobile-nav-label:visible').count();
    if(width<=430){
-    assert.equal(navLabels,4,'Phone bottom bar should contain four readable main destinations');
+    assert.equal(navLabels,5,'Five mobile main destinations must include Begleiter');
     const visibleNavButtons=await page.locator('.navigation button:visible').count();
-    assert.equal(visibleNavButtons,4,'Inventory and TastyTokens stay within the Shop on phones');
+    assert.equal(visibleNavButtons,5,'Inventory stays in Shop, while Begleiter has its own mobile entry');
    }
    assert(!errors.length,'Studyverse script errors at '+width+': '+errors.join('; '));
    await context.close();
@@ -261,8 +268,8 @@ async function main(){
     claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
   });
   await dinoPage.goto(base,{waitUntil:'load'});
-  await dinoPage.locator('.navigation button[aria-label="Item-Shop"]').click();
-  await dinoPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await dinoPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await dinoPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   for(let n=1;n<=3;n++){
    await dinoPage.locator('.kenny-feed-btn').click();
    await dinoPage.locator('.kenny-stage.kenny-feeding').waitFor();
@@ -347,8 +354,8 @@ async function main(){
    };
   },allIds);
   await avatarPage.goto(base,{waitUntil:'load'});
-  await avatarPage.locator('.navigation button[aria-label="Item-Shop"]').click();
-  await avatarPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await avatarPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await avatarPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   await avatarPage.locator('.kenny-feed-btn').click();
   await avatarPage.locator('.kenny-reveal-modal').waitFor();
   await avatarPage.locator('.kenny-reveal-actions .btn.secondary').click();
@@ -385,8 +392,8 @@ async function main(){
    crypto.getRandomValues=array=>{if(array instanceof Uint32Array){array[0]=0;return array;}return original(array);};
   },[...allIds,'kenny_avatar'].filter(id=>!id.startsWith('kenny_skin_')&&id!=='kenny_avatar_pink'));
   await colorPage.goto(base,{waitUntil:'load'});
-  await colorPage.locator('.navigation button[aria-label="Item-Shop"]').click();
-  await colorPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await colorPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await colorPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   await colorPage.locator('.kenny-feed-btn').click();
   await colorPage.locator('.kenny-reveal-modal').waitFor();
   assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink',
@@ -405,6 +412,7 @@ async function main(){
   assert(await colorPage.locator('.dino-designer-skin-grid button').filter({hasText:'Kenny Pink'}).isEnabled(),
    'Zeig\'s mir must open the skin selector with the new color unlocked');
   await colorPage.locator('.dino-designer-heading button').click();
+  await colorPage.locator('.navigation button[aria-label="Item-Shop"]').click();
   await colorPage.locator('.shop-view-tabs button').filter({hasText:'Inventar'}).click();
   await colorPage.locator('.inventory-search-label input').fill('Kenny Pink');
   await colorPage.locator('.inventory-item').first().waitFor({state:'visible'});
@@ -428,8 +436,8 @@ async function main(){
    'Existing level 5 players receive the blue avatar retroactively');
   assert((await maxPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')))).inventory.includes('kenny_skin_blue'),
    'Existing owners of a colored Kenny skin receive the blue skin retroactively');
-  await maxPage.locator('.navigation button[aria-label="Item-Shop"]').click();
-  await maxPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await maxPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await maxPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   await maxPage.locator('.kenny-hint').waitFor();
   assert(/1[, .]050 TT/.test(await maxPage.locator('.kenny-hint').innerText()),
    'Seven saved feeds beyond level 5 must show 1,050 TT gross cashback, including old saves');
@@ -468,11 +476,11 @@ async function main(){
   await maxPage.setViewportSize({width:1200,height:850});
   const sidebarAlignment=await maxPage.locator('.navigation button').evaluateAll(buttons=>
    buttons.map(button=>({name:button.getAttribute('aria-label'),left:button.getBoundingClientRect().left})))
-  assert(sidebarAlignment.some(button=>button.name==='Dino-Verse')&&
+  assert(sidebarAlignment.some(button=>button.name==='Begleiter')&&
    sidebarAlignment.every(button=>Math.abs(button.left-sidebarAlignment[0].left)<=1),
-   'Shop, Inventory, Tokens and Dino-Verse must align as peer sidebar destinations: '+JSON.stringify(sidebarAlignment));
-  await maxPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
-  await maxPage.locator('.kenny-stage').waitFor({state:'visible'});
+   'Shop, Inventory and Begleiter must align as peer sidebar destinations: '+JSON.stringify(sidebarAlignment));
+  await maxPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await maxPage.locator('.companion-stage').waitFor({state:'visible'});
   await maxPage.locator('.navigation button[aria-label="Dashboard"]').click();
   await maxPage.locator('.dashboard-grid').waitFor({state:'visible'});
   const themeLooks=await maxPage.evaluate(()=>{
@@ -507,8 +515,8 @@ async function main(){
    };
   },[...allIds,'kenny_avatar']);
   await emptyPage.goto(base,{waitUntil:'load'});
-  await emptyPage.locator('.navigation button[aria-label="Item-Shop"]').click();
-  await emptyPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await emptyPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await emptyPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   assert(await emptyPage.locator('.kenny-feed-btn').isEnabled(),
    'Kenny must remain feedable after every item has been collected');
   assert((await emptyPage.locator('.kenny-hint').allInnerTexts()).some(text=>/3[, .]150 TT/.test(text)),
@@ -524,6 +532,43 @@ async function main(){
    'Each extra 300 TT feeding must add 150 TT to the season cashback');
   await emptyContext.close();
   console.log('PASS: exhausted item pool permits 300 TT feeds, token prizes, and 150 TT cashback.');
+
+  // A retained Kenny can still play his Verse after the season, while a
+  // non-level-five dinosaur is locked even when entering the URL directly.
+  const verseContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const versePage=await verseContext.newPage();
+  await versePage.addInitScript(()=>{
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({
+    xp:0,tokens:0,nickname:'VerseTester',inventory:[],equipped:{},activity:[],
+    dinoSeasons:{'kenny-2026':{feeds:25,skin:'blue',settled:true,settlement:0}}
+   }));
+   Date.now=()=>Date.parse('2027-02-15T12:00:00+01:00');
+  });
+  await versePage.goto(base+'kennyverse/index.html',{waitUntil:'load'});
+  await versePage.locator('.hero h1').waitFor({state:'visible'});
+  assert((await versePage.title()).includes('Kennyverse'));
+  assert(await versePage.locator('.hero-icon img').isVisible(),
+   'Kenny must be visibly present inside his Daily world');
+  await versePage.locator('.hero button[data-action="quiz"]').click();
+  await versePage.locator('.question').waitFor({state:'visible'});
+  assert.equal(await versePage.locator('.choice').count(),4,
+   'Kennyverse must keep four original answer options');
+  await check(versePage,'Kennyverse 390');
+  await verseContext.close();
+  const lockedContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const lockedPage=await lockedContext.newPage();
+  await lockedPage.addInitScript(()=>{
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({
+    dinoSeasons:{'kenny-2026':{feeds:24}}
+   }));
+   Date.now=()=>Date.parse('2027-02-15T12:00:00+01:00');
+  });
+  await lockedPage.goto(base+'kennyverse/index.html',{waitUntil:'load'});
+  await lockedPage.locator('.kenny-locked').waitFor({state:'visible'});
+  assert(await lockedPage.locator('#quizTab').isDisabled(),
+   'A retired non-level-five Kenny must not unlock Daily rewards via a direct URL');
+  await lockedContext.close();
+  console.log('PASS: Kennyverse remains playable after Level 5; expired non-retained companions are locked.');
   for(const [world,url,mainSelector,header] of [
    ['Chemverse','nawi/test-01/','#pages','.studyverse-profile-link'],
    ['Dsaiverse','dsai/test-01/','#main','.studyverse-profile-link'],
