@@ -1500,3 +1500,80 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .universe.designer-mode .dino-designer-heading h2{font-size:21px}
  .universe.companions-mode .companions-page>.page-subtitle{display:none}
 }
+
+
+/* Shop and Inventory have a common filter baseline. The third tab opens
+   Dino Designer directly, so redundant large summary/TT panels are gone. */
+.universe.shop-mode .shop-view-tabs,.universe.designer-mode .shop-view-tabs{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  width:min(100%,810px);max-width:100%;flex:0 0 auto;gap:5px;
+}
+.universe.shop-mode .shop-filter-start{margin-top:4px!important}
+.universe.shop-mode .shop-items-heading{margin:4px 0 6px!important}
+.universe.shop-mode .inventory-filter-bar{margin:4px 0 6px}
+.universe.shop-mode .inventory-results{margin:3px 0 5px}
+.universe.designer-mode .shop-view-tabs{margin:2px 0 7px;padding:5px}
+.universe.designer-mode main{padding-top:7px}
+.universe.designer-mode .dino-designer-page{height:auto;flex:1 1 auto}
+.universe.shop-mode .shop-view-tabs button,.universe.designer-mode .shop-view-tabs button{
+  min-width:0;justify-content:center;text-align:center;padding:8px 7px;line-height:1.2
+}
+/* The right-hand Kenny exclusive loot list must NEVER scroll within itself. */
+.universe.kenny-mode:not(.designer-mode) .kenny-loot{gap:clamp(3px,.7vh,8px);padding:clamp(9px,1.4vh,15px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives{
+  min-height:0;flex:1 1 auto;overflow:hidden;
+  grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));align-content:stretch;gap:5px
+}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives>div{min-height:0;padding:5px;gap:4px}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong{font-size:clamp(9px,.75vw,11px);line-height:1.16}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives span{font-size:17px}
+.universe.kenny-mode:not(.designer-mode) .kenny-level-reward{font-size:clamp(9px,.9vw,11px);margin:2px 0}
+.universe.kenny-mode:not(.designer-mode) .kenny-token-prizes>div{padding:clamp(3px,.8vh,8px) 2px}
+.universe.kenny-mode:not(.designer-mode) .kenny-pool-button{flex:0 0 auto;padding:8px}
+
+/* Compact two-row loot grid keeps all Kenny-exclusive items visible on phones.
+   The lower item-pool dialog remains available for full probabilities. */
+@media(max-width:700px){
+ .universe.shop-mode .shop-view-tabs,.universe.designer-mode .shop-view-tabs{
+   grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:3px;margin:4px 0 6px
+ }
+ .universe.shop-mode .shop-view-tabs button,.universe.designer-mode .shop-view-tabs button{
+   padding:6px 3px;min-height:38px;font-size:clamp(9px,2.45vw,11px);line-height:1.12
+ }
+ .universe.shop-mode .shop-view-tabs button span{display:none}
+ .universe.kenny-mode:not(.designer-mode) .kenny-page{
+   grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.25fr) minmax(0,1fr) auto;
+   gap:5px
+ }
+ .universe.kenny-mode:not(.designer-mode) .kenny-play{
+   grid-template-rows:minmax(0,1fr) auto;min-height:0;gap:5px
+ }
+ .universe.kenny-mode:not(.designer-mode) .kenny-loot{
+   display:flex;min-height:0;overflow:hidden;padding:6px;gap:3px;border-radius:13px
+ }
+ .universe.kenny-mode:not(.designer-mode) .kenny-loot-head>span{font-size:9px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-loot-head small{font-size:8px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes>div{display:flex;justify-content:center;align-items:center;padding:3px 2px;gap:3px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes span{font-size:12px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes strong{font-size:9px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes small{font-size:8px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-loot-subhead{font-size:9px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives{
+   grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:3px
+ }
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives>div{padding:2px 3px;gap:3px;border-radius:7px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong{font-size:8px;line-height:1.1}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives span{font-size:12px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives small{font-size:8px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-level-reward{font-size:9px;line-height:1.15;margin:0}
+ .universe.kenny-mode:not(.designer-mode) .kenny-pool-button{padding:5px;font-size:9px;min-height:0}
+ .universe.kenny-mode:not(.designer-mode) .kenny-season-foot>button{display:none}
+}
+@media(max-width:700px) and (max-height:680px){
+ .universe.kenny-mode:not(.designer-mode) .kenny-page{grid-template-rows:minmax(0,1fr) minmax(0,.96fr) auto}
+ .universe.kenny-mode:not(.designer-mode) .kenny-controls{padding:5px 7px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-progress-track{margin:3px 0 5px;height:5px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-action-row .kenny-feed-btn{min-height:33px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-level-reward{font-size:8px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-stage-name span{display:none}
+}
