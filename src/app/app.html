@@ -21,7 +21,7 @@
       <button [class.active]="view==='achievements'" (click)="go('achievements')" aria-label="Achievements"><span>🏆</span> Achievements <small class="mobile-nav-label">Erfolge</small><em>{{achievementTotals.done}}/{{achievementTotals.total}}</em></button>
       <button [class.active]="view==='shop'&&shopTab==='catalog'" (click)="go('shop')" aria-label="Item-Shop"><span>◇</span> Item-Shop <small class="mobile-nav-label">Shop</small><em>{{items.length}}</em></button>
       <button class="sidebar-inventory-link" [class.active]="view==='shop'&&shopTab==='inventory'" (click)="openInventory()" aria-label="Inventar"><span>🎒</span> Inventar <small class="mobile-nav-label">Inventar</small><em>{{ownedCatalogItems.length}}</em></button>
-      <button [class.active]="view==='companions'||(view==='shop'&&(shopTab==='kenny'||shopTab==='designer'))" (click)="openCompanions()" aria-label="Begleiter"><span>🦖</span> Begleiter <small class="mobile-nav-label">Dinos</small><b>↗</b></button>
+      <button [class.active]="view==='companions'||(view==='shop'&&(shopTab==='kenny'||shopTab==='designer'))" (click)="openCompanions()" aria-label="Begleiter"><span>🦖</span> Begleiter <small class="mobile-nav-label">Begleiter</small><b>↗</b></button>
     </nav>
 
   </aside>
@@ -597,7 +597,7 @@
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && !reveal.drop?.item">Kenny hat TT gefunden: <span>{{reveal.drop?.tokens | number}} TT</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='season'">Kennys Season <span>ist vorbei!</span></h2>
       <p *ngIf="reveal.kind==='level' && reveal.level!==5">Weiterfüttern erhöht deine Chance auf wertvollere und exklusive Items.</p>
-      <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! Kenny Blau ist jetzt als Avatar in deinem Inventar. Ab jetzt bekommst du für jede weitere Fütterung am Saisonende 150 TT zurück.</p>
+      <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! 🦖 Kenny ist jetzt für immer dein Begleiter und Kennyverse bleibt auch nach Saisonende für dich spielbar. Kenny Blau liegt als Avatar im Inventar. Für jede weitere Fütterung bekommst du am Saisonende 150 TT zurück.</p>
       <p *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='avatar'">Du kannst deinen neuen Kenny-Avatar jetzt ausrüsten oder später im Inventar auswählen.</p>
        <p *ngIf="reveal.kind==='drop' && isKennyColorSkin(reveal.drop?.item?.id)">Neuer Skin für Kenny freigeschaltet! Du kannst Kenny individuell anpassen und seinen Look jederzeit im Dino-Designer wechseln.</p>
        <p *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.group!=='avatar' && !isKennyColorSkin(reveal.drop?.item?.id)">{{reveal.line}} {{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
