@@ -73,9 +73,16 @@ assert.equal(end.tokens,1500);assert.equal(end.item.id,'kenny_fossil_frame');
 assert.equal(d.settleDinoSeason(end.state,d.KENNY_SEASON.end+1000),null,'Settlement must be once per season');
 assert.equal(d.settleDinoSeason({...state,feeds:24,overfeeds:0},d.KENNY_SEASON.end).item,undefined);
 assert.equal(d.settleDinoSeason(state,d.KENNY_SEASON.end-1),null);
+assert(d.hasKennyCompanion(d.freshDinoState(),d.KENNY_SEASON.start),'Kenny visits during his active season');
+assert(!d.hasKennyCompanion(d.freshDinoState(),d.KENNY_SEASON.end),'Kenny leaves at season end below level 5');
+assert(!d.kennyStaysAfterSeason({...state,feeds:24}),'24 feeds do not grant permanent companionship');
+assert(d.kennyStaysAfterSeason({...state,feeds:25}),'25 feeds retain Kenny permanently');
+assert(d.hasKennyCompanion({...state,feeds:25},d.KENNY_SEASON.end+180*86400000),
+ 'Kennyverse stays unlocked beyond the season after reaching level 5');
 const html=fs.readFileSync('src/app/app.html','utf8'),css=fs.readFileSync('src/styles.scss','utf8');
 assert(html.includes('kenny-sprite')&&html.includes('kenny-avatar.png')&&html.includes('kenny-feeding'));
-assert(html.includes("(click)=\"setShopTab('kenny')\"")&&html.includes('kenny-reveal-modal'));
+assert(html.includes('Kennyverse betreten')&&html.includes('kenny-reveal-modal')&&html.includes('openCompanions()'));
+assert(!html.includes("shopTab===\'earn\'"),'No leftover earning tab');
 assert(css.includes('.universe.kenny-mode.kenny-mode{height:100dvh;min-height:0;overflow:hidden}'));
 assert(css.includes('kenny-idle-strip.png')&&css.includes('kenny-feed-strip.png')&&css.includes('kenny-drone-flight')&&css.includes('kenny-meat-drop'));
 console.log('PASS: Kenny odds, professor exclusions, unique items, levels, cashback and one-time finale.');
