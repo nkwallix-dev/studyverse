@@ -561,8 +561,8 @@ async function main(){
   await colorPage.locator('.shop-view-tabs button').filter({hasText:'Inventar'}).click();
   await colorPage.locator('.inventory-search-label input').fill('Kenny Pink');
   await colorPage.locator('.inventory-item').first().waitFor({state:'visible'});
-  assert.equal(await colorPage.locator('.inventory-item').count(),2,
-   'The skin and its avatar are separate inventory cosmetics');
+  assert.equal(await colorPage.locator('.inventory-item').count(),1,
+   'The avatar stays in Inventory while Dino skins are exclusive to Dino Designer');
   assert((await colorPage.locator('.inventory-item').allTextContents()).every(text=>text.includes('Kenny Pink')));
   await colorContext.close();
   console.log('PASS: pink Kenny skin grants its own avatar and equips across the profile.');
