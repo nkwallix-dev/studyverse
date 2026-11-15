@@ -131,15 +131,13 @@ body:before{
 html[data-kenny-skin="pink"] .kenny-visual img{filter:hue-rotate(105deg) saturate(1.15) drop-shadow(0 10px 15px #030a1577)}
 html[data-kenny-skin="green"] .kenny-visual img{filter:hue-rotate(225deg) saturate(1.15) drop-shadow(0 10px 15px #030a1577)}
 html[data-kenny-skin="red"] .kenny-visual img{filter:hue-rotate(125deg) saturate(1.8) drop-shadow(0 10px 15px #030a1577)}
-html[data-kenny-skin="zebra"] .kenny-visual img{filter:grayscale(1) brightness(1.8) contrast(1.3) drop-shadow(0 10px 15px #030a1577)}
-html[data-kenny-skin="zebra"] .kenny-visual:after{
- content:"";position:absolute;inset:0;pointer-events:none;opacity:.88;
- background:repeating-linear-gradient(113deg,#fff 0 11px,#17171b 11px 17px,#fff 17px 28px,#101014 28px 35px);
- -webkit-mask-image:url("../kenny/kenny-avatar.png");mask-image:url("../kenny/kenny-avatar.png");
- -webkit-mask-size:contain;mask-size:contain;
- -webkit-mask-position:center;mask-position:center;
- -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat
+/* Same treatment as the correct Studyverse avatar; no opaque mask that
+   covers Kenny's eyes, mouth, claws and natural dark body stripes. */
+html[data-kenny-skin="zebra"] .kenny-visual img{
+ filter:grayscale(1) brightness(2) contrast(1.4) drop-shadow(0 10px 15px #030a1577)
 }
+html[data-kenny-skin="zebra"] .kenny-visual::after{content:none!important}
+
 @media(max-width:850px){
  .kenny-side-art .kenny-visual{height:55px}
 }
