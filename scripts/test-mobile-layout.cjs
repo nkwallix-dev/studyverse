@@ -191,8 +191,9 @@ async function main(){
       'New user without Chemverse progress must not see locked Chemverse drop');
      await check(page,'Studyverse Shop-Drop-Selector '+width);
      if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-item-shop-390.png'),fullPage:true});
-     await page.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
-     await page.locator('.kenny-stage').waitFor({state:'visible'});
+     await page.locator('.navigation button[aria-label="Begleiter"]').click();
+     await page.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
+     await page.locator('.kenny-page .kenny-stage').waitFor({state:'visible'});
      const dinoLayout=await page.evaluate(()=>({
       viewport:innerHeight,scroll:document.documentElement.scrollHeight,
       stage:document.querySelector('.kenny-stage').getBoundingClientRect().height,
@@ -205,6 +206,7 @@ async function main(){
      assert(await page.locator('.kenny-sprite').evaluate(el=>el.getBoundingClientRect().width>90),
       'Kenny sprite must have a visible, nonzero width at '+width+'px');
      if(width===390)await page.screenshot({path:path.join(screenshots,'kenny-390.png')});
+     await page.locator('.navigation button[aria-label="Item-Shop"]').click();
     }
     if(width===390&&label==='Achievements')
      await page.screenshot({path:path.join(screenshots,'studyverse-'+label.toLowerCase()+'-390.png'),fullPage:true});
