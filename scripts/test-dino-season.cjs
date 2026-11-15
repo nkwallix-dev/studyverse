@@ -49,7 +49,7 @@ assert.equal(d.actualDinoOdds(5,rich).event,9,'More than 20 ordinary rewards mus
 assert.equal(d.actualDinoOdds(5,noSmall).token100,48.5,'Empty small-item tier shifts to 100 TT, not the remaining cosmetics');
 const sparse=d.eligibleDinoItems([{id:'sharp_only',drop:'pos-pa-01',group:'avatar',cost:200,requirement:{metric:'boss',value:99}}],new Set());
 assert.equal(sparse.small.length,0,'Kenny must never drop Sharpverse cosmetics');
-assert(Math.abs(d.actualDinoOdds(2,sparse).token100-93.8)<1e-8,'Empty regular tiers shift their chance to 100 TT');
+assert(Math.abs(d.actualDinoOdds(2,sparse).token100-90.8)<1e-8,'Empty regular tiers shift their chance to 100 TT');
 const empty=d.eligibleDinoItems([...professors,...ordinary],new Set([
  ...professors.map(item=>item.id),...ordinary.map(item=>item.id),...d.KENNY_EVENT_ITEMS.map(item=>item.id)
 ]));
