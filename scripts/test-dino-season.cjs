@@ -20,7 +20,9 @@ const ordinary=[{id:'small',drop:'course',group:'avatar',cost:200},{id:'medium',
 const pool=d.eligibleDinoItems([...professors,...ordinary],new Set());
 assert.equal(pool.event.length,5);
 assert.equal(d.KENNY_BLUE_AVATAR.id,'kenny_avatar');
+assert.equal(d.KENNY_BLUE_SKIN.id,'kenny_skin_blue');
 assert(!pool.event.some(item=>item.id==='kenny_avatar'),'Blue Kenny must unlock at level 5, not by chance');
+assert(!pool.event.some(item=>item.id==='kenny_skin_blue'),'Blue skin accompanies the first colored skin, not a separate draw');
 assert.equal(d.KENNY_SKIN_AVATARS.length,3);
 for(const color of ['pink','green','red']){
  const avatar=d.kennyAvatarForSkin('kenny_skin_'+color);
@@ -37,6 +39,9 @@ const noSmall=d.eligibleDinoItems(ordinary,new Set(['small','kenny_skin_red']));
 assert.equal(noSmall.small.length,0);assert.equal(noSmall.event.length,4);
 assert.equal(Object.values(d.actualDinoOdds(5,noSmall)).reduce((n,x)=>n+x,0),100);
 assert.equal(d.actualDinoOdds(5,noSmall).token1000,2,'Removing owned items must not inflate token jackpots');
+const rich=d.eligibleDinoItems([...ordinary,...Array.from({length:24},(_,i)=>({id:'extra_'+i,drop:'course',group:'avatar',cost:200}))],new Set());
+assert.equal(rich.small.length,25);
+assert.equal(d.actualDinoOdds(5,rich).event,9,'More than 20 ordinary rewards must not raise the level-five exclusive chance');
 assert.equal(d.actualDinoOdds(5,noSmall).token100,49,'Empty small-item tier shifts to 100 TT, not the remaining cosmetics');
 const sparse=d.eligibleDinoItems([{id:'sharp_only',drop:'pos-pa-01',group:'avatar',cost:200,requirement:{metric:'boss',value:99}}],new Set());
 assert.equal(sparse.small.length,1,'Kenny can find course cosmetics even without learning unlocks');

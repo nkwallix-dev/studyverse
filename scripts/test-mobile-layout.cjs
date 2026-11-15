@@ -314,7 +314,7 @@ async function main(){
   await avatarPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Level 5'));
   const avatarTitle=await avatarPage.locator('#kenny-reveal-title').innerText();
   assert(avatarTitle.includes('Level 5'),'The guaranteed avatar arrives with the level 5 reveal: '+avatarTitle);
-  assert((await avatarPage.locator('.kenny-reveal-modal p').innerText()).includes('Kenny – Blau'),
+  assert((await avatarPage.locator('.kenny-reveal-modal p').innerText()).includes('Kenny Blau'),
    'Level 5 reveal must name the guaranteed avatar');
   assert((await avatarPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')))).inventory.includes('kenny_avatar'));
   const avatarArt=await avatarPage.locator('.kenny-reveal-art img').evaluate(el=>({
@@ -326,10 +326,10 @@ async function main(){
   await avatarPage.screenshot({path:path.join(screenshots,'kenny-avatar-reveal-390.png')});
   await avatarPage.locator('.kenny-inventory-btn').click();
   await avatarPage.locator('.inventory-item').waitFor();
-  assert.equal(await avatarPage.locator('.inventory-item').count(),1,
-   'The reward inventory shortcut should filter to the newly won cosmetic');
-  assert((await avatarPage.locator('.inventory-item').innerText()).includes('Kenny – Blau Avatar'));
-  await avatarPage.locator('.inventory-item .drop-preview-btn').click();
+  assert.equal(await avatarPage.locator('.inventory-item[data-category="avatar"]').count(),1,
+   'The reward inventory shortcut should include the newly won blue avatar');
+  assert((await avatarPage.locator('.inventory-item[data-category="avatar"]').innerText()).includes('Kenny Blau'));
+  await avatarPage.locator('.inventory-item[data-category="avatar"] .drop-preview-btn').click();
   assert((await avatarPage.locator('.preview-requirement').innerText()).includes('Durch Kenny, den Raptor freigeschaltet'));
   await avatarContext.close();
   console.log('PASS: level 5 grants blue Kenny avatar, full-body reveal and direct inventory shortcut.');
@@ -342,21 +342,28 @@ async function main(){
     claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
    const original=crypto.getRandomValues.bind(crypto);
    crypto.getRandomValues=array=>{if(array instanceof Uint32Array){array[0]=0;return array;}return original(array);};
-  },[...allIds,'kenny_avatar'].filter(id=>!['kenny_skin_pink','kenny_avatar_pink'].includes(id)));
+  },[...allIds,'kenny_avatar'].filter(id=>!['kenny_skin_blue','kenny_skin_pink','kenny_avatar_pink'].includes(id)));
   await colorPage.goto(base,{waitUntil:'load'});
   await colorPage.locator('.navigation button[aria-label="Item-Shop"]').click();
   await colorPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
   await colorPage.locator('.kenny-feed-btn').click();
   await colorPage.locator('.kenny-reveal-modal').waitFor();
-  assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink');
+  assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'blue');
   const colorProfile=await colorPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
-  assert(colorProfile.inventory.includes('kenny_skin_pink')&&colorProfile.inventory.includes('kenny_avatar_pink'));
+  assert(colorProfile.inventory.includes('kenny_skin_blue')&&colorProfile.inventory.includes('kenny_skin_pink')&&colorProfile.inventory.includes('kenny_avatar_pink'));
   assert(colorProfile.kennyWonItems['kenny_avatar_pink']);
+  assert((await colorPage.locator('.kenny-reveal-modal').innerText()).includes('Kenny Blau'));
+  await colorPage.locator('.kenny-reveal-modal .btn.primary').click();
+  await colorPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('neue Farbe'));
+  assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink');
   await colorPage.locator('.kenny-inventory-btn').click();
   await colorPage.locator('.inventory-item').waitFor({state:'visible'});
-  assert.equal(await colorPage.locator('.inventory-item').count(),1);
-  assert((await colorPage.locator('.inventory-item').innerText()).includes('Kenny – Pink Avatar'));
-  await colorPage.locator('.inventory-item .drop-buy-btn').click();
+  assert.equal(await colorPage.locator('.inventory-item').count(),2);
+  assert.equal(await colorPage.locator('.inventory-search-label input').inputValue(),'Kenny Pink');
+  assert.equal(await colorPage.locator('.inventory-filter-bar select').first().inputValue(),'Alle');
+  assert.equal(await colorPage.locator('.inventory-filter-bar select').last().inputValue(),'Alle');
+  assert((await colorPage.locator('.inventory-item').allTextContents()).every(text=>text.includes('Kenny Pink')));
+  await colorPage.locator('.inventory-item[data-category="avatar"] .drop-buy-btn').click();
   assert.equal(await colorPage.locator('.top-profile-avatar img').getAttribute('data-skin'),'pink');
   await colorContext.close();
   console.log('PASS: pink Kenny skin grants its own avatar and equips across the profile.');
@@ -373,6 +380,8 @@ async function main(){
   await maxPage.goto(base,{waitUntil:'load'});
   assert((await maxPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')))).inventory.includes('kenny_avatar'),
    'Existing level 5 players receive the blue avatar retroactively');
+  assert((await maxPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')))).inventory.includes('kenny_skin_blue'),
+   'Existing owners of a colored Kenny skin receive the blue skin retroactively');
   await maxPage.locator('.navigation button[aria-label="Item-Shop"]').click();
   await maxPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
   await maxPage.locator('.kenny-hint').waitFor();
@@ -383,8 +392,8 @@ async function main(){
   await maxPage.locator('.avatar-pick-grid').waitFor({state:'visible'});
   const avatarLayout=await maxPage.evaluate(()=>{
    const cards=[...document.querySelectorAll('.avatar-pick-item')];
-   const kenny=cards.find(card=>card.textContent.includes('Kenny – Blau Avatar'));
-   const pink=cards.find(card=>card.textContent.includes('Kenny – Pink Avatar'));
+   const kenny=cards.find(card=>card.textContent.includes('Kenny Blau'));
+   const pink=cards.find(card=>card.textContent.includes('Kenny Pink'));
    const bot=cards.find(card=>card.textContent.includes('Data-Bot Avatar'));
    const image=kenny.querySelector('img').getBoundingClientRect();
    return {kennyHeight:kenny.getBoundingClientRect().height,botHeight:bot.getBoundingClientRect().height,

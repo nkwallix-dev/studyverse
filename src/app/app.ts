@@ -5,7 +5,7 @@ import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items'
 import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
 import { StudyverseCloud, CloudSnapshot, PublicPlayer, PublicShowcase, PublicCourseProgress, AccountNotice, CLOUD_DAILY_KEY, CLOUD_SESSION_KEY, cloudError, isAllowedNickname } from './cloud';
-import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, KENNY_BLUE_AVATAR, KENNY_SKIN_AVATARS, DinoSeasonState, DinoDrop,
+import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, KENNY_BLUE_SKIN, KENNY_BLUE_AVATAR, KENNY_SKIN_AVATARS, DinoSeasonState, DinoDrop,
   freshDinoState, normalizeDinoState, dinoLevel, nextDinoLevel, isKennyActive, cashbackDue, kennyCountdown,
   eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason, kennyAvatarForSkin, kennyAvatarSkin } from './dino-season';
 
@@ -138,8 +138,10 @@ export class App implements OnInit,OnDestroy {
    const missing=KENNY_SKIN_AVATARS.filter(item=>
      restored.inventory.includes('kenny_skin_'+item.id.slice('kenny_avatar_'.length))&&!restored.inventory.includes(item.id));
    const earnedBlue=normalizeDinoState(restored.dinoSeasons?.[KENNY_SEASON.id]).feeds>=KENNY_THRESHOLDS[4];
-   if(missing.length||earnedBlue&&!restored.inventory.includes(KENNY_BLUE_AVATAR.id)){
+   const earnedColor=KENNY_EVENT_ITEMS.some(item=>item.group==='dinoSkin'&&restored.inventory.includes(item.id));
+   if(missing.length||earnedColor&&!restored.inventory.includes(KENNY_BLUE_SKIN.id)||earnedBlue&&!restored.inventory.includes(KENNY_BLUE_AVATAR.id)){
      restored.inventory=[...new Set([...restored.inventory,...missing.map(item=>item.id),
+       ...(earnedColor?[KENNY_BLUE_SKIN.id]:[]),
        ...(earnedBlue?[KENNY_BLUE_AVATAR.id]:[])])];
      write(KEY,JSON.stringify(restored));
    }
@@ -619,6 +621,7 @@ export class App implements OnInit,OnDestroy {
    return labels[group]||'Cosmetic';
  }
  itemNameSuffix(item:ShopItem):string{
+   if(item.id==='kenny_avatar'||item.id.startsWith('kenny_avatar_')||item.id.startsWith('kenny_skin_'))return '';
    const type=this.itemTypeName(item.group);
    const endings=item.group==='font'?['schrift','schriftart']:[type.toLocaleLowerCase('de')];
    const name=item.name.trim().toLocaleLowerCase('de');
@@ -789,11 +792,10 @@ export class App implements OnInit,OnDestroy {
  acknowledgeKennyReveal(){this.kennyReveals.shift();this.changeDetector.markForCheck();}
  openKennyRewardInventory(){
    const prize=this.kennyCurrentReveal?.drop?.item||this.kennyCurrentReveal?.item;
-   const item=kennyAvatarForSkin(prize?.id)||prize;
-   if(!item)return;
-   this.acknowledgeKennyReveal();
+   if(!prize)return;
+   this.kennyReveals=[];
    this.openInventory();
-   this.inventoryDrop=item.drop;this.inventoryGroup=item.group;this.inventorySearch=item.name;
+   this.inventoryDrop='Alle';this.inventoryGroup='Alle';this.inventorySearch=prize.name;
  }
  setKennySkin(skin:string){
    if(!['blue','pink','green','red'].includes(skin)||
@@ -826,7 +828,9 @@ export class App implements OnInit,OnDestroy {
    this.profile.dinoSeasons={...(this.profile.dinoSeasons||{}),[KENNY_SEASON.id]:next};
    if(prize.item){
      const avatar=kennyAvatarForSkin(prize.item.id);
-     this.profile.inventory=[...new Set([...this.profile.inventory,prize.item.id,...(avatar?[avatar.id]:[])])];
+     const firstColor=!!avatar&&!previous.inventory.includes(KENNY_BLUE_SKIN.id);
+     this.profile.inventory=[...new Set([...this.profile.inventory,
+       ...(firstColor?[KENNY_BLUE_SKIN.id]:[]),prize.item.id,...(avatar?[avatar.id]:[])])];
      this.profile.kennyWonItems={...(this.profile.kennyWonItems||{}),[prize.item.id]:true,
        ...(avatar?{[avatar.id]:true}:{})};
    }
@@ -845,6 +849,8 @@ export class App implements OnInit,OnDestroy {
    // The private save confirms the feed first; only then publish its level to the player card.
    void this.publishFriendCard();
    this.kennyFeeding=false;this.kennyVisibleFeeds=null;
+   if(prize.item&&kennyAvatarForSkin(prize.item.id)&&!previous.inventory.includes(KENNY_BLUE_SKIN.id))
+     this.kennyReveals.push({kind:'drop',drop:{tier:'event',tokens:0,item:KENNY_BLUE_SKIN},line:'Kennys ursprüngliche Farbe ist jetzt ebenfalls verfügbar.'});
    this.kennyReveals.push({kind:'drop',drop:prize,line});
    if(dinoLevel(next.feeds)>priorLevel)this.kennyReveals.push({kind:'level',level:dinoLevel(next.feeds),
      ...(reachedLevelFive&&!previous.inventory.includes(KENNY_BLUE_AVATAR.id)?{item:KENNY_BLUE_AVATAR}:{})});
@@ -1002,7 +1008,7 @@ export class App implements OnInit,OnDestroy {
  get currentAvatar(){return this.profile.equipped['avatar'] || '🧪';}
  kennyAvatarSkin(value:string):ReturnType<typeof kennyAvatarSkin>{return kennyAvatarSkin(value);}
  kennyAvatarForSkin(id:string|undefined){return kennyAvatarForSkin(id);}
- kennyRewardSkin(id:string|undefined){return kennyAvatarSkin(kennyAvatarForSkin(id)?.id||id||'');}
+ kennyRewardSkin(id:string|undefined){return id===KENNY_BLUE_SKIN.id?'blue':kennyAvatarSkin(kennyAvatarForSkin(id)?.id||id||'');}
  avatarEquipValue(item:ShopItem):string{return item.group==='avatar'?(kennyAvatarSkin(item.id)?item.id:item.icon):(item.equip||item.id);}
  avatarSelected(item:ShopItem):boolean{return item.group==='avatar'&&this.active(item);}
  get unlockedAvatars(){return this.ownedCatalogItems.filter(item=>item.group==='avatar');}
