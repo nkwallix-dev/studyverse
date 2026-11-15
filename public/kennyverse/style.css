@@ -281,3 +281,10 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
  .kenny-question-card .feedback{padding:4px 6px}
  .kenny-play-note{display:none}
 }
+
+
+/* The decorative dinosaur portrait must never overlap or steal clicks from
+   the fixed desktop navigation on viewport-width transitions. */
+.side .kenny-side-art{flex-shrink:0;overflow:hidden;pointer-events:none}
+.side .kenny-side-art img{max-height:100%;max-width:100%;pointer-events:none}
+.side .navbtn{position:relative;z-index:2;flex-shrink:0}
