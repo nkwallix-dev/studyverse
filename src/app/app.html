@@ -328,7 +328,7 @@
                   <button type="button" class="kenny-style-btn" (click)="kennyCustomizeOpen=true" aria-label="Kenny personalisieren">🎨 <span>Personalisieren</span></button>
                 </div>
                 <p class="kenny-last-feed" *ngIf="kennyRemainingFeeds===1 && kennyLevel<5 && !kennyFeeding">Bravo! Noch einmal füttern, dann ist Kenny Level {{kennyLevel+1}}.</p>
-                <p class="kenny-hint" *ngIf="kennyLevel===5 && kennyActive">✦ Max-Level! Von deinen weiteren Fütterungen bekommst du nach Saisonende 50 % der Nettokosten zurück. Aktuell: <b>{{kennyCashback | number}} TT</b>.</p>
+                <p class="kenny-hint" *ngIf="kennyLevel===5 && kennyActive">✦ Max-Level! Pro weiterer Fütterung bekommst du am Saisonende 150 TT zurück. {{kennyState.overfeeds}} weitere Fütterungen · Aktuell: <b>{{kennyCashback | number}} TT</b>.</p>
                 <p class="kenny-hint" *ngIf="!kennyActive">Kennys Season ist vorbei. Erhaltene Items bleiben in deinem Inventar.</p>
                 <p class="kenny-hint" *ngIf="kennyPoolEmpty && kennyActive">Du hast alle verfügbaren Items eingesammelt. Kenny ist satt!</p>
                 <p class="kenny-error" *ngIf="kennyError">{{kennyError}}</p>
@@ -337,7 +337,7 @@
             <aside class="kenny-loot">
               <div class="kenny-loot-head"><span>✦ MÖGLICHE GEWINNE</span><small>Chancen für Level {{kennyLevel}}</small></div>
               <div class="kenny-token-prizes">
-                <div><span>🪙</span><strong>250 TT</strong><small>{{kennyOdds.token250}} %</small></div>
+                <div><span>🪙</span><strong>100 TT</strong><small>{{kennyOdds.token100}} %</small></div>
                 <div><span>🪙</span><strong>500 TT</strong><small>{{kennyOdds.token500}} %</small></div>
                 <div class="jackpot"><span>💎</span><strong>1.000 TT</strong><small>{{kennyOdds.token1000}} %</small></div>
               </div>
@@ -516,7 +516,7 @@
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && !reveal.drop?.item">Kenny hat TT gefunden: <span>{{reveal.drop?.tokens | number}} TT</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='season'">Kennys Season <span>ist vorbei!</span></h2>
       <p *ngIf="reveal.kind==='level' && reveal.level!==5">Weiterfüttern erhöht deine Chance auf wertvollere und exklusive Items.</p>
-      <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! Ab jetzt bekommst du am Saisonende 50 % der Nettokosten weiterer Fütterungen zurück.</p>
+      <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! Ab jetzt bekommst du für jede weitere Fütterung am Saisonende 150 TT zurück.</p>
       <p *ngIf="reveal.kind==='drop' && reveal.drop?.item">{{reveal.line}} {{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
       <p *ngIf="reveal.kind==='drop' && !reveal.drop?.item">{{reveal.line}} {{reveal.drop?.tokens | number}} TT landen in deinem Guthaben.</p>
       <p *ngIf="reveal.kind==='season'">{{reveal.tokens ? (reveal.tokens | number)+' TT Cashback' : 'Kein Cashback'}}<span *ngIf="reveal.item"> · {{reveal.item.name}} freigeschaltet</span></p>
@@ -543,7 +543,7 @@
       <span class="eyebrow">✦ KENNY · LEVEL {{kennyLevel}}</span><h2>Alle <span>Gewinne.</span></h2>
       <p>Ein Futter kostet 300 TT. Du erhältst entweder TT oder genau ein Item. Bereits besessene Items werden nicht erneut gezogen.</p>
       <div class="kenny-pool-scroll">
-        <div class="kenny-pool-section"><strong>🪙 TOKEN-DROPS</strong><span>250 TT · {{kennyOdds.token250}} % &nbsp; 500 TT · {{kennyOdds.token500}} % &nbsp; 1.000 TT · {{kennyOdds.token1000}} %</span></div>
+        <div class="kenny-pool-section"><strong>🪙 TOKEN-DROPS</strong><span>100 TT · {{kennyOdds.token100}} % &nbsp; 500 TT · {{kennyOdds.token500}} % &nbsp; 1.000 TT · {{kennyOdds.token1000}} %</span></div>
         <div class="kenny-pool-section" *ngFor="let tier of kennyPoolPreview">
           <strong>{{tier.name}} · {{tier.chance | number:'1.0-1'}} %</strong>
           <div class="kenny-pool-items"><span *ngFor="let item of tier.items">{{item.icon}} {{item.name}}</span><small *ngIf="!tier.items.length">Alles aus dieser Kategorie eingesammelt.</small></div>

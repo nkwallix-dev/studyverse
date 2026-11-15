@@ -1017,6 +1017,8 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .kenny-pool-button{border:1px solid #8c7eb0;border-radius:11px;background:#ffffff14;color:#f3e9ff;font-size:11px;font-weight:900;padding:9px}
 .kenny-season-foot{grid-column:1/-1;display:flex;justify-content:space-between;gap:9px;align-items:center;font-size:10px;letter-spacing:.6px;color:#d9cfdd;font-weight:850}.kenny-season-foot span:nth-child(2){margin-left:auto;color:#ffd8a4}.kenny-season-foot button{display:none;background:none;border:0;color:#e7c6ff;font-weight:900}
 .kenny-avatar-image{display:block;max-height:100%;max-width:100%;width:100%;height:100%;object-fit:contain}
+.avatar-pick-item>span{width:60px;height:60px;flex:0 0 60px;display:grid;place-items:center}
+.avatar-pick-item .kenny-avatar-image{width:58px;height:58px;max-width:58px;max-height:58px;object-fit:contain}
 .big-item-icon .kenny-avatar-image{width:95px;height:95px}.friend-character .kenny-avatar-image{width:100%;height:100%}
 .universe[data-frame="kenny_fossil"] :is(.stat,.subject-card,.item,.profile-panel,.test-row,.level-card,.activity-card,.loot-card){border:2px solid #ead4ab!important;box-shadow:0 0 0 3px #bd9e7145,0 8px 20px #0005!important}
 .friend-showcase.universe[data-frame="kenny_fossil"]{border:5px ridge #d9bf96;box-shadow:0 0 0 3px #897655,0 30px 100px #000b}

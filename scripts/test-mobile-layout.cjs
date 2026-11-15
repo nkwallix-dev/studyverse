@@ -291,6 +291,39 @@ async function main(){
   await avatarPage.screenshot({path:path.join(screenshots,'kenny-avatar-reveal-390.png')});
   await avatarContext.close();
   console.log('PASS: Kenny avatar reveal copy and full-body art.');
+  const maxContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const maxPage=await maxContext.newPage();
+  await maxPage.addInitScript(()=>{
+   localStorage.setItem('studyverse_import_prompt_seen_v1','1');
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:6000,nickname:'MaxTester',
+    inventory:['dsai_bot','kenny_avatar'],
+    equipped:{theme:'base',atm:'none',frame:'none',avatar:'🦖',font:'standard',banner:'default',title:'',fx:'none'},
+    claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
+    dinoSeasons:{'kenny-2026':{feeds:32,overfeeds:0,overTokenWins:2000,skin:'blue',settled:false,settlement:0}}}));
+  });
+  await maxPage.goto(base,{waitUntil:'load'});
+  await maxPage.locator('.navigation button[aria-label="Item-Shop"]').click();
+  await maxPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await maxPage.locator('.kenny-hint').waitFor();
+  assert(/1[, .]050 TT/.test(await maxPage.locator('.kenny-hint').innerText()),
+   'Seven saved feeds beyond level 5 must show 1,050 TT gross cashback, including old saves');
+  await maxPage.locator('.top-profile-link').click();
+  await maxPage.locator('.profile-avatar-edit-btn').click();
+  await maxPage.locator('.avatar-pick-grid').waitFor({state:'visible'});
+  const avatarLayout=await maxPage.evaluate(()=>{
+   const cards=[...document.querySelectorAll('.avatar-pick-item')];
+   const kenny=cards.find(card=>card.textContent.includes('Kenny Avatar'));
+   const bot=cards.find(card=>card.textContent.includes('Data-Bot Avatar'));
+   const image=kenny.querySelector('img').getBoundingClientRect();
+   return {kennyHeight:kenny.getBoundingClientRect().height,botHeight:bot.getBoundingClientRect().height,
+    imageWidth:image.width,imageHeight:image.height};
+  });
+  assert(Math.abs(avatarLayout.kennyHeight-avatarLayout.botHeight)<=4&&
+   avatarLayout.imageWidth<=60&&avatarLayout.imageHeight<=60,
+   'Kenny must have the same avatar tile size as the other avatars: '+JSON.stringify(avatarLayout));
+  await maxPage.screenshot({path:path.join(screenshots,'kenny-avatar-picker-390.png')});
+  await maxContext.close();
+  console.log('PASS: retroactive level-5 cashback and matched avatar picker size.');
   for(const [world,url,mainSelector,header] of [
    ['Chemverse','nawi/test-01/','#pages','.studyverse-profile-link'],
    ['Dsaiverse','dsai/test-01/','#main','.studyverse-profile-link'],

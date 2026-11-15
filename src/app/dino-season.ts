@@ -6,13 +6,13 @@ export const KENNY_SEASON={
   end:Date.parse('2027-01-14T00:00:00+01:00')
 } as const;
 export const KENNY_THRESHOLDS=[0,3,8,15,25] as const;
-export type DinoTier='small'|'medium'|'large'|'event'|'token250'|'token500'|'token1000';
+export type DinoTier='small'|'medium'|'large'|'event'|'token100'|'token500'|'token1000';
 export const KENNY_ODDS:ReadonlyArray<Readonly<Record<DinoTier,number>>>=[
-  {small:32,medium:22,large:5,event:5,token250:22,token500:10,token1000:4},
-  {small:30,medium:23,large:6,event:6,token250:21,token500:10,token1000:4},
-  {small:28,medium:24,large:7,event:7,token250:20,token500:10,token1000:4},
-  {small:25,medium:25,large:8,event:8,token250:19,token500:10,token1000:5},
-  {small:23,medium:26,large:9,event:9,token250:18,token500:10,token1000:5}
+  {small:32,medium:22,large:5,event:5,token100:30,token500:5,token1000:1},
+  {small:30,medium:23,large:6,event:6,token100:29,token500:5,token1000:1},
+  {small:28,medium:24,large:7,event:7,token100:28,token500:5,token1000:1},
+  {small:25,medium:25,large:8,event:8,token100:27,token500:5,token1000:2},
+  {small:23,medium:26,large:9,event:9,token100:26,token500:5,token1000:2}
 ];
 export const KENNY_EVENT_ITEMS:ShopItem[]=[
   {id:'kenny_volcano_banner',kind:'banner',icon:'🌋',name:'Kennys Urzeit',cost:0,desc:'Vulkan und Urzeitlandschaft – nur in Kennys Season.',group:'banner',equip:'kenny_volcano',drop:KENNY_SEASON.id},
@@ -39,7 +39,8 @@ export function normalizeDinoState(value:unknown):DinoSeasonState{
   const data=value as Record<string,unknown>;
   const feeds=count(data['feeds']);
   const skin=['blue','pink','green','red'].includes(String(data['skin']))?data['skin'] as DinoSeasonState['skin']:'blue';
-  return {feeds,overfeeds:Math.min(count(data['overfeeds']),Math.max(0,feeds-25)),
+  // Every feed beyond the 25th is eligible, including feeds saved by older clients.
+  return {feeds,overfeeds:Math.max(0,feeds-25),
     overTokenWins:count(data['overTokenWins']),skin,settled:data['settled']===true,
     settlement:count(data['settlement'])};
 }
@@ -50,7 +51,7 @@ export function dinoLevel(feeds:number):number{
 export function nextDinoLevel(feeds:number):number{return KENNY_THRESHOLDS[Math.min(4,dinoLevel(feeds))];}
 export function isKennyActive(now:number):boolean{return now>=KENNY_SEASON.start&&now<KENNY_SEASON.end;}
 export function cashbackDue(state:DinoSeasonState):number{
-  return Math.floor(Math.max(0,state.overfeeds*KENNY_SEASON.price-state.overTokenWins)/2);
+  return Math.floor(state.overfeeds*KENNY_SEASON.price/2);
 }
 export function kennyCountdown(now:number):string{
   if(now>=KENNY_SEASON.end)return 'Season beendet';
@@ -73,7 +74,7 @@ export function actualDinoOdds(level:number,pools:ReturnType<typeof eligibleDino
   const odds={...base};
   const itemTiers=['small','medium','large','event'] as const;
   for(const tier of itemTiers){
-    if(!pools[tier].length){odds.token250+=odds[tier];odds[tier]=0;}
+    if(!pools[tier].length){odds.token100+=odds[tier];odds[tier]=0;}
   }
   return odds;
 }
@@ -91,7 +92,7 @@ export function drawDinoReward(level:number,pools:ReturnType<typeof eligibleDino
     return {tier,tokens:0,item:choices[Math.floor(random()*choices.length)]};
   }
   // Only floating-point rounding can reach this branch.
-  return {tier:'token250',tokens:250};
+  return {tier:'token100',tokens:100};
 }
 export function settleDinoSeason(state:DinoSeasonState,now:number):{state:DinoSeasonState;tokens:number;item?:ShopItem}|null{
   if(now<KENNY_SEASON.end||state.settled)return null;
