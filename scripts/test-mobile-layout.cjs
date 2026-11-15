@@ -474,11 +474,11 @@ async function main(){
   await maxPage.setViewportSize({width:1200,height:850});
   const sidebarAlignment=await maxPage.locator('.navigation button').evaluateAll(buttons=>
    buttons.map(button=>({name:button.getAttribute('aria-label'),left:button.getBoundingClientRect().left})))
-  assert(sidebarAlignment.some(button=>button.name==='Dino-Verse')&&
+  assert(sidebarAlignment.some(button=>button.name==='Begleiter')&&
    sidebarAlignment.every(button=>Math.abs(button.left-sidebarAlignment[0].left)<=1),
-   'Shop, Inventory, Tokens and Dino-Verse must align as peer sidebar destinations: '+JSON.stringify(sidebarAlignment));
-  await maxPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
-  await maxPage.locator('.kenny-stage').waitFor({state:'visible'});
+   'Shop, Inventory and Begleiter must align as peer sidebar destinations: '+JSON.stringify(sidebarAlignment));
+  await maxPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await maxPage.locator('.companion-stage').waitFor({state:'visible'});
   await maxPage.locator('.navigation button[aria-label="Dashboard"]').click();
   await maxPage.locator('.dashboard-grid').waitFor({state:'visible'});
   const themeLooks=await maxPage.evaluate(()=>{
