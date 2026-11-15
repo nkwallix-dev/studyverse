@@ -115,6 +115,7 @@ async function main(){
      'Inventory and achievements should be side by side at '+width+'px');
    }
    if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-dashboard-390.png'),fullPage:true});
+   let shopFilterTop=null;
    for(const [label,nav] of [
     ['Lernwelten','Lernwelten'],['Achievements','Achievements'],['Item-Shop','Item-Shop'],
     ['Inventar','Inventar'],['Dino-Verse','Dino-Verse'],['Begleiter','Begleiter']]){
@@ -133,6 +134,7 @@ async function main(){
       'Shop destinations should fit the screen without page scrolling: '+JSON.stringify(layout));
     }
     if(label==='Begleiter'){
+     assert.equal(await page.locator('.companions-hint').count(),0,'No redundant Daily cap sentence');
      await page.locator('.companions-grid').waitFor({state:'visible'});
      assert.equal(await page.locator('.companion-card').count(),3,
       'Three companion slots must appear with the current Kenny');
@@ -142,22 +144,47 @@ async function main(){
       const box=selector=>document.querySelector(selector).getBoundingClientRect();
       const cards=[...document.querySelectorAll('.companions-grid .companion-card')].map(el=>el.getBoundingClientRect());
       return {viewport:innerHeight,scroll:document.documentElement.scrollHeight,
-       hintBottom:box('.companions-hint').bottom,cardBottom:Math.max(...cards.map(x=>x.bottom)),
+       cardBottom:Math.max(...cards.map(x=>x.bottom)),
        cardWidths:cards.map(x=>x.width),visibleHeight:cards[0].height};
      });
      assert(companionLayout.scroll<=companionLayout.viewport+3&&
-       companionLayout.hintBottom<=companionLayout.viewport-(width<=700?68:0)+2&&
        companionLayout.cardBottom<=companionLayout.viewport-(width<=700?68:0)+2&&
        companionLayout.visibleHeight>95&&companionLayout.cardWidths.every(x=>x>90),
        'Begleiter cards, actions and footer must fit without scrolling at '+width+': '+JSON.stringify(companionLayout));
      if(width===390)await page.screenshot({path:path.join(screenshots,'begleiter-390.png'),fullPage:true});
     }
+    if(label==='Inventar'){
+     assert.equal(await page.locator('.inventory-summary').count(),0,
+      'Remove the cosmetics summary');
+     assert.equal(await page.locator('.shop-view-tabs button').count(),3);
+     const filterTop=await page.locator('.inventory-filter-bar.shop-filter-start').evaluate(el=>el.getBoundingClientRect().top);
+     assert(shopFilterTop!==null&&Math.abs(shopFilterTop-filterTop)<10,
+       'Catalog and Inventory filters must start at the same height: '+JSON.stringify({shopFilterTop,filterTop}));
+    }
     if(label==='Dino-Verse'){
      await page.locator('.kenny-page').waitFor({state:'visible'});
      assert(await page.locator('.kenny-feed-btn').isVisible(),
       'Dino-Verse must remain a direct, independent feeding destination');
+     assert(await page.locator('.kenny-loot').isVisible()&&
+      await page.locator('.kenny-exclusives>div').count()===6,
+      'All six Kenny-exclusive drops must be visible');
+     assert.equal(await page.locator('.kenny-tiers').count(),0,'No duplicated tier summary');
+     const prizes=await page.locator('.kenny-exclusives').evaluate(el=>{
+       const parent=el.getBoundingClientRect();
+       const rows=[...el.children].map(c=>c.getBoundingClientRect());
+       const loot=el.closest('.kenny-loot').getBoundingClientRect();
+       return {viewport:innerHeight,bottom:Math.max(...rows.map(c=>c.bottom)),
+        prizeBottom:parent.bottom,lootBottom:loot.bottom,
+        maxWidth:Math.max(...rows.map(c=>c.right)),parentRight:parent.right,
+        scroll:el.scrollHeight,client:el.clientHeight};
+     });
+     assert(prizes.bottom<=prizes.prizeBottom+3&&prizes.maxWidth<=prizes.parentRight+3&&
+       prizes.scroll<=prizes.client+3&&prizes.lootBottom<=prizes.viewport-(width<=700?68:0)+3,
+       'All Kenny-exclusive items must fit without scrolling: '+JSON.stringify(prizes));
      await page.locator('.kenny-style-btn').click();
      await page.locator('.dino-designer-grid').waitFor({state:'visible'});
+     assert.equal(await page.locator('.shop-view-tabs button').count(),3);
+     assert.equal(await page.locator('.shop-view-tabs button').filter({hasText:'Designe deinen Dino'}).getAttribute('aria-selected'),'true');
      const designer=await page.evaluate(()=>{
       const rect=selector=>document.querySelector(selector).getBoundingClientRect();
       const cards=[...document.querySelectorAll('.dino-designer-card')].map(el=>el.getBoundingClientRect());
@@ -174,6 +201,11 @@ async function main(){
      if(width===390)await page.screenshot({path:path.join(screenshots,'dino-designer-390.png'),fullPage:true});
     }
     if(label==='Item-Shop'){
+     assert.equal(await page.locator('.shop-banner.drop-hero').count(),0,
+      'Remove the wallet banner from the Shop');
+     assert.equal(await page.locator('.shop-view-tabs button').count(),3,
+      'Shop, Inventar and Designe deinen Dino require three header tabs');
+     shopFilterTop=await page.locator('.shop-filter-start').first().evaluate(el=>el.getBoundingClientRect().top);
      const select=page.locator('#shop-drop-select');
      assert(await select.isVisible(),'Drop selector should be beside Alle Items at '+width+'px');
      assert.equal(await page.locator('.shop-drop-card').count(),0,'No old chunky drop cards');
@@ -605,7 +637,7 @@ async function main(){
   await versePage.locator('.question').waitFor({state:'visible'});
   assert.equal(await versePage.locator('.choice').count(),4,
    'Kennyverse must keep four original answer options');
-  assert(await versePage.locator('.companion-banner .kenny-visual img').isVisible(),
+  assert(await versePage.locator('.kenny-play-title .kenny-visual img').isVisible(),
    'Research questions must also show the equipped Kenny companion');
   await versePage.evaluate(()=>{
     const profile=JSON.parse(localStorage.getItem('studyverse_profile_v1'));
@@ -616,7 +648,7 @@ async function main(){
   });
   const updatedAppearance=await versePage.evaluate(()=>({
     skin:document.documentElement.dataset.kennySkin,
-    questionFilter:getComputedStyle(document.querySelector('.companion-banner .kenny-visual img')).filter,
+    questionFilter:getComputedStyle(document.querySelector('.kenny-play-title .kenny-visual img')).filter,
     accent:getComputedStyle(document.documentElement).getPropertyValue('--kenny-primary').trim()
   }));
   assert(updatedAppearance.skin==='pink'&&updatedAppearance.questionFilter.includes('hue-rotate(105deg)')&&
