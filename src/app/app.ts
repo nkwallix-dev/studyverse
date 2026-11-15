@@ -838,6 +838,7 @@ export class App implements OnInit,OnDestroy {
      .map(category=>({...category,items:pools[category.key],chance:this.kennyOdds[category.key]}));
  }
  get kennyCurrentReveal(){return this.kennyReveals[0]||null;}
+ get visibleKennyReveal(){return this.shopTab==='designer'?null:this.kennyCurrentReveal;}
  acknowledgeKennyReveal(){this.kennyReveals.shift();this.changeDetector.markForCheck();}
  equipKennyRewardAvatar(){
    const item=this.kennyCurrentReveal?.drop?.item;
@@ -914,9 +915,8 @@ export class App implements OnInit,OnDestroy {
      this.kennyReveals.push({kind:'drop',drop:prize,line:avatar
        ?'Neuer Skin für Kenny freigeschaltet! Passe deinen Dino im Designer individuell an.'
        :line});
-     if(avatar&&!previous.inventory.includes(KENNY_BLUE_SKIN.id))
-       this.kennyReveals.push({kind:'drop',drop:{tier:'event',tokens:0,item:KENNY_BLUE_SKIN},
-         line:'Auch Kennys ursprüngliche blaue Farbe bleibt verfügbar.'});
+     // Blue is already granted along with the first color. Don't interrupt
+     // the requested Avatar → Skin journey with a third popup.
    }else this.kennyReveals.push({kind:'drop',drop:prize,line});
    if(dinoLevel(next.feeds)>priorLevel)this.kennyReveals.push({kind:'level',level:dinoLevel(next.feeds),
      ...(reachedLevelFive&&!previous.inventory.includes(KENNY_BLUE_AVATAR.id)?{item:KENNY_BLUE_AVATAR}:{})});
