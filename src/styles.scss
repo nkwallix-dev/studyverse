@@ -1777,3 +1777,43 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .kenny-pool-dialog .kenny-pool-section{padding:5px 7px}
  .kenny-dialog-veil .kenny-pool-dialog{height:calc(100dvh - 16px);max-height:calc(100dvh - 16px)}
 }
+
+
+/* Keep the current Kenny prize-card geometry while letting its contents
+   actually occupy the available space. The stage-name KENNY stays unchanged. */
+.universe.kenny-mode:not(.designer-mode) .kenny-loot-head>span{font-size:clamp(12px,.98vw,15px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-loot-head small{font-size:clamp(11px,.82vw,13px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-token-prizes>div{gap:5px;align-content:center}
+.universe.kenny-mode:not(.designer-mode) .kenny-token-prizes span{font-size:clamp(22px,2.1vw,28px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-token-prizes strong{font-size:clamp(13px,1.08vw,17px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-token-prizes small{font-size:clamp(12px,.95vw,15px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-loot-subhead{font-size:clamp(12px,.97vw,14px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives>div{
+ gap:clamp(6px,.7vw,11px);padding:clamp(7px,.85vw,12px);align-items:center
+}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives span{font-size:clamp(25px,2.4vw,35px);line-height:1.1}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong{
+ font-size:clamp(13px,1.12vw,17px);line-height:1.32;font-weight:900
+}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives small{font-size:clamp(13px,1.08vw,16px);font-weight:850}
+.universe.kenny-mode:not(.designer-mode) .kenny-level-reward{
+ font-size:clamp(13px,1.13vw,17px);font-weight:900;line-height:1.33
+}
+.universe.kenny-mode:not(.designer-mode) .kenny-pool-button{
+ font-size:clamp(13px,1.05vw,16px);min-height:42px
+}
+@media(max-width:700px){
+ .universe.kenny-mode:not(.designer-mode) .kenny-loot-head>span{font-size:10px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-loot-head small{font-size:9px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes>div{gap:2px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes span{font-size:17px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes strong{font-size:11px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes small{font-size:10px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-loot-subhead{font-size:10px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives>div{padding:3px 4px;gap:4px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives span{font-size:clamp(18px,5.3vw,23px)}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong{font-size:clamp(10px,2.8vw,12px);line-height:1.2}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives small{font-size:clamp(10px,2.7vw,12px)}
+ .universe.kenny-mode:not(.designer-mode) .kenny-level-reward{font-size:clamp(11px,2.9vw,13px)}
+ .universe.kenny-mode:not(.designer-mode) .kenny-pool-button{font-size:11px;min-height:30px;padding:5px}
+}
