@@ -16,17 +16,31 @@ export const KENNY_ODDS:ReadonlyArray<Readonly<Record<DinoTier,number>>>=[
 ];
 export const KENNY_EVENT_ITEMS:ShopItem[]=[
   {id:'kenny_volcano_banner',kind:'banner',icon:'🌋',name:'Kennys Urzeit',cost:0,desc:'Vulkan und Urzeitlandschaft – nur in Kennys Season.',group:'banner',equip:'kenny_volcano',drop:KENNY_SEASON.id},
-  {id:'kenny_avatar',kind:'avatar',icon:'🦖',name:'Kenny',cost:0,desc:'Der blaue Raptor als dein Avatar.',group:'avatar',drop:KENNY_SEASON.id},
+  {id:'kenny_avatar',kind:'avatar',icon:'🦖',name:'Kenny – Blau',cost:0,desc:'Der blaue Raptor als dein exklusiver Avatar.',group:'avatar',drop:KENNY_SEASON.id},
   {id:'kenny_pangea_title',kind:'title',icon:'🦕',name:'Hat Pangea überlebt',cost:0,desc:'Kennys exklusiver Titel. Pangea hatte keine Chance.',group:'title',drop:KENNY_SEASON.id},
-  {id:'kenny_skin_pink',kind:'dinoSkin',icon:'🩷',name:'Kenny Pink',cost:0,desc:'Rosa Look für Kenny.',group:'dinoSkin',equip:'pink',drop:KENNY_SEASON.id},
-  {id:'kenny_skin_green',kind:'dinoSkin',icon:'💚',name:'Kenny Grün',cost:0,desc:'Grüner Look für Kenny.',group:'dinoSkin',equip:'green',drop:KENNY_SEASON.id},
-  {id:'kenny_skin_red',kind:'dinoSkin',icon:'❤️',name:'Kenny Rot',cost:0,desc:'Roter Look für Kenny.',group:'dinoSkin',equip:'red',drop:KENNY_SEASON.id}
+  {id:'kenny_skin_pink',kind:'dinoSkin',icon:'🩷',name:'Kenny Pink',cost:0,desc:'Rosa Look für Kenny – inklusive pinkem Kenny-Avatar.',group:'dinoSkin',equip:'pink',drop:KENNY_SEASON.id},
+  {id:'kenny_skin_green',kind:'dinoSkin',icon:'💚',name:'Kenny Grün',cost:0,desc:'Grüner Look für Kenny – inklusive grünem Kenny-Avatar.',group:'dinoSkin',equip:'green',drop:KENNY_SEASON.id},
+  {id:'kenny_skin_red',kind:'dinoSkin',icon:'❤️',name:'Kenny Rot',cost:0,desc:'Roter Look für Kenny – inklusive rotem Kenny-Avatar.',group:'dinoSkin',equip:'red',drop:KENNY_SEASON.id}
 ];
+// These accompany the corresponding skin; they never occupy separate reward slots.
+export const KENNY_SKIN_AVATARS:ShopItem[]=[
+  {id:'kenny_avatar_pink',kind:'avatar',icon:'🦖',name:'Kenny – Pink',cost:0,desc:'Dein pinker Kenny-Avatar zum pinken Dino-Skin.',group:'avatar',drop:KENNY_SEASON.id},
+  {id:'kenny_avatar_green',kind:'avatar',icon:'🦖',name:'Kenny – Grün',cost:0,desc:'Dein grüner Kenny-Avatar zum grünen Dino-Skin.',group:'avatar',drop:KENNY_SEASON.id},
+  {id:'kenny_avatar_red',kind:'avatar',icon:'🦖',name:'Kenny – Rot',cost:0,desc:'Dein roter Kenny-Avatar zum roten Dino-Skin.',group:'avatar',drop:KENNY_SEASON.id}
+];
+export function kennyAvatarForSkin(id:string|undefined):ShopItem|undefined{
+  return KENNY_SKIN_AVATARS.find(item=>id==='kenny_skin_'+item.id.slice('kenny_avatar_'.length));
+}
+export function kennyAvatarSkin(value:string):'blue'|'pink'|'green'|'red'|null{
+  if(value==='🦖'||value==='kenny_avatar')return 'blue';
+  const skin=value.startsWith('kenny_avatar_')?value.slice('kenny_avatar_'.length):'';
+  return skin==='pink'||skin==='green'||skin==='red'?skin:null;
+}
 export const KENNY_FINALE_ITEM:ShopItem={
   id:'kenny_fossil_frame',kind:'frame',icon:'🦴',name:'Urzeit-Fossilrahmen',cost:0,
   desc:'Exklusiv für Kenny auf Level 5 bis zum Saisonende.',group:'frame',equip:'kenny_fossil',drop:KENNY_SEASON.id
 };
-export const KENNY_ITEMS=[...KENNY_EVENT_ITEMS,KENNY_FINALE_ITEM];
+export const KENNY_ITEMS=[...KENNY_EVENT_ITEMS,...KENNY_SKIN_AVATARS,KENNY_FINALE_ITEM];
 
 export interface DinoSeasonState {
   feeds:number;overfeeds:number;overTokenWins:number;skin:'blue'|'pink'|'green'|'red';

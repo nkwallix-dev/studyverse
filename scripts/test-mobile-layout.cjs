@@ -304,15 +304,43 @@ async function main(){
   await avatarPage.locator('.inventory-item').waitFor();
   assert.equal(await avatarPage.locator('.inventory-item').count(),1,
    'The reward inventory shortcut should filter to the newly won cosmetic');
-  assert((await avatarPage.locator('.inventory-item').innerText()).includes('Kenny Avatar'));
+  assert((await avatarPage.locator('.inventory-item').innerText()).includes('Kenny – Blau Avatar'));
+  await avatarPage.locator('.inventory-item .drop-preview-btn').click();
+  assert((await avatarPage.locator('.preview-requirement').innerText()).includes('Durch Kenny, den Raptor freigeschaltet'));
   await avatarContext.close();
   console.log('PASS: Kenny avatar reveal copy, full-body art, and direct inventory shortcut.');
+  const colorContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const colorPage=await colorContext.newPage();
+  await colorPage.addInitScript(ids=>{
+   localStorage.setItem('studyverse_import_prompt_seen_v1','1');
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:1000,nickname:'PinkTester',
+    inventory:ids,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+    claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
+   const original=crypto.getRandomValues.bind(crypto);
+   crypto.getRandomValues=array=>{if(array instanceof Uint32Array){array[0]=0;return array;}return original(array);};
+  },[...allIds,'kenny_avatar'].filter(id=>!['kenny_skin_pink','kenny_avatar_pink'].includes(id)));
+  await colorPage.goto(base,{waitUntil:'load'});
+  await colorPage.locator('.navigation button[aria-label="Item-Shop"]').click();
+  await colorPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await colorPage.locator('.kenny-feed-btn').click();
+  await colorPage.locator('.kenny-reveal-modal').waitFor();
+  assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink');
+  const colorProfile=await colorPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
+  assert(colorProfile.inventory.includes('kenny_skin_pink')&&colorProfile.inventory.includes('kenny_avatar_pink'));
+  assert(colorProfile.kennyWonItems['kenny_avatar_pink']);
+  await colorPage.locator('.kenny-inventory-btn').click();
+  assert.equal(await colorPage.locator('.inventory-item').count(),1);
+  assert((await colorPage.locator('.inventory-item').innerText()).includes('Kenny – Pink Avatar'));
+  await colorPage.locator('.inventory-item .drop-buy-btn').click();
+  assert.equal(await colorPage.locator('.top-profile-avatar img').getAttribute('data-skin'),'pink');
+  await colorContext.close();
+  console.log('PASS: pink Kenny skin grants its own avatar and equips across the profile.');
   const maxContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
   const maxPage=await maxContext.newPage();
   await maxPage.addInitScript(()=>{
    localStorage.setItem('studyverse_import_prompt_seen_v1','1');
    localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:6000,nickname:'MaxTester',
-    inventory:['dsai_bot','dsai_panda','sharp_sheep','kenny_avatar'],
+    inventory:['dsai_bot','dsai_panda','sharp_sheep','kenny_avatar','kenny_skin_pink','chem_link'],
     equipped:{theme:'base',atm:'none',frame:'none',avatar:'🦖',font:'standard',banner:'default',title:'',fx:'none'},
     claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
     dinoSeasons:{'kenny-2026':{feeds:32,overfeeds:0,overTokenWins:2000,skin:'blue',settled:false,settlement:0}}}));
@@ -328,13 +356,14 @@ async function main(){
   await maxPage.locator('.avatar-pick-grid').waitFor({state:'visible'});
   const avatarLayout=await maxPage.evaluate(()=>{
    const cards=[...document.querySelectorAll('.avatar-pick-item')];
-   const kenny=cards.find(card=>card.textContent.includes('Kenny Avatar'));
+   const kenny=cards.find(card=>card.textContent.includes('Kenny – Blau Avatar'));
+   const pink=cards.find(card=>card.textContent.includes('Kenny – Pink Avatar'));
    const bot=cards.find(card=>card.textContent.includes('Data-Bot Avatar'));
    const image=kenny.querySelector('img').getBoundingClientRect();
    return {kennyHeight:kenny.getBoundingClientRect().height,botHeight:bot.getBoundingClientRect().height,
-    imageWidth:image.width,imageHeight:image.height};
+    imageWidth:image.width,imageHeight:image.height,pinkOwned:!!pink};
   });
-  assert(Math.abs(avatarLayout.kennyHeight-avatarLayout.botHeight)<=4&&
+  assert(avatarLayout.pinkOwned&&Math.abs(avatarLayout.kennyHeight-avatarLayout.botHeight)<=4&&
    avatarLayout.imageWidth<=60&&avatarLayout.imageHeight<=60,
    'Kenny must have the same avatar tile size as the other avatars: '+JSON.stringify(avatarLayout));
   await maxPage.screenshot({path:path.join(screenshots,'kenny-avatar-picker-390.png')});
@@ -346,6 +375,32 @@ async function main(){
     height:element.getBoundingClientRect().height})));
   assert(artHeights.length>=4&&artHeights.every(art=>Math.abs(art.height-artHeights[0].height)<=1),
    'Panda and sheep avatar panels should match the other inventory art: '+JSON.stringify(artHeights));
+  await maxPage.locator('.inventory-item').filter({hasText:'Molekül-Matrix'}).locator('.drop-preview-btn').click();
+  assert((await maxPage.locator('.preview-requirement').innerText()).includes('Durch Kenny, den Raptor freigeschaltet'),
+   'Already owned cosmetics with an incomplete learning goal must not claim it was fulfilled');
+  await maxPage.locator('.shop-preview-modal .btn.secondary').click();
+  await maxPage.setViewportSize({width:1200,height:850});
+  const sidebarAlignment=await maxPage.locator('.navigation button').evaluateAll(buttons=>
+   buttons.map(button=>({name:button.getAttribute('aria-label'),left:button.getBoundingClientRect().left})))
+  assert(sidebarAlignment.some(button=>button.name==='Dino-Verse')&&
+   sidebarAlignment.every(button=>Math.abs(button.left-sidebarAlignment[0].left)<=1),
+   'Shop, Inventory, Tokens and Dino-Verse must align as peer sidebar destinations: '+JSON.stringify(sidebarAlignment));
+  await maxPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
+  await maxPage.locator('.kenny-stage').waitFor({state:'visible'});
+  await maxPage.locator('.navigation button[aria-label="Dashboard"]').click();
+  const themeLooks=await maxPage.evaluate(()=>{
+   const root=document.querySelector('.universe');root.dataset.banner='default';
+   return ['dsai_neural','sharp_theme','sharp_cutline'].map(theme=>{
+    root.dataset.theme=theme;
+    const css=getComputedStyle(root);
+    return {theme,bg:css.getPropertyValue('--bg').trim(),accent:css.getPropertyValue('--accent').trim(),
+     hero:getComputedStyle(root.querySelector('.hero')).backgroundImage};
+   });
+  });
+  assert(new Set(themeLooks.map(look=>look.bg)).size===3&&
+   new Set(themeLooks.map(look=>look.accent)).size===3&&
+   new Set(themeLooks.map(look=>look.hero)).size===3,
+   'Neural Core, Violet Overclock and Razor Syntax need distinct backgrounds, accents and hero art: '+JSON.stringify(themeLooks));
   await maxContext.close();
   console.log('PASS: retroactive level-5 cashback and matched avatar picker size.');
   // Owning every cosmetic must never prevent another 300 TT feeding. With an

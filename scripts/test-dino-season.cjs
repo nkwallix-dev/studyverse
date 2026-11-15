@@ -18,6 +18,14 @@ const professors=['title_chaos','dsai_title_weber','sharp_title_spermann'].map(i
 const ordinary=[{id:'small',drop:'course',group:'avatar',cost:200},{id:'medium',drop:'course',group:'banner',cost:500},{id:'large',drop:'course',group:'theme',cost:900}];
 const pool=d.eligibleDinoItems([...professors,...ordinary],new Set());
 assert.equal(pool.event.length,6);
+assert.equal(d.KENNY_SKIN_AVATARS.length,3);
+for(const color of ['pink','green','red']){
+ const avatar=d.kennyAvatarForSkin('kenny_skin_'+color);
+ assert.equal(avatar.id,'kenny_avatar_'+color);
+ assert.equal(d.kennyAvatarSkin(avatar.id),color);
+ assert(!pool.event.some(item=>item.id===avatar.id),'Matching avatars must not take extra draw slots');
+}
+assert.equal(d.kennyAvatarSkin('🦖'),'blue','Existing blue equips must remain recognizable');
 assert.equal(pool.small.length,1);assert.equal(pool.medium.length,1);assert.equal(pool.large.length,1);
 assert(!Object.values(pool).flat().some(x=>professors.some(p=>p.id===x.id)));
 assert.equal(d.drawDinoReward(5,pool,()=>.995).tokens,1000);

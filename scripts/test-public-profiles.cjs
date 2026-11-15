@@ -128,7 +128,7 @@ assert.equal(visiblePublicTitle({title:{stringValue:'Cheater'},selectedTitle:{st
 assert.equal(visiblePublicTitle({selectedTitle:{stringValue:'Cheater'}}),'Weltenentdecker',
  'Client-supplied title alone cannot forge the exclusive title in the public directory');
 assert.equal(hasExclusiveCheaterTitle({exclusiveItems:{arrayValue:{values:[{stringValue:'exclusive_title_cheater'}]}}}),true);
-assert(angular.includes("item.id==='exclusive_title_cheater'?this.exclusiveCheaterTitle")&&
+assert(angular.includes("if(item.id==='exclusive_title_cheater')return this.exclusiveCheaterTitle;")&&
  angular.includes("i.id!=='exclusive_title_cheater'||this.exclusiveCheaterTitle"),
  'Exclusive item ownership and equipped display must require the admin entitlement');
 (async()=>{

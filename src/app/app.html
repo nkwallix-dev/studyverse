@@ -22,6 +22,7 @@
       <button [class.active]="view==='shop'&&shopTab==='catalog'" (click)="go('shop')" aria-label="Item-Shop"><span>◇</span> Item-Shop <small class="mobile-nav-label">Shop</small><em>{{items.length}}</em></button>
       <button class="sidebar-inventory-link" [class.active]="view==='shop'&&shopTab==='inventory'" (click)="openInventory()" aria-label="Inventar"><span>🎒</span> Inventar <small class="mobile-nav-label">Inventar</small><em>{{ownedCatalogItems.length}}</em></button>
       <button class="sidebar-inventory-link sidebar-earn-link" [class.active]="view==='shop'&&shopTab==='earn'" (click)="openTokenEarning()" aria-label="TastyTokens verdienen"><span>🪙</span> TastyTokens verdienen <small class="mobile-nav-label">Tokens</small></button>
+      <button class="sidebar-inventory-link" [class.active]="view==='shop'&&shopTab==='kenny'" (click)="openDinoVerse()" aria-label="Dino-Verse"><span>🦖</span> Dino-Verse <small class="mobile-nav-label">Dino</small></button>
     </nav>
 
   </aside>
@@ -40,7 +41,7 @@
           <span>👥</span><span class="top-friends-text">Freunde</span>
         </button>
         <button type="button" class="top-profile-link" [class.active]="view==='profile'" (click)="go('profile')" aria-label="Mein Profil öffnen" title="Mein Profil">
-          <span class="top-profile-avatar"><img *ngIf="currentAvatar==='🦖';else topAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #topAvatarText>{{currentAvatar}}</ng-template></span><span class="top-profile-text">Mein Profil</span>
+          <span class="top-profile-avatar"><img *ngIf="kennyAvatarSkin(currentAvatar);else topAvatarText" class="kenny-avatar-image" [attr.data-skin]="kennyAvatarSkin(currentAvatar)" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #topAvatarText>{{currentAvatar}}</ng-template></span><span class="top-profile-text">Mein Profil</span>
         </button>
       </div>
     </header>
@@ -215,7 +216,7 @@
             <div class="item-grid drop-item-grid">
               <article class="item drop-item" *ngFor="let item of filteredItems" [attr.data-category]="item.group" [class.locked]="!isUnlocked(item)" [class.reward-spotlight]="spotlightRewardId===item.id">
                 <div class="item-art drop-item-art" [class.avatar-art]="item.group==='avatar'" [class.panda-art]="item.id==='dsai_panda'" [style.background]="themeStyle(item)">
-                  <span class="item-spark one">✦</span><span class="big-item-icon"><img *ngIf="item.id==='kenny_avatar';else shopItemIcon" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt=""><ng-template #shopItemIcon>{{item.icon}}</ng-template></span><span class="item-spark two">✧</span>
+                  <span class="item-spark one">✦</span><span class="big-item-icon"><img *ngIf="kennyAvatarSkin(item.id);else shopItemIcon" class="kenny-avatar-image" [attr.data-skin]="kennyAvatarSkin(item.id)" src="kenny/kenny-avatar.png" alt=""><ng-template #shopItemIcon>{{item.icon}}</ng-template></span><span class="item-spark two">✧</span>
                 </div>
                 <div class="item-meta"><span class="item-kind">{{groupLabel(item.group)}}</span></div>
                 <h3 class="item-title-row"><span class="item-name">{{item.name}}<span class="item-name-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></span>
@@ -261,7 +262,7 @@
             <div class="item-grid drop-item-grid inventory-item-grid" *ngIf="inventoryItems.length">
               <article class="item inventory-item" *ngFor="let item of inventoryItems" [attr.data-category]="item.group" [class.equipped]="active(item)">
                 <div class="item-art drop-item-art" [class.avatar-art]="item.group==='avatar'" [class.panda-art]="item.id==='dsai_panda'" [style.background]="themeStyle(item)">
-                  <span class="item-spark one">✦</span><span class="big-item-icon"><img *ngIf="item.id==='kenny_avatar';else inventoryItemIcon" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt=""><ng-template #inventoryItemIcon>{{item.icon}}</ng-template></span>
+                  <span class="item-spark one">✦</span><span class="big-item-icon"><img *ngIf="kennyAvatarSkin(item.id);else inventoryItemIcon" class="kenny-avatar-image" [attr.data-skin]="kennyAvatarSkin(item.id)" src="kenny/kenny-avatar.png" alt=""><ng-template #inventoryItemIcon>{{item.icon}}</ng-template></span>
                   <span class="item-spark two">✧</span>
                 </div>
                 <div class="inventory-item-detail"><small>{{dropLabel(item.drop)}} · {{groupLabel(item.group)}}</small>
@@ -361,7 +362,7 @@
             <div class="friends-list" *ngIf="!friendsLoading && !friendsError && publicPlayers.length">
               <article class="friend-card" *ngFor="let player of displayedPlayers; let i = index" [class.friend-self]="isOwnPlayer(player)">
                 <div class="friend-rank" [class.friend-rank-podium]="i < 3">#{{i+1}}</div>
-                <div class="friend-monogram friend-character" [attr.aria-label]="'Character: '+(player.avatar || '🧪')"><img *ngIf="player.avatar==='🦖';else friendAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #friendAvatarText>{{player.avatar || '🧪'}}</ng-template></div>
+                <div class="friend-monogram friend-character" [attr.aria-label]="'Character: '+(player.avatar || '🧪')"><img *ngIf="kennyAvatarSkin(player.avatar);else friendAvatarText" class="kenny-avatar-image" [attr.data-skin]="kennyAvatarSkin(player.avatar)" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #friendAvatarText>{{player.avatar || '🧪'}}</ng-template></div>
                 <div class="friend-name"><strong>{{player.nickname}}</strong><span class="friend-equipped-title">🏅 {{player.title || 'Weltenentdecker'}}</span><small *ngIf="isOwnPlayer(player)">Das bist du ✦</small></div>
                 <button type="button" class="friend-profile-button" (click)="openPlayerProfile(player)" [attr.aria-label]="'Profil von '+player.nickname+' anzeigen'">Profil anzeigen <span>↗</span></button>
                 <div class="friend-level"><small>LEVEL</small><strong>{{displayPlayerLevel(player) === null ? '–' : displayPlayerLevel(player)}}</strong></div>
@@ -375,7 +376,7 @@
           <div class="eyebrow">PLAYER PROFILE</div><h1 class="page-title">Dein <span>Profil.</span></h1>
           <p class="page-subtitle">Globale XP, Items und alle Lernwelten an einem Ort. {{cloudConfigured?'Dein Fortschritt wird über dein Onlinekonto synchronisiert.':'Bis zur Firebase-Aktivierung wird weiterhin lokal gespeichert.'}}</p>
           <div class="profile-grid"><div class="profile-panel"><div class="profile-avatar-wrap">
-     <div class="large-avatar"><img *ngIf="currentAvatar==='🦖';else largeAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #largeAvatarText>{{currentAvatar}}</ng-template></div>
+     <div class="large-avatar"><img *ngIf="kennyAvatarSkin(currentAvatar);else largeAvatarText" class="kenny-avatar-image" [attr.data-skin]="kennyAvatarSkin(currentAvatar)" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #largeAvatarText>{{currentAvatar}}</ng-template></div>
      <button type="button" class="profile-avatar-brush" (click)="openAvatarPicker()" aria-label="Avatar ändern" title="Avatar ändern">🖌️</button>
    </div><h2>{{profile.nickname}}</h2><p class="profile-current-title">✦ {{title}}</p><span class="pill">⚡ LEVEL {{level}}</span><div class="progress-track"><i [style.width.%]="levelProgress"></i></div><p>{{profile.xp | number}} XP gesammelt</p><div class="profile-stats"><div><b>{{profile.tokens | number}}</b><small>TT</small></div><div><b>{{claimed}}</b><small>Items</small></div><div><b>{{subjectsAll.length}}</b><small>Fächer</small></div></div></div>
           <div class="profile-panel settings">
@@ -393,7 +394,7 @@
 <div class="profile-edit-field">
   <label>Dein Avatar</label>
   <div class="profile-avatar-edit">
-    <div class="profile-avatar-edit-preview"><img *ngIf="currentAvatar==='🦖';else editAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #editAvatarText>{{currentAvatar}}</ng-template></div>
+    <div class="profile-avatar-edit-preview"><img *ngIf="kennyAvatarSkin(currentAvatar);else editAvatarText" class="kenny-avatar-image" [attr.data-skin]="kennyAvatarSkin(currentAvatar)" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #editAvatarText>{{currentAvatar}}</ng-template></div>
     <div class="profile-avatar-edit-meta"><strong>Aktueller Avatar</strong><small>{{unlockedAvatars.length}} zusätzliche Avatare freigeschaltet</small></div>
     <button type="button" class="btn secondary profile-avatar-edit-btn" (click)="openAvatarPicker()">🖌️ Avatar ändern</button>
   </div>
@@ -465,7 +466,7 @@
         <div class="friend-showcase-cover-shade"></div>
         <span class="friend-showcase-cover-tag">✦ STUDYVERSE PLAYER CARD</span>
         <div class="friend-showcase-heading">
-          <div class="friend-showcase-avatar"><img *ngIf="player.avatar==='🦖';else showcaseAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #showcaseAvatarText>{{player.avatar || '🧪'}}</ng-template></div>
+          <div class="friend-showcase-avatar"><img *ngIf="kennyAvatarSkin(player.avatar);else showcaseAvatarText" class="kenny-avatar-image" [attr.data-skin]="kennyAvatarSkin(player.avatar)" src="kenny/kenny-avatar.png" alt="Kenny"><ng-template #showcaseAvatarText>{{player.avatar || '🧪'}}</ng-template></div>
           <div class="friend-showcase-identity">
             <span class="friend-showcase-overline">PLAYER PROFILE · {{isOwnPlayer(player)?'DEIN PROFIL':'COMMUNITY'}}</span>
             <h2 id="friend-showcase-name">{{player.nickname}}</h2>
@@ -505,12 +506,13 @@
       <div class="eyebrow">🦖 {{reveal.kind==='level'?'KENNY LEVEL UP':reveal.kind==='season'?'SEASON-FINALE':'KENNY HAT AUFGEGESSEN'}}</div>
       <div class="kenny-reveal-art" [class.kenny-reveal-item]="reveal.kind==='drop' && !!reveal.drop?.item">
         <div *ngIf="reveal.kind==='level'||reveal.kind==='season'" class="kenny-mini-sprite" role="img" aria-label="Kenny freut sich" [attr.data-skin]="kennySkin"></div>
-        <img *ngIf="reveal.drop?.item?.id==='kenny_avatar'" src="kenny/kenny-avatar.png" alt="Kenny-Avatar">
-        <span *ngIf="reveal.kind==='drop' && reveal.drop?.item?.id!=='kenny_avatar'">{{reveal.drop?.item?.icon || '🪙'}}</span>
+        <img *ngIf="kennyRewardSkin(reveal.drop?.item?.id)" src="kenny/kenny-avatar.png" [attr.data-skin]="kennyRewardSkin(reveal.drop?.item?.id)" alt="Kenny-Avatar">
+        <span *ngIf="reveal.kind==='drop' && !kennyAvatarSkin(reveal.drop?.item?.id||'') && !kennyAvatarForSkin(reveal.drop?.item?.id)">{{reveal.drop?.item?.icon || '🪙'}}</span>
       </div>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='level'">Kenny ist jetzt <span>Level {{reveal.level}}!</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item?.id==='kenny_avatar'">Kenny begleitet dich jetzt <span>als Avatar!</span></h2>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.id!=='kenny_avatar'">Kenny hat dir etwas mitgebracht: <span>{{reveal.drop?.item?.name}}</span></h2>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && kennyAvatarForSkin(reveal.drop?.item?.id)">Kenny hat eine neue Farbe! <span>Den passenden Avatar bekommst du dazu.</span></h2>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.id!=='kenny_avatar' && !kennyAvatarForSkin(reveal.drop?.item?.id)">Kenny hat dir etwas mitgebracht: <span>{{reveal.drop?.item?.name}}</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && !reveal.drop?.item">Kenny hat TT gefunden: <span>{{reveal.drop?.tokens | number}} TT</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='season'">Kennys Season <span>ist vorbei!</span></h2>
       <p *ngIf="reveal.kind==='level' && reveal.level!==5">Weiterfüttern erhöht deine Chance auf wertvollere und exklusive Items.</p>
@@ -560,8 +562,8 @@
       <p>Nur freigeschaltete Avatare – dein Outfit gilt in allen Lernwelten.</p>
       <div class="avatar-pick-grid">
         <button type="button" class="avatar-pick-item" [class.picked]="currentAvatar==='🧪'" (click)="selectProfileAvatar('default')"><span>🧪</span><b>Standard</b><small>{{currentAvatar==='🧪'?'✓ Ausgewählt':'Gratis'}}</small></button>
-        <button type="button" class="avatar-pick-item" *ngFor="let item of unlockedAvatars" [class.picked]="currentAvatar===item.icon" (click)="selectProfileAvatar(item.id)">
-          <span><img *ngIf="item.id==='kenny_avatar';else pickerAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt=""><ng-template #pickerAvatarText>{{item.icon}}</ng-template></span><b>{{itemDisplayName(item)}}</b><small>{{currentAvatar===item.icon?'✓ Ausgewählt':'Ausrüsten'}}</small>
+        <button type="button" class="avatar-pick-item" *ngFor="let item of unlockedAvatars" [class.picked]="avatarSelected(item)" (click)="selectProfileAvatar(item.id)">
+          <span><img *ngIf="kennyAvatarSkin(item.id);else pickerAvatarText" class="kenny-avatar-image" [attr.data-skin]="kennyAvatarSkin(item.id)" src="kenny/kenny-avatar.png" alt=""><ng-template #pickerAvatarText>{{item.icon}}</ng-template></span><b>{{itemDisplayName(item)}}</b><small>{{avatarSelected(item)?'✓ Ausgewählt':'Ausrüsten'}}</small>
         </button>
       </div>
       <p *ngIf="unlockedAvatars.length===0" class="avatar-picker-hint">Weitere Avatare findest du in den Drops des Item-Shops.</p>
@@ -666,11 +668,12 @@
           <span *ngFor="let particle of previewParticleSlots; let i=index" [style.--particle-index]="i">{{previewParticle(item)}}</span>
         </div>
       </div>
-      <div class="preview-visual" *ngIf="item.group==='avatar'||item.group==='title'" [style.background]="themeStyle(item)"><span><img *ngIf="item.id==='kenny_avatar';else previewAvatarText" class="kenny-avatar-image" src="kenny/kenny-avatar.png" alt=""><ng-template #previewAvatarText>{{item.icon}}</ng-template></span><i>✦</i></div>
+      <div class="preview-visual" *ngIf="item.group==='avatar'||item.group==='title'" [style.background]="themeStyle(item)"><span><img *ngIf="kennyAvatarSkin(item.id);else previewAvatarText" class="kenny-avatar-image" [attr.data-skin]="kennyAvatarSkin(item.id)" src="kenny/kenny-avatar.png" alt=""><ng-template #previewAvatarText>{{item.icon}}</ng-template></span><i>✦</i></div>
       <div class="eyebrow">LIVE-VORSCHAU · {{item.drop==='global'?'STUDYVERSE GLOBAL':item.drop==='dsai-test-01'?'Dsaiverse DROP':item.drop==='pos-pa-01'?'Sharpverse DROP':'CHEMVERSE DROP'}}</div>
       <h2 class="preview-item-name">{{item.name}}<span class="preview-item-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></h2><p>{{item.desc}}</p>
-      <div class="preview-requirement" [class.ready]="itemProgressPercent(item)===100">
-        {{itemProgressPercent(item)===100?'✓ Lernziel erfüllt':'⏳ Lernziel in Arbeit'}} · {{requirementLabel(item)}}
+      <div class="preview-requirement" [class.ready]="isKennyReward(item)||itemProgressPercent(item)===100">
+        <ng-container *ngIf="isKennyReward(item);else normalPreviewRequirement">🦖 Durch Kenny, den Raptor freigeschaltet</ng-container>
+        <ng-template #normalPreviewRequirement>{{itemProgressPercent(item)===100?'✓ Lernziel erfüllt':'⏳ Lernziel in Arbeit'}} · {{requirementLabel(item)}}</ng-template>
       </div>
       <p class="preview-cost" *ngIf="!owns(item)">{{item.cost===0?'Gratis':(item.cost | number)+' TT'}}</p>
       <button class="btn primary full" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
