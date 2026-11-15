@@ -727,19 +727,6 @@ export class App implements OnInit,OnDestroy {
      done:trainer.achievements.length-open.length,remaining:open.length,
      reward:open.reduce((sum,a)=>sum+a.reward,0)};
  }
- get earningAchievementStatus(){
-   // The rewards tab is global, unlike the selected collection in the shop.
-   const totals=TRAINERS.map(trainer=>{
-     const save=this.snapshot(trainer);
-     const remaining=trainer.achievements.filter(a=>achievementValue(a,save)<a.target);
-     return {total:trainer.achievements.length,remaining:remaining.length,
-       reward:remaining.reduce((sum,a)=>sum+a.reward,0)};
-   });
-   const total=totals.reduce((sum,t)=>sum+t.total,0);
-   const remaining=totals.reduce((sum,t)=>sum+t.remaining,0);
-   return {total,remaining,done:total-remaining,
-     reward:totals.reduce((sum,t)=>sum+t.reward,0)};
- }
  get dailyChem(){
    // Global daily budget: 20 quiz payouts and one boss payout shared by all Ver(s)es.
    // Include earlier per-trainer payouts when migrating from the original single-subject daily system.
