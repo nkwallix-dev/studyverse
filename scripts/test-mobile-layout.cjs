@@ -705,9 +705,8 @@ async function main(){
   for(const width of [320,390,1365]){
    await versePage.setViewportSize({width,height:800});
    await assertVerseFits(width,'Quiz feedback');
-   await versePage.locator('.kenny-mobile-nav [data-kenny-nav="overview"]').count()&&width<=610
-    ?versePage.locator('.kenny-mobile-nav [data-kenny-nav="overview"]').click()
-    :versePage.locator('#topHome').click();
+   if(width<=610)await versePage.locator('.kenny-mobile-nav [data-kenny-nav="overview"]').click();
+   else await versePage.locator('#topHome').click();
    await versePage.locator('.hero h1').waitFor({state:'visible'});
    await assertVerseFits(width,'Home');
    await versePage.locator(width<=610?'.kenny-mobile-nav [data-kenny-nav="quiz"]':'#quizTab').click();
