@@ -342,7 +342,7 @@ async function main(){
     claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
    const original=crypto.getRandomValues.bind(crypto);
    crypto.getRandomValues=array=>{if(array instanceof Uint32Array){array[0]=0;return array;}return original(array);};
-  },[...allIds,'kenny_avatar'].filter(id=>!['kenny_skin_blue','kenny_skin_pink','kenny_avatar_pink'].includes(id)));
+  },[...allIds,'kenny_avatar'].filter(id=>!id.startsWith('kenny_skin_')&&id!=='kenny_avatar_pink'));
   await colorPage.goto(base,{waitUntil:'load'});
   await colorPage.locator('.navigation button[aria-label="Item-Shop"]').click();
   await colorPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
