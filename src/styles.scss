@@ -1028,8 +1028,8 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .kenny-sprite[data-skin="green"],.kenny-mini-sprite[data-skin="green"],.kenny-skin-grid img[data-skin="green"],.kenny-reveal-art img[data-skin="green"]{filter:hue-rotate(225deg) saturate(1.15) drop-shadow(0 12px 16px #10122382)}
 .kenny-sprite[data-skin="red"],.kenny-mini-sprite[data-skin="red"],.kenny-skin-grid img[data-skin="red"],.kenny-reveal-art img[data-skin="red"]{filter:hue-rotate(125deg) saturate(1.8) drop-shadow(0 12px 16px #10122382)}
 @media(prefers-reduced-motion:reduce){.kenny-sprite{animation:none}.kenny-stage.kenny-feeding .kenny-sprite{animation:kenny-feed-frames 3.2s steps(1) both}.kenny-stage.kenny-feeding .kenny-drone,.kenny-stage.kenny-feeding .kenny-meat{animation:none}.kenny-stage.kenny-feeding .kenny-landing-pad{animation:none;opacity:1}}
-.kenny-stage-name{position:absolute;z-index:7;left:24px;bottom:23px;display:grid;line-height:1.06;text-shadow:0 3px 14px #0a1019}
-.kenny-stage-name strong{font-size:clamp(26px,3vw,42px);letter-spacing:2px}.kenny-stage-name span{font-size:9px;letter-spacing:1.5px;font-weight:900;color:#c9e7e7}
+.kenny-stage-name{position:absolute;z-index:7;left:24px;right:145px;bottom:23px;display:grid;line-height:1.06;text-shadow:0 3px 14px #0a1019}
+.kenny-stage-name strong{font-size:clamp(26px,3vw,42px);letter-spacing:2px}.kenny-stage-name span{font-size:10px;line-height:1.25;letter-spacing:.2px;font-weight:900;color:#c9e7e7}
 .kenny-level-medal{position:absolute;z-index:7;right:22px;bottom:18px;background:#101b2bc9;border:1px solid #d5e7e784;border-radius:16px;padding:7px 15px;display:flex;align-items:baseline;gap:5px;backdrop-filter:blur(12px)}
 .kenny-level-medal small{font-size:9px;font-weight:950;letter-spacing:1px}.kenny-level-medal strong{font-size:31px;line-height:1}.kenny-level-medal span{font-size:12px;color:#b8ced6}
 .kenny-controls{border:1px solid #535169;border-radius:19px;background:linear-gradient(120deg,#171629,#211a38);padding:14px 18px;min-width:0;box-shadow:0 8px 25px #0004}
@@ -1088,7 +1088,7 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .kenny-page{grid-template-columns:minmax(0,1fr);gap:6px}
  .kenny-loot{display:none}.kenny-season-foot{font-size:9px}.kenny-season-foot>span:first-child{display:none}.kenny-season-foot button{display:inline}
  .kenny-controls{padding:9px 10px}.kenny-progress-track{margin:5px 0 8px}.kenny-action-row{gap:6px}.kenny-wallet{min-width:89px}.kenny-wallet strong{font-size:14px}.kenny-wallet small{font-size:8px}.kenny-feed-btn{min-height:42px;font-size:12px}.kenny-style-btn{padding:0 8px}.kenny-style-btn span{display:none}
- .kenny-stage-label{top:11px;left:12px;font-size:8px}.kenny-stage-name{left:12px;bottom:12px}.kenny-stage-name strong{font-size:25px}.kenny-stage-name span{font-size:7px}.kenny-level-medal{right:9px;bottom:9px;padding:4px 8px}.kenny-level-medal strong{font-size:22px}
+ .kenny-stage-label{top:11px;left:12px;font-size:8px}.kenny-stage-name{left:12px;right:90px;bottom:12px}.kenny-stage-name strong{font-size:25px}.kenny-stage-name span{font-size:9px}.kenny-level-medal{right:9px;bottom:9px;padding:4px 8px}.kenny-level-medal strong{font-size:22px}
  .kenny-sprite{height:min(72%,330px);max-width:70%}.kenny-skin-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-height:650px){.universe.kenny-mode .topbar,.universe.shop-mode .topbar{min-height:49px;padding-top:5px;padding-bottom:5px}.universe.kenny-mode .shop-view-tabs button,.universe.shop-mode .shop-view-tabs button{min-height:30px}.kenny-controls{padding:7px 10px}.kenny-hint{font-size:9px;margin-top:5px}.kenny-stage-label{top:7px}}

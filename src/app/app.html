@@ -55,8 +55,9 @@
               <h1>Deine Noten.<br><span>Dein Universum.</span></h1>
               <p>Jeder Test ist eine neue Welt. Sammle XP, hol dir neue Designs und zeig dem nächsten Boss, wer hier eigentlich cooked ist.</p>
               <div class="hero-actions">
-                <button class="btn primary" (click)="choose('nawi')">Jetzt lernen <span>↗</span></button>
-                <button class="btn secondary" (click)="go('subjects')">Welten entdecken</button>
+                <button class="btn primary" (click)="go('subjects')">Welten entdecken <span>↗</span></button>
+                <button class="btn secondary" (click)="go('shop');setShopTab('catalog')">Item-Shop ansehen</button>
+                <button class="btn secondary" (click)="openDinoVerse()">Dino-Verse anschauen</button>
               </div>
             </div>
             <div class="banner-scenery" aria-hidden="true">
@@ -314,7 +315,7 @@
                 <div class="kenny-drone" aria-hidden="true"><span class="kenny-drone-rotor left"></span><span class="kenny-drone-rotor right"></span><span class="kenny-drone-body">✦</span><span class="kenny-drone-crate">🥩</span></div>
                 <span class="kenny-meat" aria-hidden="true">🥩</span>
                 <div class="kenny-sprite" role="img" aria-label="Kenny, der blaue Raptor" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyVisualLevel-1)*0.07"></div>
-                <div class="kenny-stage-name"><strong>KENNY</strong><span>DEIN URZEIT-GEFÄHRTE</span></div>
+                <div class="kenny-stage-name"><strong>KENNY</strong><span>Dein zukünftiger Begleiter für Chemie und Datenwissenschaft</span></div>
                 <div class="kenny-level-medal"><small>LEVEL</small><strong>{{kennyVisualLevel}}</strong><span>/ 5</span></div>
               </div>
               <div class="kenny-controls">
@@ -344,7 +345,7 @@
                 <div *ngFor="let item of kennyEventItems" [class.collected]="owns(item)"><span>{{item.icon}}</span><strong>{{item.name}}</strong><small>{{owns(item)?'✓':'🔒'}}</small></div>
               </div>
               <p class="kenny-level-reward">🦖 Kenny Blau als Avatar: garantiert ab Level 5</p>
-              <div class="kenny-loot-subhead"><strong>AUS ALLEN LERNWELTEN</strong><span>ohne 100-%-Boss-Titel</span></div>
+              <div class="kenny-loot-subhead"><strong>Aus Chemverse &amp; Dsaiverse</strong><span>ohne 100-%-Boss-Titel</span></div>
               <div class="kenny-tiers"><div *ngFor="let tier of kennyPoolPreview.slice(1)"><span>{{tier.name}}</span><b>{{tier.chance | number:'1.0-1'}} %</b></div></div>
               <button type="button" class="kenny-pool-button" (click)="kennyPoolOpen=true">Alle möglichen Items ansehen ↗</button>
             </aside>
@@ -695,13 +696,12 @@
       <div class="preview-visual" *ngIf="item.group==='avatar'||item.group==='title'" [style.background]="themeStyle(item)"><span><img *ngIf="kennyAvatarSkin(item.id);else previewAvatarText" class="kenny-avatar-image" [attr.data-skin]="kennyAvatarSkin(item.id)" src="kenny/kenny-avatar.png" alt=""><ng-template #previewAvatarText>{{item.icon}}</ng-template></span><i>✦</i></div>
       <div class="eyebrow">LIVE-VORSCHAU · {{item.drop==='global'?'STUDYVERSE GLOBAL':item.drop==='dsai-test-01'?'Dsaiverse DROP':item.drop==='pos-pa-01'?'Sharpverse DROP':'CHEMVERSE DROP'}}</div>
       <h2 class="preview-item-name">{{item.name}}<span class="preview-item-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></h2><p>{{item.desc}}</p>
-      <div class="preview-requirement" [class.ready]="isKennyReward(item)||itemProgressPercent(item)===100">
+      <div class="preview-requirement ready" *ngIf="isKennyReward(item)||itemProgressPercent(item)===100">
         <ng-container *ngIf="isKennyReward(item);else normalPreviewRequirement">🦖 Durch Kenny, den Raptor freigeschaltet</ng-container>
-        <ng-template #normalPreviewRequirement>{{itemProgressPercent(item)===100?'✓ Lernziel erfüllt':'⏳ Lernziel in Arbeit'}} · {{requirementLabel(item)}}</ng-template>
+        <ng-template #normalPreviewRequirement>✓ Lernziel erfüllt · {{requirementLabel(item)}}</ng-template>
       </div>
       <button class="btn primary full" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
       <button class="btn secondary full" (click)="closePreview()">Vorschau schließen</button>
-      <small>Vorschau ohne Kauf: Das Item wird nur hier gezeigt. Dein aktiver Style und deine TT bleiben unverändert.</small>
     </div>
   </div>
   <!-- Account-specific, moderator-issued notice. Never a client-driven ban. -->

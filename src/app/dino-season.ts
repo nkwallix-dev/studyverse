@@ -8,10 +8,10 @@ export const KENNY_SEASON={
 export const KENNY_THRESHOLDS=[0,3,8,15,25] as const;
 export type DinoTier='small'|'medium'|'large'|'event'|'token100'|'token500'|'token1000';
 export const KENNY_ODDS:ReadonlyArray<Readonly<Record<DinoTier,number>>>=[
-  {small:32,medium:22,large:5,event:5,token100:30,token500:5,token1000:1},
-  {small:30,medium:23,large:6,event:6,token100:29,token500:5,token1000:1},
-  {small:28,medium:24,large:7,event:7,token100:28,token500:5,token1000:1},
-  {small:25,medium:25,large:8,event:8,token100:27,token500:5,token1000:2},
+  {small:34,medium:24,large:5,event:1,token100:30,token500:5,token1000:1},
+  {small:32,medium:24,large:6,event:3,token100:29,token500:5,token1000:1},
+  {small:29,medium:25,large:7,event:5,token100:28,token500:5,token1000:1},
+  {small:26,medium:25,large:8,event:7,token100:27,token500:5,token1000:2},
   {small:23,medium:26,large:9,event:9,token100:26,token500:5,token1000:2}
 ];
 export const KENNY_EVENT_ITEMS:ShopItem[]=[
@@ -81,7 +81,7 @@ export function kennyCountdown(now:number):string{
   return days?`${days} Tage · ${hours} Std.`:`${hours} Std. · ${minutes%60} Min.`;
 }
 export function eligibleDinoItems(items:ShopItem[],owned:Set<string>):Record<'small'|'medium'|'large'|'event',ShopItem[]>{
-  const regular=items.filter(item=>item.drop!=='global'&&item.drop!==KENNY_SEASON.id
+  const regular=items.filter(item=>(item.drop==='nawi-test-01'||item.drop==='dsai-test-01')
     &&!(item.group==='title'&&item.requirement?.metric==='boss'&&item.requirement.value===100));
   // Perfect-boss professor titles are deliberately never in Kenny's pool.
   const learn=regular.filter(item=>!owned.has(item.id));

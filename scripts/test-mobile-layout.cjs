@@ -221,6 +221,35 @@ async function main(){
    assert(!errors.length,'Studyverse script errors at '+width+': '+errors.join('; '));
    await context.close();
   }
+  const refundContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const refundPage=await refundContext.newPage();
+  await refundPage.addInitScript(()=>{
+   localStorage.setItem('studyverse_import_prompt_seen_v1','1');
+   const purchased={sharp_sheep:true,sharp_theme:true,sharp_scissors:true};
+   const trainer={xp:0,coins:500,purchased,earned:{},solved:{},learned:{}};
+   localStorage.setItem('sharpverse_pa01_v1',JSON.stringify(trainer));
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:500,nickname:'RefundTester',
+    inventory:['sharp_sheep','sharp_theme','sharp_scissors','dsai_bot'],
+    equipped:{theme:'sharp_theme',atm:'none',frame:'none',avatar:'🐑',font:'standard',banner:'default',title:'',fx:'none'},
+    claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
+    kennyWonItems:{sharp_sheep:true,sharp_theme:true},trainerSaves:{'pos-pa-01':trainer}}));
+  });
+  await refundPage.goto(base,{waitUntil:'load'});
+  const refund=await refundPage.evaluate(()=>({profile:JSON.parse(localStorage.getItem('studyverse_profile_v1')),
+   trainer:JSON.parse(localStorage.getItem('sharpverse_pa01_v1'))}));
+  assert.equal(refund.profile.tokens,1100,'Two Kenny Sharpverse drops must refund 300 TT each');
+  assert(!refund.profile.inventory.includes('sharp_sheep')&&!refund.profile.inventory.includes('sharp_theme'));
+  assert(refund.profile.inventory.includes('sharp_scissors')&&refund.profile.inventory.includes('dsai_bot'),
+   'Legitimately owned and other-Verse cosmetics must survive the refund');
+  assert.equal(refund.profile.equipped.avatar,'🧪');
+  assert.equal(refund.profile.equipped.theme,'base');
+  assert(!refund.trainer.purchased.sharp_sheep&&!refund.trainer.purchased.sharp_theme,
+   'Old trainer saves must not restore revoked Kenny drops');
+  await refundPage.reload({waitUntil:'load'});
+  assert.equal((await refundPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')))).tokens,1100,
+   'The migration must not refund the same items twice');
+  await refundContext.close();
+  console.log('PASS: Kenny Sharpverse refunds are selective and idempotent.');
   // Feeding spends one shared wallet, awards a reveal for each draw and reaches
   // level 2 after precisely three feeds without granting study XP.
   const dinoContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});

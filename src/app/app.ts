@@ -20,6 +20,7 @@ interface Profile {
   trainerSaves?:Record<string,Record<string,unknown>>; shopDropMigrationV1?:boolean; achievementTokenClaims?:Record<string,boolean>;
  rewardSeen?:Record<string,boolean>; rewardQueue?:string[]; rewardBatchTotal?:number; rewardBatchPosition?:number;
  dinoSeasons?:Record<string,DinoSeasonState>; kennyWonItems?:Record<string,boolean>;
+ kennySharpRefundedIds?:Record<string,boolean>;
   [key:string]:unknown;
 }
 const KEY='studyverse_profile_v1', INTRO='studyverse_import_prompt_seen_v1';
@@ -134,6 +135,7 @@ export class App implements OnInit,OnDestroy {
      restored.shopDropMigrationV1=true;
      write(KEY,JSON.stringify(restored));
    }
+   this.refundKennySharpItems(restored);
    // A previously won color skin includes its matching avatar retroactively.
    const missing=KENNY_SKIN_AVATARS.filter(item=>
      restored.inventory.includes('kenny_skin_'+item.id.slice('kenny_avatar_'.length))&&!restored.inventory.includes(item.id));
@@ -146,6 +148,43 @@ export class App implements OnInit,OnDestroy {
      write(KEY,JSON.stringify(restored));
    }
    return restored;
+ }
+ private refundKennySharpItems(profile:Profile):void {
+   const refunded=isObj(profile.kennySharpRefundedIds)?profile.kennySharpRefundedIds:{};
+   const won=isObj(profile.kennyWonItems)?profile.kennyWonItems:{};
+   const revoked=SHOP_ITEMS.filter(item=>item.drop==='pos-pa-01'&&profile.inventory.includes(item.id)
+     &&!refunded[item.id]&&(won[item.id]===true||profile.activity.some(entry=>entry.label==='🦖 Kenny gefüttert · '+item.name)));
+   if(!revoked.length)return;
+   const ids=new Set(revoked.map(item=>item.id));
+   const removePurchases=(state:Record<string,unknown>):Record<string,unknown>=>{
+     if(!isObj(state['purchased']))return state;
+     const purchased={...state['purchased']};
+     for(const id of ids)delete purchased[id];
+     return {...state,purchased};
+   };
+   profile.inventory=profile.inventory.filter(id=>!ids.has(id));
+   profile.rewardQueue=profile.rewardQueue?.filter(id=>!ids.has(id));
+   for(const item of revoked){
+     if(profile.equipped[item.group]===(item.group==='avatar'?item.icon:item.equip||item.id))
+       profile.equipped[item.group]=defaultEquip()[item.group as keyof ReturnType<typeof defaultEquip>]||'none';
+     delete won[item.id];
+     refunded[item.id]=true;
+   }
+   profile.kennyWonItems=won;
+   profile.kennySharpRefundedIds=refunded;
+   profile.tokens+=revoked.length*KENNY_SEASON.price;
+   profile.activity=[{label:`🦖 Kenny · ${revoked.length} Sharpverse-${revoked.length===1?'Item':'Items'} zurückgegeben`,
+     date:new Date().toISOString(),amount:revoked.length*KENNY_SEASON.price},...profile.activity].slice(0,30);
+   if(isObj(profile.trainerSaves)){
+     profile.trainerSaves=Object.fromEntries(Object.entries(profile.trainerSaves)
+       .map(([id,state])=>[id,isObj(state)?removePurchases(state):state]));
+   }
+   if(isObj(profile.chemverseSave))profile.chemverseSave=removePurchases(profile.chemverseSave);
+   for(const trainer of TRAINERS){
+     const local=parse(read(trainer.saveKey));
+     if(isObj(local))write(trainer.saveKey,JSON.stringify(removePurchases(local)));
+   }
+   write(KEY,JSON.stringify(profile));
  }
  private save(){write(KEY,JSON.stringify(this.profile));this.queueCloudSave();void this.publishFriendCard();}
  private alert(message:string){this.info=message;}
@@ -1194,6 +1233,7 @@ export class App implements OnInit,OnDestroy {
  isKennyReward(item:ShopItem):boolean{
    if(!this.owns(item))return false;
    if(item.drop===KENNY_SEASON.id)return true;
+   if(this.profile.kennySharpRefundedIds?.[item.id])return false;
    if(this.profile.kennyWonItems?.[item.id])return true;
    if(this.profile.activity.some(entry=>entry.label==='🦖 Kenny gefüttert · '+item.name))return true;
    return item.drop!=='global'&&!!item.requirement&&

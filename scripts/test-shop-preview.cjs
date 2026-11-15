@@ -59,7 +59,8 @@ assert(t.includes('get previewTheme(){return this.currentTheme;}'),'Preview must
 assert(t.includes('previewSlot(k:string){return this.profile.equipped[k]'),'Preview must NOT equip the candidate elsewhere');
 assert(t.includes('previewValue(slot:string,item:ShopItem)'),'Preview method must choose candidate only for the popup');
 assert(t.includes("preview(item:ShopItem){this.previewed=item;}"),'Preview must not purchase an item');
-assert(preview.includes('Vorschau ohne Kauf'), 'Explain that TT balance is unaffected');
+assert(!preview.includes('Vorschau ohne Kauf')&&!preview.includes('Lernziel in Arbeit'),
+ 'Preview should not repeat the lock status or add a footer disclaimer');
 for(const category of ['theme','atm','frame','font','banner','fx']){
  assert(items.includes("group:'"+category+"'"),'Shop must contain '+category+' products');
 }
