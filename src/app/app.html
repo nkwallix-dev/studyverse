@@ -1,4 +1,4 @@
-<div class="universe" [class.kenny-mode]="view==='shop' && shopTab==='kenny'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
+<div class="universe" [class.kenny-mode]="view==='shop' && shopTab==='kenny'" [class.shop-mode]="view==='shop' && shopTab!=='kenny'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
   <div class="ambient a"></div><div class="ambient b"></div>
   <aside class="sidebar">
     <button class="brand" (click)="go('dashboard')">
@@ -166,7 +166,7 @@
         </ng-container>
 
         <ng-container *ngSwitchCase="'shop'">
-          <div class="eyebrow">STUDYVERSE COSMETICS</div>
+          <div class="eyebrow">{{shopTab==='kenny'?'DINO-VERSE':'STUDYVERSE COSMETICS'}}</div>
           <h1 class="page-title" *ngIf="shopTab==='catalog'">Der <span>Item-Shop.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='inventory'">Dein <span>Inventar.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='earn'">TastyTokens <span>verdienen.</span></h1>
@@ -403,7 +403,7 @@
           <h3>Dein Onlinekonto</h3>
           <div class="cloud-account-summary" *ngIf="cloudConfigured && cloud.session">
             <strong>☁️ @{{cloudUser}}</strong><span>{{cloudStatus}}</span>
-            <div class="cloud-account-actions"><button type="button" class="btn secondary" (click)="syncCloudNow()">☁️ Jetzt synchronisieren</button>
+            <div class="cloud-account-actions"><button type="button" class="btn secondary" (click)="openUsernameDialog()">✏️ Benutzernamen ändern</button>
               <button type="button" class="btn secondary" (click)="logOutCloud()">↩ Abmelden</button></div>
           </div>
           <p class="small muted" *ngIf="!cloudConfigured">☁️ Cloud-Accounts werden freigeschaltet, sobald die Firebase-Webkonfiguration eingerichtet ist. Bis dahin ist dein aktueller Spielstand weiterhin lokal verfügbar.</p>
@@ -486,8 +486,9 @@
           <div class="friend-showcase-cosmetic"><span>🌠</span><div><small>HINTERGRUND</small><strong>{{playerCosmetic(player,'atm')}}</strong></div></div>
           <div class="friend-showcase-cosmetic"><span>✨</span><div><small>EFFEKT</small><strong>{{playerCosmetic(player,'fx')}}</strong></div></div>
         </div>
-        <div class="friend-showcase-section-heading friend-showcase-course-heading"><span>🎓 LERNFORTSCHRITT</span><small>Abgeschlossene Lektionen</small></div>
-        <div class="friend-showcase-courses" *ngIf="player.showcase.courses.length;else noPlayerCourses">
+        <div class="friend-showcase-progress">
+          <div class="friend-showcase-section-heading friend-showcase-course-heading"><span>🎓 LERNFORTSCHRITT</span><small>Abgeschlossene Lektionen</small></div>
+          <div class="friend-showcase-courses" *ngIf="player.showcase.courses.length;else noPlayerCourses">
           <article class="friend-showcase-course" *ngFor="let course of player.showcase.courses">
             <div class="friend-showcase-course-top">
               <span class="friend-showcase-course-icon">{{playerCourse(course.id).icon}}</span>
@@ -496,10 +497,31 @@
             </div>
             <div class="friend-showcase-track"><i [style.width.%]="course.percent"></i></div>
           </article>
+          </div>
+          <ng-template #noPlayerCourses><div class="friend-showcase-no-courses">🪐 Noch kein abgeschlossener Kursfortschritt veröffentlicht.</div></ng-template>
         </div>
-        <ng-template #noPlayerCourses><div class="friend-showcase-no-courses">🪐 Noch kein abgeschlossener Kursfortschritt veröffentlicht.</div></ng-template>
+        <div class="friend-showcase-dino"><span>🦖 DINO-VERSE</span><strong>{{player.showcase.dino?.level ? 'Kenny Level: '+player.showcase.dino?.level : 'Kenny noch nicht gefüttert'}}</strong></div>
       </div>
     </section>
+  </div>
+
+  <div class="veil username-change-veil" *ngIf="usernameDialogOpen" role="dialog" aria-modal="true" aria-labelledby="username-change-title" (click)="closeUsernameDialog()" (keydown.escape)="closeUsernameDialog()">
+    <form class="modal username-change-modal" (ngSubmit)="submitUsernameChange()" (click)="$event.stopPropagation()">
+      <button type="button" class="username-change-close" (click)="closeUsernameDialog()" [disabled]="renameBusy" aria-label="Schließen">✕</button>
+      <div class="eyebrow">✦ DEIN ONLINEKONTO</div>
+      <h2 id="username-change-title">Benutzernamen <span>ändern.</span></h2>
+      <p>Mit dem neuen Namen meldest du dich künftig an. Dein eigener Anzeigename bleibt separat bearbeitbar.</p>
+      <label for="rename-old">Bisheriger Benutzername</label>
+      <input id="rename-old" name="old" class="cloud-auth-input" type="text" [(ngModel)]="renameOld" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false" [disabled]="renameBusy" required>
+      <label for="rename-new">Neuer Benutzername</label>
+      <input id="rename-new" name="new" class="cloud-auth-input" type="text" [(ngModel)]="renameNew" maxlength="20" autocomplete="off" autocapitalize="none" spellcheck="false" [disabled]="renameBusy" required>
+      <label for="rename-confirm">Neuen Benutzernamen bestätigen</label>
+      <input id="rename-confirm" name="confirm" class="cloud-auth-input" type="text" [(ngModel)]="renameConfirm" maxlength="20" autocomplete="off" autocapitalize="none" spellcheck="false" [disabled]="renameBusy" required>
+      <label for="rename-pin">Deine sechsstellige PIN</label>
+      <input id="rename-pin" name="pin" class="cloud-auth-input cloud-pin-input" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" [(ngModel)]="renamePin" [disabled]="renameBusy" required>
+      <p class="cloud-auth-error" *ngIf="renameMessage" role="alert">{{renameMessage}}</p>
+      <button type="submit" class="btn primary" [disabled]="renameBusy">{{renameBusy?'Benutzername wird geändert …':'Benutzernamen speichern'}}</button>
+    </form>
   </div>
 
   <div class="veil kenny-reveal-veil" *ngIf="kennyCurrentReveal as reveal" role="dialog" aria-modal="true" aria-labelledby="kenny-reveal-title">

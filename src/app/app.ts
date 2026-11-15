@@ -69,6 +69,7 @@ export class App implements OnInit,OnDestroy {
  readonly cloud=new StudyverseCloud();
  cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
  cloudMode:'register'|'login'='register'; cloudUsername=''; cloudPin=''; cloudMessage=''; cloudStage='';
+ usernameDialogOpen=false;renameOld='';renameNew='';renameConfirm='';renamePin='';renameBusy=false;renameMessage='';
  cloudStatus='Lokal'; private cloudTimer:ReturnType<typeof setTimeout>|null=null;
  publicPlayers:PublicPlayer[]=[]; friendsLoading=false; friendsError=''; selectedPlayer:PublicPlayer|null=null; 
  private cloudWrites:Promise<void>=Promise.resolve();
@@ -233,7 +234,9 @@ export class App implements OnInit,OnDestroy {
      const done=Math.min(total,Object.values(completed).filter(v=>v===true).length);
      if(done>0)courses.push({id:trainer.id,done,total,percent:Math.round(done/total*100)});
    }
-   return {...cosmetics,courses};
+   const dino=this.kennyState;
+   return {...cosmetics,courses,
+     ...(dino.feeds>0?{dino:{id:KENNY_SEASON.id,level:dinoLevel(dino.feeds)}}:{})};
  }
  openPlayerProfile(player:PublicPlayer):void {
    this.selectedPlayer=this.isOwnPlayer(player)
@@ -242,6 +245,46 @@ export class App implements OnInit,OnDestroy {
    this.changeDetector.markForCheck();
  }
  closePlayerProfile():void{this.selectedPlayer=null;this.changeDetector.markForCheck();}
+ openUsernameDialog():void{
+   this.renameOld='';this.renameNew='';this.renameConfirm='';this.renamePin='';this.renameMessage='';
+   this.usernameDialogOpen=true;
+ }
+ closeUsernameDialog():void{
+   if(this.renameBusy)return;
+   this.usernameDialogOpen=false;this.renameOld='';this.renameNew='';this.renameConfirm='';this.renamePin='';this.renameMessage='';
+ }
+ async submitUsernameChange():Promise<void>{
+   if(this.renameBusy||!this.cloud.session||!this.cloudMaySave)return;
+   const old=this.renameOld.trim().toLowerCase(),next=this.renameNew.trim().toLowerCase();
+   this.renameMessage='';
+   if(old!==this.cloudUser){this.renameMessage='Dein bisheriger Benutzername stimmt nicht.';return;}
+   if(next!==this.renameConfirm.trim().toLowerCase()){this.renameMessage='Die beiden neuen Benutzernamen stimmen nicht überein.';return;}
+   if(!isAllowedNickname(next)){this.renameMessage='Bitte wähle einen unbedenklichen Benutzernamen.';return;}
+   this.renameBusy=true;
+   let renamed=false;
+   try{
+     await this.syncCloudNow();
+     if(this.cloudStatus!=='✓ Online gespeichert')throw Error('Spielstand konnte nicht gespeichert werden. Versuch es später nochmal.');
+     await this.cloud.renameUsername(old,next,this.renamePin);
+     renamed=true;
+     const displayWasLogin=this.profile.nickname.toLowerCase()===old;
+     if(displayWasLogin){this.profile.nickname=next;this.nicknameEdit=next;}
+     this.save();
+     await this.syncCloudNow();
+     if(displayWasLogin)await this.cloud.publishFriendProfile(this.profile.nickname,this.currentAvatar,this.title,true,this.ownPublicShowcase());
+     this.usernameDialogOpen=false;
+     this.renameOld='';this.renameNew='';this.renameConfirm='';this.renamePin='';
+     this.alert(this.cloudStatus==='✓ Online gespeichert'
+       ?'Benutzername geändert. Beim nächsten Login verwendest du @'+next+'.'
+       :'Benutzername geändert. Dein Profil wird beim nächsten Laden erneut synchronisiert.');
+   }catch(error){
+     if(renamed){
+       this.usernameDialogOpen=false;this.renameOld='';this.renameNew='';this.renameConfirm='';this.renamePin='';
+       this.alert('Benutzername geändert. Die Profilanzeige konnte noch nicht vollständig synchronisiert werden: '+cloudError(error));
+     }else this.renameMessage=cloudError(error);
+   }
+   finally{this.renameBusy=false;this.changeDetector.markForCheck();}
+ }
  playerCosmetic(player:PublicPlayer,group:string):string {
    const value=player.showcase[group as keyof PublicShowcase];
    const item=[...SHOP_ITEMS,...LEGACY_OWNED_ITEMS].find(x=>x.group===group&&(x.equip||x.id)===value);
@@ -492,7 +535,7 @@ export class App implements OnInit,OnDestroy {
        // Do not delete the session or local progress; a retry is safe and idempotent.
        this.cloudMaySave=true;
        this.cloudStatus='⚠ Cloud-Speichern fehlgeschlagen';
-       this.alert('Dein Account wurde erstellt, aber der Spielstand ist noch nicht online bestätigt: '+this.cloudMessage+' Im Profil kannst du „Jetzt synchronisieren“ drücken.');
+       this.alert('Dein Account wurde erstellt, aber der Spielstand ist noch nicht online bestätigt: '+this.cloudMessage+' Lade die Seite erneut, um die Speicherung zu prüfen.');
      }else if(authenticated){
        // Loading an existing account failed: never overwrite the remote save with a stale local profile.
        this.cloudMaySave=false;
@@ -692,7 +735,15 @@ export class App implements OnInit,OnDestroy {
    ).sort((a,b)=>Number(this.active(b))-Number(this.active(a))||a.name.localeCompare(b.name,'de'));
  }
  get inventoryEquippedCount(){return this.ownedCatalogItems.filter(item=>this.active(item)).length;}
- dropLabel(id:string){return this.drops.find(drop=>drop.id===id)?.title||(id===KENNY_SEASON.id?'Kenny · Season 1':id==='maths-hw-02'?'MathsVerse · Archiv':id==='exclusive'?'Exklusiv':id);}
+ dropLabel(id:string){
+   const names:Record<string,string>={
+     'nawi-test-01':'1. NAWI Test','dsai-test-01':'1. DSAI Test',
+     'pos-pa-01':'1. POS PA',
+     [KENNY_SEASON.id]:`Dinoverse – Season ${KENNY_SEASON.season}`
+   };
+   return names[id]||this.drops.find(drop=>drop.id===id)?.title||
+     (id==='maths-hw-02'?'MathsVerse · Archiv':id==='exclusive'?'Exklusiv':id);
+ }
  changeInventoryDrop(id:string){this.inventoryDrop=id;this.inventoryGroup='Alle';}
  setShopTab(tab:'catalog'|'inventory'|'earn'|'kenny'){
    this.shopTab=tab;this.previewed=null;this.kennyClock=Date.now();

@@ -126,6 +126,15 @@ async function main(){
     await button.click();
     await page.waitForTimeout(100);
     await check(page,'Studyverse '+label+' '+width);
+    if(['Item-Shop','Inventar','TastyTokens'].includes(label)){
+     const layout=await page.evaluate(()=>({viewport:innerHeight,page:document.documentElement.scrollHeight,
+      mainBottom:document.querySelector('main').getBoundingClientRect().bottom,
+      grid:document.querySelector('main .item-grid')?.getBoundingClientRect().height||0,
+      earningButtons:[...document.querySelectorAll('.coin-earning-grid button')].map(x=>x.getBoundingClientRect().bottom)}));
+     assert(layout.page<=layout.viewport+3&&layout.mainBottom<=layout.viewport+3&&
+      layout.earningButtons.every(bottom=>bottom<=layout.viewport-(width<=700?65:0)),
+      'Shop destinations should fit the screen, with only item grids scrolling at '+width+'px: '+JSON.stringify(layout));
+    }
     if(label==='Item-Shop'){
      const select=page.locator('#shop-drop-select');
      assert(await select.isVisible(),'Drop selector should be beside Alle Items at '+width+'px');
@@ -383,6 +392,9 @@ async function main(){
     height:element.getBoundingClientRect().height})));
   assert(artHeights.length>=4&&artHeights.every(art=>Math.abs(art.height-artHeights[0].height)<=1),
    'Panda and sheep avatar panels should match the other inventory art: '+JSON.stringify(artHeights));
+  const inventoryScroll=await maxPage.locator('.inventory-item-grid').evaluate(el=>({height:el.clientHeight,content:el.scrollHeight}));
+  assert(inventoryScroll.content>inventoryScroll.height,
+   'Only the inventory item grid should scroll when many items are owned: '+JSON.stringify(inventoryScroll));
   await maxPage.locator('.inventory-item').filter({hasText:'Molekül-Matrix'}).locator('.drop-preview-btn').click();
   assert((await maxPage.locator('.preview-requirement').innerText()).includes('Durch Kenny, den Raptor freigeschaltet'),
    'Already owned cosmetics with an incomplete learning goal must not claim it was fulfilled');
@@ -668,6 +680,8 @@ async function main(){
   assert(profileHeight.controls>=5,'Profile settings must keep all interactive controls');
   assert(profileHeight.scroll-profileHeight.viewport<=12,
    'Desktop profile should not require scrolling: '+JSON.stringify(profileHeight));
+  const sidebar=await desktopPage.locator('.sidebar').evaluate(el=>({height:el.clientHeight,content:el.scrollHeight}));
+  assert(sidebar.content<=sidebar.height+2,'Desktop sidebar should show every destination without scrolling: '+JSON.stringify(sidebar));
   await desktopPage.screenshot({path:path.join(screenshots,'studyverse-profil-desktop.png'),fullPage:true});
   await desktop.close();
  }finally{

@@ -7,6 +7,7 @@ const d=stub.exports;
 assert.deepEqual(Array.from({length:5},(_,i)=>d.dinoLevel([0,3,8,15,25][i])),[1,2,3,4,5]);
 assert.equal(d.dinoLevel(24),4);assert.equal(d.dinoLevel(100),5);
 assert.equal(d.KENNY_SEASON.price,300);
+assert.equal(d.KENNY_SEASON.season,1);
 assert.equal(d.isKennyActive(d.KENNY_SEASON.start),true);
 assert.equal(d.isKennyActive(d.KENNY_SEASON.end),false);
 for(const o of d.KENNY_ODDS)assert.equal(Object.values(o).reduce((n,x)=>n+x,0),100);

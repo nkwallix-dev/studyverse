@@ -29,10 +29,11 @@ assert(html.includes("displayPlayerLevel(player) === null ? '–' : displayPlaye
  'Own level appears immediately while other cards use the admin snapshot');
 assert(html.includes('friend-profile-button')&&html.includes('friend-showcase-veil')&&html.includes('friend-showcase-courses')&&angular.includes('openPlayerProfile(player:PublicPlayer)'),
  'Public player profiles show cosmetics, level, and completed lessons in a modal');
-assert(shopCss.includes('.friend-showcase-veil > .friend-showcase.universe{display:block;')
+assert(shopCss.includes('.friend-showcase-veil > .friend-showcase.universe{display:flex;')
  &&shopCss.includes('.friend-showcase.universe > .friend-showcase-cover.hero{width:100%;')
- &&shopCss.includes('.friend-showcase-loadout{grid-template-columns:1fr;gap:8px}'),
- 'The modal must override the page flex layout and keep cosmetic names readable on phones');
+ &&shopCss.includes('.friend-showcase-courses{min-height:0;flex:1;')
+ &&shopCss.includes('.friend-showcase-loadout{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}'),
+ 'The modal fits its viewport and scrolls only course progress on phones');
 assert(!html.includes('friends-summary')&&!html.includes('friends-directory-note')&&!html.includes('friends-refresh'),
  'Friends page removes clutter and manual refresh button');
 assert(html.includes('friends-list')&&html.includes('friend-character'),
@@ -67,6 +68,15 @@ assert(registerPath.includes("await this.cloud.save(this.cloudSnapshot());"),
 
 assert(angular.includes('void this.publishFriendCard(true)'),
  'Explicit nickname changes must update friends without overriding admin corrections during login');
+assert(html.includes('DINO-VERSE</span><strong>{{player.showcase.dino?.level')
+ &&html.includes('✏️ Benutzernamen ändern')&&!html.includes('☁️ Jetzt synchronisieren')
+ &&html.includes('Bisheriger Benutzername')&&html.includes('Neuen Benutzernamen bestätigen'),
+ 'Friend profile shows Kenny level and account offers a guarded username change');
+assert(angular.includes("'nawi-test-01':'1. NAWI Test'")&&
+ angular.includes("'dsai-test-01':'1. DSAI Test'")&&
+ angular.includes("'pos-pa-01':'1. POS PA'")&&
+ angular.includes('Dinoverse – Season ${KENNY_SEASON.season}'),
+ 'Inventory collections display readable test and season names');
 const session={uid:'user-123',username:'niko',idToken:'token-123',refreshToken:'refresh-123',expiresAt:Date.now()+3600_000};
 const store=new Map([['studyverse_cloud_session_v1',JSON.stringify(session)]]);
 const requests=[];
@@ -84,6 +94,17 @@ const fetch=async(url,opts={})=>{
  const method=opts.method||'GET';
  requests.push({url,method,body:opts.body?JSON.parse(opts.body):null});
  if(url.endsWith('cloud-config.json'))return {ok:true,json:async()=>({apiKey:'public-example-key-over-fifteen',projectId:'studyverse-unit-tests'})};
+ if(url.includes('accounts:signInWithPassword')){
+  const body=JSON.parse(opts.body);
+  return body.password==='123456'&&body.email==='niko@accounts.studyverse.example.com'
+   ?{ok:true,json:async()=>({localId:'user-123',idToken:'reauth-token',refreshToken:'reauth-refresh',expiresIn:'3600'})}
+   :{ok:false,json:async()=>({error:{message:'INVALID_LOGIN_CREDENTIALS'}})};
+ }
+ if(url.includes('accounts:update')){
+  const body=JSON.parse(opts.body);
+  if(body.email==='taken@accounts.studyverse.example.com')return {ok:false,json:async()=>({error:{message:'EMAIL_EXISTS'}})};
+  return {ok:true,json:async()=>({localId:'user-123',email:body.email,idToken:'updated-token',refreshToken:'updated-refresh',expiresIn:'3600'})};
+ }
  if(url.includes('/publicProfiles?')){
   const docs=page++===0?
    [doc('user-123','Korrigierter Name',31,'Cheater',{selectedTitle:{stringValue:'Weltenentdecker'}}),
@@ -118,6 +139,8 @@ assert.equal(parsePublicShowcase(JSON.stringify({
   courses:[{id:'dsai-test-01',done:8,total:16,percent:999}]
 })).courses[0].percent,50,'Recalculate percentages from validated completion totals');
 assert.equal(parsePublicShowcase('broken').theme,'base','Old and corrupted cards use safe defaults');
+assert.equal(parsePublicShowcase(JSON.stringify({dino:{id:'kenny-2026',level:5}})).dino.level,5);
+assert.equal(parsePublicShowcase(JSON.stringify({dino:{id:'kenny-2026',level:42}})).dino,undefined);
 assert.equal(parsePublicShowcase(JSON.stringify({theme:'url(evil)',courses:[{id:'x',done:999,total:1}]})).courses.length,0,
  'Reject CSS injection and invalid progression data');
 assert(isAllowedNickname('Niko')&&isAllowedNickname('Johannes 42'),'Legitimate nicknames permitted');
@@ -164,5 +187,16 @@ assert(angular.includes("if(item.id==='exclusive_title_cheater')return this.excl
   'New public cards contain no level, XP or token balances');
  assert(!requests.some(x=>x.url.includes('/verifiedProfiles')||x.url.includes('/users/')),
   'Publishing friends never touches competitive scores or private saves');
+ cloud.session={...session};
+ await assert.rejects(()=>cloud.renameUsername('niko','newniko','000000'),/INVALID_LOGIN_CREDENTIALS/);
+ assert.equal(cloud.session.username,'niko','A failed PIN check leaves the account alone');
+ await assert.rejects(()=>cloud.renameUsername('niko','taken','123456'),/EMAIL_EXISTS/);
+ assert.equal(cloud.session.username,'niko','A taken name leaves the original login intact');
+ await cloud.renameUsername('niko','newniko','123456');
+ assert.equal(cloud.session.username,'newniko');
+ assert.equal(cloud.session.uid,'user-123','The rename preserves the Firebase UID and all private progress');
+ assert.equal(JSON.parse(store.get('studyverse_cloud_session_v1')).refreshToken,'updated-refresh');
+ assert.equal(requests.at(-1).body.email,'newniko@accounts.studyverse.example.com');
+ assert.equal(requests.at(-1).body.password,undefined,'PIN must never be sent to the update endpoint');
  console.log('PASS: Friends ranking returns from immutable legacy levels; old cosmetics/admin title preserved, no new level writes.');
 })().catch(e=>{console.error(e);process.exitCode=1});

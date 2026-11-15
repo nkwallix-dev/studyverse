@@ -16,6 +16,7 @@ export interface PublicCourseProgress {id:string;done:number;total:number;percen
 export interface PublicShowcase {
   theme:string;frame:string;banner:string;font:string;atm:string;fx:string;
   courses:PublicCourseProgress[];
+  dino?:{id:string;level:number};
 }
 export interface PublicPlayer {
   uid:string;nickname:string;avatar:string;title:string;level:number|null;showcase:PublicShowcase;
@@ -46,10 +47,17 @@ export function parsePublicShowcase(text:string|undefined):PublicShowcase {
     seen.add(id);
     courses.push({id,done,total,percent:Math.round(100*done/total)});
   }
+  const rawDino=data['dino'];
+  const dino=rawDino&&typeof rawDino==='object'&&!Array.isArray(rawDino)
+    ?rawDino as Record<string,unknown>:null;
+  const safeDino=dino?.['id']==='kenny-2026'&&Number.isInteger(dino['level'])&&
+    Number(dino['level'])>=1&&Number(dino['level'])<=5
+    ?{id:'kenny-2026',level:Number(dino['level'])}:undefined;
   return {
     theme:style('theme',fallback.theme),frame:style('frame',fallback.frame),
     banner:style('banner',fallback.banner),font:style('font',fallback.font),
-    atm:style('atm',fallback.atm),fx:style('fx',fallback.fx),courses
+    atm:style('atm',fallback.atm),fx:style('fx',fallback.fx),courses,
+    ...(safeDino?{dino:safeDino}:{})
   };
 }
 type PublicTitleFields={
@@ -95,6 +103,7 @@ function loginEmail(name:string){return name+'@accounts.studyverse.example.com';
 export function cloudError(error:unknown):string{
   const raw=error instanceof Error?error.message:String(error);
   if(/EMAIL_EXISTS/.test(raw))return 'Benutzername schon vergeben. Versuch einen anderen.';
+  if(/CREDENTIAL_TOO_OLD_LOGIN_AGAIN|REQUIRES_RECENT_LOGIN/.test(raw))return 'Bitte erneut anmelden und die Änderung nochmal versuchen.';
   if(/INVALID_LOGIN_CREDENTIALS|INVALID_PASSWORD|EMAIL_NOT_FOUND|INVALID_EMAIL/.test(raw))return 'Benutzername oder PIN stimmt nicht.';
   if(/WEAK_PASSWORD|PASSWORD_DOES_NOT_MEET_REQUIREMENTS/.test(raw))return 'Die PIN erfüllt die Passwortregeln des Projekts nicht.';
   if(/TOO_MANY_ATTEMPTS|TOO_MANY_REQUESTS/.test(raw))return 'Zu viele Versuche. Versuch es später nochmal.';
@@ -164,6 +173,35 @@ export class StudyverseCloud{
   }
   async register(username:string,pin:string){await this.authRequest('signUp',username,pin);}
   async login(username:string,pin:string){await this.authRequest('signInWithPassword',username,pin);}
+  async renameUsername(oldName:string,newName:string,pin:string):Promise<void>{
+    const old=publicUsername(oldName),next=publicUsername(newName);
+    const session=this.session;
+    if(!session||old!==session.username)throw Error('Der bisherige Benutzername stimmt nicht.');
+    if(!usernameOk(next))throw Error('Neuer Benutzername: 3–20 Zeichen, nur a–z, 0–9, _ und -; beginne mit einem Buchstaben oder einer Zahl.');
+    if(next===old)throw Error('Der neue Benutzername ist bereits dein aktueller.');
+    if(!/^\d{6}$/.test(pin))throw Error('Bitte deine sechsstellige PIN eingeben.');
+    const key=encodeURIComponent(this.settings.apiKey);
+    // Reauthenticate against the old login first. The PIN never enters Firestore or localStorage.
+    const signIn=await fetchCloud('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+key,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:loginEmail(old),password:pin,returnSecureToken:true})
+    });
+    const verified=await signIn.json() as AuthResult&{error?:{message?:string}};
+    if(!signIn.ok)throw Error(verified.error?.message||'PIN-Prüfung fehlgeschlagen.');
+    if(verified.localId!==session.uid||!verified.idToken)throw Error('Dieses Konto stimmt nicht mit deiner Sitzung überein.');
+    if(this.session?.uid!==session.uid)throw Error('Die Anmeldung hat sich währenddessen geändert.');
+    const update=await fetchCloud('https://identitytoolkit.googleapis.com/v1/accounts:update?key='+key,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({idToken:verified.idToken,email:loginEmail(next),returnSecureToken:true})
+    });
+    const changed=await update.json() as AuthResult&{email?:string;error?:{message?:string}};
+    if(!update.ok)throw Error(changed.error?.message||'Benutzername konnte nicht geändert werden.');
+    if(changed.localId!==session.uid||changed.email!==loginEmail(next)||!changed.idToken||!changed.refreshToken)
+      throw Error('Firebase hat die Änderung nicht vollständig bestätigt. Bitte neu anmelden.');
+    this.session={...session,username:next,idToken:changed.idToken,refreshToken:changed.refreshToken,
+      expiresAt:Date.now()+Math.max(60,Number(changed.expiresIn)||3600)*1000};
+    this.persist();
+  }
   signOut(){this.session=null;localStorage.removeItem(SESSION_KEY);}
   async token():Promise<string>{
     if(!this.session)throw Error('Bitte zuerst anmelden.');

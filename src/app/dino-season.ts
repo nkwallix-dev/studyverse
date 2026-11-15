@@ -1,7 +1,7 @@
 import type {ShopItem} from './shop-items';
 
 export const KENNY_SEASON={
-  id:'kenny-2026',name:'Kenny',price:300,
+  id:'kenny-2026',name:'Kenny',season:1,price:300,
   start:Date.parse('2026-11-14T00:00:00+01:00'),
   end:Date.parse('2027-01-14T00:00:00+01:00')
 } as const;
