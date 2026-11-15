@@ -238,7 +238,7 @@ async function main(){
    }
    await dinoPage.locator('.kenny-reveal-modal').waitFor();
    if(n===1)await dinoPage.screenshot({path:path.join(screenshots,'kenny-drop-390.png')});
-   await dinoPage.locator('.kenny-reveal-modal button').click();
+   await dinoPage.locator('.kenny-reveal-modal .btn.primary').click();
    if(n===3){
     await dinoPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Level 2'));
     assert((await dinoPage.locator('#kenny-reveal-title').innerText()).includes('Level 2'),
@@ -251,7 +251,7 @@ async function main(){
     assert(revealLayout.art<=revealLayout.title&&revealLayout.sprite>40,
      'Kenny level-up artwork must stay above and separate from the text: '+JSON.stringify(revealLayout));
     await dinoPage.screenshot({path:path.join(screenshots,'kenny-level-390.png')});
-    await dinoPage.locator('.kenny-reveal-modal button').click();
+    await dinoPage.locator('.kenny-reveal-modal .btn.primary').click();
    }
    await dinoPage.locator('.kenny-reveal-modal').waitFor({state:'hidden'});
   }
@@ -377,7 +377,7 @@ async function main(){
   assert.equal(fullPoolSave.tokens,6020,'Feeding must cost 300 TT and award a 100 TT token drop');
   assert.equal(fullPoolSave.dinoSeasons['kenny-2026'].feeds,47);
   assert.equal(fullPoolSave.dinoSeasons['kenny-2026'].overfeeds,22);
-  await emptyPage.locator('.kenny-reveal-modal button').click();
+  await emptyPage.locator('.kenny-reveal-modal .btn.primary').click();
   assert((await emptyPage.locator('.kenny-hint').allInnerTexts()).some(text=>/3[, .]300 TT/.test(text)),
    'Each extra 300 TT feeding must add 150 TT to the season cashback');
   await emptyContext.close();
