@@ -686,12 +686,12 @@ export class App implements OnInit,OnDestroy {
 
  get dropUnlocked(){return this.dropItems.filter(i=>this.owns(i)||this.isUnlocked(i)).length;}
  get filteredItems(){return this.dropItems
-  .filter(i=>!this.owns(i)&&(this.shopGroup==='Alle'||i.group===this.shopGroup))
+  .filter(i=>i.group!=='dinoSkin'&&!this.owns(i)&&(this.shopGroup==='Alle'||i.group===this.shopGroup))
   .sort((a,b)=>Number(this.isUnlocked(b))-Number(this.isUnlocked(a))
     ||this.sortRequirement(a)-this.sortRequirement(b)||a.name.localeCompare(b.name,'de'));}
  private sortRequirement(item:ShopItem){return item.drop==='global'?(item.level||1)*10:(item.requirement?.value||0);}
  // Every test uses the same category tabs, even when it has no items in one category.
- get shopCategories(){return ['Alle',...new Set(SHOP_ITEMS.map(i=>i.group))];}
+ get shopCategories(){return ['Alle',...new Set(SHOP_ITEMS.filter(i=>i.group!=='dinoSkin').map(i=>i.group))];}
  get selectedCategoryHasItems(){return this.shopGroup==='Alle'||this.dropItems.some(i=>i.group===this.shopGroup);}
  chooseDrop(id:string){if(!this.drops.some(d=>d.id===id))return;this.shopDrop=id;this.shopGroup='Alle';this.previewed=null;this.spotlightRewardId='';}
  metricProgress(drop:string,metric:ShopRequirement['metric']):number{
@@ -767,7 +767,7 @@ export class App implements OnInit,OnDestroy {
 
  get categories(){return ['Alle','Informatik','Naturwissenschaften','Wirtschaft','Gesellschaft','Andere'];}
  get claimed(){return this.ownedCatalogItems.length;}
- get ownedCatalogItems(){return [...this.items,...LEGACY_OWNED_ITEMS].filter(item=>this.owns(item));}
+ get ownedCatalogItems(){return [...this.items,...LEGACY_OWNED_ITEMS].filter(item=>item.group!=='dinoSkin'&&this.owns(item));}
  get inventoryDrops(){return ['Alle',...new Set(this.ownedCatalogItems.map(item=>item.drop))];}
  get inventoryCategories(){
    return ['Alle',...new Set(this.ownedCatalogItems.filter(item=>this.inventoryDrop==='Alle'||item.drop===this.inventoryDrop).map(item=>item.group))];
@@ -837,59 +837,7 @@ export class App implements OnInit,OnDestroy {
    this.profile.tokens>=KENNY_SEASON.price&&this.cloudReady&&
    (!this.cloudConfigured||!!this.cloud.session&&this.cloudMaySave);}
  get kennyCashback():number{return cashbackDue(this.kennyState);}
- // TEMPORARY ZEBRA TEST (remove after the owner's claim).
- // Deliberately restrict to signed-in, cloud-loaded players who already own
- // all the other season exclusives; never touch tokens, XP, or feed counters.
- get canTestUnlockZebra():boolean{
-   const owned=new Set(this.profile.inventory);
-   return this.kennyActive && !this.kennyBusy && !this.kennyReveals.length &&
-     this.cloudReady && this.cloudConfigured && !!this.cloud.session &&
-     !this.cloudHydrating && this.cloudMaySave &&
-     !owned.has(KENNY_ZEBRA_SKIN.id) &&
-     KENNY_EVENT_ITEMS.filter(item=>item.id!==KENNY_ZEBRA_SKIN.id)
-       .every(item=>owned.has(item.id));
- }
- async testUnlockZebra():Promise<void>{
-   if(!this.canTestUnlockZebra)return;
-   const before=structuredClone(this.profile);
-   const avatar=kennyAvatarForSkin(KENNY_ZEBRA_SKIN.id);
-   const addBlue=!before.inventory.includes(KENNY_BLUE_SKIN.id);
-   this.kennyBusy=true;this.kennyError='';
-   this.changeDetector.markForCheck();
-   try{
-     this.profile.inventory=[...new Set([...before.inventory,
-       ...(addBlue?[KENNY_BLUE_SKIN.id]:[]),
-       KENNY_ZEBRA_SKIN.id,...(avatar?[avatar.id]:[])])];
-     this.profile.kennyWonItems={...(before.kennyWonItems||{}),
-       [KENNY_ZEBRA_SKIN.id]:true,...(avatar?{[avatar.id]:true}:{})};
-     this.profile.activity=[{
-       label:'🦖 Kenny gefüttert · Kenny Zebra',
-       date:new Date().toISOString(),amount:0
-     },...before.activity].slice(0,30);
-     write(KEY,JSON.stringify(this.profile));
-     await this.syncCloudNow();
-     if(this.cloudStatus!=='✓ Online gespeichert')
-       throw new Error('Der Zebra-Drop konnte nicht in der Cloud gespeichert werden.');
-     void this.publishFriendCard();
-     // Same two-stage reveal as a real rare drop: avatar first, skin second.
-     if(avatar&&!before.inventory.includes(avatar.id))
-       this.kennyReveals.push({kind:'drop',
-         drop:{tier:'zebra',tokens:0,item:avatar},
-         line:'Neuer Kenny-Avatar freigeschaltet!'});
-     this.kennyReveals.push({kind:'drop',
-       drop:{tier:'zebra',tokens:0,item:KENNY_ZEBRA_SKIN},
-       line:'Neuer Skin für Kenny freigeschaltet! Passe deinen Dino im Designer individuell an.'});
-   }catch(error){
-     this.profile=before;
-     write(KEY,JSON.stringify(before));
-     this.kennyError=error instanceof Error?error.message:
-       'Zebra-Drop konnte nicht gespeichert werden. Bitte erneut versuchen.';
-   }finally{
-     this.kennyBusy=false;
-     this.changeDetector.markForCheck();
-   }
- }
-
+ get kennyAllSkinsOwned():boolean{return this.kennySkins.every(skin=>skin.owned);}
  get kennyPoolPreview(){
    const pools=this.kennyPools;
    return ([{key:'event',name:'Saisonexklusiv'},{key:'large',name:'Prestige-Items'},
