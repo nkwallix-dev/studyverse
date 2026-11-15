@@ -267,8 +267,7 @@ async function main(){
   await dinoPage.locator('.kenny-dialog-close').click();
   await dinoContext.close();
   console.log('PASS: Kenny viewport, three feeds, reward reveals, XP isolation and locked skins.');
-  // Force the exclusive avatar as a unique remaining item. Its reveal must
-  // display Kenny's full body and use copy that does not say he spat himself out.
+  // The blue avatar is granted at the 25th feed, independently of the random drop.
   const allIds=[...fs.readFileSync('src/app/shop-items.ts','utf8').matchAll(/\{id:'([^']+)'/g),
    ...fs.readFileSync('src/app/dino-season.ts','utf8').matchAll(/\{id:'([^']+)'/g)]
    .map(match=>match[1]).filter(id=>id!=='kenny_avatar');
@@ -278,7 +277,8 @@ async function main(){
    localStorage.setItem('studyverse_import_prompt_seen_v1','1');
    localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:1000,nickname:'AvatarTester',
     inventory:ids,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
-    claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
+    claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
+    dinoSeasons:{'kenny-2026':{feeds:24,overfeeds:0,overTokenWins:0,skin:'blue',settled:false,settlement:0}}}));
    const original=crypto.getRandomValues.bind(crypto);
    crypto.getRandomValues=array=>{
     if(array instanceof Uint32Array){array[0]=0;return array;}
@@ -290,9 +290,13 @@ async function main(){
   await avatarPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
   await avatarPage.locator('.kenny-feed-btn').click();
   await avatarPage.locator('.kenny-reveal-modal').waitFor();
+  await avatarPage.locator('.kenny-reveal-modal .btn.primary').click();
+  await avatarPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Level 5'));
   const avatarTitle=await avatarPage.locator('#kenny-reveal-title').innerText();
-  assert(avatarTitle.includes('als Avatar!')&&!avatarTitle.includes('ausgespuckt'),
-   'Kenny avatar reveal must use its own sensible copy: '+avatarTitle);
+  assert(avatarTitle.includes('Level 5'),'The guaranteed avatar arrives with the level 5 reveal: '+avatarTitle);
+  assert((await avatarPage.locator('.kenny-reveal-modal p').innerText()).includes('Kenny – Blau'),
+   'Level 5 reveal must name the guaranteed avatar');
+  assert((await avatarPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')))).inventory.includes('kenny_avatar'));
   const avatarArt=await avatarPage.locator('.kenny-reveal-art img').evaluate(el=>({
    width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,
    naturalWidth:el.naturalWidth,naturalHeight:el.naturalHeight
@@ -308,7 +312,7 @@ async function main(){
   await avatarPage.locator('.inventory-item .drop-preview-btn').click();
   assert((await avatarPage.locator('.preview-requirement').innerText()).includes('Durch Kenny, den Raptor freigeschaltet'));
   await avatarContext.close();
-  console.log('PASS: Kenny avatar reveal copy, full-body art, and direct inventory shortcut.');
+  console.log('PASS: level 5 grants blue Kenny avatar, full-body reveal and direct inventory shortcut.');
   const colorContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
   const colorPage=await colorContext.newPage();
   await colorPage.addInitScript(ids=>{
@@ -341,12 +345,14 @@ async function main(){
   await maxPage.addInitScript(()=>{
    localStorage.setItem('studyverse_import_prompt_seen_v1','1');
    localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:6000,nickname:'MaxTester',
-    inventory:['dsai_bot','dsai_panda','sharp_sheep','kenny_avatar','kenny_skin_pink','chem_link'],
+    inventory:['dsai_bot','dsai_panda','sharp_sheep','kenny_skin_pink','chem_link'],
     equipped:{theme:'base',atm:'none',frame:'none',avatar:'🦖',font:'standard',banner:'default',title:'',fx:'none'},
     claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
     dinoSeasons:{'kenny-2026':{feeds:32,overfeeds:0,overTokenWins:2000,skin:'blue',settled:false,settlement:0}}}));
   });
   await maxPage.goto(base,{waitUntil:'load'});
+  assert((await maxPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')))).inventory.includes('kenny_avatar'),
+   'Existing level 5 players receive the blue avatar retroactively');
   await maxPage.locator('.navigation button[aria-label="Item-Shop"]').click();
   await maxPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
   await maxPage.locator('.kenny-hint').waitFor();
@@ -371,6 +377,7 @@ async function main(){
   await maxPage.locator('.avatar-picker-modal .btn.secondary').click();
   await maxPage.locator('.navigation button[aria-label="Item-Shop"]').click();
   await maxPage.locator('.shop-view-tabs button').filter({hasText:'Inventar'}).click();
+  await maxPage.locator('.inventory-item .item-art').first().waitFor({state:'visible'});
   const artHeights=await maxPage.locator('.inventory-item .item-art').evaluateAll(elements=>
    elements.map(element=>({name:element.closest('.inventory-item').querySelector('.item-name').textContent,
     height:element.getBoundingClientRect().height})));
@@ -389,6 +396,7 @@ async function main(){
   await maxPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
   await maxPage.locator('.kenny-stage').waitFor({state:'visible'});
   await maxPage.locator('.navigation button[aria-label="Dashboard"]').click();
+  await maxPage.locator('.dashboard-grid').waitFor({state:'visible'});
   const themeLooks=await maxPage.evaluate(()=>{
    const root=document.querySelector('.universe');root.dataset.banner='default';
    return ['dsai_neural','sharp_theme','sharp_cutline'].map(theme=>{

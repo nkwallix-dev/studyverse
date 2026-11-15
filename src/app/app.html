@@ -327,7 +327,7 @@
                   <button type="button" class="kenny-style-btn" (click)="kennyCustomizeOpen=true" aria-label="Kenny personalisieren">🎨 <span>Personalisieren</span></button>
                 </div>
                 <p class="kenny-last-feed" *ngIf="kennyRemainingFeeds===1 && kennyLevel<5 && !kennyFeeding">Bravo! Noch einmal füttern, dann ist Kenny Level {{kennyLevel+1}}.</p>
-                <p class="kenny-hint" *ngIf="kennyLevel===5 && kennyActive">✦ Max-Level! Pro weiterer Fütterung bekommst du am Saisonende 150 TT zurück. {{kennyState.overfeeds}} weitere Fütterungen · Aktuell: <b>{{kennyCashback | number}} TT</b>.</p>
+                <p class="kenny-hint kenny-cashback-hint" *ngIf="kennyLevel===5 && kennyActive"><span>✦ Max-Level! Pro weiterer Fütterung bekommst du am Saisonende 150 TT zurück.</span><span class="kenny-cashback-status">{{kennyState.overfeeds}} weitere Fütterungen · Aktuell: <b>{{kennyCashback | number}} TT</b></span></p>
                 <p class="kenny-hint" *ngIf="!kennyActive">Kennys Season ist vorbei. Erhaltene Items bleiben in deinem Inventar.</p>
                 <p class="kenny-hint" *ngIf="kennyPoolEmpty && kennyActive">Alle Items eingesammelt! Du kannst Kenny weiterfüttern und bekommst jetzt ausschließlich TastyTokens als Drop.</p>
                 <p class="kenny-error" *ngIf="kennyError">{{kennyError}}</p>
@@ -344,11 +344,12 @@
               <div class="kenny-exclusives">
                 <div *ngFor="let item of kennyEventItems" [class.collected]="owns(item)"><span>{{item.icon}}</span><strong>{{item.name}}</strong><small>{{owns(item)?'✓':'🔒'}}</small></div>
               </div>
+              <p class="kenny-level-reward">🦖 Kenny – Blau Avatar: garantiert ab Level 5</p>
               <div class="kenny-loot-subhead"><strong>AUS ALLEN LERNWELTEN</strong><span>ohne 100-%-Boss-Titel</span></div>
               <div class="kenny-tiers"><div *ngFor="let tier of kennyPoolPreview.slice(1)"><span>{{tier.name}}</span><b>{{tier.chance | number:'1.0-1'}} %</b></div></div>
               <button type="button" class="kenny-pool-button" (click)="kennyPoolOpen=true">Alle möglichen Items ansehen ↗</button>
             </aside>
-            <div class="kenny-season-foot"><span>✦ LEVEL 5 BIS SAISONENDE: URZEIT-FOSSILRAHMEN</span><span>⏳ {{kennyCountdown}}</span><button type="button" (click)="kennyPoolOpen=true">Gewinne ansehen ↗</button></div>
+            <div class="kenny-season-foot"><span>✦ LEVEL 5: KENNY – BLAU AVATAR · SAISONENDE: URZEIT-FOSSILRAHMEN</span><span>⏳ {{kennyCountdown}}</span><button type="button" (click)="kennyPoolOpen=true">Gewinne ansehen ↗</button></div>
           </section>
         </ng-container>
 
@@ -505,7 +506,8 @@
     <div class="modal kenny-reveal-modal">
       <div class="eyebrow">🦖 {{reveal.kind==='level'?'KENNY LEVEL UP':reveal.kind==='season'?'SEASON-FINALE':'KENNY HAT AUFGEGESSEN'}}</div>
       <div class="kenny-reveal-art" [class.kenny-reveal-item]="reveal.kind==='drop' && !!reveal.drop?.item">
-        <div *ngIf="reveal.kind==='level'||reveal.kind==='season'" class="kenny-mini-sprite" role="img" aria-label="Kenny freut sich" [attr.data-skin]="kennySkin"></div>
+        <div *ngIf="(reveal.kind==='level' && reveal.level!==5)||reveal.kind==='season'" class="kenny-mini-sprite" role="img" aria-label="Kenny freut sich" [attr.data-skin]="kennySkin"></div>
+        <img *ngIf="reveal.kind==='level' && reveal.level===5" src="kenny/kenny-avatar.png" data-skin="blue" alt="Kenny – Blau Avatar">
         <img *ngIf="kennyRewardSkin(reveal.drop?.item?.id)" src="kenny/kenny-avatar.png" [attr.data-skin]="kennyRewardSkin(reveal.drop?.item?.id)" alt="Kenny-Avatar">
         <span *ngIf="reveal.kind==='drop' && !kennyAvatarSkin(reveal.drop?.item?.id||'') && !kennyAvatarForSkin(reveal.drop?.item?.id)">{{reveal.drop?.item?.icon || '🪙'}}</span>
       </div>
@@ -516,7 +518,7 @@
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && !reveal.drop?.item">Kenny hat TT gefunden: <span>{{reveal.drop?.tokens | number}} TT</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='season'">Kennys Season <span>ist vorbei!</span></h2>
       <p *ngIf="reveal.kind==='level' && reveal.level!==5">Weiterfüttern erhöht deine Chance auf wertvollere und exklusive Items.</p>
-      <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! Ab jetzt bekommst du für jede weitere Fütterung am Saisonende 150 TT zurück.</p>
+      <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! Kenny – Blau ist jetzt als Avatar in deinem Inventar. Ab jetzt bekommst du für jede weitere Fütterung am Saisonende 150 TT zurück.</p>
       <p *ngIf="reveal.kind==='drop' && reveal.drop?.item">{{reveal.line}} {{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
       <p *ngIf="reveal.kind==='drop' && !reveal.drop?.item">{{reveal.line}} {{reveal.drop?.tokens | number}} TT landen in deinem Guthaben.</p>
       <p *ngIf="reveal.kind==='season'">{{reveal.tokens ? (reveal.tokens | number)+' TT Cashback' : 'Kein Cashback'}}<span *ngIf="reveal.item"> · {{reveal.item.name}} freigeschaltet</span></p>
@@ -545,6 +547,7 @@
       <button type="button" class="kenny-dialog-close" (click)="kennyPoolOpen=false" aria-label="Schließen">✕</button>
       <span class="eyebrow">✦ KENNY · LEVEL {{kennyLevel}}</span><h2>Alle <span>Gewinne.</span></h2>
       <p>Ein Futter kostet 300 TT. Du erhältst entweder TT oder genau ein Item. Bereits besessene Items werden nicht erneut gezogen.</p>
+      <p>Bei Level 5 bekommst du den blauen Kenny-Avatar garantiert dazu.</p>
       <div class="kenny-pool-scroll">
         <div class="kenny-pool-section"><strong>🪙 TOKEN-DROPS</strong><span>100 TT · {{kennyOdds.token100}} % &nbsp; 500 TT · {{kennyOdds.token500}} % &nbsp; 1.000 TT · {{kennyOdds.token1000}} %</span></div>
         <div class="kenny-pool-section" *ngFor="let tier of kennyPoolPreview">

@@ -5,7 +5,7 @@ import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items'
 import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
 import { StudyverseCloud, CloudSnapshot, PublicPlayer, PublicShowcase, PublicCourseProgress, AccountNotice, CLOUD_DAILY_KEY, CLOUD_SESSION_KEY, cloudError, isAllowedNickname } from './cloud';
-import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, KENNY_SKIN_AVATARS, DinoSeasonState, DinoDrop,
+import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, KENNY_BLUE_AVATAR, KENNY_SKIN_AVATARS, DinoSeasonState, DinoDrop,
   freshDinoState, normalizeDinoState, dinoLevel, nextDinoLevel, isKennyActive, cashbackDue, kennyCountdown,
   eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason, kennyAvatarForSkin, kennyAvatarSkin } from './dino-season';
 
@@ -136,8 +136,10 @@ export class App implements OnInit,OnDestroy {
    // A previously won color skin includes its matching avatar retroactively.
    const missing=KENNY_SKIN_AVATARS.filter(item=>
      restored.inventory.includes('kenny_skin_'+item.id.slice('kenny_avatar_'.length))&&!restored.inventory.includes(item.id));
-   if(missing.length){
-     restored.inventory=[...restored.inventory,...missing.map(item=>item.id)];
+   const earnedBlue=normalizeDinoState(restored.dinoSeasons?.[KENNY_SEASON.id]).feeds>=KENNY_THRESHOLDS[4];
+   if(missing.length||earnedBlue&&!restored.inventory.includes(KENNY_BLUE_AVATAR.id)){
+     restored.inventory=[...new Set([...restored.inventory,...missing.map(item=>item.id),
+       ...(earnedBlue?[KENNY_BLUE_AVATAR.id]:[])])];
      write(KEY,JSON.stringify(restored));
    }
    return restored;
@@ -763,6 +765,7 @@ export class App implements OnInit,OnDestroy {
    const priorLevel=dinoLevel(before.feeds);
    const prize=drawDinoReward(priorLevel,this.kennyPools,()=>this.randomDino());
    const next={...before,feeds:before.feeds+1};
+   const reachedLevelFive=priorLevel<5&&dinoLevel(next.feeds)===5;
    if(priorLevel===5){next.overfeeds++;next.overTokenWins+=prize.tokens;}
    this.kennyBusy=true;this.kennyFeeding=true;this.kennyVisibleFeeds=before.feeds;this.changeDetector.markForCheck();
    const feedingAnimation=new Promise<void>(resolve=>window.setTimeout(resolve,3200));
@@ -776,6 +779,7 @@ export class App implements OnInit,OnDestroy {
      this.profile.kennyWonItems={...(this.profile.kennyWonItems||{}),[prize.item.id]:true,
        ...(avatar?{[avatar.id]:true}:{})};
    }
+   if(reachedLevelFive)this.profile.inventory=[...new Set([...this.profile.inventory,KENNY_BLUE_AVATAR.id])];
    this.profile.activity=[{label:'🦖 Kenny gefüttert · '+(prize.item?.name||prize.tokens+' TT'),
      date:new Date().toISOString(),amount:prize.tokens-KENNY_SEASON.price},...this.profile.activity].slice(0,30);
    write(KEY,JSON.stringify(this.profile));
@@ -789,7 +793,8 @@ export class App implements OnInit,OnDestroy {
    }else await feedingAnimation;
    this.kennyFeeding=false;this.kennyVisibleFeeds=null;
    this.kennyReveals.push({kind:'drop',drop:prize,line});
-   if(dinoLevel(next.feeds)>priorLevel)this.kennyReveals.push({kind:'level',level:dinoLevel(next.feeds)});
+   if(dinoLevel(next.feeds)>priorLevel)this.kennyReveals.push({kind:'level',level:dinoLevel(next.feeds),
+     ...(reachedLevelFive&&!previous.inventory.includes(KENNY_BLUE_AVATAR.id)?{item:KENNY_BLUE_AVATAR}:{})});
    this.kennyBusy=false;this.changeDetector.markForCheck();
  }
  private settleKennyIfExpired():void{
