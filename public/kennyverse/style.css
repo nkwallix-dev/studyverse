@@ -148,3 +148,143 @@ html[data-kenny-skin="zebra"] .kenny-visual:after{
  .hero:before{background:linear-gradient(90deg,#171628de 0%,#201a30b5 75%,#201a3080)}
  .kenny-banner-fern{font-size:100px}
 }
+
+
+/* Kennyverse v2: fixed-height, single-screen Home / Quiz / Boss / Results.
+   Content is resized, not allowed to disappear below the viewport. */
+html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+.shell{height:100dvh;min-height:0;max-height:100dvh;overflow:hidden}
+.side{position:relative;top:auto;align-self:stretch;height:100%;min-height:0;overflow:hidden;padding:clamp(8px,1.4vh,17px) 12px}
+.side .logo{margin:0 0 clamp(4px,.8vh,10px)}
+.side .kenny-side-art{padding:6px}
+.side .kenny-side-art .kenny-visual{height:clamp(65px,13vh,117px)}
+.side .menu-label{margin:clamp(5px,1.1vh,12px) 8px 4px}
+.side .navbtn{margin:2px 0;padding:clamp(5px,.95vh,10px) 10px}
+.side .source{padding:clamp(3px,.7vh,7px) 6px}
+.side .side-bottom{padding:8px 6px 3px;line-height:1.35}
+.content{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.content>.top{flex:0 0 auto;min-height:0;height:clamp(46px,7vh,65px);padding:6px clamp(10px,2.4vw,30px)}
+.kenny-top-home{font:inherit;font-weight:850;color:var(--muted);border:0;background:transparent;padding:7px 0;text-align:left;cursor:pointer}
+.kenny-top-home:hover,.kenny-top-home:focus-visible{color:var(--kenny-primary)}
+.kenny-mobile-nav{display:none}
+.content>footer{display:none}
+.content>main{width:100%;max-width:1600px;min-height:0;max-height:none;margin:0 auto;flex:1 1 auto;padding:clamp(6px,1.5vh,14px) clamp(9px,2vw,28px);overflow:hidden}
+.kenny-screen{width:100%;height:100%;min-height:0;max-height:100%;display:flex;flex-direction:column;gap:clamp(5px,.95vh,10px);overflow:hidden}
+.kenny-home-screen .hero{flex:1 1 auto;min-height:0;padding:clamp(14px,3.1vh,30px);gap:10px}
+.kenny-home-screen .hero>div:first-child{max-width:76%}
+.kenny-home-screen .hero h1{font-size:clamp(28px,3.9vw,61px);line-height:1.06;letter-spacing:-1.4px;margin:clamp(4px,.85vh,9px) 0}
+.kenny-home-screen .hero p{font-size:clamp(11px,1.15vw,15px);line-height:1.43;margin:clamp(4px,.75vh,9px) 0;max-width:650px}
+.kenny-home-screen .hero .actions{margin-top:clamp(5px,1vh,12px)}
+.kenny-home-screen .hero .btn{padding:clamp(6px,1.1vh,10px) clamp(10px,1.2vw,15px)}
+.kenny-home-screen .hero-icon .kenny-visual{height:min(35vh,240px);width:clamp(95px,17vw,220px)}
+.kenny-home-screen .stats,.kenny-result-screen .stats{flex:0 0 auto;margin:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(4px,.8vw,10px)}
+.kenny-home-screen .stat,.kenny-result-screen .stat{min-height:0;padding:clamp(7px,1.35vh,13px)}
+.kenny-home-screen .stat small,.kenny-result-screen .stat small{display:block;font-size:clamp(9px,.88vw,11px);line-height:1.25}
+.kenny-home-screen .stat b,.kenny-result-screen .stat b{font-size:clamp(18px,2vw,25px);line-height:1.2;margin:3px 0}
+.kenny-home-screen .stat .bar,.kenny-result-screen .stat .bar{height:6px;margin:5px 0 0}
+.kenny-home-footnote{font-size:clamp(9px,.88vw,11px);line-height:1.35;border:1px solid var(--kenny-line);background:var(--kenny-soft);border-radius:9px;padding:5px 10px;color:var(--muted);flex:0 0 auto}
+.kenny-play-screen{gap:clamp(4px,.8vh,8px)}
+.kenny-play-header{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:0}
+.kenny-play-title{display:flex;align-items:center;gap:8px;min-width:0}
+.kenny-play-title .kenny-visual{width:clamp(34px,4.5vw,53px);height:clamp(34px,4.5vw,53px)}
+.kenny-play-title .eyebrow{font-size:clamp(9px,.83vw,11px);letter-spacing:.6px}
+.kenny-play-title h1{font-size:clamp(20px,2.4vw,31px);letter-spacing:-.4px;line-height:1;margin:3px 0 0}
+.kenny-play-hud{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:clamp(3px,.5vw,7px)}
+.kenny-play-hud span{display:flex;gap:5px;align-items:center;padding:clamp(4px,.65vh,7px) clamp(5px,.6vw,9px);border:1px solid var(--kenny-line);background:var(--kenny-soft);border-radius:8px;font-size:clamp(9px,.8vw,11px);color:var(--muted);white-space:nowrap}
+.kenny-play-hud b{font-size:clamp(11px,1vw,13px);color:var(--kenny-primary)}
+.kenny-question-card{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:clamp(4px,.65vh,8px);overflow:hidden;padding:clamp(8px,1.35vw,17px)}
+.kenny-question-meta{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:7px;color:var(--muted);font-size:clamp(9px,.88vw,11px);font-weight:800}
+.kenny-question-meta .tag{font-size:clamp(9px,.82vw,11px);padding:4px 8px}
+.kenny-question-card>.bar{flex:0 0 auto;height:6px;margin:0}
+.kenny-question-card .snippet{flex:0 0 auto;min-height:0;margin:0;padding:clamp(6px,.8vh,10px);font-size:clamp(10px,1vw,12px);line-height:1.3;white-space:pre-wrap;overflow-wrap:anywhere;overflow:hidden;max-height:20%}
+.kenny-question-card .question{flex:0 0 auto;font-size:clamp(16px,1.9vw,27px);line-height:1.19;margin:0;overflow-wrap:anywhere}
+.kenny-question-card .choices{display:grid;flex:1 1 auto;min-height:0;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:clamp(4px,.7vw,8px)}
+.kenny-question-card .choice{min-height:0;width:100%;padding:clamp(6px,1vw,13px);font-size:clamp(10px,1.04vw,13px);line-height:1.25;align-items:center;overflow-wrap:anywhere;overflow:hidden}
+.kenny-question-card .choice .letter{width:23px;height:23px;align-self:center}
+.kenny-question-card .feedback{flex:0 0 auto;margin:0;padding:clamp(5px,.75vh,9px) clamp(7px,1vw,12px);line-height:1.25;display:flex;align-items:flex-start;gap:7px}
+.kenny-question-card .feedback b{font-size:clamp(10px,.95vw,12px);margin:0;white-space:nowrap;flex-shrink:0}
+.kenny-question-card .feedback p{font-size:clamp(10px,.9vw,12px);line-height:1.28;margin:0}
+.kenny-question-card .kenny-next-row{display:flex;justify-content:flex-end;flex:0 0 auto}
+.kenny-question-card .kenny-next-row .btn{padding:6px 12px;font-size:11px}
+.kenny-play-note{flex:0 0 auto;border:1px solid var(--kenny-line);border-radius:9px;color:var(--muted);font-size:10px;line-height:1.2;padding:4px 8px;background:var(--kenny-soft)}
+.kenny-result-screen .result{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:clamp(2px,.6vh,7px);padding:clamp(9px,2vh,21px)}
+.kenny-result-screen .result .emoji{font-size:clamp(40px,6.5vh,67px);line-height:1}
+.kenny-result-screen .result h1{font-size:clamp(33px,4.3vw,59px);margin:0}
+.kenny-result-screen .result h2{font-size:clamp(23px,2.8vw,35px);margin:0}
+.kenny-result-screen .result p{font-size:clamp(11px,1.1vw,14px);line-height:1.4;margin:0;max-width:580px}
+.kenny-result-screen .result .actions{justify-content:center;margin-top:4px}
+.kenny-result-screen .result .btn{padding:7px 12px}
+#root[data-screen="home"] .hero .hero-icon{flex:0 0 auto}
+.kenny-locked{flex:1 1 auto;min-height:0;margin:0;padding:12px}
+@media(max-width:1000px){.kenny-home-screen .hero>div:first-child{max-width:80%}.kenny-play-hud{max-width:48%}}
+@media(max-width:610px){
+ .content>.top{height:47px;padding:4px 10px}
+ .content>.top .return{padding:5px 8px;font-size:10px}
+ .content>main{padding:clamp(4px,.75vh,8px) 7px 6px}
+ .kenny-mobile-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));height:54px;flex:0 0 54px;background:var(--kenny-panel2);border-top:1px solid var(--kenny-line)}
+ .kenny-mobile-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:2px;min-width:0;border:0;border-top:3px solid transparent;color:var(--muted);background:transparent;font-weight:850;font-size:10px}
+ .kenny-mobile-nav button span{font-size:17px}
+ .kenny-mobile-nav button.active{color:var(--kenny-primary);background:var(--kenny-soft);border-top-color:var(--kenny-primary)}
+ .kenny-screen{gap:4px}
+ .kenny-home-screen .hero{min-height:0;padding:10px;border-radius:14px}
+ .kenny-home-screen .hero>div:first-child{max-width:100%}
+ .kenny-home-screen .hero .eyebrow{font-size:9px;letter-spacing:.5px}
+ .kenny-home-screen .hero h1{font-size:clamp(24px,7vw,39px);line-height:1.06;margin:4px 0}
+ .kenny-home-screen .hero p{font-size:clamp(10px,2.7vw,12px);line-height:1.34;max-width:100%;padding-right:4px}
+ .kenny-home-screen .hero-icon{right:1px;top:7px;opacity:.17}
+ .kenny-home-screen .hero-icon .kenny-visual{height:125px;width:110px}
+ .kenny-home-screen .hero .actions{margin-top:6px;gap:5px}
+ .kenny-home-screen .hero .btn{padding:6px 8px;font-size:clamp(9px,2.6vw,11px)}
+ .kenny-home-screen .stats,.kenny-result-screen .stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+ .kenny-home-screen .stat,.kenny-result-screen .stat{padding:6px 5px;border-radius:10px}
+ .kenny-home-screen .stat small,.kenny-result-screen .stat small{font-size:clamp(8px,2.2vw,9px);line-height:1.2}
+ .kenny-home-screen .stat b,.kenny-result-screen .stat b{font-size:clamp(14px,3.7vw,20px)}
+ .kenny-home-footnote{font-size:8px;line-height:1.3;padding:5px 7px}
+ .kenny-play-header{display:flex;flex-direction:column;align-items:stretch;gap:4px}
+ .kenny-play-title .kenny-visual{width:27px;height:27px}
+ .kenny-play-title .eyebrow{font-size:9px}
+ .kenny-play-title h1{font-size:19px;margin:0}
+ .kenny-play-hud{width:100%;max-width:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
+ .kenny-play-hud span{justify-content:center;gap:3px;padding:3px 2px;font-size:8px}
+ .kenny-play-hud b{font-size:10px}
+ .kenny-question-card{padding:7px;gap:5px;border-radius:12px}
+ .kenny-question-meta{font-size:9px}
+ .kenny-question-meta .tag{font-size:9px;padding:3px 6px}
+ .kenny-question-card .question{font-size:clamp(15px,4.3vw,19px);line-height:1.2}
+ .kenny-question-card .choices{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:4px}
+ .kenny-question-card .choice{padding:5px 6px;gap:5px;font-size:clamp(10px,2.65vw,11px);line-height:1.19}
+ .kenny-question-card .choice .letter{width:19px;height:19px;font-size:10px}
+ .kenny-question-card .snippet{font-size:10px;padding:5px 6px;line-height:1.16;max-height:20%}
+ .kenny-question-card .feedback{flex-direction:column;gap:2px;padding:4px 6px}
+ .kenny-question-card .feedback p{font-size:clamp(9px,2.45vw,11px);line-height:1.16}
+ .kenny-question-card .kenny-next-row .btn{font-size:10px;padding:5px 9px}
+ .kenny-play-note{font-size:9px;padding:3px 6px}
+ .kenny-result-screen .result{padding:7px}
+ .kenny-result-screen .result .emoji{font-size:45px}
+ .kenny-result-screen .result h1{font-size:34px}
+ .kenny-result-screen .result h2{font-size:23px}
+ .kenny-result-screen .result p{font-size:11px;line-height:1.3}
+ .kenny-result-screen .result .actions{gap:5px;margin-top:5px}
+ .kenny-result-screen .result .btn{font-size:10px;padding:6px 8px}
+}
+@media(max-height:620px){
+ .side .kenny-side-art{display:none}
+ .side .menu-label{margin:4px 8px 2px}
+ .side .navbtn{padding:5px 9px}
+ .kenny-home-screen .hero h1{font-size:clamp(24px,3.5vw,47px)}
+ .kenny-home-screen .hero p{font-size:11px;line-height:1.3}
+ .kenny-home-screen .hero .btn{padding:6px 9px}
+ .kenny-home-screen .stat,.kenny-result-screen .stat{padding:5px}
+ .kenny-home-screen .stat b,.kenny-result-screen .stat b{font-size:17px}
+ .kenny-home-footnote{display:none}
+ .kenny-question-card .choice{padding:4px 6px}
+ .kenny-question-card .feedback{padding:4px 6px}
+ .kenny-play-note{display:none}
+}
+
+
+/* The decorative dinosaur portrait must never overlap or steal clicks from
+   the fixed desktop navigation on viewport-width transitions. */
+.side .kenny-side-art{flex-shrink:0;overflow:hidden;pointer-events:none}
+.side .kenny-side-art img{max-height:100%;max-width:100%;pointer-events:none}
+.side .navbtn{position:relative;z-index:2;flex-shrink:0}

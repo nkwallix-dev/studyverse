@@ -162,7 +162,7 @@
                 <small>🔒 COMING SOON</small>
               </article>
             </div>
-            <p class="companions-hint">🪙 Kennyverse übernimmt die bisherigen täglichen Limits von Chemverse und Dsaiverse: maximal 20 vergütete Quizfragen und ein Bossbonus pro Tag, insgesamt 300 TT.</p>
+            
           </section>
         </ng-container>
 
@@ -222,25 +222,17 @@
           <h1 class="page-title" *ngIf="shopTab==='catalog'">Der <span>Item-Shop.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='inventory'">Dein <span>Inventar.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='kenny'">Kenny <span>{{kennyActive?'füttern.':'begleitet dich.'}}</span></h1>
-          <div class="companion-kenny-back" *ngIf="shopTab==='kenny'"><button type="button" (click)="openCompanions()">← Meine Begleiter</button><button type="button" (click)="openKennyVerse()">⚡ Kennyverse betreten ↗</button></div>
+          <div class="companion-kenny-back" *ngIf="shopTab==='kenny'"><button type="button" (click)="openCompanions()">Meine Begleiter</button><button type="button" (click)="openKennyVerse()">⚡ Kennyverse betreten ↗</button></div>
           <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Essentials sind über dein Profil-Level kaufbar.</strong> Test-Items musst du zuerst durch Lernziele freischalten, anschließend kaufst du sie mit TastyTokens. Bereits gekaufte Items findest du im Inventar.</p>
           <p class="page-subtitle" *ngIf="shopTab==='inventory'">Alle deine Cosmetics an einem Ort. Nach Drop und Kategorie filtern, Styles anschauen und direkt ausrüsten.</p>
-          <div class="shop-view-tabs" *ngIf="shopTab==='catalog'||shopTab==='inventory'" role="tablist" aria-label="Item-Shop und Inventar">
+          <div class="shop-view-tabs" *ngIf="shopTab==='catalog'||shopTab==='inventory'||shopTab==='designer'" role="tablist" aria-label="Item-Shop, Inventar und Dino-Designer">
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='catalog'" [class.selected]="shopTab==='catalog'" (click)="setShopTab('catalog')">◇ Item-Shop</button>
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='inventory'" [class.selected]="shopTab==='inventory'" (click)="setShopTab('inventory')">🎒 Inventar <span>{{ownedCatalogItems.length}}</span></button>
+            <button type="button" role="tab" [attr.aria-selected]="shopTab==='designer'" [class.selected]="shopTab==='designer'" (click)="openDinoDesigner()">🎨 Designe deinen Dino</button>
           </div>
           <ng-container *ngIf="shopTab==='catalog'">
 
-          <div class="shop-banner drop-hero">
-            <div class="drop-hero-copy">
-              <span class="eyebrow">✦ DEIN GUTHABEN</span>
-              <h2><span class="wallet-icon">◉</span> {{profile.tokens | number}} <small>TT</small></h2>
-              <p>Level {{level}} · {{claimed}} Cosmetics im Inventar · Ein gemeinsamer Geldbeutel für alle Lernwelten.</p>
-            </div>
-            <div class="drop-floating-art"><span class="drop-planet">🪐</span><span class="drop-spark">✦</span></div>
-          </div>
-
-          <div class="section-heading lower shop-items-heading">
+          <div class="section-heading lower shop-items-heading shop-filter-start">
             <div class="shop-items-heading-main">
               <h2>Alle Items <span>✦</span></h2>
             </div>
@@ -285,13 +277,7 @@
           </ng-container>
           </ng-container>
           <ng-container *ngIf="shopTab==='inventory'">
-            <div class="inventory-summary">
-              <div class="inventory-summary-icon">🎒</div>
-              <div class="inventory-summary-text"><div class="eyebrow">GLOBAL COLLECTION · ALL VERSES</div>
-                <h2>{{ownedCatalogItems.length}} Cosmetics gesammelt</h2><p>Alle hier verfügbaren Items kannst du in STUDYVERSE und den unterstützten Lernwelten verwenden.</p></div>
-              <button class="inventory-dino-designer-btn" type="button" (click)="openDinoDesigner()">🎨 Designe deinen Dino ↗</button>
-            </div>
-            <div class="inventory-filter-bar">
+            <div class="inventory-filter-bar shop-filter-start">
               <label>Kollektion
                 <select [ngModel]="inventoryDrop" (ngModelChange)="changeInventoryDrop($event)">
                   <option *ngFor="let drop of inventoryDrops" [value]="drop">{{drop==='Alle'?'Alle Verses':dropLabel(drop)}}</option>
@@ -367,13 +353,11 @@
                 <div><span>🪙</span><strong>500 TT</strong><small>{{kennyOdds.token500}} %</small></div>
                 <div class="jackpot"><span>💎</span><strong>1.000 TT</strong><small>{{kennyOdds.token1000}} %</small></div>
               </div>
-              <div class="kenny-loot-subhead"><strong>KENNY-EXKLUSIV</strong><span>{{kennyOdds.event+kennyOdds.zebra | number:'1.1-1'}} % gesamt</span></div>
+              <div class="kenny-loot-subhead"><strong>KENNY-EXKLUSIV</strong><span>6 exklusive Drops</span></div>
               <div class="kenny-exclusives">
                 <div *ngFor="let item of kennyEventItems" [class.collected]="owns(item)"><span>{{item.icon}}</span><strong>{{item.name}}</strong><small>{{owns(item)?'✓':'🔒'}}</small></div>
               </div>
-              <p class="kenny-level-reward">🦓 Zebra-Skin: {{kennyOdds.zebra | number:'1.1-1'}} % · selbst auf Level 5 nur 0,5 %</p><p class="kenny-level-reward">🦖 Kenny Blau als Avatar: garantiert ab Level 5</p>
-              <div class="kenny-loot-subhead"><strong>Aus Chemverse &amp; Dsaiverse</strong><span>ohne 100-%-Boss-Titel</span></div>
-              <div class="kenny-tiers"><div *ngFor="let tier of kennyPoolPreview.slice(1)"><span>{{tier.name}}</span><b>{{tier.chance | number:'1.0-1'}} %</b></div></div>
+              <p class="kenny-level-reward">🦖 Ab Level 5 schließt sich Kenny deinem Begleiter an.</p>
               <button type="button" class="kenny-pool-button" (click)="kennyPoolOpen=true">Alle möglichen Items ansehen ↗</button>
             </aside>
             <div class="kenny-season-foot"><span>✦ LEVEL 5: KENNY BLEIBT ALS BEGLEITER · SAISONENDE: URZEIT-FOSSILRAHMEN</span><span>{{kennyPermanent&&!kennyActive?'✦ DEIN DAUERHAFTER BEGLEITER':'⏳ '+kennyCountdown}}</span><button type="button" (click)="kennyPoolOpen=true">Gewinne ansehen ↗</button></div>
@@ -383,7 +367,7 @@
               <span class="eyebrow">🎨 DINO-VERSE · DEINE BEGLEITER</span>
               <h2>Designe deinen <span>Dino.</span></h2>
               <p>Live animiert · Wähle einen Skin und gestalte deinen eigenen Kenny.</p>
-            </div><button type="button" class="btn secondary" (click)="openCompanions()">← Meine Begleiter</button></header>
+            </div><button type="button" class="btn secondary" (click)="openCompanions()">Meine Begleiter</button></header>
             <div class="dino-designer-grid">
               <article class="dino-designer-card">
                 <div class="kenny-stage dino-designer-live">
@@ -631,7 +615,7 @@
       <button type="button" class="kenny-dialog-close" (click)="kennyPoolOpen=false" aria-label="Schließen">✕</button>
       <span class="eyebrow">✦ KENNY · LEVEL {{kennyLevel}}</span><h2>Alle <span>Gewinne.</span></h2>
       <p>Ein Futter kostet 300 TT. Du erhältst entweder TT oder genau ein Item. Bereits besessene Items werden nicht erneut gezogen.</p>
-      <p>Bei Level 5 bekommst du den blauen Kenny-Avatar garantiert dazu.</p>
+      <p>Ab Level 5 schließt sich Kenny deinem Begleiter an.</p>
       <div class="kenny-pool-scroll">
         <div class="kenny-pool-section"><strong>🪙 TOKEN-DROPS</strong><span>100 TT · {{kennyOdds.token100}} % &nbsp; 500 TT · {{kennyOdds.token500}} % &nbsp; 1.000 TT · {{kennyOdds.token1000}} %</span></div>
         <div class="kenny-pool-section" *ngFor="let tier of kennyPoolPreview">
