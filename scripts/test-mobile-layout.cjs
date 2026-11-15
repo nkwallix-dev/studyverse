@@ -325,7 +325,7 @@ async function main(){
    'The full Kenny avatar should fit inside the reveal art area: '+JSON.stringify(avatarArt));
   await avatarPage.screenshot({path:path.join(screenshots,'kenny-avatar-reveal-390.png')});
   await avatarPage.locator('.kenny-inventory-btn').click();
-  await avatarPage.locator('.inventory-item').waitFor();
+  await avatarPage.locator('.inventory-item').first().waitFor();
   assert.equal(await avatarPage.locator('.inventory-item[data-category="avatar"]').count(),1,
    'The reward inventory shortcut should include the newly won blue avatar');
   assert((await avatarPage.locator('.inventory-item[data-category="avatar"]').innerText()).includes('Kenny Blau'));
@@ -357,7 +357,7 @@ async function main(){
   await colorPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('neue Farbe'));
   assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink');
   await colorPage.locator('.kenny-inventory-btn').click();
-  await colorPage.locator('.inventory-item').waitFor({state:'visible'});
+  await colorPage.locator('.inventory-item').first().waitFor({state:'visible'});
   assert.equal(await colorPage.locator('.inventory-item').count(),2);
   assert.equal(await colorPage.locator('.inventory-search-label input').inputValue(),'Kenny Pink');
   assert.equal(await colorPage.locator('.inventory-filter-bar select').first().inputValue(),'Alle');
