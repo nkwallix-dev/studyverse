@@ -1542,7 +1542,7 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  }
  .universe.shop-mode .shop-view-tabs button span{display:none}
  .universe.kenny-mode:not(.designer-mode) .kenny-page{
-   grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.25fr) minmax(0,1fr) auto;
+   grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.65fr) minmax(0,.86fr) auto;
    gap:5px
  }
  .universe.kenny-mode:not(.designer-mode) .kenny-play{
