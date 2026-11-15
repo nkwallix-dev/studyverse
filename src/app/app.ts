@@ -874,10 +874,10 @@ export class App implements OnInit,OnDestroy {
      // Same two-stage reveal as a real rare drop: avatar first, skin second.
      if(avatar&&!before.inventory.includes(avatar.id))
        this.kennyReveals.push({kind:'drop',
-         drop:{tier:'event',tokens:0,item:avatar},
+         drop:{tier:'zebra',tokens:0,item:avatar},
          line:'Neuer Kenny-Avatar freigeschaltet!'});
      this.kennyReveals.push({kind:'drop',
-       drop:{tier:'event',tokens:0,item:KENNY_ZEBRA_SKIN},
+       drop:{tier:'zebra',tokens:0,item:KENNY_ZEBRA_SKIN},
        line:'Neuer Skin für Kenny freigeschaltet! Passe deinen Dino im Designer individuell an.'});
    }catch(error){
      this.profile=before;
