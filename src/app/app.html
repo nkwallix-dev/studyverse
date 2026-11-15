@@ -128,7 +128,7 @@
                   <div class="kenny-volcano"><i></i></div><div class="kenny-ground"></div>
                   <span class="kenny-stage-label">🦖 SEASON 01 · KENNY</span>
                   <div class="kenny-sprite" role="img" aria-label="Kenny mit deinem Skin" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyLevel-1)*0.07"></div>
-                  <div class="kenny-stage-name"><strong>KENNY</strong><span>Level {{kennyLevel}} / 5</span></div>
+                  <div class="kenny-stage-name"><strong>KENNY</strong><span>Level {{kennyLevel}} / 5</span></div><button type="button" class="companion-banner-brush" (click)="openDinoDesigner()" aria-label="Kenny gestalten" title="Designe deinen Dino">🖌️</button>
                 </div>
                 <div class="companion-card-body">
                   <span class="companion-status">{{kennyPermanent?'✦ BLEIBT FÜR IMMER':'⏳ AKTUELLE SEASON'}}</span>
@@ -141,7 +141,7 @@
                   <button type="button" class="companion-enter" (click)="openKennyVerse()">⚡ Kennyverse betreten ↗</button>
                   <div class="companion-actions">
                     <button type="button" (click)="openDinoVerse()">{{kennyActive?'🥩 Kenny füttern':'🦖 Kenny ansehen'}}</button>
-                    <button type="button" (click)="openDinoDesigner()">🎨 Dino designen</button>
+                    
                   </div>
                   <p class="companion-retain-hint" *ngIf="kennyActive && !kennyPermanent">Noch {{25-kennyState.feeds}} Fütterungen bis Level 5 – dann bleibt Kenny nach der Season bei dir.</p>
                   <p class="companion-retain-hint" *ngIf="kennyPermanent">Kenny ist dauerhaft dein Begleiter. Sein Verse bleibt auch nach der Season spielbar.</p>
@@ -218,18 +218,19 @@
         </ng-container>
 
         <ng-container *ngSwitchCase="'shop'">
-          <div class="eyebrow" *ngIf="shopTab!=='designer'">{{shopTab==='kenny'?'DINO-VERSE · DEINE BEGLEITER':'STUDYVERSE COSMETICS'}}</div>
-          <h1 class="page-title" *ngIf="shopTab==='catalog'">Der <span>Item-Shop.</span></h1>
-          <h1 class="page-title" *ngIf="shopTab==='inventory'">Dein <span>Inventar.</span></h1>
-          <h1 class="page-title" *ngIf="shopTab==='kenny'">Kenny <span>{{kennyActive?'füttern.':'begleitet dich.'}}</span></h1>
-          <div class="companion-kenny-back" *ngIf="shopTab==='kenny'"><button type="button" (click)="openCompanions()">Meine Begleiter</button><button type="button" (click)="openKennyVerse()">⚡ Kennyverse betreten ↗</button><button type="button" *ngIf="canTestUnlockZebra" class="kenny-test-unlock" [disabled]="kennyBusy" (click)="testUnlockZebra()" title="Temporärer Zebra-Test-Drop">Test</button></div>
-          <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Essentials sind über dein Profil-Level kaufbar.</strong> Test-Items musst du zuerst durch Lernziele freischalten, anschließend kaufst du sie mit TastyTokens. Bereits gekaufte Items findest du im Inventar.</p>
-          <p class="page-subtitle" *ngIf="shopTab==='inventory'">Alle deine Cosmetics an einem Ort. Nach Drop und Kategorie filtern, Styles anschauen und direkt ausrüsten.</p>
           <div class="shop-view-tabs" *ngIf="shopTab==='catalog'||shopTab==='inventory'||shopTab==='designer'" role="tablist" aria-label="Item-Shop, Inventar und Dino-Designer">
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='catalog'" [class.selected]="shopTab==='catalog'" (click)="setShopTab('catalog')">◇ Item-Shop</button>
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='inventory'" [class.selected]="shopTab==='inventory'" (click)="setShopTab('inventory')">🎒 Inventar <span>{{ownedCatalogItems.length}}</span></button>
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='designer'" [class.selected]="shopTab==='designer'" (click)="openDinoDesigner()">🎨 Designe deinen Dino</button>
           </div>
+          <div class="eyebrow" *ngIf="shopTab!=='designer'">{{shopTab==='kenny'?'DINO-VERSE · DEINE BEGLEITER':'STUDYVERSE COSMETICS'}}</div>
+          <h1 class="page-title" *ngIf="shopTab==='catalog'">Der <span>Item-Shop.</span></h1>
+          <h1 class="page-title" *ngIf="shopTab==='inventory'">Dein <span>Inventar.</span></h1>
+          <h1 class="page-title" *ngIf="shopTab==='kenny'">Kenny <span>{{kennyActive?'füttern.':'begleitet dich.'}}</span></h1>
+          <div class="companion-kenny-back" *ngIf="shopTab==='kenny'"><button type="button" (click)="openCompanions()">Meine Begleiter</button><button type="button" (click)="openKennyVerse()">⚡ Kennyverse betreten ↗</button></div>
+          <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Essentials sind über dein Profil-Level kaufbar.</strong> Test-Items musst du zuerst durch Lernziele freischalten, anschließend kaufst du sie mit TastyTokens. Bereits gekaufte Items findest du im Inventar.</p>
+          <p class="page-subtitle" *ngIf="shopTab==='inventory'">Alle deine Cosmetics an einem Ort. Nach Drop und Kategorie filtern, Styles anschauen und direkt ausrüsten.</p>
+
           <ng-container *ngIf="shopTab==='catalog'">
 
           <div class="section-heading lower shop-items-heading shop-filter-start">
@@ -327,7 +328,7 @@
                 <div class="kenny-drone" aria-hidden="true"><span class="kenny-drone-rotor left"></span><span class="kenny-drone-rotor right"></span><span class="kenny-drone-body">✦</span><span class="kenny-drone-crate">🥩</span></div>
                 <span class="kenny-meat" aria-hidden="true">🥩</span>
                 <div class="kenny-sprite" role="img" aria-label="Kenny, der blaue Raptor" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyVisualLevel-1)*0.07"></div>
-                <div class="kenny-stage-name"><strong>KENNY</strong><span>Dein Begleiter für Chemie und Data Science</span></div>
+                <div class="kenny-stage-name"><strong>KENNY</strong><span>Dein Begleiter für Chemie und Data Science</span></div><button type="button" class="companion-banner-brush" (click)="openDinoDesigner()" aria-label="Kenny gestalten" title="Designe deinen Dino">🖌️</button>
                 <div class="kenny-level-medal"><small>LEVEL</small><strong>{{kennyVisualLevel}}</strong><span>/ 5</span></div>
               </div>
               <div class="kenny-controls">
@@ -336,7 +337,7 @@
                 <div class="kenny-action-row">
                   <div class="kenny-wallet"><small>DEIN GUTHABEN</small><strong>◉ {{profile.tokens | number}} TT</strong></div>
                   <button type="button" class="kenny-feed-btn" [disabled]="!kennyCanFeed" (click)="feedKenny()">{{kennyBusy?'Kenny mampft …':kennyActive?'🥩 Füttern · 300 TT':'Season beendet'}}</button>
-                  <button type="button" class="kenny-style-btn" (click)="openDinoDesigner()" aria-label="Kenny personalisieren">🎨 <span>Personalisieren</span></button>
+                  
                 </div>
                 <p class="kenny-last-feed" *ngIf="kennyRemainingFeeds===1 && kennyLevel<5 && !kennyFeeding">Bravo! Noch einmal füttern, dann ist Kenny Level {{kennyLevel+1}}.</p>
                 <p class="kenny-hint kenny-cashback-hint" *ngIf="kennyLevel===5 && kennyActive"><span>✦ Max-Level! Pro weiterer Fütterung bekommst du am Saisonende 150 TT zurück.</span><span class="kenny-cashback-status">{{kennyState.overfeeds}} weitere Fütterungen · Aktuell: <b>{{kennyCashback | number}} TT</b></span></p>
@@ -365,8 +366,8 @@
           <section class="dino-designer-page" *ngIf="shopTab==='designer'" aria-label="Dino-Designer">
             <header class="dino-designer-heading"><div>
               <span class="eyebrow">🎨 DINO-VERSE · DEINE BEGLEITER</span>
-              <h2>Designe deinen <span>Dino.</span></h2>
-              <p>Live animiert · Wähle einen Skin und gestalte deinen eigenen Kenny.</p>
+              <h1 class="page-title">Designe deinen <span>Dino.</span></h1>
+              <p>Live animiert · Wähle einen Skin und gestalte deinen Dino.</p>
             </div><button type="button" class="btn secondary" (click)="openCompanions()">Meine Begleiter</button></header>
             <div class="dino-designer-grid">
               <article class="dino-designer-card">
@@ -377,7 +378,7 @@
                   <div class="kenny-sprite" role="img" aria-label="Kenny mit dem gewählten Skin" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyLevel-1)*0.07"></div>
                   <div class="kenny-stage-name"><strong>KENNY</strong><span>Level {{kennyLevel}}</span></div>
                 </div>
-                <div class="dino-designer-skins"><strong>KENNYS SKINS</strong><p>Alle freigeschalteten Farben</p>
+                <div class="dino-designer-skins"><strong>KENNYS SKINS</strong><p>{{kennyAllSkinsOwned||!kennyActive?'Alle freigeschalteten Farben':'Alle freischaltbaren Farben'}}</p>
                   <div class="dino-designer-skin-grid">
                     <button type="button" *ngFor="let skin of kennySkins" [disabled]="!skin.owned" [class.selected]="kennySkin===skin.id" (click)="setKennySkin(skin.id)">
                       <span class="kenny-skin-preview" [attr.data-skin]="skin.id" style="--kenny-avatar-mask:url('kenny/kenny-avatar.png')"><img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id"></span>

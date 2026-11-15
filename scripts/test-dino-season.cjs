@@ -84,22 +84,14 @@ assert(html.includes('kenny-sprite')&&html.includes('kenny-avatar.png')&&html.in
 assert(html.includes('Kennyverse betreten')&&html.includes('kenny-reveal-modal')&&html.includes('openCompanions()'));
 assert(!html.includes("shopTab===\'earn\'"),'No leftover earning tab');
 const appTS=fs.readFileSync('src/app/app.ts','utf8');
-assert(html.includes('class="kenny-test-unlock"')&&html.includes('(click)="testUnlockZebra()"'),
- 'Dino-Verse temporarily provides a Test button for the zebra drop');
-assert(html.includes('*ngIf="canTestUnlockZebra"'),'The free unlock cannot appear to everyone');
-assert(appTS.includes('KENNY_EVENT_ITEMS.filter(item=>item.id!==KENNY_ZEBRA_SKIN.id)'),
- 'The Test unlock is gated to collectors owning the other five exclusives');
-assert(appTS.includes('this.cloudReady && this.cloudConfigured && !!this.cloud.session') &&
- appTS.includes('this.cloudMaySave') &&
- appTS.includes("!owned.has(KENNY_ZEBRA_SKIN.id)"),
- 'The Test action must require a signed-in cloud account and cannot be claimed twice');
-assert(appTS.includes('await this.syncCloudNow()')&&appTS.includes("this.cloudStatus!=='✓ Online gespeichert'"),
- 'Test reward must be confirmed in Firebase before it is displayed');
-assert(appTS.includes('this.profile=before;')&&appTS.includes('write(KEY,JSON.stringify(before));'),
- 'Failed cloud writes must revert the temporary zebra reward');
-assert(appTS.includes('KENNY_ZEBRA_SKIN.id,...(avatar?[avatar.id]:[])')&&
- appTS.includes("drop:{tier:'zebra',tokens:0,item:KENNY_ZEBRA_SKIN}"),
- 'Zebra unlock must use the real event reward and grant the matching zebra avatar');
+assert(!html.includes('kenny-test-unlock')&&!appTS.includes('testUnlockZebra')&&!appTS.includes('canTestUnlockZebra'),
+ 'Temporary zebra Test control and its unlock logic must be removed, without removing the earned reward');
+assert(appTS.includes('KENNY_ZEBRA_SKIN')&&appTS.includes('get kennySkin()'),
+ 'Zebra cosmetic and its equipped skin must remain compatible with saved profiles');
+assert(html.includes('companion-banner-brush')&&html.includes('Alle freischaltbaren Farben'),
+ 'Dino Designer must be accessible from the companion banner and show attainable skins');
+assert(appTS.includes("item.group!=='dinoSkin'&&this.owns(item)"),
+ 'Dino skins are not regular Shop or Inventory cosmetics');
 assert(html.includes('kenny-pool-dialog')&&!html.includes('Ein Futter kostet 300 TT. Du erhältst'),
  'Prize dialog must no longer waste vertical room on redundant instructions');
 assert(css.includes('.universe.kenny-mode.kenny-mode{height:100dvh;min-height:0;overflow:hidden}'));
