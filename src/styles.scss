@@ -1295,13 +1295,40 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @media(max-width:1000px){.dino-designer-grid{gap:7px}.dino-designer-skin-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.dino-designer-grid{grid-template-columns:minmax(0,1fr)}.dino-designer-live{height:320px}.dino-designer-locked{min-height:165px}.dino-mystery{width:110px}.dino-designer-skin-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-width:430px){.dino-designer-skin-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-/* Zebra uses a white/black stripe overlay masked to the existing animation sprites. */
-.kenny-sprite[data-skin="zebra"],.kenny-mini-sprite[data-skin="zebra"]{filter:grayscale(1) brightness(1.85) contrast(1.3)}
-.kenny-sprite[data-skin="zebra"]::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(110deg,#fff 0 15px,#15141b 15px 22px,#fff 22px 37px,#111 37px 44px);mask:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;-webkit-mask:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;animation:kenny-zebra-mask 6.4s steps(1) infinite;opacity:.85;pointer-events:none}
-@keyframes kenny-zebra-mask{0%,26%{mask-position:0% 0;-webkit-mask-position:0% 0}27%,48%{mask-position:33.333% 0;-webkit-mask-position:33.333% 0}49%,67%{mask-position:66.667% 0;-webkit-mask-position:66.667% 0}68%,100%{mask-position:100% 0;-webkit-mask-position:100% 0}}
-.kenny-stage.kenny-feeding .kenny-sprite[data-skin="zebra"]::after{mask-image:url('assets/kenny/kenny-feed-strip.png');-webkit-mask-image:url('assets/kenny/kenny-feed-strip.png');animation:kenny-zebra-feed-mask 3.2s steps(1) both}
-@keyframes kenny-zebra-feed-mask{0%,37%{mask-position:0% 0;-webkit-mask-position:0% 0}38%,55%{mask-position:33.333% 0;-webkit-mask-position:33.333% 0}56%,80%{mask-position:66.667% 0;-webkit-mask-position:66.667% 0}81%,100%{mask-position:100% 0;-webkit-mask-position:100% 0}}
-.kenny-avatar-image[data-skin="zebra"],.dino-designer-skin-grid img[data-skin="zebra"],.kenny-skin-grid img[data-skin="zebra"],.kenny-reveal-art img[data-skin="zebra"]{filter:grayscale(1) brightness(2) contrast(1.4)}
+/* Zebra: black stripes are blended with the actual sprite, not painted as
+   opaque white shapes that erase Kenny's face, eyes and animation details.
+   Keep the same frame mask and timing as the original idle/feed strips. */
+.kenny-sprite[data-skin="zebra"],.kenny-mini-sprite[data-skin="zebra"]{
+ filter:grayscale(1) brightness(1.75) contrast(1.35)
+}
+.kenny-sprite[data-skin="zebra"]::after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background:repeating-linear-gradient(114deg,transparent 0 12px,#101014c9 12px 18px,transparent 18px 30px,#101014b8 30px 34px);
+ mix-blend-mode:multiply;opacity:.86;
+ mask:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;
+ -webkit-mask:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;
+ animation:kenny-zebra-mask 6.4s steps(1) infinite
+}
+@keyframes kenny-zebra-mask{
+ 0%,26%{mask-position:0% 0;-webkit-mask-position:0% 0}
+ 27%,48%{mask-position:33.333% 0;-webkit-mask-position:33.333% 0}
+ 49%,67%{mask-position:66.667% 0;-webkit-mask-position:66.667% 0}
+ 68%,100%{mask-position:100% 0;-webkit-mask-position:100% 0}
+}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="zebra"]::after{
+ mask-image:url('assets/kenny/kenny-feed-strip.png');
+ -webkit-mask-image:url('assets/kenny/kenny-feed-strip.png');
+ animation:kenny-zebra-feed-mask 3.2s steps(1) both
+}
+@keyframes kenny-zebra-feed-mask{
+ 0%,37%{mask-position:0% 0;-webkit-mask-position:0% 0}
+ 38%,55%{mask-position:33.333% 0;-webkit-mask-position:33.333% 0}
+ 56%,80%{mask-position:66.667% 0;-webkit-mask-position:66.667% 0}
+ 81%,100%{mask-position:100% 0;-webkit-mask-position:100% 0}
+}
+.kenny-avatar-image[data-skin="zebra"],.dino-designer-skin-grid img[data-skin="zebra"],.kenny-skin-grid img[data-skin="zebra"],.kenny-reveal-art img[data-skin="zebra"]{
+ filter:grayscale(1) brightness(2) contrast(1.4)
+}
 
 
 .inventory-dino-designer-btn{flex:0 0 auto;min-width:205px;border:1px solid #d18dec;border-radius:14px;background:linear-gradient(120deg,#59316f,#35204d);color:white;padding:13px 18px;font-weight:900;cursor:pointer}
@@ -1710,19 +1737,6 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 }
 
 
-/* TEMPORARY zebra unlock: one-time action reserved for collectors owning all
-   other Kenny-exclusive drops. The actual reward persists in the profile. */
-.universe.kenny-mode .companion-kenny-back .kenny-test-unlock{
-  border:1px solid #f5d1ff;
-  background:linear-gradient(120deg,#58416d,#362b49);
-  color:#fff3ff;min-width:66px;font-size:12px;font-weight:950
-}
-.universe.kenny-mode .companion-kenny-back .kenny-test-unlock:hover:not(:disabled){
-  border-color:#fff;box-shadow:0 0 0 2px #f5d1ff30
-}
-.universe.kenny-mode .companion-kenny-back .kenny-test-unlock:disabled{
-  opacity:.55;cursor:wait
-}
 /* All possible loot: use the room previously occupied by generic paragraphs.
    Fit five reward sections inside the modal at ordinary viewport sizes.
    If a fresh account has dozens of unowned rewards, preserve accessibility
@@ -1848,4 +1862,65 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @media(max-width:350px){
  .universe .sidebar .navigation{grid-template-columns:repeat(7,minmax(0,1fr))}
  .universe .sidebar .navigation button span{font-size:18px}
+}
+
+
+/* Shared page rhythm: same topbar edge, same heading scale and aligned shop
+   navigation across all three cosmetics routes. */
+@media(min-width:701px){
+ .universe>.workspace>.topbar{min-height:80px;height:80px;box-sizing:border-box;
+   padding:14px clamp(24px,3.1vw,52px)}
+ .universe>.workspace>main{padding-left:clamp(24px,3.1vw,52px);
+   padding-right:clamp(24px,3.1vw,52px)}
+}
+.universe.shop-mode main>.page-title,
+.universe.kenny-mode main>.page-title,
+.universe.designer-mode .dino-designer-heading .page-title{
+ font-size:clamp(35px,3.6vw,52px);letter-spacing:-1.5px;
+ line-height:1.08;margin:5px 0 9px
+}
+.universe.shop-mode .shop-view-tabs,.universe.designer-mode .shop-view-tabs{
+ order:initial;margin:0 0 11px;width:min(100%,900px);
+ grid-template-columns:repeat(3,minmax(0,1fr));min-height:55px;
+}
+.universe.designer-mode .dino-designer-heading{margin:0}
+.universe.designer-mode .dino-designer-heading .page-title{margin:5px 0 5px}
+.universe.designer-mode .dino-designer-grid{max-height:none}
+.universe.companions-mode .companion-stage{position:relative}
+.companion-banner-brush{
+ position:absolute;z-index:12;right:13px;bottom:15px;
+ display:grid;place-items:center;width:44px;height:44px;
+ padding:0;border-radius:12px;border:1px solid #ffdbad88;
+ background:linear-gradient(135deg,#ad80e0,#e8b4f9);
+ font-size:22px;cursor:pointer;box-shadow:0 5px 18px #0008;
+}
+.companion-banner-brush:hover{filter:brightness(1.15);transform:translateY(-2px)}
+.universe.companions-mode .companion-card-body{
+ justify-content:space-between;gap:clamp(9px,1.5vh,16px)
+}
+.universe.companions-mode .companion-card-body h2{font-size:clamp(23px,2vw,29px)}
+.universe.companions-mode .companion-card-body>p{font-size:clamp(12px,1vw,15px);line-height:1.5}
+.universe.companions-mode .companion-daily b{font-size:clamp(18px,1.6vw,23px)}
+.universe.companions-mode .companion-daily span{font-size:clamp(11px,.95vw,14px);padding:12px}
+.universe.companions-mode .companion-enter{min-height:48px;font-size:clamp(12px,1.15vw,15px)}
+.universe.companions-mode .companion-actions{grid-template-columns:1fr}
+.universe.companions-mode .companion-actions button{font-size:clamp(12px,1vw,14px);padding:12px}
+.universe.companions-mode .companion-status{font-size:clamp(11px,.88vw,13px)}
+.universe.companions-mode .companion-stage .kenny-stage-name strong{font-size:clamp(26px,3vw,33px)}
+@media(max-width:700px){
+ .universe.shop-mode main>.page-title,
+ .universe.kenny-mode main>.page-title,
+ .universe.designer-mode .dino-designer-heading .page-title{
+   font-size:clamp(25px,6vw,34px);margin:3px 0 5px;letter-spacing:-.9px
+ }
+ .universe.shop-mode .shop-view-tabs,.universe.designer-mode .shop-view-tabs{
+  min-height:40px;margin:3px 0 7px
+ }
+ .universe.companions-mode .companion-card-body{gap:4px}
+ .universe.companions-mode .companion-card-body h2{font-size:15px}
+ .universe.companions-mode .companion-daily b{font-size:12px}
+ .universe.companions-mode .companion-daily span{padding:4px 6px;font-size:9px}
+ .universe.companions-mode .companion-enter{min-height:31px;font-size:10px}
+ .universe.companions-mode .companion-actions button{font-size:10px;padding:6px}
+ .companion-banner-brush{width:32px;height:32px;font-size:16px;right:6px;bottom:6px;border-radius:9px}
 }
