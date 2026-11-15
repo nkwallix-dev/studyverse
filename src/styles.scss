@@ -1678,3 +1678,12 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong{font-size:10px}
  .universe.kenny-mode:not(.designer-mode) .kenny-level-reward{font-size:11px}
 }
+
+
+@media(max-width:700px){
+ /* Make full use of the available small mobile stage: previously Kenny's
+    72%-height sprite appeared tiny even though the stage itself still fit. */
+ .universe.kenny-mode:not(.designer-mode) .kenny-stage .kenny-sprite{
+  height:min(97%,240px);max-width:86%;bottom:1%;
+ }
+}
