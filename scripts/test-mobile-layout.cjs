@@ -329,6 +329,7 @@ async function main(){
   assert(colorProfile.inventory.includes('kenny_skin_pink')&&colorProfile.inventory.includes('kenny_avatar_pink'));
   assert(colorProfile.kennyWonItems['kenny_avatar_pink']);
   await colorPage.locator('.kenny-inventory-btn').click();
+  await colorPage.locator('.inventory-item').waitFor({state:'visible'});
   assert.equal(await colorPage.locator('.inventory-item').count(),1);
   assert((await colorPage.locator('.inventory-item').innerText()).includes('Kenny – Pink Avatar'));
   await colorPage.locator('.inventory-item .drop-buy-btn').click();
