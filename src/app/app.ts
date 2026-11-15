@@ -91,12 +91,16 @@ export class App implements OnInit,OnDestroy {
   this.syncChemverse();this.grantAchievementTokens();this.checkRewardUnlocks();this.queueCloudSave();
  };
  ngOnInit(){
-   this.kennyTimer=setInterval(()=>{this.kennyClock=Date.now();this.settleKennyIfExpired();this.changeDetector.markForCheck();},60_000);
+   this.kennyTimer=setInterval(()=>{
+     this.kennyClock=Date.now();this.settleKennyIfExpired();
+     if(this.view==='shop'&&(this.shopTab==='kenny'||this.shopTab==='designer')&&!this.kennyPresent)this.view='companions';
+     this.changeDetector.markForCheck();
+   },60_000);
    this.nicknameEdit=this.profile.nickname;
    // Standalone Verses link to the shared player profile; resolve the hash
    // without changing the single-page app's existing navigation model.
-   if(window.location.hash==='#profile'){
-     this.view='profile';
+   if(window.location.hash==='#profile'||window.location.hash==='#companions'){
+     this.view=window.location.hash==='#profile'?'profile':'companions';
      window.history.replaceState(null,'',window.location.pathname+window.location.search);
    }
    // Only offline profiles sync immediately. For signed-in profiles the remote
