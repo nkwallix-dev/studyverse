@@ -443,6 +443,8 @@ async function main(){
    },allIds.filter(id=>id!=='kenny_skin_zebra'));
    await poolPage.goto(base,{waitUntil:'load'});
    await poolPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
+   await poolPage.locator('.kenny-page').waitFor({state:'visible'});
+   await poolPage.waitForFunction(()=>document.querySelector('.universe')?.classList.contains('kenny-mode'));
    assert.equal(await poolPage.locator('.kenny-test-unlock').count(),0,
     'The temporary free drop is not available without an authenticated cloud account');
    const poolButtonFit=await poolPage.evaluate(()=>{
@@ -453,7 +455,8 @@ async function main(){
       ctrl:rect('.kenny-controls'),viewport:innerHeight};
    });
    console.log('KENNY POOL BUTTON GEOMETRY '+width+': '+JSON.stringify(poolButtonFit));
-   assert(poolButtonFit.button.bottom<=poolButtonFit.navigation.top+2,
+   assert(poolButtonFit.button&&poolButtonFit.loot&&
+      poolButtonFit.button.bottom<=poolButtonFit.navigation.top+2,
     'The complete collector prize button must remain above the fixed mobile navigation: '+
      JSON.stringify(poolButtonFit));
    await poolPage.locator('.kenny-pool-button').click();
