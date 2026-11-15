@@ -1,4 +1,4 @@
-<div class="universe" [class.kenny-mode]="view==='shop' && shopTab==='kenny'" [class.shop-mode]="view==='shop' && shopTab!=='kenny'" [class.friends-mode]="view==='friends'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
+<div class="universe" [class.kenny-mode]="view==='shop' && (shopTab==='kenny'||shopTab==='designer')" [class.shop-mode]="view==='shop' && shopTab!=='kenny'" [class.friends-mode]="view==='friends'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
   <div class="ambient a"></div><div class="ambient b"></div>
   <aside class="sidebar">
     <button class="brand" (click)="go('dashboard')">
@@ -31,7 +31,7 @@
     <header class="topbar">
       <div class="topbar-left">
         <div class="breadcrumbs"><span>✧</span><span class="top-brand-name">STUDYVERSE</span><span class="slash">/</span>
-          <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='earn'?'TastyTokens verdienen':shopTab==='kenny'?'Kenny':'Item-Shop'):view==='achievements'?'Achievements':view==='friends'?'Freunde':'Mein Profil'}}</strong>
+          <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='earn'?'TastyTokens verdienen':shopTab==='kenny'?'Kenny':shopTab==='designer'?'Dino-Designer':'Item-Shop'):view==='achievements'?'Achievements':view==='friends'?'Freunde':'Mein Profil'}}</strong>
         </div>
       </div>
       <div class="top-pills">
@@ -175,7 +175,7 @@
           <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Essentials sind über dein Profil-Level kaufbar.</strong> Test-Items musst du zuerst durch Lernziele freischalten, anschließend kaufst du sie mit TastyTokens. Bereits gekaufte Items findest du im Inventar.</p>
           <p class="page-subtitle" *ngIf="shopTab==='inventory'">Alle deine Cosmetics an einem Ort. Nach Drop und Kategorie filtern, Styles anschauen und direkt ausrüsten.</p>
           <p class="page-subtitle" *ngIf="shopTab==='earn'">Sammle TastyTokens mit Achievements, Quizfragen und Bosskämpfen. Damit kaufst du Essentials und freigeschaltete Test-Items.</p>
-          <div class="shop-view-tabs" role="tablist" aria-label="Item-Shop, Inventar, TastyTokens verdienen und Kenny">
+          <div class="shop-view-tabs" *ngIf="shopTab!=='designer'" role="tablist" aria-label="Item-Shop, Inventar, TastyTokens verdienen und Kenny">
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='catalog'" [class.selected]="shopTab==='catalog'" (click)="setShopTab('catalog')">◇ Item-Shop</button>
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='inventory'" [class.selected]="shopTab==='inventory'" (click)="setShopTab('inventory')">🎒 Inventar <span>{{ownedCatalogItems.length}}</span></button>
             <button type="button" role="tab" [attr.aria-selected]="shopTab==='earn'" [class.selected]="shopTab==='earn'" (click)="setShopTab('earn')">🪙 TastyTokens verdienen</button>
@@ -241,7 +241,7 @@
               <div class="inventory-summary-icon">🎒</div>
               <div class="inventory-summary-text"><div class="eyebrow">GLOBAL COLLECTION · ALL VERSES</div>
                 <h2>{{ownedCatalogItems.length}} Cosmetics gesammelt</h2><p>Alle hier verfügbaren Items kannst du in STUDYVERSE und den unterstützten Lernwelten verwenden.</p></div>
-              <div class="inventory-summary-stat"><strong>{{inventoryEquippedCount}}</strong><span>Ausgerüstet</span></div>
+              <button class="inventory-dino-designer-btn" type="button" (click)="openDinoDesigner()">🎨 Designe deinen Dino ↗</button>
             </div>
             <div class="inventory-filter-bar">
               <label>Kollektion
@@ -324,7 +324,7 @@
                 <div class="kenny-action-row">
                   <div class="kenny-wallet"><small>DEIN GUTHABEN</small><strong>◉ {{profile.tokens | number}} TT</strong></div>
                   <button type="button" class="kenny-feed-btn" [disabled]="!kennyCanFeed" (click)="feedKenny()">{{kennyBusy?'Kenny mampft …':kennyActive?'🥩 Füttern · 300 TT':'Season beendet'}}</button>
-                  <button type="button" class="kenny-style-btn" (click)="kennyCustomizeOpen=true" aria-label="Kenny personalisieren">🎨 <span>Personalisieren</span></button>
+                  <button type="button" class="kenny-style-btn" (click)="openDinoDesigner()" aria-label="Kenny personalisieren">🎨 <span>Personalisieren</span></button>
                 </div>
                 <p class="kenny-last-feed" *ngIf="kennyRemainingFeeds===1 && kennyLevel<5 && !kennyFeeding">Bravo! Noch einmal füttern, dann ist Kenny Level {{kennyLevel+1}}.</p>
                 <p class="kenny-hint kenny-cashback-hint" *ngIf="kennyLevel===5 && kennyActive"><span>✦ Max-Level! Pro weiterer Fütterung bekommst du am Saisonende 150 TT zurück.</span><span class="kenny-cashback-status">{{kennyState.overfeeds}} weitere Fütterungen · Aktuell: <b>{{kennyCashback | number}} TT</b></span></p>
@@ -340,16 +340,46 @@
                 <div><span>🪙</span><strong>500 TT</strong><small>{{kennyOdds.token500}} %</small></div>
                 <div class="jackpot"><span>💎</span><strong>1.000 TT</strong><small>{{kennyOdds.token1000}} %</small></div>
               </div>
-              <div class="kenny-loot-subhead"><strong>KENNY-EXKLUSIV</strong><span>{{kennyOdds.event | number:'1.0-1'}} % gesamt</span></div>
+              <div class="kenny-loot-subhead"><strong>KENNY-EXKLUSIV</strong><span>{{kennyOdds.event+kennyOdds.zebra | number:'1.1-1'}} % gesamt</span></div>
               <div class="kenny-exclusives">
                 <div *ngFor="let item of kennyEventItems" [class.collected]="owns(item)"><span>{{item.icon}}</span><strong>{{item.name}}</strong><small>{{owns(item)?'✓':'🔒'}}</small></div>
               </div>
-              <p class="kenny-level-reward">🦖 Kenny Blau als Avatar: garantiert ab Level 5</p>
+              <p class="kenny-level-reward">🦓 Zebra-Skin: {{kennyOdds.zebra | number:'1.1-1'}} % · selbst auf Level 5 nur 0,5 %</p><p class="kenny-level-reward">🦖 Kenny Blau als Avatar: garantiert ab Level 5</p>
               <div class="kenny-loot-subhead"><strong>Aus Chemverse &amp; Dsaiverse</strong><span>ohne 100-%-Boss-Titel</span></div>
               <div class="kenny-tiers"><div *ngFor="let tier of kennyPoolPreview.slice(1)"><span>{{tier.name}}</span><b>{{tier.chance | number:'1.0-1'}} %</b></div></div>
               <button type="button" class="kenny-pool-button" (click)="kennyPoolOpen=true">Alle möglichen Items ansehen ↗</button>
             </aside>
             <div class="kenny-season-foot"><span>✦ LEVEL 5: KENNY – BLAU AVATAR · SAISONENDE: URZEIT-FOSSILRAHMEN</span><span>⏳ {{kennyCountdown}}</span><button type="button" (click)="kennyPoolOpen=true">Gewinne ansehen ↗</button></div>
+          </section>
+          <section class="dino-designer-page" *ngIf="shopTab==='designer'" aria-label="Dino-Designer">
+            <header class="dino-designer-heading"><div>
+              <span class="eyebrow">🎨 DINO-VERSE · DEINE BEGLEITER</span>
+              <h2>Designe deinen <span>Dino.</span></h2>
+              <p>Live animiert · Wähle einen Skin und gestalte deinen eigenen Kenny.</p>
+            </div><button type="button" class="btn secondary" (click)="openDinoVerse()">← Zurück zu Kenny</button></header>
+            <div class="dino-designer-grid">
+              <article class="dino-designer-card">
+                <div class="kenny-stage dino-designer-live">
+                  <div class="kenny-sun"></div><div class="kenny-mountain left"></div><div class="kenny-mountain right"></div>
+                  <div class="kenny-volcano"><i></i></div><div class="kenny-ground"></div>
+                  <span class="kenny-stage-label">✦ DEIN DINO</span>
+                  <div class="kenny-sprite" role="img" aria-label="Kenny mit dem gewählten Skin" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyLevel-1)*0.07"></div>
+                  <div class="kenny-stage-name"><strong>KENNY</strong><span>Level {{kennyLevel}}</span></div>
+                </div>
+                <div class="dino-designer-skins"><strong>KENNYS SKINS</strong><p>Alle freigeschalteten Farben</p>
+                  <div class="dino-designer-skin-grid">
+                    <button type="button" *ngFor="let skin of kennySkins" [disabled]="!skin.owned" [class.selected]="kennySkin===skin.id" (click)="setKennySkin(skin.id)">
+                      <img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id">
+                      <strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Aktiv':'Ausrüsten'):'🔒 Gesperrt'}}</small>
+                    </button>
+                  </div>
+                </div>
+              </article>
+              <article *ngFor="let slot of [2,3]" class="dino-designer-card dino-designer-locked">
+                <div class="dino-mystery"><img src="kenny/kenny-avatar.png" alt="" aria-hidden="true"><b>?</b></div>
+                <h3>Unbekannter Dino</h3><p>Hier könnte bald ein weiterer Begleiter leben.</p><small>🔒 COMING SOON</small>
+              </article>
+            </div>
           </section>
         </ng-container>
 
@@ -535,18 +565,23 @@
       </div>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='level'">Kenny ist jetzt <span>Level {{reveal.level}}!</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item?.id==='kenny_avatar'">Kenny begleitet dich jetzt <span>als Avatar!</span></h2>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && kennyAvatarForSkin(reveal.drop?.item?.id)">Kenny hat eine neue Farbe! <span>Den passenden Avatar bekommst du dazu.</span></h2>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.id!=='kenny_avatar' && !kennyAvatarForSkin(reveal.drop?.item?.id)">Kenny hat dir etwas mitgebracht: <span>{{reveal.drop?.item?.name}}</span></h2>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='avatar'">Neuer Kenny-Avatar <span>freigeschaltet!</span></h2>
+       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && isKennyColorSkin(reveal.drop?.item?.id)">Neuer Skin für Kenny <span>freigeschaltet!</span></h2>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.id!=='kenny_avatar' && reveal.drop?.item?.group!=='avatar' && !isKennyColorSkin(reveal.drop?.item?.id)">Kenny hat dir etwas mitgebracht: <span>{{reveal.drop?.item?.name}}</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && !reveal.drop?.item">Kenny hat TT gefunden: <span>{{reveal.drop?.tokens | number}} TT</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='season'">Kennys Season <span>ist vorbei!</span></h2>
       <p *ngIf="reveal.kind==='level' && reveal.level!==5">Weiterfüttern erhöht deine Chance auf wertvollere und exklusive Items.</p>
       <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! Kenny Blau ist jetzt als Avatar in deinem Inventar. Ab jetzt bekommst du für jede weitere Fütterung am Saisonende 150 TT zurück.</p>
-      <p *ngIf="reveal.kind==='drop' && reveal.drop?.item">{{reveal.line}} {{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
+      <p *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='avatar'">Du kannst deinen neuen Kenny-Avatar jetzt ausrüsten oder später im Inventar auswählen.</p>
+       <p *ngIf="reveal.kind==='drop' && isKennyColorSkin(reveal.drop?.item?.id)">Neuer Skin für Kenny freigeschaltet! Du kannst Kenny individuell anpassen und seinen Look jederzeit im Dino-Designer wechseln.</p>
+       <p *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.group!=='avatar' && !isKennyColorSkin(reveal.drop?.item?.id)">{{reveal.line}} {{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
       <p *ngIf="reveal.kind==='drop' && !reveal.drop?.item">{{reveal.line}} {{reveal.drop?.tokens | number}} TT landen in deinem Guthaben.</p>
       <p *ngIf="reveal.kind==='season'">{{reveal.tokens ? (reveal.tokens | number)+' TT Cashback' : 'Kein Cashback'}}<span *ngIf="reveal.item"> · {{reveal.item.name}} freigeschaltet</span></p>
       <div class="kenny-reveal-actions">
-        <button type="button" class="btn primary" (click)="acknowledgeKennyReveal()">{{kennyReveals.length>1?'Weiter →':'Annehmen'}}</button>
-        <button type="button" class="btn kenny-inventory-btn" *ngIf="(reveal.drop?.item || reveal.item) && reveal.drop?.item?.id!=='kenny_skin_blue'" (click)="openKennyRewardInventory()">🎒 Im Inventar ansehen</button>
+        <button type="button" class="btn primary" *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='avatar'" (click)="equipKennyRewardAvatar()">Ausrüsten &amp; Weiter</button>
+         <button type="button" class="btn primary" *ngIf="reveal.kind==='drop' && isKennyColorSkin(reveal.drop?.item?.id)" (click)="showKennyRewardSkin()">Zeig's mir ↗</button>
+         <button type="button" class="btn secondary" (click)="acknowledgeKennyReveal()">{{reveal.kind==='drop' && isKennyColorSkin(reveal.drop?.item?.id)?'Annehmen':kennyReveals.length>1?'Weiter →':'Annehmen'}}</button>
+        <button type="button" class="btn kenny-inventory-btn" *ngIf="(reveal.drop?.item || reveal.item) && reveal.drop?.item?.group!=='avatar' && !isKennyColorSkin(reveal.drop?.item?.id) && reveal.drop?.item?.id!=='kenny_skin_blue'" (click)="openKennyRewardInventory()">🎒 Im Inventar ansehen</button>
       </div>
     </div>
   </div>
