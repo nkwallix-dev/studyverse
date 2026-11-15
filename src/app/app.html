@@ -114,6 +114,57 @@
           </div>
         </ng-container>
 
+
+        <ng-container *ngSwitchCase="'companions'">
+          <section class="companions-page">
+            <div class="eyebrow">✦ DINO-VERSE · DEINE BEGLEITER</div>
+            <h1 class="page-title">Deine <span>Begleiter.</span></h1>
+            <p class="page-subtitle">Jeder Dino bringt eigene Missionen, Skins und ein Daily-Verse mit. Erreiche Level 5, damit er nach seiner Season bei dir bleibt.</p>
+            <div class="companions-grid">
+              <article class="companion-card companion-kenny" *ngIf="kennyPresent">
+                <div class="kenny-stage companion-stage">
+                  <div class="kenny-sun"></div><div class="kenny-mountain left"></div><div class="kenny-mountain right"></div>
+                  <div class="kenny-volcano"><i></i></div><div class="kenny-ground"></div>
+                  <span class="kenny-stage-label">🦖 SEASON 01 · KENNY</span>
+                  <div class="kenny-sprite" role="img" aria-label="Kenny mit deinem Skin" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyLevel-1)*0.07"></div>
+                  <div class="kenny-stage-name"><strong>KENNY</strong><span>Level {{kennyLevel}} / 5</span></div>
+                </div>
+                <div class="companion-card-body">
+                  <span class="companion-status">{{kennyPermanent?'✦ BLEIBT FÜR IMMER':'⏳ AKTUELLE SEASON'}}</span>
+                  <h2>Kenny <span>der Raptor.</span></h2>
+                  <p>Entdecke mit Kenny Chemie und Data Science. Sein eigenes Kennyverse bietet tägliche Quizmissionen und einen Bosskampf.</p>
+                  <div class="companion-daily">
+                    <span><b>{{dailyChem.questions}}/20</b> Tagesfragen</span>
+                    <span><b>{{dailyChem.boss?'✓ Erledigt':'100 TT'}}</b> Daily Boss</span>
+                  </div>
+                  <button type="button" class="companion-enter" (click)="openKennyVerse()">⚡ Kennyverse betreten ↗</button>
+                  <div class="companion-actions">
+                    <button type="button" (click)="openDinoVerse()">{{kennyActive?'🥩 Kenny füttern':'🦖 Kenny ansehen'}}</button>
+                    <button type="button" (click)="openDinoDesigner()">🎨 Dino designen</button>
+                  </div>
+                  <p class="companion-retain-hint" *ngIf="kennyActive && !kennyPermanent">Noch {{25-kennyState.feeds}} Fütterungen bis Level 5 – dann bleibt Kenny nach der Season bei dir.</p>
+                  <p class="companion-retain-hint" *ngIf="kennyPermanent">Kenny ist dauerhaft dein Begleiter. Sein Verse bleibt auch nach der Season spielbar.</p>
+                </div>
+              </article>
+              <article class="companion-card companion-future" *ngIf="kennyMovedOn">
+                <div class="companion-mystery"><img src="kenny/kenny-avatar.png" alt="" aria-hidden="true"><strong>?</strong></div>
+                <span class="companion-status">✦ NÄCHSTE SEASON</span>
+                <h2>Ein neuer Dino <span>wartet.</span></h2>
+                <p>Kenny ist ohne Level 5 nach seiner Season weitergezogen. Seine erspielten Cosmetics bleiben in deinem Inventar.</p>
+                <small>🔒 SEASON 02 IN VORBEREITUNG</small>
+              </article>
+              <article class="companion-card companion-future" *ngFor="let slot of [2,3]">
+                <div class="companion-mystery"><img src="kenny/kenny-avatar.png" alt="" aria-hidden="true"><strong>?</strong></div>
+                <span class="companion-status">✦ WEITERER BEGLEITER</span>
+                <h2>Unbekannter <span>Dino.</span></h2>
+                <p>Eine kommende Dino-Season wird hier eine neue Lernwelt und eigene Daily-Missionen freischalten.</p>
+                <small>🔒 COMING SOON</small>
+              </article>
+            </div>
+            <p class="companions-hint">🪙 Kennyverse übernimmt die bisherigen täglichen Limits von Chemverse und Dsaiverse: maximal 20 vergütete Quizfragen und ein Bossbonus pro Tag, insgesamt 300 TT.</p>
+          </section>
+        </ng-container>
+
         <ng-container *ngSwitchCase="'subjects'">
           <div class="eyebrow">THE LEARNING GALAXY</div><h1 class="page-title">Deine <span>Lernwelten.</span></h1>
           <p class="page-subtitle">Ein eigenes Universum für jedes Fach – mit Tests, Challenges und Bosskämpfen.</p>
