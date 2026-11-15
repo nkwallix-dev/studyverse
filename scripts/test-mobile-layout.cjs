@@ -532,6 +532,43 @@ async function main(){
    'Each extra 300 TT feeding must add 150 TT to the season cashback');
   await emptyContext.close();
   console.log('PASS: exhausted item pool permits 300 TT feeds, token prizes, and 150 TT cashback.');
+
+  // A retained Kenny can still play his Verse after the season, while a
+  // non-level-five dinosaur is locked even when entering the URL directly.
+  const verseContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const versePage=await verseContext.newPage();
+  await versePage.addInitScript(()=>{
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({
+    xp:0,tokens:0,nickname:'VerseTester',inventory:[],equipped:{},activity:[],
+    dinoSeasons:{'kenny-2026':{feeds:25,skin:'blue',settled:true,settlement:0}}
+   }));
+   Date.now=()=>Date.parse('2027-02-15T12:00:00+01:00');
+  });
+  await versePage.goto(base+'kennyverse/index.html',{waitUntil:'load'});
+  await versePage.locator('.hero h1').waitFor({state:'visible'});
+  assert((await versePage.title()).includes('Kennyverse'));
+  assert(await versePage.locator('.hero-icon img').isVisible(),
+   'Kenny must be visibly present inside his Daily world');
+  await versePage.locator('#quizTab').click();
+  await versePage.locator('.question').waitFor({state:'visible'});
+  assert.equal(await versePage.locator('.choice').count(),4,
+   'Kennyverse must keep four original answer options');
+  await check(versePage,'Kennyverse 390');
+  await verseContext.close();
+  const lockedContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const lockedPage=await lockedContext.newPage();
+  await lockedPage.addInitScript(()=>{
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({
+    dinoSeasons:{'kenny-2026':{feeds:24}}
+   }));
+   Date.now=()=>Date.parse('2027-02-15T12:00:00+01:00');
+  });
+  await lockedPage.goto(base+'kennyverse/index.html',{waitUntil:'load'});
+  await lockedPage.locator('.kenny-locked').waitFor({state:'visible'});
+  assert(await lockedPage.locator('#quizTab').isDisabled(),
+   'A retired non-level-five Kenny must not unlock Daily rewards via a direct URL');
+  await lockedContext.close();
+  console.log('PASS: Kennyverse remains playable after Level 5; expired non-retained companions are locked.');
   for(const [world,url,mainSelector,header] of [
    ['Chemverse','nawi/test-01/','#pages','.studyverse-profile-link'],
    ['Dsaiverse','dsai/test-01/','#main','.studyverse-profile-link'],
