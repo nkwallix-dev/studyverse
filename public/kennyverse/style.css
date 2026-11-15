@@ -288,3 +288,101 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
 .side .kenny-side-art{flex-shrink:0;overflow:hidden;pointer-events:none}
 .side .kenny-side-art img{max-height:100%;max-width:100%;pointer-events:none}
 .side .navbtn{position:relative;z-index:2;flex-shrink:0}
+
+
+/* Complete Urzeit landscape shared visually with the original Dino-Verse stage. */
+.kenny-home-screen .hero{
+ background:radial-gradient(circle at 65% 24%,#faad65a9,transparent 27%),
+ linear-gradient(180deg,#2b1b37 0%,#7c3e54 44%,#b16e48 73%,#25392f 100%);
+}
+.kenny-home-screen .hero:before{
+ background:linear-gradient(90deg,#171628f2 0%,#21182ae5 36%,#231c3395 61%,#221b3440 80%,transparent);
+}
+.kenny-home-screen .hero>div:first-child{max-width:67%;padding-right:8px}
+.kenny-home-screen .hero-icon{
+ position:absolute;right:clamp(10px,3vw,45px);bottom:clamp(12px,4vh,38px);top:auto;
+ width:clamp(195px,30vw,385px);height:clamp(240px,57vh,425px);
+ display:grid;place-items:center;z-index:6;
+}
+.kenny-home-screen .hero-icon .kenny-visual{
+ width:100%;height:100%;max-width:100%;max-height:100%;
+}
+.kenny-home-screen .hero-icon .kenny-visual img{width:100%;height:100%;object-fit:contain}
+.kenny-prehistoric-banner{z-index:1}
+.kenny-prehistoric-banner .kenny-banner-sun{
+ position:absolute;right:12%;top:10%;width:clamp(88px,11vw,130px);aspect-ratio:1;
+ background:#ffd9a1;border-radius:50%;box-shadow:0 0 80px 35px #fcb86b88
+}
+.kenny-prehistoric-banner .kenny-banner-mountain{
+ position:absolute;bottom:17%;width:75%;height:47%;background:#423a48;
+ clip-path:polygon(0 100%,38% 10%,100% 100%);opacity:.55
+}
+.kenny-prehistoric-banner .kenny-banner-mountain.mountain-left{left:-15%}
+.kenny-prehistoric-banner .kenny-banner-mountain.mountain-right{
+ right:-28%;left:auto;height:62%;background:#382e41
+}
+.kenny-prehistoric-banner .kenny-banner-volcano{
+ position:absolute;right:8%;bottom:21%;width:46%;height:62%;
+ background:linear-gradient(115deg,#262533,#55404a 65%,#231d30);
+ clip-path:polygon(0 100%,36% 20%,46% 22%,54% 19%,64% 20%,100% 100%)
+}
+.kenny-prehistoric-banner .kenny-banner-volcano:after{display:none}
+.kenny-prehistoric-banner .kenny-banner-volcano i{
+ position:absolute;left:35%;top:16%;width:30%;height:62%;
+ background:linear-gradient(#ffcb72,#ed512f,#6e2c37);
+ clip-path:polygon(40% 0,60% 0,70% 26%,58% 44%,77% 100%,28% 100%,42% 43%,30% 24%);
+ filter:drop-shadow(0 0 18px #ff7427)
+}
+.kenny-prehistoric-banner .kenny-banner-lava{
+ position:absolute;z-index:1;right:25%;bottom:53%;width:45px;height:55px;
+ border-radius:50%;background:#ffad6e66;filter:blur(22px);
+ box-shadow:0 -85px 45px #ef806882,45px -120px 50px #e99e8a77
+}
+.kenny-prehistoric-banner .kenny-banner-ground{
+ position:absolute;z-index:2;inset:auto 0 0;height:30%;
+ background:linear-gradient(180deg,transparent,#17272c 56%,#111e26)
+}
+.kenny-prehistoric-banner .kenny-banner-fern{
+ position:absolute;z-index:3;bottom:-14px;right:auto;
+ font-size:clamp(70px,11vw,135px);
+ filter:brightness(.37) saturate(.8) drop-shadow(0 0 14px #080f13)
+}
+.kenny-prehistoric-banner .kenny-banner-fern.fern-left{
+ left:-24px;transform:rotate(-22deg)
+}
+.kenny-prehistoric-banner .kenny-banner-fern.fern-right{
+ right:-24px;transform:scaleX(-1) rotate(-22deg)
+}
+/* Keep the side portrait wholly inside its own card, never over text or navigation. */
+.side .kenny-side-art{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:7px;min-height:0;height:clamp(145px,25dvh,230px);
+ padding:11px;overflow:hidden;flex:0 0 auto;isolation:isolate
+}
+.side .kenny-side-art .kenny-visual{
+ display:grid;place-items:center;flex:1 1 auto;min-height:0;height:auto;
+ width:min(100%,205px);max-width:100%;overflow:hidden
+}
+.side .kenny-side-art .kenny-visual img{
+ display:block;width:100%;height:100%;max-height:100%;max-width:100%;
+ object-fit:contain;object-position:center
+}
+.side .kenny-side-art strong{
+ flex:0 0 auto;position:relative;z-index:1;text-align:center;
+ line-height:1.25;font-size:9px
+}
+@media(min-width:611px) and (max-width:850px){
+ .side .kenny-side-art{height:clamp(80px,14dvh,115px);padding:4px}
+ .side .kenny-side-art .kenny-visual{width:100%;height:auto}
+ .side .kenny-side-art strong{display:none}
+}
+@media(max-width:610px){
+ .kenny-home-screen .hero>div:first-child{max-width:100%}
+ .kenny-home-screen .hero-icon{
+  right:4px;top:10px;bottom:auto;width:clamp(100px,31vw,160px);
+  height:clamp(125px,24vh,190px);opacity:.23
+ }
+ .kenny-home-screen .hero:before{
+  background:linear-gradient(90deg,#171628ef 0%,#201a30c4 67%,#201a3070)
+ }
+}
