@@ -5,6 +5,7 @@ on:
     paths:
       - 'src/app/**'
       - 'public/maths/**'
+      - 'scripts/test-dino-season.cjs'
       - 'scripts/test-reward-economy.cjs'
       - 'scripts/test-shop-preview.cjs'
       - 'scripts/test-mathsverse.cjs'
@@ -27,6 +28,7 @@ jobs:
         run: npm ci
       - name: Verify milestone-based shop and MathsVerse retirement
         run: |
+          node scripts/test-dino-season.cjs
           node scripts/test-reward-economy.cjs
           node scripts/test-reward-carousel-and-ranks.cjs
           node scripts/test-shop-preview.cjs

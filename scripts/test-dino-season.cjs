@@ -19,12 +19,16 @@ const professors=['title_chaos','dsai_title_weber','sharp_title_spermann'].map(i
 const ordinary=[{id:'small',drop:'nawi-test-01',group:'avatar',cost:200},{id:'medium',drop:'dsai-test-01',group:'banner',cost:500},{id:'large',drop:'nawi-test-01',group:'theme',cost:900}];
 const pool=d.eligibleDinoItems([...professors,...ordinary],new Set());
 assert.equal(pool.event.length,5);
+assert.equal(pool.zebra.length,1);
+assert.equal(d.KENNY_ZEBRA_SKIN.id,'kenny_skin_zebra');
+assert.equal(d.KENNY_ODDS[4].zebra,0.5,'Level 5 zebra chance must be 0.5%');
+assert.deepEqual(Array.from(d.KENNY_ODDS,x=>x.zebra),[0.1,0.2,0.3,0.4,0.5]);
 assert.equal(d.KENNY_BLUE_AVATAR.id,'kenny_avatar');
 assert.equal(d.KENNY_BLUE_SKIN.id,'kenny_skin_blue');
 assert(!pool.event.some(item=>item.id==='kenny_avatar'),'Blue Kenny must unlock at level 5, not by chance');
 assert(!pool.event.some(item=>item.id==='kenny_skin_blue'),'Blue skin accompanies the first colored skin, not a separate draw');
-assert.equal(d.KENNY_SKIN_AVATARS.length,3);
-for(const color of ['pink','green','red']){
+assert.equal(d.KENNY_SKIN_AVATARS.length,4);
+for(const color of ['pink','green','red','zebra']){
  const avatar=d.kennyAvatarForSkin('kenny_skin_'+color);
  assert.equal(avatar.id,'kenny_avatar_'+color);
  assert.equal(d.kennyAvatarSkin(avatar.id),color);
@@ -42,14 +46,16 @@ assert.equal(d.actualDinoOdds(5,noSmall).token1000,2,'Removing owned items must 
 const rich=d.eligibleDinoItems([...ordinary,...Array.from({length:24},(_,i)=>({id:'extra_'+i,drop:'dsai-test-01',group:'avatar',cost:200}))],new Set());
 assert.equal(rich.small.length,25);
 assert.equal(d.actualDinoOdds(5,rich).event,9,'More than 20 ordinary rewards must not raise the level-five exclusive chance');
-assert.equal(d.actualDinoOdds(5,noSmall).token100,49,'Empty small-item tier shifts to 100 TT, not the remaining cosmetics');
+assert.equal(d.actualDinoOdds(5,noSmall).token100,48.5,'Empty small-item tier shifts to 100 TT, not the remaining cosmetics');
 const sparse=d.eligibleDinoItems([{id:'sharp_only',drop:'pos-pa-01',group:'avatar',cost:200,requirement:{metric:'boss',value:99}}],new Set());
 assert.equal(sparse.small.length,0,'Kenny must never drop Sharpverse cosmetics');
-assert.equal(d.actualDinoOdds(2,sparse).token100,91,'Empty regular tiers shift their chance to 100 TT');
+assert(Math.abs(d.actualDinoOdds(2,sparse).token100-90.8)<1e-8,'Empty regular tiers shift their chance to 100 TT');
 const empty=d.eligibleDinoItems([...professors,...ordinary],new Set([
  ...professors.map(item=>item.id),...ordinary.map(item=>item.id),...d.KENNY_EVENT_ITEMS.map(item=>item.id)
 ]));
 assert.equal(Object.values(empty).flat().length,0);
+assert.equal(d.actualDinoOdds(5,empty).zebra,0,'Owned zebra cannot drop twice');
+assert.equal(d.drawDinoReward(5,pool,()=>0.6675).item?.id,'kenny_skin_zebra','Zebra owns a reserved 0.5% slot');
 const emptyOdds=d.actualDinoOdds(5,empty);
 assert.equal(Object.values(emptyOdds).reduce((n,x)=>n+x,0),100);
 assert.deepEqual([emptyOdds.token100,emptyOdds.token500,emptyOdds.token1000],[93,5,2]);

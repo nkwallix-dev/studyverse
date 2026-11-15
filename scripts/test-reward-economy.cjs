@@ -77,10 +77,10 @@ assert(html.includes('(click)="acceptReward()"')&&html.includes('(click)="buyAnd
  'Both popup buttons must be wired');
 assert(html.includes('Kaufen &amp; Ausrüsten')&&html.includes('Weiter →'));
 assert(!html.includes('[(ngModel)]="hideOwnedItems"'),'Hide-owned toggle no longer needed');
-const catalog=html.slice(html.indexOf('<div class="item-grid drop-item-grid">'),
+const catalog=html.slice(html.indexOf('<div class="item-grid drop-item-grid"'),
   html.indexOf('class="item-grid drop-item-grid inventory-item-grid"'));
 assert(!catalog.includes('✓ OWNED'),'Catalog may never label owned items');
-assert(catalog.includes('PREIS NACH FREISCHALTUNG')&&catalog.includes('{{item.cost | number}} TT'));
+assert(catalog.includes('drop-buy-btn')&&catalog.includes('{{priceLabel(item)}}'),'Catalog uses live purchase labels and disables locked items');
 assert(!catalog.includes('GRATIS'),'Test items must not be advertised as free');
 assert(catalog.includes('🎁 FREIGESCHALTET')&&catalog.includes('🔒 GESPERRT'));
 assert(html.includes('class="item-grid drop-item-grid inventory-item-grid"'),

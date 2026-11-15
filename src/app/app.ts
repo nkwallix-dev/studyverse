@@ -62,7 +62,7 @@ export class App implements OnInit,OnDestroy {
  readonly subjects=SUBJECTS;
  readonly items=[...SHOP_ITEMS,...KENNY_ITEMS];
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
- shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'earn'|'kenny'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
+ shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'earn'|'kenny'|'designer'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
  kennyClock=Date.now();kennyBusy=false;kennyFeeding=false;kennyVisibleFeeds:number|null=null;kennyError='';kennyCustomizeOpen=false;kennyPoolOpen=false;
  kennyReveals:Array<{kind:'drop'|'level'|'season';drop?:DinoDrop;level?:number;tokens?:number;item?:ShopItem;line?:string}>=[];
  private kennyTimer:ReturnType<typeof setInterval>|null=null;
@@ -139,7 +139,16 @@ export class App implements OnInit,OnDestroy {
    // A previously won color skin includes its matching avatar retroactively.
    const missing=KENNY_SKIN_AVATARS.filter(item=>
      restored.inventory.includes('kenny_skin_'+item.id.slice('kenny_avatar_'.length))&&!restored.inventory.includes(item.id));
-   const earnedBlue=normalizeDinoState(restored.dinoSeasons?.[KENNY_SEASON.id]).feeds>=KENNY_THRESHOLDS[4];
+   // Older saves can retain feeding activity while lacking the pet counter.
+    const oldState=normalizeDinoState(restored.dinoSeasons?.[KENNY_SEASON.id]);
+    const recordedFeeds=restored.activity.filter(entry=>entry && typeof entry.label==='string' &&
+      entry.label.startsWith('🦖 Kenny gefüttert · ')).length;
+    if(recordedFeeds>oldState.feeds){
+      restored.dinoSeasons={...(restored.dinoSeasons||{}),
+        [KENNY_SEASON.id]:{...oldState,feeds:recordedFeeds,overfeeds:Math.max(0,recordedFeeds-25)}};
+      write(KEY,JSON.stringify(restored));
+    }
+    const earnedBlue=normalizeDinoState(restored.dinoSeasons?.[KENNY_SEASON.id]).feeds>=KENNY_THRESHOLDS[4];
    const earnedColor=KENNY_EVENT_ITEMS.some(item=>item.group==='dinoSkin'&&restored.inventory.includes(item.id));
    if(missing.length||earnedColor&&!restored.inventory.includes(KENNY_BLUE_SKIN.id)||earnedBlue&&!restored.inventory.includes(KENNY_BLUE_AVATAR.id)){
      restored.inventory=[...new Set([...restored.inventory,...missing.map(item=>item.id),
@@ -787,7 +796,7 @@ export class App implements OnInit,OnDestroy {
      (id==='maths-hw-02'?'MathsVerse · Archiv':id==='exclusive'?'Exklusiv':id);
  }
  changeInventoryDrop(id:string){this.inventoryDrop=id;this.inventoryGroup='Alle';}
- setShopTab(tab:'catalog'|'inventory'|'earn'|'kenny'){
+ setShopTab(tab:'catalog'|'inventory'|'earn'|'kenny'|'designer'){
    this.shopTab=tab;this.previewed=null;this.kennyClock=Date.now();
    if(tab==='kenny')this.settleKennyIfExpired();
    window.scrollTo({top:0,behavior:'instant'});
@@ -795,6 +804,7 @@ export class App implements OnInit,OnDestroy {
  openInventory(){this.go('shop');this.setShopTab('inventory');}
  openTokenEarning(){this.go('shop');this.setShopTab('earn');}
  openDinoVerse(){this.go('shop');this.setShopTab('kenny');}
+ openDinoDesigner(){this.go('shop');this.setShopTab('designer');this.kennyCustomizeOpen=false;}
  get kennySeason(){return KENNY_SEASON;}
  readonly kennyEventItems=KENNY_EVENT_ITEMS;
  get kennyState():DinoSeasonState{return normalizeDinoState(this.profile.dinoSeasons?.[KENNY_SEASON.id]);}
@@ -829,6 +839,14 @@ export class App implements OnInit,OnDestroy {
  }
  get kennyCurrentReveal(){return this.kennyReveals[0]||null;}
  acknowledgeKennyReveal(){this.kennyReveals.shift();this.changeDetector.markForCheck();}
+ equipKennyRewardAvatar(){
+   const item=this.kennyCurrentReveal?.drop?.item;
+   if(!item||item.group!=='avatar'||!this.owns(item))return;
+   this.profile.equipped['avatar']=this.avatarEquipValue(item);
+   this.save();this.acknowledgeKennyReveal();
+ }
+ showKennyRewardSkin(){this.kennyReveals.shift();this.openDinoDesigner();this.changeDetector.markForCheck();}
+ isKennyColorSkin(id:string|undefined){return !!id&&id.startsWith('kenny_skin_')&&id!==KENNY_BLUE_SKIN.id;}
  openKennyRewardInventory(){
    const prize=this.kennyCurrentReveal?.drop?.item||this.kennyCurrentReveal?.item;
    if(!prize)return;
@@ -837,7 +855,7 @@ export class App implements OnInit,OnDestroy {
    this.inventoryDrop='Alle';this.inventoryGroup='Alle';this.inventorySearch=prize.name;
  }
  setKennySkin(skin:string){
-   if(!['blue','pink','green','red'].includes(skin)||
+   if(!['blue','pink','green','red','zebra'].includes(skin)||
      skin!=='blue'&&!this.profile.inventory.includes('kenny_skin_'+skin))return;
    const state=this.kennyState;
    state.skin=skin as DinoSeasonState['skin'];
@@ -888,9 +906,18 @@ export class App implements OnInit,OnDestroy {
    // The private save confirms the feed first; only then publish its level to the player card.
    void this.publishFriendCard();
    this.kennyFeeding=false;this.kennyVisibleFeeds=null;
-   if(prize.item&&kennyAvatarForSkin(prize.item.id)&&!previous.inventory.includes(KENNY_BLUE_SKIN.id))
-     this.kennyReveals.push({kind:'drop',drop:{tier:'event',tokens:0,item:KENNY_BLUE_SKIN},line:'Kennys ursprüngliche Farbe ist jetzt ebenfalls verfügbar.'});
-   this.kennyReveals.push({kind:'drop',drop:prize,line});
+
+   if(prize.item){
+     const avatar=kennyAvatarForSkin(prize.item.id);
+     if(avatar&&!previous.inventory.includes(avatar.id))
+       this.kennyReveals.push({kind:'drop',drop:{tier:prize.tier,tokens:0,item:avatar},line:'Neuer Kenny-Avatar freigeschaltet!'});
+     this.kennyReveals.push({kind:'drop',drop:prize,line:avatar
+       ?'Neuer Skin für Kenny freigeschaltet! Passe deinen Dino im Designer individuell an.'
+       :line});
+     if(avatar&&!previous.inventory.includes(KENNY_BLUE_SKIN.id))
+       this.kennyReveals.push({kind:'drop',drop:{tier:'event',tokens:0,item:KENNY_BLUE_SKIN},
+         line:'Auch Kennys ursprüngliche blaue Farbe bleibt verfügbar.'});
+   }else this.kennyReveals.push({kind:'drop',drop:prize,line});
    if(dinoLevel(next.feeds)>priorLevel)this.kennyReveals.push({kind:'level',level:dinoLevel(next.feeds),
      ...(reachedLevelFive&&!previous.inventory.includes(KENNY_BLUE_AVATAR.id)?{item:KENNY_BLUE_AVATAR}:{})});
    this.kennyBusy=false;this.changeDetector.markForCheck();
