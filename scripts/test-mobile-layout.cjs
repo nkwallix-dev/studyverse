@@ -258,21 +258,27 @@ async function main(){
    }
    await dinoPage.locator('.kenny-reveal-modal').waitFor();
    if(n===1)await dinoPage.screenshot({path:path.join(screenshots,'kenny-drop-390.png')});
-   await dinoPage.locator('.kenny-reveal-modal .btn.primary').click();
-   if(n===3){
-    await dinoPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Level 2'));
-    assert((await dinoPage.locator('#kenny-reveal-title').innerText()).includes('Level 2'),
-      'Third feed must reveal Kenny level 2');
-    const revealLayout=await dinoPage.evaluate(()=>({
-     art:document.querySelector('.kenny-reveal-art').getBoundingClientRect().bottom,
-     title:document.querySelector('#kenny-reveal-title').getBoundingClientRect().top,
-     sprite:document.querySelector('.kenny-mini-sprite').getBoundingClientRect().width
-    }));
-    assert(revealLayout.art<=revealLayout.title&&revealLayout.sprite>40,
-     'Kenny level-up artwork must stay above and separate from the text: '+JSON.stringify(revealLayout));
-    await dinoPage.screenshot({path:path.join(screenshots,'kenny-level-390.png')});
+   let sawLevel=false;
+   for(let revealCount=0;revealCount<4&&await dinoPage.locator('.kenny-reveal-modal').count();revealCount++){
+    const title=await dinoPage.locator('#kenny-reveal-title').innerText();
+    if(title.includes('Level 2')){
+     sawLevel=true;
+     const revealLayout=await dinoPage.evaluate(()=>({
+      art:document.querySelector('.kenny-reveal-art').getBoundingClientRect().bottom,
+      title:document.querySelector('#kenny-reveal-title').getBoundingClientRect().top,
+      sprite:document.querySelector('.kenny-mini-sprite').getBoundingClientRect().width
+     }));
+     assert(revealLayout.art<=revealLayout.title&&revealLayout.sprite>40,
+      'Kenny level-up artwork must stay above and separate from the text: '+JSON.stringify(revealLayout));
+     await dinoPage.screenshot({path:path.join(screenshots,'kenny-level-390.png')});
+    }
     await dinoPage.locator('.kenny-reveal-modal .btn.primary').click();
+    await dinoPage.waitForFunction(previous=>{
+     const current=document.querySelector('#kenny-reveal-title');
+     return !current||current.textContent!==previous;
+    },title);
    }
+   if(n===3)assert(sawLevel,'Third feed must reveal Kenny level 2');
    await dinoPage.locator('.kenny-reveal-modal').waitFor({state:'hidden'});
   }
   const dinoProfile=await dinoPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
