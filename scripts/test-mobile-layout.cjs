@@ -331,7 +331,7 @@ async function main(){
   // The blue avatar is granted at the 25th feed, independently of the random drop.
   const allIds=[...fs.readFileSync('src/app/shop-items.ts','utf8').matchAll(/\{id:'([^']+)'/g),
    ...fs.readFileSync('src/app/dino-season.ts','utf8').matchAll(/\{id:'([^']+)'/g)]
-   .map(match=>match[1]).filter(id=>id!=='kenny_avatar');
+   .map(match=>match[1]).concat('kenny_skin_zebra').filter(id=>id!=='kenny_avatar');
   const avatarContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
   const avatarPage=await avatarContext.newPage();
   await avatarPage.addInitScript(ids=>{
