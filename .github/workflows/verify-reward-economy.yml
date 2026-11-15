@@ -34,6 +34,7 @@ jobs:
       - name: Verify milestone-based shop and MathsVerse retirement
         run: |
           node scripts/test-dino-season.cjs
+          node scripts/test-daily.cjs
           node scripts/test-reward-economy.cjs
           node scripts/test-reward-carousel-and-ranks.cjs
           node scripts/test-shop-preview.cjs
