@@ -149,7 +149,8 @@ async function main(){
      });
      assert(companionLayout.scroll<=companionLayout.viewport+3&&
        companionLayout.cardBottom<=companionLayout.viewport-(width<=700?68:0)+2&&
-       companionLayout.visibleHeight>95&&companionLayout.cardWidths.every(x=>x>90),
+       companionLayout.visibleHeight>95&&companionLayout.cardWidths.every(x=>x>90)&&
+       companionLayout.cardBottom>=companionLayout.viewport-(width<=700?108:48),
        'Begleiter cards, actions and footer must fit without scrolling at '+width+': '+JSON.stringify(companionLayout));
      if(width===390)await page.screenshot({path:path.join(screenshots,'begleiter-390.png'),fullPage:true});
     }
@@ -178,6 +179,13 @@ async function main(){
         maxWidth:Math.max(...rows.map(c=>c.right)),parentRight:parent.right,
         scroll:el.scrollHeight,client:el.clientHeight};
      });
+     const lootTypography=await page.evaluate(()=>({
+      text:Number.parseFloat(getComputedStyle(document.querySelector('.kenny-exclusives strong')).fontSize),
+      icon:Number.parseFloat(getComputedStyle(document.querySelector('.kenny-exclusives span')).fontSize),
+      level:Number.parseFloat(getComputedStyle(document.querySelector('.kenny-level-reward')).fontSize)
+     }));
+     assert(lootTypography.text>=10&&lootTypography.icon>=17&&lootTypography.level>=11,
+      'Kenny exclusive text, icons and level-five note must remain readable: '+JSON.stringify(lootTypography));
      assert(prizes.bottom<=prizes.prizeBottom+3&&prizes.maxWidth<=prizes.parentRight+3&&
        prizes.scroll<=prizes.client+3&&prizes.lootBottom<=prizes.viewport-(width<=700?68:0)+3,
        'All Kenny-exclusive items must fit without scrolling: '+JSON.stringify(prizes));
@@ -185,6 +193,21 @@ async function main(){
      await page.locator('.dino-designer-grid').waitFor({state:'visible'});
      assert.equal(await page.locator('.shop-view-tabs button').count(),3);
      assert.equal(await page.locator('.shop-view-tabs button').filter({hasText:'Designe deinen Dino'}).getAttribute('aria-selected'),'true');
+     const colors=await page.locator('.dino-designer-skin-grid .kenny-skin-preview').evaluateAll(nodes=>nodes.map(node=>({
+      skin:node.dataset.skin,
+      imageFilter:getComputedStyle(node.querySelector('img')).filter,
+      imageLoaded:node.querySelector('img').naturalWidth>0,
+      imageOpacity:Number(getComputedStyle(node.querySelector('img')).opacity),
+      stripe:getComputedStyle(node,'::after').webkitMaskImage
+     })));
+     assert.equal(colors.length,5,'Every Dino Designer skin needs its own preview');
+     const expected={blue:'none',pink:'hue-rotate(105deg)',green:'hue-rotate(225deg)',red:'hue-rotate(125deg)',zebra:'grayscale'};
+     assert(colors.every(c=>c.imageLoaded&&c.imageFilter.includes(expected[c.skin])),
+      'Pink, green, red and zebra previews must not all show the default blue dinosaur: '+JSON.stringify(colors));
+     assert(colors.find(c=>c.skin==='zebra').stripe.includes('kenny-avatar.png'),
+      'Zebra must show real black/white stripes masked to Kenny, not only grayscale');
+     assert(colors.every(c=>c.imageOpacity>.9),
+      'Locked colors should remain fully visible, even if unavailable to equip');
      const designer=await page.evaluate(()=>{
       const rect=selector=>document.querySelector(selector).getBoundingClientRect();
       const cards=[...document.querySelectorAll('.dino-designer-card')].map(el=>el.getBoundingClientRect());
@@ -485,6 +508,40 @@ async function main(){
   assert((await colorPage.locator('.inventory-item').allTextContents()).every(text=>text.includes('Kenny Pink')));
   await colorContext.close();
   console.log('PASS: pink Kenny skin grants its own avatar and equips across the profile.');
+
+  // A non-avatar prize must name the cosmetic category (as Shop / Inventory
+  // do) and put Kenny's random sentence on a separate line from its description.
+  const itemContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const itemPage=await itemContext.newPage();
+  await itemPage.addInitScript(ids=>{
+   localStorage.setItem('studyverse_import_prompt_seen_v1','1');
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:900,nickname:'BubbleTester',
+    inventory:ids,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+    claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
+   const original=crypto.getRandomValues.bind(crypto);
+   crypto.getRandomValues=array=>{if(array instanceof Uint32Array){array[0]=0;return array;}return original(array)};
+  },allIds.filter(id=>id!=='bubbles'));
+  await itemPage.goto(base,{waitUntil:'load'});
+  await itemPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
+  await itemPage.locator('.kenny-feed-btn').click();
+  await itemPage.locator('.kenny-reveal-modal').waitFor({state:'visible'});
+  const dropTitle=await itemPage.locator('#kenny-reveal-title').innerText();
+  assert(dropTitle.includes('Reagenzglas-Blasen Hintergrund'),
+   'A random reward popup must show the readable cosmetic category: '+dropTitle);
+  const copy=await itemPage.evaluate(()=>{
+   const flavor=document.querySelector('.kenny-reveal-flavor');
+   const desc=document.querySelector('.kenny-reveal-description');
+   return {flavor:flavor?.textContent,description:desc?.textContent,
+    flavorBottom:flavor?.getBoundingClientRect().bottom,
+    descriptionTop:desc?.getBoundingClientRect().top};
+  });
+  assert(copy.flavor.includes('Kenny')&&copy.description.includes('Aufsteigende')&&
+   copy.flavorBottom<=copy.descriptionTop,
+   'Kenny random line and the item description must be separate readable paragraphs: '+
+    JSON.stringify(copy));
+  await itemPage.screenshot({path:path.join(screenshots,'kenny-item-drop-390.png')});
+  await itemContext.close();
+  console.log('PASS: the cosmetic type and separate flavor / description are displayed in Kenny rewards.');
   const maxContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
   const maxPage=await maxContext.newPage();
   await maxPage.addInitScript(()=>{
@@ -649,14 +706,15 @@ async function main(){
     sidebarFilter:getComputedStyle(sidebar).filter,
     accent:root.getPropertyValue('--kenny-primary').trim(),
     sun:!!document.querySelector('.hero .kenny-banner-sun'),
-    volcano:!!document.querySelector('.hero .kenny-banner-volcano'),
-    fern:!!document.querySelector('.hero .kenny-banner-fern')};
+    volcano:!!document.querySelector('.hero .kenny-banner-volcano i'),
+    fern:document.querySelectorAll('.hero .kenny-banner-fern').length===2,
+    ground:!!document.querySelector('.hero .kenny-banner-ground')};
   });
   assert(equippedAppearance.skin==='red'&&
     equippedAppearance.heroFilter.includes('hue-rotate(125deg)')&&
     equippedAppearance.sidebarFilter.includes('hue-rotate(125deg)')&&
     equippedAppearance.accent==='#ffa397'&&
-    equippedAppearance.sun&&equippedAppearance.volcano&&equippedAppearance.fern,
+    equippedAppearance.sun&&equippedAppearance.volcano&&equippedAppearance.fern&&equippedAppearance.ground,
     'Kennyverse must render equipped red Kenny, a matching red UI and the prehistoric banner: '+
      JSON.stringify(equippedAppearance));
   await versePage.locator('.hero button[data-action="quiz"]').click();
@@ -709,6 +767,25 @@ async function main(){
    else await versePage.locator('#topHome').click();
    await versePage.locator('.hero h1').waitFor({state:'visible'});
    await assertVerseFits(width,'Home');
+   if(width===1365){
+    const stage=await versePage.evaluate(()=>{
+     const rect=sel=>document.querySelector(sel).getBoundingClientRect();
+     const image=rect('.hero-icon .kenny-visual img');
+     const frame=rect('.side .kenny-side-art');
+     const portrait=rect('.side .kenny-side-art .kenny-visual img');
+     const label=rect('.side .kenny-side-art strong');
+     return {imageWidth:image.width,imageHeight:image.height,
+      frameTop:frame.top,frameBottom:frame.bottom,frameLeft:frame.left,frameRight:frame.right,
+      imgTop:portrait.top,imgBottom:portrait.bottom,imgLeft:portrait.left,imgRight:portrait.right,
+      labelBottom:label.bottom,labelTop:label.top,portraitBottom:portrait.bottom};
+    });
+    assert(stage.imageWidth>=190&&stage.imageHeight>=210,
+     'Kenny should be a large hero character in the Urzeit landscape: '+JSON.stringify(stage));
+    assert(stage.imgTop>=stage.frameTop-2&&stage.imgBottom<=stage.frameBottom+2&&
+      stage.imgLeft>=stage.frameLeft-2&&stage.imgRight<=stage.frameRight+2&&
+      stage.portraitBottom<=stage.labelTop+2&&stage.labelBottom<=stage.frameBottom+2,
+      'Sidebar Kenny must remain fully inside his portrait panel: '+JSON.stringify(stage));
+   }
    await versePage.locator(width<=610?'.kenny-mobile-nav [data-kenny-nav="quiz"]':'#quizTab').click();
   }
   await versePage.setViewportSize({width:390,height:800});

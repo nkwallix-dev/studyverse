@@ -1542,7 +1542,7 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  }
  .universe.shop-mode .shop-view-tabs button span{display:none}
  .universe.kenny-mode:not(.designer-mode) .kenny-page{
-   grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.65fr) minmax(0,.86fr) auto;
+   grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(0,1.27fr) auto;
    gap:5px
  }
  .universe.kenny-mode:not(.designer-mode) .kenny-play{
@@ -1570,10 +1570,141 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .universe.kenny-mode:not(.designer-mode) .kenny-season-foot>button{display:none}
 }
 @media(max-width:700px) and (max-height:680px){
- .universe.kenny-mode:not(.designer-mode) .kenny-page{grid-template-rows:minmax(0,1fr) minmax(0,.96fr) auto}
+ .universe.kenny-mode:not(.designer-mode) .kenny-page{grid-template-rows:minmax(0,1.05fr) minmax(0,1.45fr) auto}
  .universe.kenny-mode:not(.designer-mode) .kenny-controls{padding:5px 7px}
  .universe.kenny-mode:not(.designer-mode) .kenny-progress-track{margin:3px 0 5px;height:5px}
  .universe.kenny-mode:not(.designer-mode) .kenny-action-row .kenny-feed-btn{min-height:33px}
  .universe.kenny-mode:not(.designer-mode) .kenny-level-reward{font-size:8px}
  .universe.kenny-mode:not(.designer-mode) .kenny-stage-name span{display:none}
+}
+
+
+/* Kenny's skin selector previews use the same palette as his live sprite.
+   A locked skin remains visibly colored; only its label/control is dimmed. */
+.dino-designer-skin-grid .kenny-skin-preview,
+.kenny-skin-grid .kenny-skin-preview{
+  position:relative;isolation:isolate;display:grid;place-items:center;
+  flex:0 0 auto;width:clamp(30px,3.4vw,45px);height:clamp(30px,3.4vw,45px)
+}
+.kenny-skin-grid .kenny-skin-preview{width:min(90px,100%);height:90px}
+.dino-designer-skin-grid .kenny-skin-preview img,
+.kenny-skin-grid .kenny-skin-preview img{
+  width:100%!important;height:100%!important;max-width:100%;max-height:100%;
+  display:block;object-fit:contain
+}
+.dino-designer-skin-grid img[data-skin="pink"]{filter:hue-rotate(105deg) saturate(1.15) drop-shadow(0 5px 9px #10122382)}
+.dino-designer-skin-grid img[data-skin="green"]{filter:hue-rotate(225deg) saturate(1.15) drop-shadow(0 5px 9px #10122382)}
+.dino-designer-skin-grid img[data-skin="red"]{filter:hue-rotate(125deg) saturate(1.8) drop-shadow(0 5px 9px #10122382)}
+.dino-designer-skin-grid button:disabled,
+.kenny-skin-grid button:disabled{
+  opacity:1;cursor:not-allowed;background:#201c34;border-color:#534b67
+}
+.dino-designer-skin-grid button:disabled :is(strong,small),
+.kenny-skin-grid button:disabled :is(strong,small){opacity:.65}
+.kenny-skin-preview[data-skin="zebra"]::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.89;
+  background:repeating-linear-gradient(112deg,#fff 0 9px,#16141c 9px 13px,#fff 13px 23px,#111 23px 28px);
+  -webkit-mask-image:var(--kenny-avatar-mask);mask-image:var(--kenny-avatar-mask);
+  -webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat
+}
+@media(max-width:700px){
+  .universe.designer-mode .dino-designer-skin-grid .kenny-skin-preview{width:27px;height:27px}
+}
+.kenny-reveal-modal .kenny-reveal-flavor{
+  width:100%;margin:7px 0 0;font-weight:650;line-height:1.4
+}
+.kenny-reveal-modal .kenny-reveal-description{
+  width:100%;margin:3px 0 10px;line-height:1.45;color:#d8d0e8
+}
+
+
+/* Kenny exclusives: keep the cards compact, but make the CONTENT legible. */
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives>div{padding:clamp(5px,.8vh,9px);gap:clamp(5px,.6vw,9px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives span{font-size:clamp(23px,2.1vw,31px);line-height:1}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong{
+ font-size:clamp(12px,1.04vw,15px);line-height:1.24;font-weight:850;
+}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives small{font-size:clamp(12px,.94vw,15px);font-weight:800}
+.universe.kenny-mode:not(.designer-mode) .kenny-level-reward{
+ margin:5px 0 7px;font-size:clamp(13px,1.05vw,16px);
+ line-height:1.45;font-weight:850;color:#c6f6ec
+}
+/* The Begleiter hub is allowed to take the whole available area. */
+.universe.companions-mode main{padding-bottom:3px}
+.universe.companions-mode .companions-page{height:100%;min-height:0}
+.universe.companions-mode .companions-grid{
+ flex:1 1 auto;min-height:0;height:100%;grid-template-rows:minmax(0,1fr);
+ align-items:stretch;margin:10px 0 0
+}
+.universe.companions-mode .companion-card{min-height:0;align-self:stretch}
+.universe.companions-mode .companion-kenny{height:100%}
+.universe.companions-mode .companion-stage{height:clamp(175px,37dvh,365px)}
+.universe.companions-mode .companion-stage .kenny-sprite{height:min(73%,290px)}
+.universe.companions-mode .companion-card-body{
+ flex:1 1 auto;min-height:0;display:flex;flex-direction:column;
+ gap:clamp(7px,1.2vh,13px);justify-content:space-evenly
+}
+.universe.companions-mode .companion-future{height:100%;justify-content:center}
+.universe.companions-mode .companion-mystery{width:min(48%,175px)}
+@media(max-width:700px){
+ /* Keep 2 future dinos visible below Kenny on phones, without overflow. */
+ .universe.companions-mode .companions-grid{
+  grid-template-rows:minmax(0,3.4fr) minmax(0,1fr);margin:6px 0 0
+ }
+ .universe.companions-mode .companion-stage{height:clamp(83px,17dvh,125px)}
+ .universe.companions-mode .companion-stage .kenny-sprite{height:min(83%,105px)}
+ .universe.companions-mode .companion-card-body{gap:4px;justify-content:space-evenly}
+ .universe.companions-mode .companion-mystery{width:min(35%,52px)}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives>div{
+  padding:3px 4px;gap:4px
+ }
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives span{
+  font-size:clamp(17px,5vw,22px)
+ }
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong{
+  font-size:clamp(10px,2.85vw,12px);line-height:1.15
+ }
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives small{
+  font-size:clamp(10px,2.85vw,12px)
+ }
+ .universe.kenny-mode:not(.designer-mode) .kenny-level-reward{
+  font-size:clamp(11px,3vw,13px);line-height:1.27;margin:2px 0 4px
+ }
+}
+@media(max-width:700px) and (max-height:680px){
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives span{font-size:17px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong{font-size:10px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-level-reward{font-size:11px}
+}
+
+
+@media(max-width:700px){
+ /* Make full use of the available small mobile stage: previously Kenny's
+    72%-height sprite appeared tiny even though the stage itself still fit. */
+ .universe.kenny-mode:not(.designer-mode) .kenny-stage .kenny-sprite{
+  height:min(97%,240px);max-width:86%;bottom:1%;
+ }
+}
+
+
+/* On narrow phones Kenny's controls are a single compact strip.
+   Preserve the progress bar, feed and designer buttons while leaving room for
+   both the animated dinosaur and the full no-scroll exclusive drop grid. */
+@media(max-width:350px){
+ .universe.kenny-mode:not(.designer-mode) .kenny-play{gap:3px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-controls{padding:4px 6px;border-radius:10px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-progress-top{font-size:8px;gap:4px;letter-spacing:0}
+ .universe.kenny-mode:not(.designer-mode) .kenny-progress-track{height:4px;margin:2px 0 4px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-action-row{gap:4px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-wallet{min-width:65px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-wallet small{font-size:7px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-wallet strong{font-size:12px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-feed-btn{font-size:10px;min-height:32px;border-radius:8px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-style-btn{padding:0 3px;font-size:9px;border-radius:8px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-style-btn span{display:none}
+ .universe.kenny-mode:not(.designer-mode) .kenny-hint,.universe.kenny-mode:not(.designer-mode) .kenny-last-feed{
+  font-size:8px;margin-top:3px;line-height:1.2
+ }
 }

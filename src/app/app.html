@@ -380,7 +380,7 @@
                 <div class="dino-designer-skins"><strong>KENNYS SKINS</strong><p>Alle freigeschalteten Farben</p>
                   <div class="dino-designer-skin-grid">
                     <button type="button" *ngFor="let skin of kennySkins" [disabled]="!skin.owned" [class.selected]="kennySkin===skin.id" (click)="setKennySkin(skin.id)">
-                      <img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id">
+                      <span class="kenny-skin-preview" [attr.data-skin]="skin.id" style="--kenny-avatar-mask:url('kenny/kenny-avatar.png')"><img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id"></span>
                       <strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Aktiv':'Ausrüsten'):'🔒 Gesperrt'}}</small>
                     </button>
                   </div>
@@ -578,14 +578,17 @@
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item?.id==='kenny_avatar'">Kenny begleitet dich jetzt <span>als Avatar!</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='avatar'">Neuer Kenny-Avatar <span>freigeschaltet!</span></h2>
        <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && isKennyColorSkin(reveal.drop?.item?.id)">Neuer Skin für Kenny <span>freigeschaltet!</span></h2>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.id!=='kenny_avatar' && reveal.drop?.item?.group!=='avatar' && !isKennyColorSkin(reveal.drop?.item?.id)">Kenny hat dir etwas mitgebracht: <span>{{reveal.drop?.item?.name}}</span></h2>
+      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.id!=='kenny_avatar' && reveal.drop?.item?.group!=='avatar' && !isKennyColorSkin(reveal.drop?.item?.id)">Kenny hat dir etwas mitgebracht: <ng-container *ngIf="reveal.drop?.item as reward"><span>{{itemDisplayName(reward)}}</span></ng-container></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && !reveal.drop?.item">Kenny hat TT gefunden: <span>{{reveal.drop?.tokens | number}} TT</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='season'">Kennys Season <span>ist vorbei!</span></h2>
       <p *ngIf="reveal.kind==='level' && reveal.level!==5">Weiterfüttern erhöht deine Chance auf wertvollere und exklusive Items.</p>
       <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! 🦖 Kenny ist jetzt für immer dein Begleiter und Kennyverse bleibt auch nach Saisonende für dich spielbar. Kenny Blau liegt als Avatar im Inventar. Für jede weitere Fütterung bekommst du am Saisonende 150 TT zurück.</p>
       <p *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='avatar'">Du kannst deinen neuen Kenny-Avatar jetzt ausrüsten oder später im Inventar auswählen.</p>
        <p *ngIf="reveal.kind==='drop' && isKennyColorSkin(reveal.drop?.item?.id)">Neuer Skin für Kenny freigeschaltet! Du kannst Kenny individuell anpassen und seinen Look jederzeit im Dino-Designer wechseln.</p>
-       <p *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.group!=='avatar' && !isKennyColorSkin(reveal.drop?.item?.id)">{{reveal.line}} {{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
+       <ng-container *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.group!=='avatar' && !isKennyColorSkin(reveal.drop?.item?.id)">
+        <p class="kenny-reveal-flavor">{{reveal.line}}</p>
+        <p class="kenny-reveal-description">{{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
+      </ng-container>
       <p *ngIf="reveal.kind==='drop' && !reveal.drop?.item">{{reveal.line}} {{reveal.drop?.tokens | number}} TT landen in deinem Guthaben.</p>
       <p *ngIf="reveal.kind==='season'">{{reveal.tokens ? (reveal.tokens | number)+' TT Cashback' : 'Kein Cashback'}}<span *ngIf="reveal.item"> · {{reveal.item.name}} freigeschaltet</span></p>
       <div class="kenny-reveal-actions">
@@ -604,7 +607,7 @@
       <p>Deine Farben aus Kennys Season. Gesperrte Skins kannst du beim Füttern finden.</p>
       <div class="kenny-skin-grid">
         <button type="button" *ngFor="let skin of kennySkins" [disabled]="!skin.owned" [class.selected]="kennySkin===skin.id" (click)="setKennySkin(skin.id)">
-          <img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id"><strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Ausgewählt':'Ausrüsten'):'🔒 Gesperrt'}}</small>
+          <span class="kenny-skin-preview" [attr.data-skin]="skin.id" style="--kenny-avatar-mask:url('kenny/kenny-avatar.png')"><img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id"></span><strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Ausgewählt':'Ausrüsten'):'🔒 Gesperrt'}}</small>
         </button>
       </div>
     </div>
