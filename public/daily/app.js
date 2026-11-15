@@ -8,7 +8,7 @@ if(!DATA.length||!DAILY||!ACCESS){ROOT.textContent="Kennys Forschungsfragen konn
 if(!ACCESS.available()){
  document.getElementById("quizTab").disabled=true;
  document.getElementById("bossTab").disabled=true;
- ROOT.innerHTML='<section class="card kenny-locked">'+KENNY_PORTRAIT+'<div class="eyebrow">🔒 KENNYVERSE · SEASON 01</div><h1>Kenny ist <span>weitergezogen.</span></h1><p>Solange seine Season aktiv ist, kannst du mit Kenny täglich forschen. Ab Level 5 bleibt er nach Saisonende für immer bei dir. Deine gesammelten Items bleiben erhalten.</p><a class="btn" href="../#companions">Zurück zu den Begleitern ↗</a></section>';
+ ROOT.innerHTML='<section class="card kenny-locked">'+KENNY_PORTRAIT+'<div class="eyebrow">🔒 KENNYVERSE · SEASON 01</div><h1>Kenny ist <span>weitergezogen.</span></h1><p>Solange seine Season aktiv ist, kannst du mit Kenny täglich forschen. Ab Level 5 bleibt er nach Saisonende für immer bei dir. Deine gesammelten Items bleiben erhalten.</p><a class="btn" href="../#companions">← Zurück zu Begleiter</a></section>';
  return;
 }
 const bySubject={chem:DATA.filter(q=>q.subject==="chem"),dsai:DATA.filter(q=>q.subject==="dsai")};
@@ -107,7 +107,7 @@ function resultScreen(){
  '<div class="eyebrow">🦖 KENNYVERSE · EXPEDITION BEENDET</div><h1>'+session.score+'/20 <span>richtig</span></h1><h2>'+percent+' %</h2>'+
  '<p>'+(mode==="boss"?(percent>=70?'Boss bestanden! Ab 70 % gibt’s einmal am Tag 100 TT.':'Noch keine 70 %. Trainier weiter, dann zerlegst du den Boss.'):
  'GG! Kenny hat mit dir erfolgreich geforscht. Die Belohnungen sind direkt auf deinem Studyverse-Profil.')+'</p>'+
- '<div class="actions"><button class="btn" data-action="restart">🔁 Nochmal spielen</button><button class="btn secondary" data-action="overview">🏠 Startseite</button><a class="btn secondary" href="../#companions">↩ Begleiter</a></div></div>'+
+ '<div class="actions"><button class="btn" data-action="restart">🔁 Nochmal spielen</button><button class="btn secondary" data-action="overview">🏠 Startseite</button><a class="btn secondary" href="../#companions">← Zurück zu Begleiter</a></div></div>'+
  stats()+'</div>';
 }
 function render(){
