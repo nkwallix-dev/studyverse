@@ -1708,3 +1708,144 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
   font-size:8px;margin-top:3px;line-height:1.2
  }
 }
+
+
+/* TEMPORARY zebra unlock: one-time action reserved for collectors owning all
+   other Kenny-exclusive drops. The actual reward persists in the profile. */
+.universe.kenny-mode .companion-kenny-back .kenny-test-unlock{
+  border:1px solid #f5d1ff;
+  background:linear-gradient(120deg,#58416d,#362b49);
+  color:#fff3ff;min-width:66px;font-size:12px;font-weight:950
+}
+.universe.kenny-mode .companion-kenny-back .kenny-test-unlock:hover:not(:disabled){
+  border-color:#fff;box-shadow:0 0 0 2px #f5d1ff30
+}
+.universe.kenny-mode .companion-kenny-back .kenny-test-unlock:disabled{
+  opacity:.55;cursor:wait
+}
+/* All possible loot: use the room previously occupied by generic paragraphs.
+   Fit five reward sections inside the modal at ordinary viewport sizes.
+   If a fresh account has dozens of unowned rewards, preserve accessibility
+   rather than clipping items by allowing a scrolling fallback. */
+.kenny-dialog-veil .kenny-pool-dialog{
+  width:min(920px,calc(100vw - 20px));
+  height:min(695px,calc(100dvh - 22px));max-height:calc(100dvh - 22px);
+  padding:clamp(12px,1.8vw,21px)!important;
+  display:flex;flex-direction:column;gap:clamp(5px,.85vh,9px);
+  overflow:hidden
+}
+.kenny-pool-dialog>.eyebrow{font-size:clamp(9px,.85vw,11px);margin:0}
+.kenny-pool-dialog>h2{font-size:clamp(23px,3.1vw,32px);line-height:1.07;margin:0 38px 2px 0}
+.kenny-pool-dialog .kenny-pool-scroll{
+  flex:1 1 auto;min-height:0;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-rows:auto repeat(2,minmax(0,1fr));
+  gap:clamp(5px,.95vh,9px);overflow:auto;
+  align-content:stretch;scrollbar-width:thin
+}
+.kenny-pool-dialog .kenny-pool-section{
+  padding:clamp(7px,1.1vh,12px);gap:clamp(3px,.6vh,7px);
+  min-height:0;min-width:0;align-content:start
+}
+.kenny-pool-dialog .kenny-pool-section:first-child{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:6px
+}
+.kenny-pool-dialog .kenny-pool-section>strong{font-size:clamp(10px,1vw,13px)}
+.kenny-pool-dialog .kenny-pool-section>span{font-size:clamp(10px,.95vw,12px)}
+.kenny-pool-dialog .kenny-pool-items{gap:clamp(4px,.55vw,7px)}
+.kenny-pool-dialog .kenny-pool-items>span{
+  padding:clamp(4px,.6vh,7px) clamp(5px,.65vw,8px);
+  font-size:clamp(10px,.88vw,12px);line-height:1.25
+}
+.kenny-pool-dialog .kenny-pool-items small{font-size:clamp(10px,.85vw,12px)}
+@media(max-width:700px){
+ .universe.kenny-mode .companion-kenny-back .kenny-test-unlock{min-width:45px;padding:5px 7px;font-size:10px}
+ .kenny-dialog-veil .kenny-pool-dialog{gap:6px;padding:10px!important}
+ .kenny-pool-dialog .kenny-pool-scroll{gap:5px}
+ .kenny-pool-dialog .kenny-pool-section{padding:6px;gap:4px}
+ .kenny-pool-dialog .kenny-pool-section>strong{font-size:10px}
+ .kenny-pool-dialog .kenny-pool-section>span{font-size:10px}
+ .kenny-pool-dialog .kenny-pool-items>span{padding:3px 5px;font-size:10px}
+}
+@media(max-width:420px){
+ .kenny-pool-dialog .kenny-pool-scroll{
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto repeat(4,minmax(0,1fr))
+ }
+ .kenny-pool-dialog .kenny-pool-section:first-child{grid-column:1}
+ .kenny-pool-dialog .kenny-pool-section{padding:5px 7px}
+ .kenny-dialog-veil .kenny-pool-dialog{height:calc(100dvh - 16px);max-height:calc(100dvh - 16px)}
+}
+
+
+/* Keep the current Kenny prize-card geometry while letting its contents
+   actually occupy the available space. The stage-name KENNY stays unchanged. */
+.universe.kenny-mode:not(.designer-mode) .kenny-loot-head>span{font-size:clamp(12px,.98vw,15px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-loot-head small{font-size:clamp(11px,.82vw,13px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-token-prizes>div{gap:5px;align-content:center}
+.universe.kenny-mode:not(.designer-mode) .kenny-token-prizes span{font-size:clamp(22px,2.1vw,28px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-token-prizes strong{font-size:clamp(13px,1.08vw,17px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-token-prizes small{font-size:clamp(12px,.95vw,15px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-loot-subhead{font-size:clamp(12px,.97vw,14px)}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives>div{
+ gap:clamp(6px,.7vw,11px);padding:clamp(7px,.85vw,12px);align-items:center
+}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives span{font-size:clamp(25px,2.4vw,35px);line-height:1.1}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong{
+ font-size:clamp(13px,1.12vw,17px);line-height:1.32;font-weight:900
+}
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives small{font-size:clamp(13px,1.08vw,16px);font-weight:850}
+.universe.kenny-mode:not(.designer-mode) .kenny-level-reward{
+ font-size:clamp(13px,1.13vw,17px);font-weight:900;line-height:1.33
+}
+.universe.kenny-mode:not(.designer-mode) .kenny-pool-button{
+ font-size:clamp(13px,1.05vw,16px);min-height:42px
+}
+@media(max-width:700px){
+ .universe.kenny-mode:not(.designer-mode) .kenny-loot-head>span{font-size:10px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-loot-head small{font-size:9px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes>div{gap:2px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes span{font-size:17px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes strong{font-size:11px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-token-prizes small{font-size:10px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-loot-subhead{font-size:10px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives>div{padding:3px 4px;gap:4px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives span{font-size:clamp(18px,5.3vw,23px)}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong{font-size:clamp(10px,2.8vw,12px);line-height:1.2}
+ .universe.kenny-mode:not(.designer-mode) .kenny-exclusives small{font-size:clamp(10px,2.7vw,12px)}
+ .universe.kenny-mode:not(.designer-mode) .kenny-level-reward{font-size:clamp(11px,2.9vw,13px)}
+ .universe.kenny-mode:not(.designer-mode) .kenny-pool-button{font-size:11px;min-height:30px;padding:5px}
+}
+
+
+/* Specificity bug fix: old Angular component-scoped CSS still forces a
+   four-column bottom navigation, accidentally creating a second row of
+   six visible destinations over the Kenny prize button. */
+@media(max-width:700px){
+ .universe .sidebar .navigation{
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  grid-template-rows:minmax(0,1fr);
+  grid-auto-flow:row;
+ }
+}
+
+
+/* Seven actual mobile destinations, in ONE row. Six columns created a second
+   58px row that overlaid the Dino-Verse and its drop dialog trigger. */
+@media(max-width:700px){
+ .universe .sidebar .navigation{
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  grid-template-rows:58px;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)
+ }
+ .universe .sidebar .navigation button{
+  width:100%;min-width:0;min-height:58px;height:58px;padding:4px 0
+ }
+ .universe .sidebar .navigation button .mobile-nav-label{
+  font-size:clamp(7px,2.25vw,9px);white-space:nowrap;letter-spacing:-.35px
+ }
+}
+@media(max-width:350px){
+ .universe .sidebar .navigation{grid-template-columns:repeat(7,minmax(0,1fr))}
+ .universe .sidebar .navigation button span{font-size:18px}
+}

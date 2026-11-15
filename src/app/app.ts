@@ -5,7 +5,7 @@ import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items'
 import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
 import { StudyverseCloud, CloudSnapshot, PublicPlayer, PublicShowcase, PublicCourseProgress, AccountNotice, CLOUD_DAILY_KEY, CLOUD_SESSION_KEY, cloudError, isAllowedNickname } from './cloud';
-import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, KENNY_BLUE_SKIN, KENNY_BLUE_AVATAR, KENNY_SKIN_AVATARS, DinoSeasonState, DinoDrop,
+import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, KENNY_ZEBRA_SKIN, KENNY_BLUE_SKIN, KENNY_BLUE_AVATAR, KENNY_SKIN_AVATARS, DinoSeasonState, DinoDrop,
   freshDinoState, normalizeDinoState, dinoLevel, nextDinoLevel, isKennyActive, cashbackDue, kennyCountdown,
   eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason, hasKennyCompanion, kennyStaysAfterSeason, kennyAvatarForSkin, kennyAvatarSkin } from './dino-season';
 
@@ -837,6 +837,59 @@ export class App implements OnInit,OnDestroy {
    this.profile.tokens>=KENNY_SEASON.price&&this.cloudReady&&
    (!this.cloudConfigured||!!this.cloud.session&&this.cloudMaySave);}
  get kennyCashback():number{return cashbackDue(this.kennyState);}
+ // TEMPORARY ZEBRA TEST (remove after the owner's claim).
+ // Deliberately restrict to signed-in, cloud-loaded players who already own
+ // all the other season exclusives; never touch tokens, XP, or feed counters.
+ get canTestUnlockZebra():boolean{
+   const owned=new Set(this.profile.inventory);
+   return this.kennyActive && !this.kennyBusy && !this.kennyReveals.length &&
+     this.cloudReady && this.cloudConfigured && !!this.cloud.session &&
+     !this.cloudHydrating && this.cloudMaySave &&
+     !owned.has(KENNY_ZEBRA_SKIN.id) &&
+     KENNY_EVENT_ITEMS.filter(item=>item.id!==KENNY_ZEBRA_SKIN.id)
+       .every(item=>owned.has(item.id));
+ }
+ async testUnlockZebra():Promise<void>{
+   if(!this.canTestUnlockZebra)return;
+   const before=structuredClone(this.profile);
+   const avatar=kennyAvatarForSkin(KENNY_ZEBRA_SKIN.id);
+   const addBlue=!before.inventory.includes(KENNY_BLUE_SKIN.id);
+   this.kennyBusy=true;this.kennyError='';
+   this.changeDetector.markForCheck();
+   try{
+     this.profile.inventory=[...new Set([...before.inventory,
+       ...(addBlue?[KENNY_BLUE_SKIN.id]:[]),
+       KENNY_ZEBRA_SKIN.id,...(avatar?[avatar.id]:[])])];
+     this.profile.kennyWonItems={...(before.kennyWonItems||{}),
+       [KENNY_ZEBRA_SKIN.id]:true,...(avatar?{[avatar.id]:true}:{})};
+     this.profile.activity=[{
+       label:'🦖 Kenny gefüttert · Kenny Zebra',
+       date:new Date().toISOString(),amount:0
+     },...before.activity].slice(0,30);
+     write(KEY,JSON.stringify(this.profile));
+     await this.syncCloudNow();
+     if(this.cloudStatus!=='✓ Online gespeichert')
+       throw new Error('Der Zebra-Drop konnte nicht in der Cloud gespeichert werden.');
+     void this.publishFriendCard();
+     // Same two-stage reveal as a real rare drop: avatar first, skin second.
+     if(avatar&&!before.inventory.includes(avatar.id))
+       this.kennyReveals.push({kind:'drop',
+         drop:{tier:'zebra',tokens:0,item:avatar},
+         line:'Neuer Kenny-Avatar freigeschaltet!'});
+     this.kennyReveals.push({kind:'drop',
+       drop:{tier:'zebra',tokens:0,item:KENNY_ZEBRA_SKIN},
+       line:'Neuer Skin für Kenny freigeschaltet! Passe deinen Dino im Designer individuell an.'});
+   }catch(error){
+     this.profile=before;
+     write(KEY,JSON.stringify(before));
+     this.kennyError=error instanceof Error?error.message:
+       'Zebra-Drop konnte nicht gespeichert werden. Bitte erneut versuchen.';
+   }finally{
+     this.kennyBusy=false;
+     this.changeDetector.markForCheck();
+   }
+ }
+
  get kennyPoolPreview(){
    const pools=this.kennyPools;
    return ([{key:'event',name:'Saisonexklusiv'},{key:'large',name:'Prestige-Items'},

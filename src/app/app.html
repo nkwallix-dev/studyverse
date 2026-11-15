@@ -222,7 +222,7 @@
           <h1 class="page-title" *ngIf="shopTab==='catalog'">Der <span>Item-Shop.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='inventory'">Dein <span>Inventar.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='kenny'">Kenny <span>{{kennyActive?'füttern.':'begleitet dich.'}}</span></h1>
-          <div class="companion-kenny-back" *ngIf="shopTab==='kenny'"><button type="button" (click)="openCompanions()">Meine Begleiter</button><button type="button" (click)="openKennyVerse()">⚡ Kennyverse betreten ↗</button></div>
+          <div class="companion-kenny-back" *ngIf="shopTab==='kenny'"><button type="button" (click)="openCompanions()">Meine Begleiter</button><button type="button" (click)="openKennyVerse()">⚡ Kennyverse betreten ↗</button><button type="button" *ngIf="canTestUnlockZebra" class="kenny-test-unlock" [disabled]="kennyBusy" (click)="testUnlockZebra()" title="Temporärer Zebra-Test-Drop">Test</button></div>
           <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Essentials sind über dein Profil-Level kaufbar.</strong> Test-Items musst du zuerst durch Lernziele freischalten, anschließend kaufst du sie mit TastyTokens. Bereits gekaufte Items findest du im Inventar.</p>
           <p class="page-subtitle" *ngIf="shopTab==='inventory'">Alle deine Cosmetics an einem Ort. Nach Drop und Kategorie filtern, Styles anschauen und direkt ausrüsten.</p>
           <div class="shop-view-tabs" *ngIf="shopTab==='catalog'||shopTab==='inventory'||shopTab==='designer'" role="tablist" aria-label="Item-Shop, Inventar und Dino-Designer">
@@ -617,8 +617,7 @@
     <div class="modal kenny-dialog kenny-pool-dialog" (click)="$event.stopPropagation()">
       <button type="button" class="kenny-dialog-close" (click)="kennyPoolOpen=false" aria-label="Schließen">✕</button>
       <span class="eyebrow">✦ KENNY · LEVEL {{kennyLevel}}</span><h2>Alle <span>Gewinne.</span></h2>
-      <p>Ein Futter kostet 300 TT. Du erhältst entweder TT oder genau ein Item. Bereits besessene Items werden nicht erneut gezogen.</p>
-      <p>Ab Level 5 schließt sich Kenny deinem Begleiter an.</p>
+
       <div class="kenny-pool-scroll">
         <div class="kenny-pool-section"><strong>🪙 TOKEN-DROPS</strong><span>100 TT · {{kennyOdds.token100}} % &nbsp; 500 TT · {{kennyOdds.token500}} % &nbsp; 1.000 TT · {{kennyOdds.token1000}} %</span></div>
         <div class="kenny-pool-section" *ngFor="let tier of kennyPoolPreview">
