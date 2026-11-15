@@ -98,7 +98,7 @@ assert(appTS.includes('await this.syncCloudNow()')&&appTS.includes("this.cloudSt
 assert(appTS.includes('this.profile=before;')&&appTS.includes('write(KEY,JSON.stringify(before));'),
  'Failed cloud writes must revert the temporary zebra reward');
 assert(appTS.includes('KENNY_ZEBRA_SKIN.id,...(avatar?[avatar.id]:[])')&&
- appTS.includes("drop:{tier:'event',tokens:0,item:KENNY_ZEBRA_SKIN}"),
+ appTS.includes("drop:{tier:'zebra',tokens:0,item:KENNY_ZEBRA_SKIN}"),
  'Zebra unlock must use the real event reward and grant the matching zebra avatar');
 assert(html.includes('kenny-pool-dialog')&&!html.includes('Ein Futter kostet 300 TT. Du erhältst'),
  'Prize dialog must no longer waste vertical room on redundant instructions');
