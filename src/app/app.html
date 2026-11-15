@@ -554,7 +554,7 @@
     </form>
   </div>
 
-  <div class="veil kenny-reveal-veil" *ngIf="kennyCurrentReveal as reveal" role="dialog" aria-modal="true" aria-labelledby="kenny-reveal-title">
+  <div class="veil kenny-reveal-veil" *ngIf="visibleKennyReveal as reveal" role="dialog" aria-modal="true" aria-labelledby="kenny-reveal-title">
     <div class="modal kenny-reveal-modal">
       <div class="eyebrow">🦖 {{reveal.kind==='level'?'KENNY LEVEL UP':reveal.kind==='season'?'SEASON-FINALE':'KENNY HAT AUFGEGESSEN'}}</div>
       <div class="kenny-reveal-art" [class.kenny-reveal-item]="reveal.kind==='drop' && !!reveal.drop?.item">
