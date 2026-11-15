@@ -1208,17 +1208,19 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .universe.shop-mode .drop-hero-copy h2{margin:0;white-space:nowrap}
  .universe.shop-mode .drop-hero-copy p{max-width:none;margin:0}
  .universe.shop-mode .drop-item-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
- .universe.shop-mode .drop-item{padding:8px 11px}
- .universe.shop-mode .drop-item .item-art{height:76px;min-height:0}
- .universe.shop-mode .drop-item .big-item-icon{font-size:42px}
- .universe.shop-mode .drop-item>.item-meta{margin-top:5px}
- .universe.shop-mode .drop-item h3{margin:5px 0 3px;font-size:15px}
- .universe.shop-mode .drop-item>p{min-height:0;margin:0 0 5px;line-height:1.35;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
- .universe.shop-mode .drop-item .item-unlock{margin:5px 0;padding:6px 8px}
- .universe.shop-mode .drop-item .drop-price{padding:6px 3px}
- .universe.shop-mode .drop-item .drop-actions button{padding:7px 9px}
+ .universe.shop-mode .drop-item{display:grid;grid-template-columns:82px minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) auto auto auto;column-gap:11px;align-content:start;min-height:0;padding:8px 10px}
+ .universe.shop-mode .drop-item .item-art{grid-column:1;grid-row:1/4;height:82px;min-height:0}
+ .universe.shop-mode .drop-item .big-item-icon{font-size:39px}
+ .universe.shop-mode .drop-item>.item-meta{grid-column:2;grid-row:1;margin:0}
+ .universe.shop-mode .drop-item h3{grid-column:2;grid-row:2;margin:2px 0 1px;font-size:14px;line-height:1.25}
+ .universe.shop-mode .drop-item>p{grid-column:2;grid-row:3;min-height:0;margin:0;line-height:1.3;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+ .universe.shop-mode .drop-item .item-unlock{grid-column:1/-1;grid-row:4;margin:6px 0 0;padding:5px 8px}
+ .universe.shop-mode .drop-item .item-unlock .progress-track{margin-top:4px;height:4px}
+ .universe.shop-mode .drop-item .drop-price{grid-column:1/-1;grid-row:5;padding:4px 3px}
+ .universe.shop-mode .drop-item .drop-actions{grid-column:1/-1;grid-row:6}
+ .universe.shop-mode .drop-item .drop-actions button{padding:5px 9px}
 }
-@media(min-width:1100px) and (max-height:850px){.universe.shop-mode .drop-hero{height:72px}.universe.shop-mode .drop-hero-copy p{display:none}.universe.shop-mode .drop-item .item-art{height:62px}}
+@media(min-width:1100px) and (max-height:850px){.universe.shop-mode .drop-hero{height:72px}.universe.shop-mode .drop-hero-copy p{display:none}.universe.shop-mode .drop-item .item-art{height:72px}}
 
 /* Match Kenny's heading and tabs to the other three shop destinations. */
 .universe.kenny-mode main{padding-top:14px;padding-bottom:10px}
