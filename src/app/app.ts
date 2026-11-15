@@ -717,7 +717,7 @@ export class App implements OnInit,OnDestroy {
  get kennyOdds(){return actualDinoOdds(this.kennyLevel,this.kennyPools);}
  get kennyPoolEmpty(){return !Object.values(this.kennyPools).some(items=>items.length);}
  get kennyCanFeed(){return this.kennyActive&&!this.kennyBusy&&!this.kennyReveals.length&&
-   !this.kennyPoolEmpty&&this.profile.tokens>=KENNY_SEASON.price&&this.cloudReady&&
+   this.profile.tokens>=KENNY_SEASON.price&&this.cloudReady&&
    (!this.cloudConfigured||!!this.cloud.session&&this.cloudMaySave);}
  get kennyCashback():number{return cashbackDue(this.kennyState);}
  get kennyPoolPreview(){

@@ -330,7 +330,7 @@
                 <p class="kenny-last-feed" *ngIf="kennyRemainingFeeds===1 && kennyLevel<5 && !kennyFeeding">Bravo! Noch einmal füttern, dann ist Kenny Level {{kennyLevel+1}}.</p>
                 <p class="kenny-hint" *ngIf="kennyLevel===5 && kennyActive">✦ Max-Level! Pro weiterer Fütterung bekommst du am Saisonende 150 TT zurück. {{kennyState.overfeeds}} weitere Fütterungen · Aktuell: <b>{{kennyCashback | number}} TT</b>.</p>
                 <p class="kenny-hint" *ngIf="!kennyActive">Kennys Season ist vorbei. Erhaltene Items bleiben in deinem Inventar.</p>
-                <p class="kenny-hint" *ngIf="kennyPoolEmpty && kennyActive">Du hast alle verfügbaren Items eingesammelt. Kenny ist satt!</p>
+                <p class="kenny-hint" *ngIf="kennyPoolEmpty && kennyActive">Alle Items eingesammelt! Du kannst Kenny weiterfüttern und bekommst jetzt ausschließlich TastyTokens als Drop.</p>
                 <p class="kenny-error" *ngIf="kennyError">{{kennyError}}</p>
               </div>
             </div>

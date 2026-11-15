@@ -30,6 +30,18 @@ assert.equal(d.actualDinoOdds(5,noSmall).token100,49,'Empty small-item tier shif
 const sparse=d.eligibleDinoItems([{id:'sharp_only',drop:'pos-pa-01',group:'avatar',cost:200,requirement:{metric:'boss',value:99}}],new Set());
 assert.equal(sparse.small.length,1,'Kenny can find course cosmetics even without learning unlocks');
 assert.equal(d.actualDinoOdds(2,sparse).token100,58,'Near-complete inventory makes 100 TT common');
+const empty=d.eligibleDinoItems([...professors,...ordinary],new Set([
+ ...professors.map(item=>item.id),...ordinary.map(item=>item.id),...d.KENNY_EVENT_ITEMS.map(item=>item.id)
+]));
+assert.equal(Object.values(empty).flat().length,0);
+const emptyOdds=d.actualDinoOdds(5,empty);
+assert.equal(Object.values(emptyOdds).reduce((n,x)=>n+x,0),100);
+assert.deepEqual([emptyOdds.token100,emptyOdds.token500,emptyOdds.token1000],[93,5,2]);
+for(const [roll,tokens] of [[0,100],[.95,500],[.995,1000]]){
+ const reward=d.drawDinoReward(5,empty,()=>roll);
+ assert.equal(reward.tokens,tokens,'Exhausted item pools must still pay token prizes');
+ assert.equal(reward.item,undefined);
+}
 const state={feeds:35,overfeeds:10,overTokenWins:1400,skin:'blue',settled:false,settlement:0};
 assert.equal(d.cashbackDue(state),1500);
 assert.equal(d.normalizeDinoState({...state,overfeeds:0}).overfeeds,10,

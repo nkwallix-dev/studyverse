@@ -324,6 +324,40 @@ async function main(){
   await maxPage.screenshot({path:path.join(screenshots,'kenny-avatar-picker-390.png')});
   await maxContext.close();
   console.log('PASS: retroactive level-5 cashback and matched avatar picker size.');
+  // Owning every cosmetic must never prevent another 300 TT feeding. With an
+  // exhausted pool, the draw pays tokens and one more 150 TT season cashback.
+  const emptyContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const emptyPage=await emptyContext.newPage();
+  await emptyPage.addInitScript(ids=>{
+   localStorage.setItem('studyverse_import_prompt_seen_v1','1');
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:6220,nickname:'FullPoolTester',
+    inventory:ids,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+    claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
+    dinoSeasons:{'kenny-2026':{feeds:46,overfeeds:21,overTokenWins:0,skin:'blue',settled:false,settlement:0}}}));
+   const original=crypto.getRandomValues.bind(crypto);
+   crypto.getRandomValues=array=>{
+    if(array instanceof Uint32Array){array[0]=0;return array;}
+    return original(array);
+   };
+  },[...allIds,'kenny_avatar']);
+  await emptyPage.goto(base,{waitUntil:'load'});
+  await emptyPage.locator('.navigation button[aria-label="Item-Shop"]').click();
+  await emptyPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  assert(await emptyPage.locator('.kenny-feed-btn').isEnabled(),
+   'Kenny must remain feedable after every item has been collected');
+  assert((await emptyPage.locator('.kenny-hint').allInnerTexts()).some(text=>text.includes('3.150 TT')),
+   'Twenty-one extra feeds must preserve 3,150 TT cashback');
+  await emptyPage.locator('.kenny-feed-btn').click();
+  await emptyPage.locator('.kenny-reveal-modal').waitFor();
+  const fullPoolSave=await emptyPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
+  assert.equal(fullPoolSave.tokens,6020,'Feeding must cost 300 TT and award a 100 TT token drop');
+  assert.equal(fullPoolSave.dinoSeasons['kenny-2026'].feeds,47);
+  assert.equal(fullPoolSave.dinoSeasons['kenny-2026'].overfeeds,22);
+  await emptyPage.locator('.kenny-reveal-modal button').click();
+  assert((await emptyPage.locator('.kenny-hint').allInnerTexts()).some(text=>text.includes('3.300 TT')),
+   'Each extra 300 TT feeding must add 150 TT to the season cashback');
+  await emptyContext.close();
+  console.log('PASS: exhausted item pool permits 300 TT feeds, token prizes, and 150 TT cashback.');
   for(const [world,url,mainSelector,header] of [
    ['Chemverse','nawi/test-01/','#pages','.studyverse-profile-link'],
    ['Dsaiverse','dsai/test-01/','#main','.studyverse-profile-link'],

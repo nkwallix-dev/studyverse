@@ -81,7 +81,6 @@ export function actualDinoOdds(level:number,pools:ReturnType<typeof eligibleDino
 export type DinoDrop={tier:DinoTier;tokens:number;item?:ShopItem};
 /** Both draws use independent cryptographic random values supplied by the caller. */
 export function drawDinoReward(level:number,pools:ReturnType<typeof eligibleDinoItems>,random:()=>number):DinoDrop{
-  if(!Object.values(pools).some(items=>items.length))throw Error('Der Dino-Pool ist bereits komplett eingesammelt.');
   const odds=actualDinoOdds(level,pools);
   let roll=random()*100;
   for(const tier of Object.keys(odds) as DinoTier[]){
