@@ -508,6 +508,40 @@ async function main(){
   assert((await colorPage.locator('.inventory-item').allTextContents()).every(text=>text.includes('Kenny Pink')));
   await colorContext.close();
   console.log('PASS: pink Kenny skin grants its own avatar and equips across the profile.');
+
+  // A non-avatar prize must name the cosmetic category (as Shop / Inventory
+  // do) and put Kenny's random sentence on a separate line from its description.
+  const itemContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const itemPage=await itemContext.newPage();
+  await itemPage.addInitScript(ids=>{
+   localStorage.setItem('studyverse_import_prompt_seen_v1','1');
+   localStorage.setItem('studyverse_profile_v1',JSON.stringify({xp:0,tokens:900,nickname:'BubbleTester',
+    inventory:ids,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+    claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
+   const original=crypto.getRandomValues.bind(crypto);
+   crypto.getRandomValues=array=>{if(array instanceof Uint32Array){array[0]=0;return array;}return original(array)};
+  },allIds.filter(id=>id!=='bubbles'));
+  await itemPage.goto(base,{waitUntil:'load'});
+  await itemPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
+  await itemPage.locator('.kenny-feed-btn').click();
+  await itemPage.locator('.kenny-reveal-modal').waitFor({state:'visible'});
+  const dropTitle=await itemPage.locator('#kenny-reveal-title').innerText();
+  assert(dropTitle.includes('Reagenzglas-Blasen Hintergrund'),
+   'A random reward popup must show the readable cosmetic category: '+dropTitle);
+  const copy=await itemPage.evaluate(()=>{
+   const flavor=document.querySelector('.kenny-reveal-flavor');
+   const desc=document.querySelector('.kenny-reveal-description');
+   return {flavor:flavor?.textContent,description:desc?.textContent,
+    flavorBottom:flavor?.getBoundingClientRect().bottom,
+    descriptionTop:desc?.getBoundingClientRect().top};
+  });
+  assert(copy.flavor.includes('Kenny')&&copy.description.includes('Aufsteigende')&&
+   copy.flavorBottom<=copy.descriptionTop,
+   'Kenny random line and the item description must be separate readable paragraphs: '+
+    JSON.stringify(copy));
+  await itemPage.screenshot({path:path.join(screenshots,'kenny-item-drop-390.png')});
+  await itemContext.close();
+  console.log('PASS: the cosmetic type and separate flavor / description are displayed in Kenny rewards.');
   const maxContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
   const maxPage=await maxContext.newPage();
   await maxPage.addInitScript(()=>{
