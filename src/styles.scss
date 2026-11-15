@@ -48,7 +48,7 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .drop-item-art{height:126px;position:relative;border-radius:13px}
 .drop-item-art:after{content:"";position:absolute;inset:0;background:linear-gradient(125deg,#0002,transparent 70%);border-radius:inherit}
 .drop-item-art .big-item-icon{font-size:60px;z-index:1;filter:drop-shadow(0 9px 12px #0007)}
-.item-spark{position:absolute;z-index:1;font-size:18px;color:#fff9}.item-spark.one{top:12px;left:13px}.item-spark.two{right:22px;bottom:13px}
+.item-spark{position:absolute;z-index:1;font-size:18px;color:#fff9;pointer-events:none}.item-spark.one{top:12px;left:13px}.item-spark.two{right:22px;bottom:13px}
 .item-top-badge{position:absolute;z-index:2;top:8px;right:8px;padding:4px 8px;background:#0d102ac9;color:#d3e5fc;border:1px solid #ffffff21;border-radius:30px;letter-spacing:.6px;font-size:8px;font-weight:900}
 .drop-item.owned .item-top-badge{color:#83ffb2}
 .drop-item>.item-meta{margin-top:12px}
