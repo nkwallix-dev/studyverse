@@ -549,7 +549,7 @@ async function main(){
   assert((await versePage.title()).includes('Kennyverse'));
   assert(await versePage.locator('.hero-icon img').isVisible(),
    'Kenny must be visibly present inside his Daily world');
-  await versePage.locator('#quizTab').click();
+  await versePage.locator('.hero button[data-action="quiz"]').click();
   await versePage.locator('.question').waitFor({state:'visible'});
   assert.equal(await versePage.locator('.choice').count(),4,
    'Kennyverse must keep four original answer options');
