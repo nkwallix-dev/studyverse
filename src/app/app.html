@@ -380,7 +380,7 @@
                 <div class="dino-designer-skins"><strong>KENNYS SKINS</strong><p>Alle freigeschalteten Farben</p>
                   <div class="dino-designer-skin-grid">
                     <button type="button" *ngFor="let skin of kennySkins" [disabled]="!skin.owned" [class.selected]="kennySkin===skin.id" (click)="setKennySkin(skin.id)">
-                      <span class="kenny-skin-preview" [attr.data-skin]="skin.id"><img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id"></span>
+                      <span class="kenny-skin-preview" [attr.data-skin]="skin.id" style="--kenny-avatar-mask:url('kenny/kenny-avatar.png')"><img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id"></span>
                       <strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Aktiv':'Ausrüsten'):'🔒 Gesperrt'}}</small>
                     </button>
                   </div>
@@ -607,7 +607,7 @@
       <p>Deine Farben aus Kennys Season. Gesperrte Skins kannst du beim Füttern finden.</p>
       <div class="kenny-skin-grid">
         <button type="button" *ngFor="let skin of kennySkins" [disabled]="!skin.owned" [class.selected]="kennySkin===skin.id" (click)="setKennySkin(skin.id)">
-          <span class="kenny-skin-preview" [attr.data-skin]="skin.id"><img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id"></span><strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Ausgewählt':'Ausrüsten'):'🔒 Gesperrt'}}</small>
+          <span class="kenny-skin-preview" [attr.data-skin]="skin.id" style="--kenny-avatar-mask:url('kenny/kenny-avatar.png')"><img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id"></span><strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Ausgewählt':'Ausrüsten'):'🔒 Gesperrt'}}</small>
         </button>
       </div>
     </div>
