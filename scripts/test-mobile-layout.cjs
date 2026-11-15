@@ -155,7 +155,18 @@ async function main(){
       'Drop selector should be in same header row on mobile '+width+'px: '+JSON.stringify(layout));
      if(width===390){
       const dotsCard=page.locator('.drop-item').filter({hasText:'Dots & Lines'}).first();
-      await dotsCard.locator('.drop-preview-btn').click();
+      try{await dotsCard.locator('.drop-preview-btn').click({timeout:5000})}catch(error){
+       const geometry=await page.evaluate(()=>{
+        const target=[...document.querySelectorAll('.drop-item')].find(el=>el.textContent.includes('Dots & Lines'));
+        const button=target.querySelector('.drop-preview-btn');
+        const rect=button.getBoundingClientRect();
+        const hit=document.elementsFromPoint(rect.left+rect.width/2,rect.top+rect.height/2).slice(0,5);
+        return {button:rect.toJSON(),card:target.getBoundingClientRect().toJSON(),grid:document.querySelector('.item-grid').getBoundingClientRect().toJSON(),hits:hit.map(el=>({class:el.className,card:el.closest('.drop-item')?.textContent.slice(0,70)}))};
+       });
+       console.error('Dots & Lines preview geometry',JSON.stringify(geometry));
+       await page.screenshot({path:path.join(screenshots,'shop-preview-obstruction-390.png')});
+       throw error;
+      }
       const preview=page.locator('.shop-live-stage[data-atm="dots"]');
       await preview.waitFor();
       const dotsVisual=await preview.evaluate(el=>{
