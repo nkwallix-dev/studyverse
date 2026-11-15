@@ -7,9 +7,9 @@ import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
 import { StudyverseCloud, CloudSnapshot, PublicPlayer, PublicShowcase, PublicCourseProgress, AccountNotice, CLOUD_DAILY_KEY, CLOUD_SESSION_KEY, cloudError, isAllowedNickname } from './cloud';
 import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, KENNY_BLUE_SKIN, KENNY_BLUE_AVATAR, KENNY_SKIN_AVATARS, DinoSeasonState, DinoDrop,
   freshDinoState, normalizeDinoState, dinoLevel, nextDinoLevel, isKennyActive, cashbackDue, kennyCountdown,
-  eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason, kennyAvatarForSkin, kennyAvatarSkin } from './dino-season';
+  eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason, hasKennyCompanion, kennyStaysAfterSeason, kennyAvatarForSkin, kennyAvatarSkin } from './dino-season';
 
-type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements' | 'friends';
+type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements' | 'friends' | 'companions';
 interface Subject { id:string; short:string; name:string; icon:string; group:string; color:string; desc:string; }
 interface Activity {label:string;date:string;amount?:number}
 interface Profile {
@@ -62,7 +62,7 @@ export class App implements OnInit,OnDestroy {
  readonly subjects=SUBJECTS;
  readonly items=[...SHOP_ITEMS,...KENNY_ITEMS];
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
- shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'earn'|'kenny'|'designer'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
+ shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'kenny'|'designer'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
  kennyClock=Date.now();kennyBusy=false;kennyFeeding=false;kennyVisibleFeeds:number|null=null;kennyError='';kennyCustomizeOpen=false;kennyPoolOpen=false;
  kennyReveals:Array<{kind:'drop'|'level'|'season';drop?:DinoDrop;level?:number;tokens?:number;item?:ShopItem;line?:string}>=[];
  private kennyTimer:ReturnType<typeof setInterval>|null=null;
@@ -760,10 +760,14 @@ export class App implements OnInit,OnDestroy {
  }
  get shopCollectionCost(){return this.dropItems.filter(i=>!this.owns(i)).reduce((n,i)=>n+i.cost,0);}
  get shopTokenGap(){return Math.max(0,this.shopCollectionCost-this.profile.tokens);}
- goEarnTokens(mode:'quiz'|'boss'|'academy'){
-   const trainer=TRAINERS.find(t=>t.id===this.shopDrop)||TRAINERS[0];
-   if(mode==='academy'){this.openTrainer(trainer.id);return;}
-   const url=new URL('daily/index.html',document.baseURI);
+ openKennyVerse(mode:'quiz'|'boss'='quiz'){
+   this.kennyClock=Date.now();
+   if(!this.kennyPresent){
+     this.openCompanions();
+     this.alert('Kennyverse ist nur während Kennys Season oder mit Kenny als dauerhaftem Level-5-Begleiter erreichbar.');
+     return;
+   }
+   const url=new URL('kennyverse/index.html',document.baseURI);
    url.searchParams.set('mode',mode);
    window.location.assign(url.href);
  }
@@ -796,21 +800,32 @@ export class App implements OnInit,OnDestroy {
      (id==='maths-hw-02'?'MathsVerse · Archiv':id==='exclusive'?'Exklusiv':id);
  }
  changeInventoryDrop(id:string){this.inventoryDrop=id;this.inventoryGroup='Alle';}
- setShopTab(tab:'catalog'|'inventory'|'earn'|'kenny'|'designer'){
+ setShopTab(tab:'catalog'|'inventory'|'kenny'|'designer'){
    this.shopTab=tab;this.previewed=null;this.kennyClock=Date.now();
    if(tab==='kenny')this.settleKennyIfExpired();
    window.scrollTo({top:0,behavior:'instant'});
  }
  openInventory(){this.go('shop');this.setShopTab('inventory');}
- openTokenEarning(){this.go('shop');this.setShopTab('earn');}
- openDinoVerse(){this.go('shop');this.setShopTab('kenny');}
- openDinoDesigner(){this.go('shop');this.setShopTab('designer');this.kennyCustomizeOpen=false;}
+ openCompanions(){this.go('companions');}
+ openDinoVerse(){
+   this.kennyClock=Date.now();
+   if(!this.kennyPresent){this.openCompanions();return;}
+   this.go('shop');this.setShopTab('kenny');
+ }
+ openDinoDesigner(){
+   this.kennyClock=Date.now();
+   if(!this.kennyPresent){this.openCompanions();return;}
+   this.go('shop');this.setShopTab('designer');this.kennyCustomizeOpen=false;
+ }
  get kennySeason(){return KENNY_SEASON;}
  readonly kennyEventItems=KENNY_EVENT_ITEMS;
  get kennyState():DinoSeasonState{return normalizeDinoState(this.profile.dinoSeasons?.[KENNY_SEASON.id]);}
  get kennyLevel():number{return dinoLevel(this.kennyState.feeds);}
  get kennyVisualLevel():number{return dinoLevel(this.kennyVisibleFeeds??this.kennyState.feeds);}
  get kennyActive():boolean{return isKennyActive(this.kennyClock);}
+ get kennyPermanent():boolean{return kennyStaysAfterSeason(this.kennyState);}
+ get kennyPresent():boolean{return hasKennyCompanion(this.kennyState,this.kennyClock);}
+ get kennyMovedOn():boolean{return !this.kennyPresent;}
  get kennyCountdown():string{return kennyCountdown(this.kennyClock);}
  get kennyRemainingFeeds():number{return Math.max(0,nextDinoLevel(this.kennyState.feeds)-this.kennyState.feeds);}
  get kennyProgress():number{
@@ -1101,7 +1116,7 @@ export class App implements OnInit,OnDestroy {
    }
    this.avatarPickerOpen=false;this.save();this.alert('🖌️ Avatar aktualisiert!');
  }
- go(page:View){if(page==='achievements'||page==='shop')this.syncTrainer();this.view=page;this.selected=null;this.previewed=null;if(page==='shop')this.shopTab='catalog';if(page==='friends')void this.refreshFriends();window.scrollTo({top:0,behavior:'smooth'});}
+ go(page:View){if(page==='achievements'||page==='shop')this.syncTrainer();this.view=page;this.selected=null;this.previewed=null;if(page==='shop')this.shopTab='catalog';if(page==='companions'){this.kennyClock=Date.now();this.settleKennyIfExpired();}if(page==='friends')void this.refreshFriends();window.scrollTo({top:0,behavior:'smooth'});}
  choose(id:string){if(!this.subjectHasTrainer(id))return;this.selected=id;this.view='subjects';window.scrollTo({top:0,behavior:'smooth'});}
  startImport(){if(this.rejectUnsafeBackupRestore())return;this.intro=false;this.importOpen=true;write(INTRO,'1');}
  skipIntro(){this.intro=false;write(INTRO,'1');}
