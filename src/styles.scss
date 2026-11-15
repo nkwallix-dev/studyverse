@@ -1829,3 +1829,23 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
   grid-auto-flow:row;
  }
 }
+
+
+/* Seven actual mobile destinations, in ONE row. Six columns created a second
+   58px row that overlaid the Dino-Verse and its drop dialog trigger. */
+@media(max-width:700px){
+ .universe .sidebar .navigation{
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  grid-template-rows:58px;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)
+ }
+ .universe .sidebar .navigation button{
+  width:100%;min-width:0;min-height:58px;height:58px;padding:4px 0
+ }
+ .universe .sidebar .navigation button .mobile-nav-label{
+  font-size:clamp(7px,2.25vw,9px);white-space:nowrap;letter-spacing:-.35px
+ }
+}
+@media(max-width:350px){
+ .universe .sidebar .navigation{grid-template-columns:repeat(7,minmax(0,1fr))}
+ .universe .sidebar .navigation button span{font-size:18px}
+}
