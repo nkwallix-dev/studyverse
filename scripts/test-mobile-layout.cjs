@@ -436,8 +436,8 @@ async function main(){
    'Existing level 5 players receive the blue avatar retroactively');
   assert((await maxPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')))).inventory.includes('kenny_skin_blue'),
    'Existing owners of a colored Kenny skin receive the blue skin retroactively');
-  await maxPage.locator('.navigation button[aria-label="Item-Shop"]').click();
-  await maxPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await maxPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await maxPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   await maxPage.locator('.kenny-hint').waitFor();
   assert(/1[, .]050 TT/.test(await maxPage.locator('.kenny-hint').innerText()),
    'Seven saved feeds beyond level 5 must show 1,050 TT gross cashback, including old saves');
