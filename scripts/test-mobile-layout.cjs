@@ -117,23 +117,28 @@ async function main(){
    if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-dashboard-390.png'),fullPage:true});
    for(const [label,nav] of [
     ['Lernwelten','Lernwelten'],['Achievements','Achievements'],['Item-Shop','Item-Shop'],
-    ['Inventar','Inventar'],['TastyTokens','TastyTokens verdienen']]){
-    // On phones, Inventory and TastyTokens live within the Shop's own three tabs.
-    const button=width<=700&&['Inventar','TastyTokens'].includes(label)
-     ?page.locator('.shop-view-tabs button').filter({hasText:label==='Inventar'?'Inventar':'TastyTokens verdienen'})
+    ['Inventar','Inventar'],['Begleiter','Begleiter']]){
+    // Inventory stays inside the Shop; companions are a full destination.
+    const button=width<=700&&label==='Inventar'
+     ?page.locator('.shop-view-tabs button').filter({hasText:'Inventar'})
      :page.locator('.navigation button[aria-label="'+nav+'"]');
     await button.waitFor({state:'visible',timeout:5000});
     await button.click();
     await page.waitForTimeout(100);
     await check(page,'Studyverse '+label+' '+width);
-    if(['Item-Shop','Inventar','TastyTokens'].includes(label)){
+    if(['Item-Shop','Inventar'].includes(label)){
      const layout=await page.evaluate(()=>({viewport:innerHeight,page:document.documentElement.scrollHeight,
-      mainBottom:document.querySelector('main').getBoundingClientRect().bottom,
-      grid:document.querySelector('main .item-grid')?.getBoundingClientRect().height||0,
-      earningButtons:[...document.querySelectorAll('.coin-earning-grid button')].map(x=>x.getBoundingClientRect().bottom)}));
-     assert(layout.page<=layout.viewport+3&&layout.mainBottom<=layout.viewport+3&&
-      layout.earningButtons.every(bottom=>bottom<=layout.viewport-(width<=700?65:0)),
-      'Shop destinations should fit the screen, with only item grids scrolling at '+width+'px: '+JSON.stringify(layout));
+      mainBottom:document.querySelector('main').getBoundingClientRect().bottom}));
+     assert(layout.page<=layout.viewport+3&&layout.mainBottom<=layout.viewport+3,
+      'Shop destinations should fit the screen without page scrolling: '+JSON.stringify(layout));
+    }
+    if(label==='Begleiter'){
+     await page.locator('.companions-grid').waitFor({state:'visible'});
+     assert.equal(await page.locator('.companion-card').count(),3,
+      'Three companion slots must appear with the current Kenny');
+     assert(await page.locator('.companion-enter').isVisible(),
+      'Kennyverse must be enterable during the active season');
+     if(width===390)await page.screenshot({path:path.join(screenshots,'begleiter-390.png'),fullPage:true});
     }
     if(label==='Item-Shop'){
      const select=page.locator('#shop-drop-select');
@@ -214,9 +219,9 @@ async function main(){
    if(width===390)await page.screenshot({path:path.join(screenshots,'studyverse-profil-390.png'),fullPage:true});
    const navLabels=await page.locator('.navigation button .mobile-nav-label:visible').count();
    if(width<=430){
-    assert.equal(navLabels,4,'Phone bottom bar should contain four readable main destinations');
+    assert.equal(navLabels,5,'Five mobile main destinations must include Begleiter');
     const visibleNavButtons=await page.locator('.navigation button:visible').count();
-    assert.equal(visibleNavButtons,4,'Inventory and TastyTokens stay within the Shop on phones');
+    assert.equal(visibleNavButtons,5,'Inventory stays in Shop, while Begleiter has its own mobile entry');
    }
    assert(!errors.length,'Studyverse script errors at '+width+': '+errors.join('; '));
    await context.close();
@@ -261,8 +266,8 @@ async function main(){
     claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
   });
   await dinoPage.goto(base,{waitUntil:'load'});
-  await dinoPage.locator('.navigation button[aria-label="Item-Shop"]').click();
-  await dinoPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await dinoPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await dinoPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   for(let n=1;n<=3;n++){
    await dinoPage.locator('.kenny-feed-btn').click();
    await dinoPage.locator('.kenny-stage.kenny-feeding').waitFor();
@@ -347,8 +352,8 @@ async function main(){
    };
   },allIds);
   await avatarPage.goto(base,{waitUntil:'load'});
-  await avatarPage.locator('.navigation button[aria-label="Item-Shop"]').click();
-  await avatarPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await avatarPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await avatarPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   await avatarPage.locator('.kenny-feed-btn').click();
   await avatarPage.locator('.kenny-reveal-modal').waitFor();
   await avatarPage.locator('.kenny-reveal-actions .btn.secondary').click();
@@ -385,8 +390,8 @@ async function main(){
    crypto.getRandomValues=array=>{if(array instanceof Uint32Array){array[0]=0;return array;}return original(array);};
   },[...allIds,'kenny_avatar'].filter(id=>!id.startsWith('kenny_skin_')&&id!=='kenny_avatar_pink'));
   await colorPage.goto(base,{waitUntil:'load'});
-  await colorPage.locator('.navigation button[aria-label="Item-Shop"]').click();
-  await colorPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await colorPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await colorPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   await colorPage.locator('.kenny-feed-btn').click();
   await colorPage.locator('.kenny-reveal-modal').waitFor();
   assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink',
@@ -405,6 +410,7 @@ async function main(){
   assert(await colorPage.locator('.dino-designer-skin-grid button').filter({hasText:'Kenny Pink'}).isEnabled(),
    'Zeig\'s mir must open the skin selector with the new color unlocked');
   await colorPage.locator('.dino-designer-heading button').click();
+  await colorPage.locator('.navigation button[aria-label="Item-Shop"]').click();
   await colorPage.locator('.shop-view-tabs button').filter({hasText:'Inventar'}).click();
   await colorPage.locator('.inventory-search-label input').fill('Kenny Pink');
   await colorPage.locator('.inventory-item').first().waitFor({state:'visible'});
@@ -507,8 +513,8 @@ async function main(){
    };
   },[...allIds,'kenny_avatar']);
   await emptyPage.goto(base,{waitUntil:'load'});
-  await emptyPage.locator('.navigation button[aria-label="Item-Shop"]').click();
-  await emptyPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
+  await emptyPage.locator('.navigation button[aria-label="Begleiter"]').click();
+  await emptyPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   assert(await emptyPage.locator('.kenny-feed-btn').isEnabled(),
    'Kenny must remain feedable after every item has been collected');
   assert((await emptyPage.locator('.kenny-hint').allInnerTexts()).some(text=>/3[, .]150 TT/.test(text)),
