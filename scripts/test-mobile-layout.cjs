@@ -345,7 +345,7 @@ async function main(){
   await emptyPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
   assert(await emptyPage.locator('.kenny-feed-btn').isEnabled(),
    'Kenny must remain feedable after every item has been collected');
-  assert((await emptyPage.locator('.kenny-hint').allInnerTexts()).some(text=>text.includes('3.150 TT')),
+  assert((await emptyPage.locator('.kenny-hint').allInnerTexts()).some(text=>/3[, .]150 TT/.test(text)),
    'Twenty-one extra feeds must preserve 3,150 TT cashback');
   await emptyPage.locator('.kenny-feed-btn').click();
   await emptyPage.locator('.kenny-reveal-modal').waitFor();
@@ -354,7 +354,7 @@ async function main(){
   assert.equal(fullPoolSave.dinoSeasons['kenny-2026'].feeds,47);
   assert.equal(fullPoolSave.dinoSeasons['kenny-2026'].overfeeds,22);
   await emptyPage.locator('.kenny-reveal-modal button').click();
-  assert((await emptyPage.locator('.kenny-hint').allInnerTexts()).some(text=>text.includes('3.300 TT')),
+  assert((await emptyPage.locator('.kenny-hint').allInnerTexts()).some(text=>/3[, .]300 TT/.test(text)),
    'Each extra 300 TT feeding must add 150 TT to the season cashback');
   await emptyContext.close();
   console.log('PASS: exhausted item pool permits 300 TT feeds, token prizes, and 150 TT cashback.');
