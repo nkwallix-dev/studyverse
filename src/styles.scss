@@ -1687,3 +1687,24 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
   height:min(97%,240px);max-width:86%;bottom:1%;
  }
 }
+
+
+/* On narrow phones Kenny's controls are a single compact strip.
+   Preserve the progress bar, feed and designer buttons while leaving room for
+   both the animated dinosaur and the full no-scroll exclusive drop grid. */
+@media(max-width:350px){
+ .universe.kenny-mode:not(.designer-mode) .kenny-play{gap:3px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-controls{padding:4px 6px;border-radius:10px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-progress-top{font-size:8px;gap:4px;letter-spacing:0}
+ .universe.kenny-mode:not(.designer-mode) .kenny-progress-track{height:4px;margin:2px 0 4px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-action-row{gap:4px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-wallet{min-width:65px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-wallet small{font-size:7px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-wallet strong{font-size:12px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-feed-btn{font-size:10px;min-height:32px;border-radius:8px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-style-btn{padding:0 3px;font-size:9px;border-radius:8px}
+ .universe.kenny-mode:not(.designer-mode) .kenny-style-btn span{display:none}
+ .universe.kenny-mode:not(.designer-mode) .kenny-hint,.universe.kenny-mode:not(.designer-mode) .kenny-last-feed{
+  font-size:8px;margin-top:3px;line-height:1.2
+ }
+}
