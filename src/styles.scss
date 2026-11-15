@@ -1345,8 +1345,8 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .companions-grid{grid-template-columns:1fr;max-width:600px;margin-inline:auto}
  .companion-stage{height:310px}.companion-future{min-height:230px}
  .companion-mystery{width:105px}.companion-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
- .sidebar .navigation{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .universe .sidebar .navigation{grid-template-columns:repeat(5,minmax(0,1fr))}
  .sidebar .navigation button{min-width:0}
- .sidebar .navigation button .mobile-nav-label{font-size:clamp(9px,2.6vw,11px)}
+ .universe .sidebar .navigation button .mobile-nav-label{font-size:clamp(9px,2.6vw,11px)}
 }
-@media(max-width:350px){.sidebar .navigation{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(max-width:350px){.universe .sidebar .navigation{grid-template-columns:repeat(5,minmax(0,1fr))}}
