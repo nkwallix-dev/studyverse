@@ -611,6 +611,32 @@ async function main(){
   });
   await versePage.goto(base+'kennyverse/index.html',{waitUntil:'load'});
   await versePage.locator('.hero h1').waitFor({state:'visible'});
+  assert(await versePage.locator('#homeTab').isVisible(),
+   'A permanent Startseite tab must exist in Kennyverse');
+  assert(await versePage.locator('.kenny-mobile-nav [data-kenny-nav="overview"]').isVisible(),
+   'The mobile bottom bar must have an always-accessible Home button');
+  assert(await versePage.locator('.top .return').innerText()!=='BEGLEITER',
+   'Return link must be labelled Zurück zu Begleiter');
+  async function assertVerseFits(viewport,screenLabel){
+   const fit=await versePage.evaluate(()=>{
+    const root=document.querySelector('#root').getBoundingClientRect();
+    const screen=document.querySelector('.kenny-screen');
+    const children=screen?[...screen.children].map(el=>({name:el.className,bottom:el.getBoundingClientRect().bottom,top:el.getBoundingClientRect().top})):[];
+    const question=document.querySelector('.kenny-question-card');
+    const choices=[...document.querySelectorAll('.kenny-question-card .choice')].map(el=>el.getBoundingClientRect());
+    const next=document.querySelector('.kenny-next-row')?.getBoundingClientRect();
+    return {viewport:innerHeight,bodyScroll:document.documentElement.scrollHeight,
+      rootBottom:root.bottom,rootTop:root.top,content:children,
+      choiceBottom:choices.length?Math.max(...choices.map(c=>c.bottom)):0,
+      nextBottom:next?.bottom||0,cardBottom:question?.getBoundingClientRect().bottom||0,
+      screen:document.querySelector('#root').dataset.screen};
+   });
+   assert(fit.bodyScroll<=fit.viewport+3&&
+      fit.content.every(x=>x.bottom<=fit.rootBottom+3&&x.top>=fit.rootTop-3)&&
+      fit.choiceBottom<=fit.cardBottom+3&&fit.nextBottom<=fit.cardBottom+3,
+      'Kennyverse '+screenLabel+' must fit '+viewport+'px without scrolling or clipped buttons: '+JSON.stringify(fit));
+  }
+  await assertVerseFits(390,'Home');
   assert((await versePage.title()).includes('Kennyverse'));
   assert(await versePage.locator('.hero-icon img').isVisible(),
    'Kenny must be visibly present inside his Daily world');
@@ -635,6 +661,27 @@ async function main(){
      JSON.stringify(equippedAppearance));
   await versePage.locator('.hero button[data-action="quiz"]').click();
   await versePage.locator('.question').waitFor({state:'visible'});
+  const firstQuestion=await versePage.locator('.question').innerText();
+  await assertVerseFits(390,'Quiz question');
+  await versePage.locator('.choice').first().click();
+  await versePage.locator('.kenny-next-row button').waitFor({state:'visible'});
+  await assertVerseFits(390,'Quiz feedback');
+  await versePage.locator('.kenny-mobile-nav [data-kenny-nav="overview"]').click();
+  await versePage.locator('.hero h1').waitFor({state:'visible'});
+  await assertVerseFits(390,'Home from Quiz');
+  await versePage.locator('.kenny-mobile-nav [data-kenny-nav="quiz"]').click();
+  await versePage.locator('.kenny-next-row button').waitFor({state:'visible'});
+  assert.equal(await versePage.locator('.question').innerText(),firstQuestion,
+   'Returning to Home must not reset an unfinished quiz or erase the answer');
+  await versePage.locator('.kenny-mobile-nav [data-kenny-nav="boss"]').click();
+  await versePage.locator('.kenny-question-card').waitFor({state:'visible'});
+  await assertVerseFits(390,'Boss question');
+  await versePage.locator('#topHome').click();
+  await versePage.locator('.hero h1').waitFor({state:'visible'});
+  await versePage.locator('.kenny-mobile-nav [data-kenny-nav="quiz"]').click();
+  await versePage.locator('.kenny-next-row button').waitFor({state:'visible'});
+  assert.equal(await versePage.locator('.question').innerText(),firstQuestion,
+   'Switching to Boss and back must preserve the quiz question');
   assert.equal(await versePage.locator('.choice').count(),4,
    'Kennyverse must keep four original answer options');
   assert(await versePage.locator('.kenny-play-title .kenny-visual img').isVisible(),
@@ -655,6 +702,32 @@ async function main(){
     updatedAppearance.accent==='#ffa7ed',
     'Kennyverse must recolor the quiz companion and entire UI when equipped skin changes: '+
      JSON.stringify(updatedAppearance));
+  for(const width of [320,390,1365]){
+   await versePage.setViewportSize({width,height:800});
+   await assertVerseFits(width,'Quiz feedback');
+   await versePage.locator('.kenny-mobile-nav [data-kenny-nav="overview"]').count()&&width<=610
+    ?versePage.locator('.kenny-mobile-nav [data-kenny-nav="overview"]').click()
+    :versePage.locator('#topHome').click();
+   await versePage.locator('.hero h1').waitFor({state:'visible'});
+   await assertVerseFits(width,'Home');
+   await versePage.locator(width<=610?'.kenny-mobile-nav [data-kenny-nav="quiz"]':'#quizTab').click();
+  }
+  await versePage.setViewportSize({width:390,height:800});
+  for(let i=0;i<20;i++){
+   if(await versePage.locator('.kenny-question-card').count()===0)break;
+   if(await versePage.locator('.kenny-next-row').count()===0)
+    await versePage.locator('.choice').first().click();
+   await versePage.locator('.kenny-next-row button').click();
+  }
+  await versePage.locator('.kenny-result-screen').waitFor({state:'visible'});
+  await assertVerseFits(390,'Quiz result');
+  await versePage.locator('.kenny-mobile-nav [data-kenny-nav="boss"]').click();
+  for(let i=0;i<20;i++){
+   await versePage.locator('.choice').first().click();
+   await versePage.locator('.kenny-next-row button').click();
+  }
+  await versePage.locator('.kenny-result-screen').waitFor({state:'visible'});
+  await assertVerseFits(390,'Boss result');
   await check(versePage,'Kennyverse 390');
   await verseContext.close();
   const lockedContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
