@@ -707,6 +707,10 @@ async function main(){
   assert.equal(await desktopPage.locator('.drop-item .drop-price').count(),0,
    'The buy button alone should state the price');
   await desktopPage.locator('.shop-category-chips button').filter({hasText:'Rahmen'}).click();
+  await desktopPage.waitForFunction(()=>{
+   const grid=document.querySelector('.drop-item-grid');
+   return grid?.classList.contains('few-items')&&grid.querySelectorAll('.drop-item').length>3;
+  });
   const frameGrid=await desktopPage.locator('.drop-item-grid').evaluate(el=>({
    count:el.querySelectorAll('.drop-item').length,height:el.clientHeight,content:el.scrollHeight,
    lastBottom:[...el.querySelectorAll('.drop-item')].at(-1)?.getBoundingClientRect().bottom,
