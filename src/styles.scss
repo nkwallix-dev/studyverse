@@ -1302,3 +1302,8 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .kenny-stage.kenny-feeding .kenny-sprite[data-skin="zebra"]::after{mask-image:url('assets/kenny/kenny-feed-strip.png');-webkit-mask-image:url('assets/kenny/kenny-feed-strip.png');animation:kenny-zebra-feed-mask 3.2s steps(1) both}
 @keyframes kenny-zebra-feed-mask{0%,37%{mask-position:0% 0;-webkit-mask-position:0% 0}38%,55%{mask-position:33.333% 0;-webkit-mask-position:33.333% 0}56%,80%{mask-position:66.667% 0;-webkit-mask-position:66.667% 0}81%,100%{mask-position:100% 0;-webkit-mask-position:100% 0}}
 .kenny-avatar-image[data-skin="zebra"],.dino-designer-skin-grid img[data-skin="zebra"],.kenny-skin-grid img[data-skin="zebra"],.kenny-reveal-art img[data-skin="zebra"]{filter:grayscale(1) brightness(2) contrast(1.4)}
+
+
+.inventory-dino-designer-btn{flex:0 0 auto;min-width:205px;border:1px solid #d18dec;border-radius:14px;background:linear-gradient(120deg,#59316f,#35204d);color:white;padding:13px 18px;font-weight:900;cursor:pointer}
+.inventory-dino-designer-btn:hover{filter:brightness(1.14)}
+@media(max-width:650px){.inventory-summary{flex-wrap:wrap}.inventory-dino-designer-btn{width:100%}}
