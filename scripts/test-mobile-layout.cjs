@@ -445,6 +445,17 @@ async function main(){
    await poolPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
    assert.equal(await poolPage.locator('.kenny-test-unlock').count(),0,
     'The temporary free drop is not available without an authenticated cloud account');
+   const poolButtonFit=await poolPage.evaluate(()=>{
+    const rect=selector=>{const box=document.querySelector(selector)?.getBoundingClientRect();return box?{top:box.top,bottom:box.bottom,height:box.height}:null};
+    return {button:rect('.kenny-pool-button'),loot:rect('.kenny-loot'),
+      navigation:rect('.sidebar .navigation'),navButton:rect('.sidebar .navigation button'),
+      page:rect('.kenny-page'),main:rect('main'),workspace:rect('.workspace'),
+      ctrl:rect('.kenny-controls'),viewport:innerHeight};
+   });
+   console.log('KENNY POOL BUTTON GEOMETRY '+width+': '+JSON.stringify(poolButtonFit));
+   assert(poolButtonFit.button.bottom<=poolButtonFit.navigation.top+2,
+    'The complete collector prize button must remain above the fixed mobile navigation: '+
+     JSON.stringify(poolButtonFit));
    await poolPage.locator('.kenny-pool-button').click();
    await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
    const modal=await poolPage.evaluate(()=>{
