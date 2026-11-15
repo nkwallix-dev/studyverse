@@ -1208,13 +1208,14 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .universe.shop-mode .drop-hero-copy h2{margin:0;white-space:nowrap}
  .universe.shop-mode .drop-hero-copy p{max-width:none;margin:0}
  .universe.shop-mode .drop-item-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
- .universe.shop-mode .drop-item{display:grid;grid-template-columns:82px minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) auto auto auto;column-gap:11px;align-content:start;min-height:0;padding:8px 10px}
+ .universe.shop-mode .drop-item{display:grid;grid-template-columns:82px minmax(0,1fr);grid-template-rows:17px 38px 27px 45px 28px 33px;column-gap:11px;align-content:start;height:210px;min-height:0;padding:8px 10px;overflow:hidden}
  .universe.shop-mode .drop-item .item-art{grid-column:1;grid-row:1/4;height:82px;min-height:0}
  .universe.shop-mode .drop-item .big-item-icon{font-size:39px}
  .universe.shop-mode .drop-item>.item-meta{grid-column:2;grid-row:1;margin:0}
- .universe.shop-mode .drop-item h3{grid-column:2;grid-row:2;margin:2px 0 1px;font-size:14px;line-height:1.25}
- .universe.shop-mode .drop-item>p{grid-column:2;grid-row:3;min-height:0;margin:0;line-height:1.3;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+ .universe.shop-mode .drop-item h3{grid-column:2;grid-row:2;margin:2px 0 1px;font-size:14px;line-height:1.25;overflow:hidden}
+ .universe.shop-mode .drop-item>p{grid-column:2;grid-row:3;min-height:0;margin:0;line-height:1.3;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
  .universe.shop-mode .drop-item .item-unlock{grid-column:1/-1;grid-row:4;margin:6px 0 0;padding:5px 8px}
+ .universe.shop-mode .drop-item .unlock-caption span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
  .universe.shop-mode .drop-item .item-unlock .progress-track{margin-top:4px;height:4px}
  .universe.shop-mode .drop-item .drop-price{grid-column:1/-1;grid-row:5;padding:4px 3px}
  .universe.shop-mode .drop-item .drop-actions{grid-column:1/-1;grid-row:6}
