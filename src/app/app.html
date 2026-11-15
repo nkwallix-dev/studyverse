@@ -184,8 +184,8 @@
 
           <div class="shop-banner drop-hero">
             <div class="drop-hero-copy">
-              <span class="eyebrow">✦ GLOBAL INVENTORY · ALL VERSES</span>
-              <h2><span class="wallet-icon">◉</span> {{profile.tokens | number}} <small>TastyTokens (TT)</small></h2>
+              <span class="eyebrow">✦ DEIN GUTHABEN</span>
+              <h2><span class="wallet-icon">◉</span> {{profile.tokens | number}} <small>TT</small></h2>
               <p>Level {{level}} · {{claimed}} Cosmetics im Inventar · Ein gemeinsamer Geldbeutel für alle Lernwelten.</p>
             </div>
             <div class="drop-floating-art"><span class="drop-planet">🪐</span><span class="drop-spark">✦</span></div>
@@ -213,7 +213,7 @@
             <p class="shop-owned-empty" *ngIf="filteredItems.length===0 && !selectedCategoryHasItems">✧ In {{selectedDrop.title}} gibt es aktuell keine {{groupLabel(shopGroup)}}. Du kannst die Kategorie trotzdem in einem anderen Test auswählen.</p>
             <p class="shop-owned-empty" *ngIf="filteredItems.length===0 && selectedCategoryHasItems">🎒 Hier ist alles bereits eingesammelt! Deine Cosmetics findest du im Inventar.</p>
 
-            <div class="item-grid drop-item-grid">
+            <div class="item-grid drop-item-grid" [class.few-items]="filteredItems.length<=6">
               <article class="item drop-item" *ngFor="let item of filteredItems" [attr.data-category]="item.group" [class.locked]="!isUnlocked(item)" [class.reward-spotlight]="spotlightRewardId===item.id">
                 <div class="item-art drop-item-art" [class.avatar-art]="item.group==='avatar'" [class.panda-art]="item.id==='dsai_panda'" [style.background]="themeStyle(item)">
                   <span class="item-spark one">✦</span><span class="big-item-icon"><img *ngIf="kennyAvatarSkin(item.id);else shopItemIcon" class="kenny-avatar-image" [attr.data-skin]="kennyAvatarSkin(item.id)" src="kenny/kenny-avatar.png" alt=""><ng-template #shopItemIcon>{{item.icon}}</ng-template></span><span class="item-spark two">✧</span>
@@ -227,7 +227,6 @@
                   <div class="unlock-caption"><span>{{requirementLabel(item)}}</span><b>{{itemProgressPercent(item)}}%</b></div>
                   <div class="progress-track"><i [style.width.%]="itemProgressPercent(item)"></i></div>
                 </div>
-                <div class="drop-price"><span>{{item.drop==='global'?'PREIS':'PREIS NACH FREISCHALTUNG'}}</span><strong>{{item.cost | number}} TT</strong></div>
                 <div class="drop-actions">
                   <button type="button" class="drop-preview-btn" (click)="preview(item)">👁 Vorschau</button>
                   <button type="button" class="drop-buy-btn" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
@@ -700,7 +699,6 @@
         <ng-container *ngIf="isKennyReward(item);else normalPreviewRequirement">🦖 Durch Kenny, den Raptor freigeschaltet</ng-container>
         <ng-template #normalPreviewRequirement>{{itemProgressPercent(item)===100?'✓ Lernziel erfüllt':'⏳ Lernziel in Arbeit'}} · {{requirementLabel(item)}}</ng-template>
       </div>
-      <p class="preview-cost" *ngIf="!owns(item)">{{item.cost===0?'Gratis':(item.cost | number)+' TT'}}</p>
       <button class="btn primary full" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">{{priceLabel(item)}}</button>
       <button class="btn secondary full" (click)="closePreview()">Vorschau schließen</button>
       <small>Vorschau ohne Kauf: Das Item wird nur hier gezeigt. Dein aktiver Style und deine TT bleiben unverändert.</small>

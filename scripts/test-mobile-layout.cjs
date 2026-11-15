@@ -704,6 +704,23 @@ async function main(){
   });
   assert(shopSix.count===6&&shopSix.columns===3&&shopSix.sixthBottom<=shopSix.gridBottom+2,
    'Desktop shop should show two complete rows of three items: '+JSON.stringify(shopSix));
+  assert.equal(await desktopPage.locator('.drop-item .drop-price').count(),0,
+   'The buy button alone should state the price');
+  await desktopPage.locator('.shop-category-chips button').filter({hasText:'Rahmen'}).click();
+  const frameGrid=await desktopPage.locator('.drop-item-grid').evaluate(el=>({
+   count:el.querySelectorAll('.drop-item').length,height:el.clientHeight,content:el.scrollHeight,
+   lastBottom:[...el.querySelectorAll('.drop-item')].at(-1)?.getBoundingClientRect().bottom,
+   gridBottom:el.getBoundingClientRect().bottom,
+   overflow:getComputedStyle(el).overflowY
+  }));
+  assert(frameGrid.count>3&&frameGrid.count<=6&&frameGrid.content<=frameGrid.height+2&&
+   frameGrid.lastBottom<=frameGrid.gridBottom+2&&frameGrid.overflow==='hidden',
+   'A collection with at most six items must fit without a scrollbar: '+JSON.stringify(frameGrid));
+  await desktopPage.locator('.drop-item .drop-preview-btn').first().click();
+  assert.equal(await desktopPage.locator('.shop-preview-modal .preview-cost').count(),0);
+  const previewFit=await desktopPage.locator('.shop-preview-modal').evaluate(el=>({height:el.clientHeight,content:el.scrollHeight,overflow:getComputedStyle(el).overflowY}));
+  assert(previewFit.content<=previewFit.height+2&&previewFit.overflow==='hidden',
+   'The preview should fit without an inner scrollbar: '+JSON.stringify(previewFit));
   await desktop.close();
  }finally{
   await browser.close();
