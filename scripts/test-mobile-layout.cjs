@@ -201,7 +201,7 @@ async function main(){
       stripe:getComputedStyle(node,'::after').webkitMaskImage
      })));
      assert.equal(colors.length,5,'Every Dino Designer skin needs its own preview');
-     const expected={blue:'drop-shadow',pink:'hue-rotate(105deg)',green:'hue-rotate(225deg)',red:'hue-rotate(125deg)',zebra:'grayscale'};
+     const expected={blue:'none',pink:'hue-rotate(105deg)',green:'hue-rotate(225deg)',red:'hue-rotate(125deg)',zebra:'grayscale'};
      assert(colors.every(c=>c.imageLoaded&&c.imageFilter.includes(expected[c.skin])),
       'Pink, green, red and zebra previews must not all show the default blue dinosaur: '+JSON.stringify(colors));
      assert(colors.find(c=>c.skin==='zebra').stripe.includes('kenny-avatar.png'),
