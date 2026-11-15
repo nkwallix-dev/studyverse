@@ -1604,7 +1604,7 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .kenny-skin-preview[data-skin="zebra"]::after{
   content:"";position:absolute;inset:0;pointer-events:none;opacity:.89;
   background:repeating-linear-gradient(112deg,#fff 0 9px,#16141c 9px 13px,#fff 13px 23px,#111 23px 28px);
-  -webkit-mask-image:url('kenny/kenny-avatar.png');mask-image:url('kenny/kenny-avatar.png');
+  -webkit-mask-image:var(--kenny-avatar-mask);mask-image:var(--kenny-avatar-mask);
   -webkit-mask-size:contain;mask-size:contain;
   -webkit-mask-position:center;mask-position:center;
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat
