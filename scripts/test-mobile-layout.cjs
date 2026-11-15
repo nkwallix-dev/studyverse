@@ -301,7 +301,9 @@ async function main(){
       'Kenny level-up artwork must stay above and separate from the text: '+JSON.stringify(revealLayout));
      await dinoPage.screenshot({path:path.join(screenshots,'kenny-level-390.png')});
     }
-    await dinoPage.evaluate(()=>document.querySelector('.kenny-reveal-modal .btn.primary')?.click());
+    // The primary action now means "equip" or "show designer"; the always-present
+    // secondary action explicitly acknowledges any drop and advances the queue.
+    await dinoPage.locator('.kenny-reveal-actions .btn.secondary').click();
     await dinoPage.waitForFunction(previous=>{
      const current=document.querySelector('#kenny-reveal-title');
      return !current||current.textContent!==previous;
@@ -315,11 +317,15 @@ async function main(){
   assert.equal(dinoProfile.xp,0,'Feeding must never grant learning XP');
   assert(dinoProfile.tokens>=9100,'300 TT per feed, net of random Token rewards');
   await dinoPage.locator('.kenny-style-btn').click();
-  await dinoPage.locator('.kenny-skin-grid').waitFor({state:'visible'});
+  await dinoPage.locator('.dino-designer-grid').waitFor({state:'visible'});
+  assert.equal(await dinoPage.locator('.dino-designer-card').count(),3,
+   'The dedicated Dino Designer must reserve three dinosaur slots');
+  assert.equal(await dinoPage.locator('.dino-designer-locked').count(),2,
+   'Two upcoming dinos must remain locked and silhouetted');
   const unlockedSkins=dinoProfile.inventory.filter(id=>id.startsWith('kenny_skin_')&&id!=='kenny_skin_blue').length;
-  assert.equal(await dinoPage.locator('.kenny-skin-grid button:disabled').count(),3-unlockedSkins,
-   'Only skins actually obtained from the drop pool may be selected');
-  await dinoPage.locator('.kenny-dialog-close').click();
+  assert.equal(await dinoPage.locator('.dino-designer-skin-grid button:disabled').count(),4-unlockedSkins,
+   'Only owned skins may be selected, including the rare zebra skin');
+  await dinoPage.locator('.dino-designer-heading button').click();
   await dinoContext.close();
   console.log('PASS: Kenny viewport, three feeds, reward reveals, XP isolation and locked skins.');
   // The blue avatar is granted at the 25th feed, independently of the random drop.
@@ -345,7 +351,7 @@ async function main(){
   await avatarPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
   await avatarPage.locator('.kenny-feed-btn').click();
   await avatarPage.locator('.kenny-reveal-modal').waitFor();
-  await avatarPage.locator('.kenny-reveal-modal .btn.primary').click();
+  await avatarPage.locator('.kenny-reveal-actions .btn.secondary').click();
   await avatarPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Level 5'));
   const avatarTitle=await avatarPage.locator('#kenny-reveal-title').innerText();
   assert(avatarTitle.includes('Level 5'),'The guaranteed avatar arrives with the level 5 reveal: '+avatarTitle);
@@ -383,23 +389,28 @@ async function main(){
   await colorPage.locator('.shop-view-tabs button').filter({hasText:'Kenny'}).click();
   await colorPage.locator('.kenny-feed-btn').click();
   await colorPage.locator('.kenny-reveal-modal').waitFor();
-  assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'blue');
+  assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink',
+   'The avatar must be revealed before the matching skin');
   const colorProfile=await colorPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
   assert(colorProfile.inventory.includes('kenny_skin_blue')&&colorProfile.inventory.includes('kenny_skin_pink')&&colorProfile.inventory.includes('kenny_avatar_pink'));
   assert(colorProfile.kennyWonItems['kenny_avatar_pink']);
-  assert((await colorPage.locator('.kenny-reveal-modal').innerText()).includes('Kenny Blau'));
-  await colorPage.locator('.kenny-reveal-modal .btn.primary').click();
-  await colorPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('neue Farbe'));
+  assert((await colorPage.locator('.kenny-reveal-modal').innerText()).includes('Neuer Kenny-Avatar'));
+  await colorPage.locator('.kenny-reveal-actions .btn.primary').click();
+  assert.equal(await colorPage.locator('.top-profile-avatar img').getAttribute('data-skin'),'pink',
+   'Ausrüsten & Weiter must equip the new Kenny avatar');
+  await colorPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Neuer Skin'));
   assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink');
-  await colorPage.locator('.kenny-inventory-btn').click();
+  await colorPage.locator('.kenny-reveal-actions .btn.primary').click();
+  await colorPage.locator('.dino-designer-grid').waitFor({state:'visible'});
+  assert(await colorPage.locator('.dino-designer-skin-grid button').filter({hasText:'Kenny Pink'}).isEnabled(),
+   'Zeig\'s mir must open the skin selector with the new color unlocked');
+  await colorPage.locator('.dino-designer-heading button').click();
+  await colorPage.locator('.shop-view-tabs button').filter({hasText:'Inventar'}).click();
+  await colorPage.locator('.inventory-search-label input').fill('Kenny Pink');
   await colorPage.locator('.inventory-item').first().waitFor({state:'visible'});
-  assert.equal(await colorPage.locator('.inventory-item').count(),2);
-  assert.equal(await colorPage.locator('.inventory-search-label input').inputValue(),'Kenny Pink');
-  assert.equal(await colorPage.locator('.inventory-filter-bar select').first().inputValue(),'Alle');
-  assert.equal(await colorPage.locator('.inventory-filter-bar select').last().inputValue(),'Alle');
+  assert.equal(await colorPage.locator('.inventory-item').count(),2,
+   'The skin and its avatar are separate inventory cosmetics');
   assert((await colorPage.locator('.inventory-item').allTextContents()).every(text=>text.includes('Kenny Pink')));
-  await colorPage.locator('.inventory-item[data-category="avatar"] .drop-buy-btn').click();
-  assert.equal(await colorPage.locator('.top-profile-avatar img').getAttribute('data-skin'),'pink');
   await colorContext.close();
   console.log('PASS: pink Kenny skin grants its own avatar and equips across the profile.');
   const maxContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
@@ -508,7 +519,7 @@ async function main(){
   assert.equal(fullPoolSave.tokens,6020,'Feeding must cost 300 TT and award a 100 TT token drop');
   assert.equal(fullPoolSave.dinoSeasons['kenny-2026'].feeds,47);
   assert.equal(fullPoolSave.dinoSeasons['kenny-2026'].overfeeds,22);
-  await emptyPage.locator('.kenny-reveal-modal .btn.primary').click();
+  await emptyPage.locator('.kenny-reveal-actions .btn.secondary').click();
   assert((await emptyPage.locator('.kenny-hint').allInnerTexts()).some(text=>/3[, .]300 TT/.test(text)),
    'Each extra 300 TT feeding must add 150 TT to the season cashback');
   await emptyContext.close();
