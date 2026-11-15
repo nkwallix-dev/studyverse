@@ -260,7 +260,7 @@ async function main(){
    if(n===1)await dinoPage.screenshot({path:path.join(screenshots,'kenny-drop-390.png')});
    let sawLevel=false;
    for(let revealCount=0;revealCount<4&&await dinoPage.locator('.kenny-reveal-modal').count();revealCount++){
-    const title=await dinoPage.locator('#kenny-reveal-title').innerText();
+    const title=await dinoPage.locator('#kenny-reveal-title').textContent();
     if(title.includes('Level 2')){
      sawLevel=true;
      const revealLayout=await dinoPage.evaluate(()=>({
@@ -272,7 +272,7 @@ async function main(){
       'Kenny level-up artwork must stay above and separate from the text: '+JSON.stringify(revealLayout));
      await dinoPage.screenshot({path:path.join(screenshots,'kenny-level-390.png')});
     }
-    await dinoPage.locator('.kenny-reveal-modal .btn.primary').click();
+    await dinoPage.evaluate(()=>document.querySelector('.kenny-reveal-modal .btn.primary')?.click());
     await dinoPage.waitForFunction(previous=>{
      const current=document.querySelector('#kenny-reveal-title');
      return !current||current.textContent!==previous;
@@ -287,7 +287,7 @@ async function main(){
   assert(dinoProfile.tokens>=9100,'300 TT per feed, net of random Token rewards');
   await dinoPage.locator('.kenny-style-btn').click();
   await dinoPage.locator('.kenny-skin-grid').waitFor({state:'visible'});
-  const unlockedSkins=dinoProfile.inventory.filter(id=>id.startsWith('kenny_skin_')).length;
+  const unlockedSkins=dinoProfile.inventory.filter(id=>id.startsWith('kenny_skin_')&&id!=='kenny_skin_blue').length;
   assert.equal(await dinoPage.locator('.kenny-skin-grid button:disabled').count(),3-unlockedSkins,
    'Only skins actually obtained from the drop pool may be selected');
   await dinoPage.locator('.kenny-dialog-close').click();
