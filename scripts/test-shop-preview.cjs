@@ -76,7 +76,7 @@ for(const [subject,path] of [['nawi','public/nawi/test-01/index.html'],['dsai','
 assert(t.includes("return item.group===slot?(item.equip||item.id)"),'Candidate item must only alter its own sample slot');
 console.log('PASS: scoped live previews and locked unavailable learning worlds.');
 
-const catalog=h.slice(h.indexOf('<div class="item-grid drop-item-grid">'),h.indexOf('class="item-grid drop-item-grid inventory-item-grid"'));
+const catalog=h.slice(h.indexOf('<div class="item-grid drop-item-grid"'),h.indexOf('class="item-grid drop-item-grid inventory-item-grid"'));
 const inventory=h.slice(h.indexOf('class="item-grid drop-item-grid inventory-item-grid"'),h.indexOf('class="empty-tests inventory-empty"'));
 assert(catalog.includes('class="item-title-row"'),'Shop badges must be adjacent to product title');
 assert(inventory.includes('class="item-title-row"'),'Inventory equipped badge must be adjacent to product title');
@@ -101,8 +101,9 @@ for(const banner of ['gold','warning','galaxy','molecule','flow','curve','cloud'
  const scene=({pink_paradise:'pink',parallel_pulse:'parallel'})[banner]||banner;
  assert(h.includes('scene-'+scene),banner+' needs actual thematic scenery');
 }
-assert(h.includes('<div class="drop-price"><span>{{item.drop===\'global\'?'),'Shop shows purchase prices for Essentials AND test items');
-assert(h.includes('<p class="preview-cost" *ngIf="!owns(item)">'),'TT prices must show for every unowned item in live preview');
+assert(!catalog.includes('class="drop-price"'),'Only the buy button shows a price once an item is unlocked');
+assert(!preview.includes('class="preview-cost"'),'Live preview must not show a duplicate or locked price');
+assert(t.includes("return '◉ '+item.cost+' TT kaufen'"),'Unlocked shop items retain the purchase price in their button');
 const weber=newShop.split('\n').find(x=>x.includes("id:'dsai_title_weber'"));
 const fischer=newShop.split('\n').find(x=>x.includes("id:'title_chaos'"));
 const removedCosmetics=['chem_radical','title','chem_reactor','ocean','avatar_atom','avatar_dragon'];
