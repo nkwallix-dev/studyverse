@@ -55,6 +55,11 @@ assert(shopCss.includes('COSMETIC CATEGORY SIGNATURES')&&css.includes('.profile-
  'Other site UI remains unaffected');
 assert(angular.includes('publishFriendCard(')&&angular.includes('this.cloud.publishFriendProfile('),
  'Existing account cards and user cosmetics must sync from the app');
+const feedPath=angular.slice(angular.indexOf('async feedKenny():'),angular.indexOf('private settleKennyIfExpired()'));
+assert(feedPath.includes('void this.publishFriendCard();')&&feedPath.indexOf('void this.publishFriendCard();')>feedPath.indexOf('this.cloudStatus!=='),
+ 'A confirmed Kenny feed must publish the updated Dino-Verse level to the player card');
+assert(html.includes('[class.friends-mode]="view===\'friends\'"')&&shopCss.includes('.universe.friends-mode .friends-list{min-height:0;flex:1;overflow-y:auto;'),
+ 'Friends heading stays fixed and only its player list scrolls');
 const registerPath=angular.slice(angular.indexOf('async submitCloudAccount(){'),
  angular.indexOf('private clearDeviceProgress(){'));
 const afterHydration=registerPath.indexOf("this.cloudHydrating=false;this.cloudBusy=false;this.cloudStage='';");

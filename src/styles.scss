@@ -1091,7 +1091,7 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .kenny-stage-label{top:11px;left:12px;font-size:8px}.kenny-stage-name{left:12px;bottom:12px}.kenny-stage-name strong{font-size:25px}.kenny-stage-name span{font-size:7px}.kenny-level-medal{right:9px;bottom:9px;padding:4px 8px}.kenny-level-medal strong{font-size:22px}
  .kenny-sprite{height:min(72%,330px);max-width:70%}.kenny-skin-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-@media(max-height:650px){.universe.kenny-mode .topbar{min-height:49px;padding-top:5px;padding-bottom:5px}.universe.kenny-mode .shop-view-tabs button{min-height:30px}.kenny-controls{padding:7px 10px}.kenny-hint{font-size:9px;margin-top:5px}.kenny-stage-label{top:7px}}
+@media(max-height:650px){.universe.kenny-mode .topbar,.universe.shop-mode .topbar{min-height:49px;padding-top:5px;padding-bottom:5px}.universe.kenny-mode .shop-view-tabs button,.universe.shop-mode .shop-view-tabs button{min-height:30px}.kenny-controls{padding:7px 10px}.kenny-hint{font-size:9px;margin-top:5px}.kenny-stage-label{top:7px}}
 
 /* All shop destinations share Kenny's fixed viewport. Only item collections scroll. */
 .universe.shop-mode.shop-mode{height:100dvh;min-height:0;overflow:hidden}
@@ -1179,3 +1179,47 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .universe.shop-mode .earning-tile button{padding:5px;font-size:10px}
 }
 @media(max-width:700px) and (max-height:660px){.universe.shop-mode .coin-station-head p,.universe.shop-mode .earning-tile p{display:none}.universe.shop-mode .shop-category-chips button{padding:3px 7px;font-size:10px}.universe.shop-mode .inventory-summary{padding:6px 9px}.universe.shop-mode .inventory-filter-bar select,.universe.shop-mode .inventory-filter-bar input{min-height:32px;padding:4px 6px}}
+
+/* Keep the friends heading visible while the player cards scroll underneath. */
+.universe.friends-mode{height:100dvh;min-height:0;overflow:hidden}
+.universe.friends-mode .workspace{height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0}
+.universe.friends-mode main{width:100%;min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden;padding-bottom:12px}
+.universe.friends-mode footer{display:none}
+.universe.friends-mode .friends-page{width:100%;min-height:0;flex:1;display:flex;flex-direction:column}
+.universe.friends-mode .friends-page>.eyebrow,.universe.friends-mode .friends-page>.page-title{flex:0 0 auto}
+.universe.friends-mode .friends-list{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;align-content:start;padding:2px 6px 12px 2px}
+@media(max-width:700px){.universe.friends-mode .workspace{height:calc(100dvh - 68px)}.universe.friends-mode main{padding:15px 12px 7px}.universe.friends-mode .friends-page>.page-title{font-size:clamp(29px,8vw,43px);margin:4px 0 12px}}
+
+/* The earning cards use their available space for readable information. */
+@media(min-width:701px){
+ .universe.shop-mode .earning-tile{padding:clamp(16px,2.1vw,28px)}
+ .universe.shop-mode .earn-icon{font-size:clamp(29px,2.2vw,43px)}
+ .universe.shop-mode .earn-type{font-size:clamp(11px,.9vw,14px);line-height:1.4;margin-top:12px}
+ .universe.shop-mode .earning-tile strong{font-size:clamp(24px,2vw,34px);line-height:1.25;margin:10px 0}
+ .universe.shop-mode .earning-tile strong>span{font-size:clamp(15px,1.2vw,19px)}
+ .universe.shop-mode .earning-tile p{font-size:clamp(13px,1.05vw,17px);line-height:1.55;margin:8px 0 20px}
+ .universe.shop-mode .earning-tile button{font-size:clamp(12px,1vw,16px);padding:12px}
+}
+
+/* Three columns, two complete rows at desktop height; the collection alone scrolls. */
+@media(min-width:1100px){
+ .universe.shop-mode .drop-hero{height:94px;min-height:0;padding:9px 18px}
+ .universe.shop-mode .drop-hero-copy{display:flex;align-items:center;gap:18px;min-width:0}
+ .universe.shop-mode .drop-hero-copy h2{margin:0;white-space:nowrap}
+ .universe.shop-mode .drop-hero-copy p{max-width:none;margin:0}
+ .universe.shop-mode .drop-item-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .universe.shop-mode .drop-item{padding:8px 11px}
+ .universe.shop-mode .drop-item .item-art{height:76px;min-height:0}
+ .universe.shop-mode .drop-item .big-item-icon{font-size:42px}
+ .universe.shop-mode .drop-item>.item-meta{margin-top:5px}
+ .universe.shop-mode .drop-item h3{margin:5px 0 3px;font-size:15px}
+ .universe.shop-mode .drop-item>p{min-height:0;margin:0 0 5px;line-height:1.35;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+ .universe.shop-mode .drop-item .item-unlock{margin:5px 0;padding:6px 8px}
+ .universe.shop-mode .drop-item .drop-price{padding:6px 3px}
+ .universe.shop-mode .drop-item .drop-actions button{padding:7px 9px}
+}
+@media(min-width:1100px) and (max-height:850px){.universe.shop-mode .drop-hero{height:72px}.universe.shop-mode .drop-hero-copy p{display:none}.universe.shop-mode .drop-item .item-art{height:62px}}
+
+/* Match Kenny's heading and tabs to the other three shop destinations. */
+.universe.kenny-mode main{padding-top:14px;padding-bottom:10px}
+.universe.kenny-mode .shop-view-tabs{margin-bottom:9px}

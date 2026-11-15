@@ -842,6 +842,8 @@ export class App implements OnInit,OnDestroy {
        this.kennyFeeding=false;this.kennyVisibleFeeds=null;this.kennyBusy=false;this.changeDetector.markForCheck();return;
      }
    }else await feedingAnimation;
+   // The private save confirms the feed first; only then publish its level to the player card.
+   void this.publishFriendCard();
    this.kennyFeeding=false;this.kennyVisibleFeeds=null;
    this.kennyReveals.push({kind:'drop',drop:prize,line});
    if(dinoLevel(next.feeds)>priorLevel)this.kennyReveals.push({kind:'level',level:dinoLevel(next.feeds),

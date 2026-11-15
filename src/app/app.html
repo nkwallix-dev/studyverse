@@ -1,4 +1,4 @@
-<div class="universe" [class.kenny-mode]="view==='shop' && shopTab==='kenny'" [class.shop-mode]="view==='shop' && shopTab!=='kenny'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
+<div class="universe" [class.kenny-mode]="view==='shop' && shopTab==='kenny'" [class.shop-mode]="view==='shop' && shopTab!=='kenny'" [class.friends-mode]="view==='friends'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
   <div class="ambient a"></div><div class="ambient b"></div>
   <aside class="sidebar">
     <button class="brand" (click)="go('dashboard')">

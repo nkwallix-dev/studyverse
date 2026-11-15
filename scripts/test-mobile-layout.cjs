@@ -694,6 +694,16 @@ async function main(){
   const sidebar=await desktopPage.locator('.sidebar').evaluate(el=>({height:el.clientHeight,content:el.scrollHeight}));
   assert(sidebar.content<=sidebar.height+2,'Desktop sidebar should show every destination without scrolling: '+JSON.stringify(sidebar));
   await desktopPage.screenshot({path:path.join(screenshots,'studyverse-profil-desktop.png'),fullPage:true});
+  await desktopPage.locator('.navigation button[aria-label="Item-Shop"]').click();
+  await desktopPage.locator('.drop-item').first().waitFor();
+  const shopSix=await desktopPage.evaluate(()=>{
+   const cards=[...document.querySelectorAll('.drop-item')].slice(0,6).map(el=>el.getBoundingClientRect());
+   const grid=document.querySelector('.item-grid').getBoundingClientRect();
+   return {count:cards.length,columns:new Set(cards.map(r=>Math.round(r.left))).size,
+    sixthBottom:cards[5]?.bottom,gridBottom:grid.bottom};
+  });
+  assert(shopSix.count===6&&shopSix.columns===3&&shopSix.sixthBottom<=shopSix.gridBottom+2,
+   'Desktop shop should show two complete rows of three items: '+JSON.stringify(shopSix));
   await desktop.close();
  }finally{
   await browser.close();

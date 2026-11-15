@@ -107,7 +107,7 @@ export function cloudError(error:unknown):string{
   if(/INVALID_LOGIN_CREDENTIALS|INVALID_PASSWORD|EMAIL_NOT_FOUND|INVALID_EMAIL/.test(raw))return 'Benutzername oder PIN stimmt nicht.';
   if(/WEAK_PASSWORD|PASSWORD_DOES_NOT_MEET_REQUIREMENTS/.test(raw))return 'Die PIN erfüllt die Passwortregeln des Projekts nicht.';
   if(/TOO_MANY_ATTEMPTS|TOO_MANY_REQUESTS/.test(raw))return 'Zu viele Versuche. Versuch es später nochmal.';
-  if(/OPERATION_NOT_ALLOWED/.test(raw))return 'Firebase: E-Mail/Passwort-Anmeldung muss noch aktiviert werden.';
+  if(/OPERATION_NOT_ALLOWED/.test(raw))return 'Firebase Authentication → Anmeldemethode → E-Mail/Passwort aktivieren. Danach erneut versuchen.';
   if(/PERMISSION_DENIED|Missing or insufficient permissions|403/.test(raw))return 'Firestore-Zugriff blockiert. Bitte die Besitzer-Regeln veröffentlichen.';
   if(/CLOUD_TIMEOUT|AbortError/i.test(raw))return 'Firebase antwortet nicht rechtzeitig. Bitte Internet und Browser-Erweiterungen prüfen. Möglicherweise wurde der Account bereits erstellt.';
   if(/Failed to fetch|NetworkError|network/i.test(raw))return 'Keine Verbindung zur Cloud. Bitte Internet prüfen.';
