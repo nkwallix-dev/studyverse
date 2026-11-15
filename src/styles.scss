@@ -1295,13 +1295,15 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @media(max-width:1000px){.dino-designer-grid{gap:7px}.dino-designer-skin-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.dino-designer-grid{grid-template-columns:minmax(0,1fr)}.dino-designer-live{height:320px}.dino-designer-locked{min-height:165px}.dino-mystery{width:110px}.dino-designer-skin-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-width:430px){.dino-designer-skin-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-/* Zebra uses a white/black stripe overlay masked to the existing animation sprites. */
-.kenny-sprite[data-skin="zebra"],.kenny-mini-sprite[data-skin="zebra"]{filter:grayscale(1) brightness(1.85) contrast(1.3)}
-.kenny-sprite[data-skin="zebra"]::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(110deg,#fff 0 15px,#15141b 15px 22px,#fff 22px 37px,#111 37px 44px);mask:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;-webkit-mask:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;animation:kenny-zebra-mask 6.4s steps(1) infinite;opacity:.85;pointer-events:none}
-@keyframes kenny-zebra-mask{0%,26%{mask-position:0% 0;-webkit-mask-position:0% 0}27%,48%{mask-position:33.333% 0;-webkit-mask-position:33.333% 0}49%,67%{mask-position:66.667% 0;-webkit-mask-position:66.667% 0}68%,100%{mask-position:100% 0;-webkit-mask-position:100% 0}}
-.kenny-stage.kenny-feeding .kenny-sprite[data-skin="zebra"]::after{mask-image:url('assets/kenny/kenny-feed-strip.png');-webkit-mask-image:url('assets/kenny/kenny-feed-strip.png');animation:kenny-zebra-feed-mask 3.2s steps(1) both}
-@keyframes kenny-zebra-feed-mask{0%,37%{mask-position:0% 0;-webkit-mask-position:0% 0}38%,55%{mask-position:33.333% 0;-webkit-mask-position:33.333% 0}56%,80%{mask-position:66.667% 0;-webkit-mask-position:66.667% 0}81%,100%{mask-position:100% 0;-webkit-mask-position:100% 0}}
-.kenny-avatar-image[data-skin="zebra"],.dino-designer-skin-grid img[data-skin="zebra"],.kenny-skin-grid img[data-skin="zebra"],.kenny-reveal-art img[data-skin="zebra"]{filter:grayscale(1) brightness(2) contrast(1.4)}
+/* Zebra must share the exact grayscale artwork treatment used by its
+   correct profile/avatar image. The original frames already have dark
+   dinosaur stripes: do NOT paint an opaque extra silhouette over them. */
+.kenny-sprite[data-skin="zebra"],.kenny-mini-sprite[data-skin="zebra"],
+.kenny-avatar-image[data-skin="zebra"],.dino-designer-skin-grid img[data-skin="zebra"],
+.kenny-skin-grid img[data-skin="zebra"],.kenny-reveal-art img[data-skin="zebra"]{
+ filter:grayscale(1) brightness(2) contrast(1.4) drop-shadow(0 8px 12px #10122366)
+}
+.kenny-sprite[data-skin="zebra"]::after{content:none!important}
 
 
 .inventory-dino-designer-btn{flex:0 0 auto;min-width:205px;border:1px solid #d18dec;border-radius:14px;background:linear-gradient(120deg,#59316f,#35204d);color:white;padding:13px 18px;font-weight:900;cursor:pointer}
@@ -1601,14 +1603,10 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 }
 .dino-designer-skin-grid button:disabled :is(strong,small),
 .kenny-skin-grid button:disabled :is(strong,small){opacity:.65}
-.kenny-skin-preview[data-skin="zebra"]::after{
-  content:"";position:absolute;inset:0;pointer-events:none;opacity:.89;
-  background:repeating-linear-gradient(112deg,#fff 0 9px,#16141c 9px 13px,#fff 13px 23px,#111 23px 28px);
-  -webkit-mask-image:var(--kenny-avatar-mask);mask-image:var(--kenny-avatar-mask);
-  -webkit-mask-size:contain;mask-size:contain;
-  -webkit-mask-position:center;mask-position:center;
-  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat
-}
+/* Existing avatar artwork contains the Zebra stripes and face details;
+   the separate striped mask hid the eyes and made an unrecognizable silhouette. */
+.kenny-skin-preview[data-skin="zebra"]::after{content:none!important}
+
 @media(max-width:700px){
   .universe.designer-mode .dino-designer-skin-grid .kenny-skin-preview{width:27px;height:27px}
 }
@@ -1710,19 +1708,6 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 }
 
 
-/* TEMPORARY zebra unlock: one-time action reserved for collectors owning all
-   other Kenny-exclusive drops. The actual reward persists in the profile. */
-.universe.kenny-mode .companion-kenny-back .kenny-test-unlock{
-  border:1px solid #f5d1ff;
-  background:linear-gradient(120deg,#58416d,#362b49);
-  color:#fff3ff;min-width:66px;font-size:12px;font-weight:950
-}
-.universe.kenny-mode .companion-kenny-back .kenny-test-unlock:hover:not(:disabled){
-  border-color:#fff;box-shadow:0 0 0 2px #f5d1ff30
-}
-.universe.kenny-mode .companion-kenny-back .kenny-test-unlock:disabled{
-  opacity:.55;cursor:wait
-}
 /* All possible loot: use the room previously occupied by generic paragraphs.
    Fit five reward sections inside the modal at ordinary viewport sizes.
    If a fresh account has dozens of unowned rewards, preserve accessibility
@@ -1848,4 +1833,94 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @media(max-width:350px){
  .universe .sidebar .navigation{grid-template-columns:repeat(7,minmax(0,1fr))}
  .universe .sidebar .navigation button span{font-size:18px}
+}
+
+
+/* Unified page chrome — the same 80px top bar, left padding and heading scale
+   on Dashboard, Lernwelten, Achievements, Shop, Inventar and Dino Designer. */
+.universe .workspace>.topbar{
+ box-sizing:border-box;width:100%;height:80px;min-height:80px;max-height:80px;
+ flex:0 0 80px;padding:12px clamp(24px,3.1vw,52px);
+}
+.universe main>.page-title,
+.universe .companions-page>.page-title,
+.universe .friends-page>.page-title,
+.universe .profile-view>.page-title,
+.universe .dino-designer-heading h2{
+ font-size:clamp(32px,3.3vw,48px);line-height:1.07;letter-spacing:-1.65px;
+}
+.universe.shop-mode main>.page-title,
+.universe.kenny-mode main>.page-title{font-size:clamp(32px,3.3vw,48px);margin:4px 0 5px}
+.universe.shop-mode main>.eyebrow,
+.universe.kenny-mode main>.eyebrow{font-size:10px}
+.universe.shop-mode .shop-view-tabs,
+.universe.designer-mode .shop-view-tabs{
+ order:initial;margin:0 0 12px;flex:0 0 auto;
+ width:min(100%,810px);max-width:100%;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.universe.designer-mode .dino-designer-heading h2{margin:4px 0 5px}
+.universe.designer-mode .dino-designer-heading .eyebrow{font-size:10px}
+.universe.designer-mode .dino-designer-page{height:auto;flex:1 1 auto;min-height:0}
+.universe.designer-mode .dino-designer-heading{margin:0 0 3px;gap:8px}
+/* A paintbrush is the companion's profile customization shortcut. */
+.companion-stage{position:relative}
+.companion-dino-brush{
+ position:absolute;z-index:12;right:15px;bottom:16px;
+ width:48px;height:48px;display:grid;place-items:center;
+ border-radius:14px;border:1px solid #eed5ffbb;
+ background:linear-gradient(140deg,#3a2b50ed,#242035ed);
+ color:#fff;font-size:25px;cursor:pointer;
+ box-shadow:0 7px 17px #100e21a8;transition:transform .16s,filter .16s;
+}
+.companion-dino-brush:hover{transform:translateY(-2px);filter:brightness(1.15)}
+.companion-dino-brush:focus-visible{outline:2px solid #d6acfc;outline-offset:3px}
+/* Use the space in Kenny's card with genuinely larger controls and text. */
+.universe.companions-mode .companion-card-body{
+ padding:clamp(14px,1.2vw,22px);gap:clamp(8px,1.05vh,15px);
+ justify-content:space-between
+}
+.universe.companions-mode .companion-card h2{font-size:clamp(22px,1.9vw,31px)}
+.universe.companions-mode .companion-card-body>p:not(.companion-retain-hint){
+ font-size:clamp(12px,1vw,16px);line-height:1.48
+}
+.universe.companions-mode .companion-status{font-size:clamp(11px,.85vw,14px)}
+.universe.companions-mode .companion-daily span{
+ font-size:clamp(11px,.85vw,14px);padding:clamp(9px,1.1vh,15px);
+}
+.universe.companions-mode .companion-daily b{font-size:clamp(19px,1.55vw,25px)}
+.universe.companions-mode .companion-enter{
+ min-height:50px;font-size:clamp(13px,1.05vw,17px);padding:10px
+}
+.universe.companions-mode .companion-actions{grid-template-columns:minmax(0,1fr)}
+.universe.companions-mode .companion-actions button{
+ min-height:43px;font-size:clamp(13px,1vw,16px);padding:9px
+}
+.universe.companions-mode .companion-card-body .companion-retain-hint{
+ font-size:clamp(11px,.91vw,15px);line-height:1.4
+}
+@media(max-width:700px){
+ .universe .workspace>.topbar{
+  height:60px;min-height:60px;max-height:60px;flex-basis:60px;
+  padding:8px 13px
+ }
+ .universe main>.page-title,.universe .companions-page>.page-title,
+ .universe .friends-page>.page-title,.universe .profile-view>.page-title,
+ .universe .dino-designer-heading h2,
+ .universe.shop-mode main>.page-title,.universe.kenny-mode main>.page-title{
+  font-size:clamp(24px,6.5vw,31px);letter-spacing:-1px
+ }
+ .universe.shop-mode .shop-view-tabs,.universe.designer-mode .shop-view-tabs{
+  margin:0 0 7px;gap:3px;width:100%
+ }
+ .universe.companions-mode .companion-card-body{padding:7px 9px;gap:4px}
+ .universe.companions-mode .companion-card h2{font-size:clamp(15px,4vw,18px)}
+ .universe.companions-mode .companion-card-body>p:not(.companion-retain-hint){display:none}
+ .universe.companions-mode .companion-status{font-size:9px}
+ .universe.companions-mode .companion-daily span{font-size:9px;padding:4px 6px}
+ .universe.companions-mode .companion-daily b{font-size:14px}
+ .universe.companions-mode .companion-enter{min-height:34px;font-size:11px;padding:5px}
+ .universe.companions-mode .companion-actions button{min-height:29px;font-size:10px;padding:4px}
+ .universe.companions-mode .companion-card-body .companion-retain-hint{font-size:9px}
+ .companion-dino-brush{width:35px;height:35px;font-size:19px;right:8px;bottom:7px}
 }

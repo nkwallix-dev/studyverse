@@ -152,12 +152,23 @@ async function main(){
        companionLayout.visibleHeight>95&&companionLayout.cardWidths.every(x=>x>90)&&
        companionLayout.cardBottom>=companionLayout.viewport-(width<=700?108:48),
        'Begleiter cards, actions and footer must fit without scrolling at '+width+': '+JSON.stringify(companionLayout));
+     const brush=page.locator('.companion-dino-brush');
+     assert(await brush.isVisible(),'Kennys banner needs the visible brush shortcut to Dino Designer');
+     assert.equal(await page.locator('.companion-actions button').count(),1,
+       'The second designer action under Kenny must be replaced by the brush on his banner');
      if(width===390)await page.screenshot({path:path.join(screenshots,'begleiter-390.png'),fullPage:true});
     }
     if(label==='Inventar'){
      assert.equal(await page.locator('.inventory-summary').count(),0,
       'Remove the cosmetics summary');
      assert.equal(await page.locator('.shop-view-tabs button').count(),3);
+     assert.equal(await page.locator('.inventory-filter-bar select').nth(1).locator('option').filter({hasText:'Dino-Skins'}).count(),0,
+       'Inventory categories must not include Dino-Skins');
+     const tabBounds=await page.evaluate(()=>({
+       tab:document.querySelector('.shop-view-tabs').getBoundingClientRect().top,
+       heading:document.querySelector('main>.page-title').getBoundingClientRect().top
+     }));
+     assert(tabBounds.tab<tabBounds.heading,'Inventory tabs must precede the title');
      const filterTop=await page.locator('.inventory-filter-bar.shop-filter-start').evaluate(el=>el.getBoundingClientRect().top);
      assert(shopFilterTop!==null&&Math.abs(shopFilterTop-filterTop)<10,
        'Catalog and Inventory filters must start at the same height: '+JSON.stringify({shopFilterTop,filterTop}));
@@ -193,19 +204,21 @@ async function main(){
      await page.locator('.dino-designer-grid').waitFor({state:'visible'});
      assert.equal(await page.locator('.shop-view-tabs button').count(),3);
      assert.equal(await page.locator('.shop-view-tabs button').filter({hasText:'Designe deinen Dino'}).getAttribute('aria-selected'),'true');
+     assert((await page.locator('.dino-designer-skins p').innerText()).includes('freischaltbaren'),
+       'Before the season ends and before all skins are owned, offer all unlockable colors');
      const colors=await page.locator('.dino-designer-skin-grid .kenny-skin-preview').evaluateAll(nodes=>nodes.map(node=>({
       skin:node.dataset.skin,
       imageFilter:getComputedStyle(node.querySelector('img')).filter,
       imageLoaded:node.querySelector('img').naturalWidth>0,
       imageOpacity:Number(getComputedStyle(node.querySelector('img')).opacity),
-      stripe:getComputedStyle(node,'::after').webkitMaskImage
+      overlay:getComputedStyle(node,'::after').content
      })));
      assert.equal(colors.length,5,'Every Dino Designer skin needs its own preview');
      const expected={blue:'none',pink:'hue-rotate(105deg)',green:'hue-rotate(225deg)',red:'hue-rotate(125deg)',zebra:'grayscale'};
      assert(colors.every(c=>c.imageLoaded&&c.imageFilter.includes(expected[c.skin])),
       'Pink, green, red and zebra previews must not all show the default blue dinosaur: '+JSON.stringify(colors));
-     assert(colors.find(c=>c.skin==='zebra').stripe.includes('kenny-avatar.png'),
-      'Zebra must show real black/white stripes masked to Kenny, not only grayscale');
+     assert(colors.find(c=>c.skin==='zebra').overlay==='none',
+      'Zebra must preserve the detailed original face and natural sprite stripes, without an opaque silhouette');
      assert(colors.every(c=>c.imageOpacity>.9),
       'Locked colors should remain fully visible, even if unavailable to equip');
      const designer=await page.evaluate(()=>{
@@ -228,6 +241,13 @@ async function main(){
       'Remove the wallet banner from the Shop');
      assert.equal(await page.locator('.shop-view-tabs button').count(),3,
       'Shop, Inventar and Designe deinen Dino require three header tabs');
+     const tabBounds=await page.evaluate(()=>({
+       tab:document.querySelector('.shop-view-tabs').getBoundingClientRect().top,
+       heading:document.querySelector('main>.page-title').getBoundingClientRect().top
+     }));
+     assert(tabBounds.tab<tabBounds.heading,'Shared shop tabs must precede the title: '+JSON.stringify(tabBounds));
+     assert(![...document.querySelectorAll('.shop-category-chips button')].some(b=>b.textContent.includes('Dino-Skins')),
+       'The ordinary item shop may not expose a Dino-Skins category');
      shopFilterTop=await page.locator('.shop-filter-start').first().evaluate(el=>el.getBoundingClientRect().top);
      const select=page.locator('#shop-drop-select');
      assert(await select.isVisible(),'Drop selector should be beside Alle Items at '+width+'px');
@@ -446,7 +466,7 @@ async function main(){
    await poolPage.locator('.kenny-page').waitFor({state:'visible'});
    await poolPage.waitForFunction(()=>document.querySelector('.universe')?.classList.contains('kenny-mode'));
    assert.equal(await poolPage.locator('.kenny-test-unlock').count(),0,
-    'The temporary free drop is not available without an authenticated cloud account');
+    'No temporary Zebra Test giveaway button may remain');
    const poolButtonFit=await poolPage.evaluate(()=>{
     const rect=selector=>{const box=document.querySelector(selector)?.getBoundingClientRect();return box?{top:box.top,bottom:box.bottom,height:box.height}:null};
     return {button:rect('.kenny-pool-button'),loot:rect('.kenny-loot'),
@@ -561,8 +581,8 @@ async function main(){
   await colorPage.locator('.shop-view-tabs button').filter({hasText:'Inventar'}).click();
   await colorPage.locator('.inventory-search-label input').fill('Kenny Pink');
   await colorPage.locator('.inventory-item').first().waitFor({state:'visible'});
-  assert.equal(await colorPage.locator('.inventory-item').count(),2,
-   'The skin and its avatar are separate inventory cosmetics');
+  assert.equal(await colorPage.locator('.inventory-item').count(),1,
+   'Only the matching pink avatar appears in Inventar; the Dino skin belongs to the Dino Designer');
   assert((await colorPage.locator('.inventory-item').allTextContents()).every(text=>text.includes('Kenny Pink')));
   await colorContext.close();
   console.log('PASS: pink Kenny skin grants its own avatar and equips across the profile.');

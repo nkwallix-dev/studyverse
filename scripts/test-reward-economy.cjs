@@ -33,8 +33,8 @@ assert(!fs.existsSync('public/maths/hw-02/index.html'));
 const legacy=fs.readFileSync('src/app/legacy-owned-items.ts','utf8');
 assert(legacy.includes("id:'maths_avatar_pi'")&&legacy.includes("id:'maths_title_integral'"),
  'Existing MathsVerse purchases remain available ONLY to existing inventory owners');
-assert(host.includes('...LEGACY_OWNED_ITEMS].filter(item=>this.owns(item))'),
- 'Legacy Math cosmetics must remain accessible in the inventory, never in the store');
+assert(host.includes("...LEGACY_OWNED_ITEMS].filter(item=>item.group!=='dinoSkin'&&this.owns(item))"),
+ 'Legacy Math cosmetics must remain accessible in the inventory while Dino skins live only in the designer');
 assert(host.includes('MathsVerse · Archiv'),'Archived MathsVerse inventory category needs a readable name');
 
 assert(host.includes("id:'mat',short:'AM'"),'MathsVerse tile remains visible while locked');
