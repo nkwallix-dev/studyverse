@@ -863,7 +863,7 @@ export class App implements OnInit,OnDestroy {
      this.profile.kennyWonItems={...(before.kennyWonItems||{}),
        [KENNY_ZEBRA_SKIN.id]:true,...(avatar?{[avatar.id]:true}:{})};
      this.profile.activity=[{
-       label:'🦖 Kenny · Zebra-Skin gezogen (Test)',
+       label:'🦖 Kenny gefüttert · Kenny Zebra',
        date:new Date().toISOString(),amount:0
      },...before.activity].slice(0,30);
      write(KEY,JSON.stringify(this.profile));
@@ -874,10 +874,10 @@ export class App implements OnInit,OnDestroy {
      // Same two-stage reveal as a real rare drop: avatar first, skin second.
      if(avatar&&!before.inventory.includes(avatar.id))
        this.kennyReveals.push({kind:'drop',
-         drop:{tier:'zebra',tokens:0,item:avatar},
+         drop:{tier:'event',tokens:0,item:avatar},
          line:'Neuer Kenny-Avatar freigeschaltet!'});
      this.kennyReveals.push({kind:'drop',
-       drop:{tier:'zebra',tokens:0,item:KENNY_ZEBRA_SKIN},
+       drop:{tier:'event',tokens:0,item:KENNY_ZEBRA_SKIN},
        line:'Neuer Skin für Kenny freigeschaltet! Passe deinen Dino im Designer individuell an.'});
    }catch(error){
      this.profile=before;
