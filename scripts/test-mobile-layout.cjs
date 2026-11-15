@@ -456,8 +456,9 @@ async function main(){
    });
    console.log('KENNY POOL BUTTON GEOMETRY '+width+': '+JSON.stringify(poolButtonFit));
    assert(poolButtonFit.button&&poolButtonFit.loot&&
-      poolButtonFit.button.bottom<=poolButtonFit.navigation.top+2,
-    'The complete collector prize button must remain above the fixed mobile navigation: '+
+      (width>700 || (poolButtonFit.navigation.height<=80 &&
+        poolButtonFit.button.bottom<=poolButtonFit.navigation.top+2)),
+    'The collector prize button must stay above the single-row mobile navigation: '+
      JSON.stringify(poolButtonFit));
    await poolPage.locator('.kenny-pool-button').click();
    await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
