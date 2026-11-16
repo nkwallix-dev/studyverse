@@ -1,0 +1,33 @@
+<section class="dino-designer-page" aria-label="Dino-Designer">
+            <header class="dino-designer-heading"><div>
+              <span class="eyebrow">🎨 DINO-VERSE · DEINE BEGLEITER</span>
+              <h1 class="page-title">Designe deinen <span>Dino.</span></h1>
+              <p>Live animiert · Wähle einen Skin und gestalte deinen Dino.</p>
+            </div><div class="dino-designer-heading-actions">
+              <button type="button" class="btn secondary" (click)="feedRequested.emit()">🥩 Den aktuellen Season-Dino füttern</button>
+              <button type="button" class="btn secondary" (click)="companionsRequested.emit()">Meine Begleiter</button>
+            </div></header>
+            <div class="dino-designer-grid">
+              <article class="dino-designer-card">
+                <div class="kenny-stage dino-designer-live">
+                  <div class="kenny-sun"></div><div class="kenny-mountain left"></div><div class="kenny-mountain right"></div>
+                  <div class="kenny-volcano"><i></i></div><div class="kenny-ground"></div>
+                  <span class="kenny-stage-label">✦ DEIN DINO</span>
+                  <div class="kenny-sprite" role="img" aria-label="Kenny mit dem gewählten Skin" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyLevel-1)*0.07"></div>
+                  <div class="kenny-stage-name"><strong>KENNY</strong><span>Level {{kennyLevel}}</span></div>
+                </div>
+                <div class="dino-designer-skins"><strong>KENNYS SKINS</strong><p>{{kennyAllSkinsOwned||!kennyActive?'Alle freigeschalteten Farben':'Alle freischaltbaren Farben'}}</p>
+                  <div class="dino-designer-skin-grid">
+                    <button type="button" *ngFor="let skin of kennySkins" [disabled]="!skin.owned" [class.selected]="kennySkin===skin.id" (click)="skinSelected.emit(skin.id)">
+                      <span class="kenny-skin-preview" [attr.data-skin]="skin.id" ><img [src]="kennyPortrait(skin.id)" [alt]="skin.name"></span>
+                      <strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Aktiv':'Ausrüsten'):'🔒 Gesperrt'}}</small>
+                    </button>
+                  </div>
+                </div>
+              </article>
+              <article *ngFor="let slot of [2,3]" class="dino-designer-card dino-designer-locked">
+                <div class="dino-mystery"><img src="kenny/kenny-avatar.png" alt="" aria-hidden="true"><b>?</b></div>
+                <h3>Unbekannter Dino</h3><p>Hier könnte bald ein weiterer Begleiter leben.</p><small>🔒 COMING SOON</small>
+              </article>
+            </div>
+          </section>
