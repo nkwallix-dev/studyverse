@@ -1,25 +1,63 @@
-  <div class="veil kenny-dialog-veil" role="dialog" aria-modal="true" aria-label="Kennys mögliche Gewinne" (click)="closeRequested.emit()">
-    <div class="modal kenny-dialog kenny-pool-dialog" (click)="$event.stopPropagation()">
-      <button type="button" class="kenny-dialog-close" (click)="closeRequested.emit()" aria-label="Schließen">✕</button>
-      <span class="eyebrow">✦ KENNY · LEVEL {{kennyLevel}}</span><h2>Alle <span>Gewinne.</span></h2>
+<div
+  class="veil kenny-dialog-veil"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Kennys mögliche Gewinne"
+  (click)="closeRequested.emit()"
+>
+  <div class="modal kenny-dialog kenny-pool-dialog" (click)="$event.stopPropagation()">
+    <button
+      type="button"
+      class="kenny-dialog-close"
+      (click)="closeRequested.emit()"
+      aria-label="Schließen"
+    >
+      ✕
+    </button>
+    <span class="eyebrow">✦ KENNY · LEVEL {{ kennyLevel }}</span>
+    <h2>Alle <span>Gewinne.</span></h2>
 
-      <div class="kenny-pool-scroll">
-        <div class="kenny-pool-section"><strong><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/> TOKEN-DROPS</strong><span>100 TT · {{kennyOdds.token100}} % &nbsp; 500 TT · {{kennyOdds.token500}} % &nbsp; 1.000 TT · {{kennyOdds.token1000}} %</span></div>
-        <div class="kenny-pool-section" *ngFor="let tier of kennyPoolPreview">
-          <strong>{{tier.name}} · {{tier.chance | number:'1.0-1'}} %</strong>
-          <div class="kenny-pool-items">
-            <ng-container *ngFor="let item of tier.items">
-              <small class="kenny-pool-complete kenny-pool-complete-regular" *ngIf="item.id==='kenny_skin_zebra' && kennyRegularExclusivesComplete">Alles aus dieser Kategorie eingesammelt.</small>
-              <div class="kenny-pool-zebra-divider" *ngIf="item.id==='kenny_skin_zebra'">Exklusiv ab Level 4 mit 0,5%</div>
-              <span [class.kenny-pool-zebra]="item.id==='kenny_skin_zebra'">
-                <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="token-icon"/> {{item.name}}
-                <small *ngIf="tier.key==='event' && isOwned(item)" class="kenny-pool-owned">✓</small>
-              </span>
-              <small class="kenny-pool-complete kenny-pool-complete-zebra" *ngIf="item.id==='kenny_skin_zebra' && isOwned(item)">Alles aus dieser Kategorie eingesammelt.</small>
-            </ng-container>
-            <small *ngIf="!tier.items.length">Alles aus dieser Kategorie eingesammelt.</small>
-          </div>
+    <div class="kenny-pool-scroll">
+      <div class="kenny-pool-section">
+        <strong>
+          <app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon" />
+          TOKEN-DROPS
+        </strong>
+        <span>
+          100 TT · {{ kennyOdds.token100 }} % &nbsp; 500 TT · {{ kennyOdds.token500 }} % &nbsp;
+          1.000 TT · {{ kennyOdds.token1000 }} %
+        </span>
+      </div>
+      <div class="kenny-pool-section" *ngFor="let tier of kennyPoolPreview">
+        <strong>{{ tier.name }} · {{ tier.chance | number: '1.0-1' }} %</strong>
+        <div class="kenny-pool-items">
+          <ng-container *ngFor="let item of tier.items">
+            <small
+              class="kenny-pool-complete kenny-pool-complete-regular"
+              *ngIf="item.id === 'kenny_skin_zebra' && kennyRegularExclusivesComplete"
+            >
+              Alles aus dieser Kategorie eingesammelt.
+            </small>
+            <div class="kenny-pool-zebra-divider" *ngIf="item.id === 'kenny_skin_zebra'">
+              Exklusiv ab Level 4 mit 0,5%
+            </div>
+            <span [class.kenny-pool-zebra]="item.id === 'kenny_skin_zebra'">
+              <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="token-icon" />
+              {{ item.name }}
+              <small *ngIf="tier.key === 'event' && isOwned(item)" class="kenny-pool-owned">
+                ✓
+              </small>
+            </span>
+            <small
+              class="kenny-pool-complete kenny-pool-complete-zebra"
+              *ngIf="item.id === 'kenny_skin_zebra' && isOwned(item)"
+            >
+              Alles aus dieser Kategorie eingesammelt.
+            </small>
+          </ng-container>
+          <small *ngIf="!tier.items.length">Alles aus dieser Kategorie eingesammelt.</small>
         </div>
       </div>
     </div>
   </div>
+</div>

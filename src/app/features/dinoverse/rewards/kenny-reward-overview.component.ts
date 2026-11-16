@@ -19,5 +19,7 @@ export class KennyRewardOverviewComponent {
   @Input({ required: true }) ownedEventIds: ReadonlyArray<string> = [];
   @Output() readonly prizesRequested = new EventEmitter<void>();
 
-  isOwned(item: ShopItem): boolean { return this.ownedEventIds.includes(item.id); }
+  isOwned(item: ShopItem): boolean {
+    return this.ownedEventIds.includes(item.id);
+  }
 }

@@ -1,14 +1,46 @@
-            <aside class="kenny-loot">
-              <div class="kenny-loot-head"><span>✦ MÖGLICHE GEWINNE</span><small>Chancen für Level {{kennyLevel}}</small></div>
-              <div class="kenny-token-prizes">
-                <div><span><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/></span><strong>100 TT</strong><small>{{kennyOdds.token100}} %</small></div>
-                <div><span><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/></span><strong>500 TT</strong><small>{{kennyOdds.token500}} %</small></div>
-                <div class="jackpot"><span><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/></span><strong>1.000 TT</strong><small>{{kennyOdds.token1000}} %</small></div>
-              </div>
-              <div class="kenny-loot-subhead"><strong>KENNY-EXKLUSIV</strong><span>6 exklusive Drops</span></div>
-              <div class="kenny-exclusives">
-                <div *ngFor="let item of kennyEventItems" [class.collected]="isOwned(item)"><span><app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="avatar-icon"/></span><strong>{{item.name}}</strong><small>{{isOwned(item)?'✓':'🔒'}}</small></div>
-              </div>
-              <p class="kenny-level-reward">🦖 Ab Level 5 schließt sich Kenny deinen Begleitern an.</p>
-              <button type="button" class="kenny-pool-button" (click)="prizesRequested.emit()">Alle möglichen Items ansehen ↗</button>
-            </aside>
+<aside class="kenny-loot">
+  <div class="kenny-loot-head">
+    <span>✦ MÖGLICHE GEWINNE</span>
+    <small>Chancen für Level {{ kennyLevel }}</small>
+  </div>
+  <div class="kenny-token-prizes">
+    <div>
+      <span>
+        <app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon" />
+      </span>
+      <strong>100 TT</strong>
+      <small>{{ kennyOdds.token100 }} %</small>
+    </div>
+    <div>
+      <span>
+        <app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon" />
+      </span>
+      <strong>500 TT</strong>
+      <small>{{ kennyOdds.token500 }} %</small>
+    </div>
+    <div class="jackpot">
+      <span>
+        <app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon" />
+      </span>
+      <strong>1.000 TT</strong>
+      <small>{{ kennyOdds.token1000 }} %</small>
+    </div>
+  </div>
+  <div class="kenny-loot-subhead">
+    <strong>KENNY-EXKLUSIV</strong>
+    <span>6 exklusive Drops</span>
+  </div>
+  <div class="kenny-exclusives">
+    <div *ngFor="let item of kennyEventItems" [class.collected]="isOwned(item)">
+      <span>
+        <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="avatar-icon" />
+      </span>
+      <strong>{{ item.name }}</strong>
+      <small>{{ isOwned(item) ? '✓' : '🔒' }}</small>
+    </div>
+  </div>
+  <p class="kenny-level-reward">🦖 Ab Level 5 schließt sich Kenny deinen Begleitern an.</p>
+  <button type="button" class="kenny-pool-button" (click)="prizesRequested.emit()">
+    Alle möglichen Items ansehen ↗
+  </button>
+</aside>

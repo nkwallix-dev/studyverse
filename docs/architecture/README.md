@@ -68,6 +68,12 @@ keyframes and CSS affecting the shell must remain shared where appropriate.
 
 ## Local verification and release
 
+Use `npm run format` to format TypeScript, Angular templates and SCSS in
+`src/app/features` with the root Prettier configuration. The pull request
+workflow runs `npm run format:check` for that directory. As existing shell
+code moves into features, the check covers the extracted source. Build
+output and standalone assets under `public/` are outside this glob.
+
 Use `npm ci` for a fresh checkout, then `npm test -- --watch=false` and
 `npm run build -- --base-href /studyverse/ --output-path dist/site`.
 The static regression scripts in `scripts/` cover economy, saves, profiles,

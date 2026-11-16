@@ -42,3 +42,14 @@ Compared with `6a60f53`. Sizes are UTF-8 bytes and line counts.
 | `app.html` | 77,990 bytes / 738 lines | 75,951 bytes / 717 lines |
 | `app.scss` | 66,112 bytes / 630 lines | 64,641 bytes / 615 lines |
 | `styles.scss` | 168,861 bytes / 2,125 lines | 168,861 bytes / 2,125 lines |
+
+### Dino feature formatting measurements
+
+Sizes are UTF-8 bytes and line counts across each component's TypeScript,
+template and stylesheet. The Angular component count is 7 before and after.
+
+| Component | Before | After |
+| --- | ---: | ---: |
+| Dino Designer | 4,736 bytes / 75 lines | 4,980 bytes / 156 lines |
+| Kenny reward overview | 2,764 bytes / 41 lines | 2,826 bytes / 77 lines |
+| Kenny pool dialog | 3,376 bytes / 53 lines | 3,717 bytes / 95 lines |
