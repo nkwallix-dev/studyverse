@@ -781,14 +781,17 @@ async function main(){
   const equipmentButton = panda.locator('.drop-buy-btn');
   assert.equal(await equipmentButton.innerText(), 'Ausrüsten');
   await equipmentButton.click();
-  assert.equal(await equipmentButton.innerText(), 'Ablegen');
+  await equipmentButton.filter({ hasText: 'Ablegen' }).waitFor({ state: 'visible', timeout: 5000 });
   assert(await panda.locator('.equipped-status').isVisible());
   assert(await equipmentButton.evaluate((button) => document.activeElement === button));
 
   await equipmentButton.click();
-  assert.equal(await equipmentButton.innerText(), 'Ausrüsten');
+  await equipmentButton.filter({ hasText: 'Ausrüsten' }).waitFor({ state: 'visible', timeout: 5000 });
   await collectionFilter.selectOption('Alle');
-  assert.equal(await categoryFilter.inputValue(), 'Alle');
+  await maxPage.waitForFunction(() => {
+    const filters = document.querySelectorAll('.inventory-filter-bar select');
+    return filters[1]?.value === 'Alle';
+  });
 
   await maxPage.setViewportSize({width:1200,height:850});
   const sidebarAlignment=await maxPage.locator('.navigation button').evaluateAll(buttons=>
