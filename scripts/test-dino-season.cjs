@@ -95,5 +95,16 @@ assert(appTS.includes("item.group!=='dinoSkin'&&this.owns(item)"),
 assert(html.includes('kenny-pool-dialog')&&!html.includes('Ein Futter kostet 300 TT. Du erhältst'),
  'Prize dialog must no longer waste vertical room on redundant instructions');
 assert(css.includes('.universe.kenny-mode.kenny-mode{height:100dvh;min-height:0;overflow:hidden}'));
-assert(css.includes('kenny-idle-strip.png')&&css.includes('kenny-feed-strip.png')&&css.includes('kenny-drone-flight')&&css.includes('kenny-meat-drop'));
+for(const skin of ['blue','pink','green','red','zebra']){
+ for(const action of ['idle','feed']){
+  const name='kenny-'+skin+'-'+action+'-strip.png';
+  assert(css.includes(name),'CSS must load the dedicated '+skin+' '+action+' sprite sheet');
+  assert(fs.existsSync('src/assets/kenny/skins/'+name),'Missing actual '+name+' PNG');
+ }
+ assert(fs.existsSync('public/kenny/skins/kenny-'+skin+'-portrait.png'),'Missing '+skin+' skin portrait');
+}
+assert(!css.includes('kenny-zebra-mask')&&!css.includes('.kenny-sprite[data-skin="zebra"]::after'),
+ 'No zebra overlay is allowed on the live sprite');
+assert(css.includes('kenny-drone-flight')&&css.includes('kenny-meat-drop'),
+ 'Feeding drone and meat animation must keep working');
 console.log('PASS: Kenny odds, professor exclusions, unique items, levels, cashback and one-time finale.');
