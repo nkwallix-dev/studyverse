@@ -2120,6 +2120,6 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .companion-kenny-back{container-type:inline-size;container-name:kenny-actions}
 .companion-kenny-back .kennyverse-action-compact{display:none}
 @container kenny-actions (max-width:410px){
-  .kennyverse-action-full{display:none}
-  .kennyverse-action-compact{display:inline}
+  .companion-kenny-back .kennyverse-action-full{display:none}
+  .companion-kenny-back .kennyverse-action-compact{display:inline}
 }
