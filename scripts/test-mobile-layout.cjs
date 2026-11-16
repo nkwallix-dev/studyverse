@@ -189,7 +189,7 @@ async function main(){
      assert(prizes.bottom<=prizes.prizeBottom+3&&prizes.maxWidth<=prizes.parentRight+3&&
        prizes.scroll<=prizes.client+3&&prizes.lootBottom<=prizes.viewport-(width<=700?68:0)+3,
        'All Kenny-exclusive items must fit without scrolling: '+JSON.stringify(prizes));
-     await page.locator('.companion-banner-brush').click();
+     await page.locator('.kenny-action-row .kenny-style-btn').click();
      await page.locator('.dino-designer-grid').waitFor({state:'visible'});
      assert.equal(await page.locator('.shop-view-tabs button').count(),3);
      assert.equal(await page.locator('.shop-view-tabs button').filter({hasText:'Designe deinen Dino'}).getAttribute('aria-selected'),'true');
@@ -410,7 +410,7 @@ async function main(){
   assert.equal(dinoProfile.dinoSeasons['kenny-2026'].feeds,3);
   assert.equal(dinoProfile.xp,0,'Feeding must never grant learning XP');
   assert(dinoProfile.tokens>=9100,'300 TT per feed, net of random Token rewards');
-  await dinoPage.locator('.companion-banner-brush').click();
+  await dinoPage.locator('.kenny-action-row .kenny-style-btn').click();
   await dinoPage.locator('.dino-designer-grid').waitFor({state:'visible'});
   assert.equal(await dinoPage.locator('.dino-designer-card').count(),3,
    'The dedicated Dino Designer must reserve three dinosaur slots');

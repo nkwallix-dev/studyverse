@@ -521,9 +521,9 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
 
 /* Profile is a settings dashboard, not a long article.
    Compact normal content on desktop; NEVER hide overflow or form controls. */
-.workspace:has(.profile-view) main{padding-top:17px;padding-bottom:13px}
+.workspace:has(.profile-view) main{padding-top:8px;padding-bottom:0}
 .profile-view>.page-title{font-size:clamp(30px,3.4vw,42px);margin:4px 0 5px}
-.profile-view>.page-subtitle{font-size:12px;line-height:1.45;margin:0 0 13px}
+.profile-view>.page-subtitle{font-size:12px;line-height:1.45;margin:0 0 7px}
 .profile-view .profile-grid{grid-template-columns:260px minmax(0,1fr);gap:12px}
 .profile-view .profile-panel{padding:17px}
 .profile-view .profile-panel .large-avatar{width:88px;height:88px;border-radius:23px;font-size:48px;margin:0 auto 7px}
