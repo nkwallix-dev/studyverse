@@ -227,7 +227,7 @@
           <h1 class="page-title" *ngIf="shopTab==='catalog'">Der <span>Item-Shop.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='inventory'">Dein <span>Inventar.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='kenny'">Kenny <span>{{kennyActive?'füttern.':'begleitet dich.'}}</span></h1>
-          <div class="companion-kenny-back" *ngIf="shopTab==='kenny'"><button type="button" (click)="openCompanions()">Meine Begleiter</button><button type="button" (click)="openKennyVerse()">⚡ Kennyverse betreten ↗</button></div>
+          <div class="companion-kenny-back" *ngIf="shopTab==='kenny'"><button type="button" (click)="openCompanions()">Meine Begleiter</button><button type="button" (click)="openKennyVerse()">Kennyverse betreten ↗</button></div>
           <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Essentials sind über dein Profil-Level kaufbar.</strong> Test-Items musst du zuerst durch Lernziele freischalten, anschließend kaufst du sie mit TastyTokens. Bereits gekaufte Items findest du im Inventar.</p>
           <p class="page-subtitle" *ngIf="shopTab==='inventory'">Alle deine Cosmetics an einem Ort. Nach Drop und Kategorie filtern, Styles anschauen und direkt ausrüsten.</p>
 
@@ -623,11 +623,13 @@
           <strong>{{tier.name}} · {{tier.chance | number:'1.0-1'}} %</strong>
           <div class="kenny-pool-items">
             <ng-container *ngFor="let item of tier.items">
+              <small class="kenny-pool-complete kenny-pool-complete-regular" *ngIf="item.id==='kenny_skin_zebra' && kennyRegularExclusivesComplete">Alles aus dieser Kategorie eingesammelt.</small>
               <div class="kenny-pool-zebra-divider" *ngIf="item.id==='kenny_skin_zebra'">Exklusiv ab Level 4 mit 0,5%</div>
               <span [class.kenny-pool-zebra]="item.id==='kenny_skin_zebra'">
                 <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="token-icon"/> {{item.name}}
                 <small *ngIf="tier.key==='event' && owns(item)" class="kenny-pool-owned">✓</small>
               </span>
+              <small class="kenny-pool-complete kenny-pool-complete-zebra" *ngIf="item.id==='kenny_skin_zebra' && owns(item)">Alles aus dieser Kategorie eingesammelt.</small>
             </ng-container>
             <small *ngIf="!tier.items.length">Alles aus dieser Kategorie eingesammelt.</small>
           </div>
