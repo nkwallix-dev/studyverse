@@ -779,11 +779,19 @@ async function main(){
 
   const panda = maxPage.locator('.inventory-item').filter({ hasText: 'Panda' });
   const equipmentButton = panda.locator('.drop-buy-btn');
+  const originalButton = await equipmentButton.elementHandle();
   assert.equal(await equipmentButton.innerText(), 'Ausrüsten');
+  assert(await equipmentButton.evaluate((button) => {
+    const control = getComputedStyle(button);
+    const card = getComputedStyle(button.closest('.inventory-item'));
+    return control.fontSize === card.fontSize && control.fontWeight === card.fontWeight;
+  }), 'Inventory actions inherit the same typography as the shell');
   await equipmentButton.click();
   await equipmentButton.filter({ hasText: 'Ablegen' }).waitFor({ state: 'visible', timeout: 5000 });
   assert(await panda.locator('.equipped-status').isVisible());
-  assert(await equipmentButton.evaluate((button) => document.activeElement === button));
+  assert(await equipmentButton.evaluate((button, original) => button === original, originalButton),
+    'Sorting the equipped avatar first must reuse its inventory card');
+  await originalButton.dispose();
 
   await equipmentButton.click();
   await equipmentButton.filter({ hasText: 'Ausrüsten' }).waitFor({ state: 'visible', timeout: 5000 });

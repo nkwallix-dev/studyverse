@@ -2,8 +2,31 @@
   display: contents;
 }
 
-// AppComponent's encapsulated base card/empty/button rules do not cross an
-// Angular child boundary. Keep their values here until the shared CSS pass.
+// Match the shell's scoped controls and card defaults across the component boundary.
+* {
+  box-sizing: border-box;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #c6a6ff;
+  outline-offset: 3px;
+}
+
 .item-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
