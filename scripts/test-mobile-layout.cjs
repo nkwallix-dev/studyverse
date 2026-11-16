@@ -483,7 +483,7 @@ async function main(){
     localStorage.setItem('studyverse_import_prompt_seen_v1','1');
     localStorage.setItem('studyverse_profile_v1',JSON.stringify({
      xp:0,tokens:900,nickname:'PrizePreview',
-     inventory:owned,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+     inventory:sessionStorage.getItem('studyverse_test_zebra_owned')==='1'?[...owned,'kenny_skin_zebra']:owned,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
      claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
      dinoSeasons:{'kenny-2026':{feeds:25,skin:'blue',overfeeds:0,overTokenWins:0,settled:false,settlement:0}}
     }));
@@ -550,11 +550,9 @@ async function main(){
    assert.equal(await poolPage.locator('.kenny-pool-dialog > p').count(),0,
     'Redundant explanation paragraphs must not use modal height');
    await poolPage.screenshot({path:path.join(screenshots,'kenny-prize-modal-'+width+'.png')});
-   await poolPage.evaluate(()=>{
-     const state=JSON.parse(localStorage.getItem('studyverse_profile_v1'));
-     state.inventory.push('kenny_skin_zebra');
-     localStorage.setItem('studyverse_profile_v1',JSON.stringify(state));
-   });
+   // addInitScript reseeds localStorage on every reload. Pass the collected
+   // state via sessionStorage so the next document loads Zebra as owned.
+   await poolPage.evaluate(()=>sessionStorage.setItem('studyverse_test_zebra_owned','1'));
    await poolPage.reload({waitUntil:'load'});
    await poolPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
    await poolPage.locator('.kenny-pool-button').click();
