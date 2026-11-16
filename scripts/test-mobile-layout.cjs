@@ -817,6 +817,13 @@ async function main(){
     localStorage.setItem('studyverse_profile_v1',JSON.stringify(profile));
     window.dispatchEvent(new StorageEvent('storage',{key:'studyverse_profile_v1'}));
   });
+  // A different PNG takes a network/decode turn after changing src; ensure
+  // the new real artwork is loaded before checking its dimensions.
+  await versePage.waitForFunction(()=>{
+    const image=document.querySelector('.kenny-play-title .kenny-visual img');
+    return image?.getAttribute('src')?.endsWith('kenny-pink-portrait.png') &&
+      image.complete && image.naturalWidth>0;
+  },null,{timeout:10000});
   const updatedAppearance=await versePage.evaluate(()=>({
     skin:document.documentElement.dataset.kennySkin,
     questionSrc:document.querySelector('.kenny-play-title .kenny-visual img').getAttribute('src'),questionLoaded:document.querySelector('.kenny-play-title .kenny-visual img').naturalWidth>0,
