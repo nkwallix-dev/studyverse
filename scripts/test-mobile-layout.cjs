@@ -563,6 +563,16 @@ async function main(){
      'Alles aus dieser Kategorie eingesammelt.',
      'Alles aus dieser Kategorie eingesammelt.'
    ],'Five regular season items and rare Zebra need separate completed messages above/below the rarity bar');
+   const completeOrder=await poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'})
+     .first().locator('.kenny-pool-items').evaluate(el=>{
+       const children=[...el.children];
+       return ['.kenny-pool-complete-regular','.kenny-pool-zebra-divider',
+         '.kenny-pool-zebra','.kenny-pool-complete-zebra']
+         .map(selector=>children.indexOf(el.querySelector(selector)));
+     });
+   assert(completeOrder.every((position,index)=>position>=0&&(!index||position>completeOrder[index-1])),
+     'Collected notice for regular items must precede Zebra banner; Zebra collected notice follows it: '+
+       JSON.stringify(completeOrder));
    await poolContext.close();
   }
   console.log('PASS: Kenny complete-collection prize dialog and temporary reward gating.');
