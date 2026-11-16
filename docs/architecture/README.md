@@ -46,10 +46,11 @@ very long displayed lines are generated output, not another handwritten CSS
 source. The real debt is the source cascade: global selectors, repeated
 responsive overrides and feature rules dispersed across `styles.scss`.
 
-The designer stylesheet currently contains only host layout. Its established
-global selectors stay in place for the first extraction so selector scope and
-order remain identical. Moving those rules and introducing design tokens are
-separate visual-regression-checked steps. Global theme selectors, animation
+The designer stylesheet currently repeats a few shell UI primitives that
+Angular's view encapsulation cannot inherit (`.btn`, `.eyebrow`, `.page-title`).
+Its established feature selectors stay global for the first extraction so their
+scope and order remain identical. Consolidating those primitives and moving
+feature rules are separate visual-regression-checked steps. Global theme selectors, animation
 keyframes and CSS affecting the shell must remain shared where appropriate.
 
 ## Local verification and release
