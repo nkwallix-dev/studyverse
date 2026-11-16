@@ -1938,3 +1938,36 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  }
  .universe.kenny-mode .kenny-action-row .kenny-style-btn{flex-basis:36px;font-size:17px}
 }
+
+/* Companion CTA must never be clipped by the deliberately viewport-sized hub.
+ * Shrink the stage on desktop and let the card body scroll as a last resort. */
+.universe.companions-mode .companion-stage{
+  height:clamp(160px,23dvh,265px);
+}
+.universe.companions-mode .companion-card-body{
+  box-sizing:border-box;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  justify-content:flex-start;
+  padding-bottom:max(16px,env(safe-area-inset-bottom));
+}
+.universe.companions-mode .companion-enter{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  min-height:48px;
+  margin-top:auto;
+  margin-bottom:2px;
+  position:sticky;
+  bottom:0;
+  z-index:3;
+  box-shadow:0 4px 16px #0005;
+}
+@media(max-width:700px){
+  .universe.companions-mode .companion-stage{height:clamp(83px,17dvh,125px)}
+  .universe.companions-mode .companion-card-body{padding-bottom:8px}
+  .universe.companions-mode .companion-enter{min-height:31px}
+}
