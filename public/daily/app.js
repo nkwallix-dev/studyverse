@@ -2,7 +2,7 @@
 "use strict";
 const DATA=window.STUDYVERSE_DAILY_QUESTIONS||[],DAILY=window.STUDYVERSE_DAILY,ROOT=document.getElementById("root"),PROFILE="studyverse_profile_v1",ORDER="studyverse_daily_orders_v1";
 const ACCESS=window.STUDYVERSE_KENNY_ACCESS;
-const KENNY_PORTRAIT='<span class="kenny-visual"><img src="../kenny/kenny-avatar.png" alt="Kenny der Raptor"></span>';
+const KENNY_PORTRAIT='<span class="kenny-visual"><img src="../kenny/skins/kenny-'+(window.STUDYVERSE_KENNY_STYLE?.current?.()||'blue')+'-portrait.png" alt="Kenny der Raptor"></span>';
 const URZEIT_BANNER='<div class="kenny-prehistoric-banner" aria-hidden="true"><span class="kenny-banner-sun"></span><span class="kenny-banner-mountain mountain-left"></span><span class="kenny-banner-mountain mountain-right"></span><span class="kenny-banner-volcano"><i></i></span><span class="kenny-banner-lava"></span><span class="kenny-banner-ground"></span><span class="kenny-banner-fern fern-left">🌿</span><span class="kenny-banner-fern fern-right">🌿</span></div>';
 if(!DATA.length||!DAILY||!ACCESS){ROOT.textContent="Kennys Forschungsfragen konnten nicht geladen werden.";return}
 if(!ACCESS.available()){
