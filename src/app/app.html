@@ -227,7 +227,7 @@
           <h1 class="page-title" *ngIf="shopTab==='catalog'">Der <span>Item-Shop.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='inventory'">Dein <span>Inventar.</span></h1>
           <h1 class="page-title" *ngIf="shopTab==='kenny'">Kenny <span>{{kennyActive?'füttern.':'begleitet dich.'}}</span></h1>
-          <div class="companion-kenny-back" *ngIf="shopTab==='kenny'"><button type="button" (click)="openCompanions()">Meine Begleiter</button><button type="button" (click)="openKennyVerse()">Kennyverse betreten ↗</button></div>
+          <div class="companion-kenny-back" *ngIf="shopTab==='kenny'"><button type="button" (click)="openCompanions()">Meine Begleiter</button><button type="button" (click)="openKennyVerse()" aria-label="Kennyverse betreten"><span class="kennyverse-action-full">Kennyverse betreten ↗</span><span class="kennyverse-action-compact">Kennyverse ↗</span></button></div>
           <p class="page-subtitle" *ngIf="shopTab==='catalog'">Jede Lernwelt hat ihren eigenen Drop. <strong>Essentials sind über dein Profil-Level kaufbar.</strong> Test-Items musst du zuerst durch Lernziele freischalten, anschließend kaufst du sie mit TastyTokens. Bereits gekaufte Items findest du im Inventar.</p>
           <p class="page-subtitle" *ngIf="shopTab==='inventory'">Alle deine Cosmetics an einem Ort. Nach Drop und Kategorie filtern, Styles anschauen und direkt ausrüsten.</p>
 
