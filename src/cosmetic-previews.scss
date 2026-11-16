@@ -1,0 +1,35 @@
+/* Miniatures use the same atmosphere backgrounds as the full universe. */
+.universe[data-atm="stars"]{background-image:radial-gradient(1px 1px at 8% 11%,#fafaffbb 98%,transparent),radial-gradient(2px 2px at 68% 15%,#d6c8ffb0 98%,transparent),radial-gradient(1px 1px at 37% 63%,#fff9 98%,transparent),radial-gradient(2px 2px at 90% 83%,#d6fcff 98%,transparent);background-size:290px 260px,430px 350px,170px 210px,330px 270px}
+.universe[data-atm="grid"]{background-image:linear-gradient(#987fff16 1px,transparent 1px),linear-gradient(90deg,#987fff16 1px,transparent 1px);background-size:42px 42px}
+.universe[data-atm="ionstorm"]{background-image:repeating-linear-gradient(135deg,transparent 0 125px,#9b78fa16 126px 128px,transparent 129px 200px)}
+.universe[data-atm="laser"]{background-image:repeating-linear-gradient(116deg,transparent 0 220px,#74ffff25 222px 224px,transparent 226px 350px)}
+.universe[data-atm="bubbles"]{background-image:radial-gradient(circle at 20% 32%,transparent 12px,#9bf7ff30 14px,transparent 16px),radial-gradient(circle at 78% 68%,transparent 7px,#a7fdff44 9px,transparent 11px);background-size:190px 250px}
+.universe[data-atm="snow"]{background-image:radial-gradient(2px 2px at 10% 15%,#eaffffb8 97%,transparent),radial-gradient(3px 3px at 75% 45%,#dfffffac 97%,transparent);background-size:180px 180px,310px 240px}
+.universe[data-atm="sparkles"]{background-image:radial-gradient(3px 3px at 50% 20%,#fff7cc 98%,transparent),radial-gradient(2px 2px at 10% 90%,#f5b9ff 98%,transparent);background-size:130px 190px,250px 140px}
+.universe[data-atm="confetti"]{background-image:linear-gradient(22deg,transparent 48%,#f37dc8 50%,transparent 52%),linear-gradient(48deg,transparent 48%,#81efdb 50%,transparent 52%);background-size:137px 123px,173px 157px}
+
+/* Display-only cosmetics: keep image sizes independent of button and text metrics. */
+
+.kenny-feed-btn{display:inline-flex;align-items:center;justify-content:center;gap:.35em;min-width:0;padding:4px 12px}
+
+.kenny-feed-btn>span{display:inline-flex;align-items:center;gap:.2em}
+
+.kenny-action-row .kenny-feed-btn{min-width:0}
+
+.kenny-action-row .kenny-style-btn{position:relative;flex:none;min-width:36px}
+
+.kenny-token-prizes>div>span{display:grid;place-items:center}
+
+.kenny-exclusives>div>span{flex:none;width:1.3em;height:1.3em;display:grid;place-items:center}
+
+.kenny-reveal-art>app-cosmetic-icon,.kenny-reveal-art>span app-cosmetic-icon{width:min(140px,23dvh);height:min(140px,23dvh)}
+
+.kenny-reveal-art>span{display:grid;place-items:center}
+
+.shop-live-fx span app-cosmetic-icon{width:1em;height:1em}
+
+.item-art .miniature.shop-live-stage.universe{height:100%;min-height:0!important;margin:0!important;width:100%;display:grid!important}
+
+.item-art .miniature.shop-live-stage .shop-frame-card.stat{min-height:65%!important;height:auto!important;margin:0!important;padding:7px!important}
+
+@media(max-width:700px){.kenny-action-row .kenny-feed-btn{padding:2px 5px;gap:2px}.kenny-feed-btn .feed-icon{width:1.8em;height:1.8em}}

@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CosmeticIconComponent } from './cosmetic-icon.component';
+import { CosmeticArtComponent } from './cosmetic-art.component';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
 import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
@@ -54,7 +56,7 @@ export const SUBJECTS:Subject[]=[
 ];
 
 @Component({
- selector:'app-root', standalone:true, imports:[CommonModule,FormsModule],
+ selector:'app-root', standalone:true, imports:[CommonModule,FormsModule,CosmeticIconComponent,CosmeticArtComponent],
  templateUrl:'./app.html', styleUrl:'./app.scss'
 })
 export class App implements OnInit,OnDestroy {
@@ -1282,7 +1284,7 @@ export class App implements OnInit,OnDestroy {
  priceLabel(item:ShopItem){
   if(this.owns(item))return this.active(item)?'✓ Ausgerüstet':'Ausrüsten';
   if(!this.isUnlocked(item))return item.drop==='global'?'🔒 Level '+item.level+' nötig':'🔒 Lernziel fehlt';
-  return '◉ '+item.cost+' TT kaufen';
+  return item.cost+' TT kaufen';
  }
  buyOrEquip(item:ShopItem){
   if(item.group==='dinoSkin'){
