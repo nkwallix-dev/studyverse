@@ -12,7 +12,10 @@ export interface InventoryCard {
   nameSuffix: string;
 }
 
-export interface InventoryOption { value: string; label: string; }
+export interface InventoryOption {
+  value: string;
+  label: string;
+}
 
 /** Inventory filters and cards; parent owns equipment, catalog and saved state. */
 @Component({
@@ -37,4 +40,8 @@ export class InventoryComponent {
   @Output() readonly previewRequested = new EventEmitter<ShopItem>();
   @Output() readonly equipmentRequested = new EventEmitter<ShopItem>();
   @Output() readonly shopRequested = new EventEmitter<void>();
+
+  trackCard(_index: number, card: InventoryCard): ShopItem {
+    return card.item;
+  }
 }

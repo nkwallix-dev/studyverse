@@ -275,13 +275,22 @@
             </div>
           </ng-container>
           </ng-container>
-          <app-inventory *ngIf="shopTab==='inventory'" [cards]="inventoryCards"
-            [ownedItemCount]="ownedCatalogItems.length" [dropOptions]="inventoryDropOptions"
-            [categoryOptions]="inventoryCategoryOptions" [selectedDrop]="inventoryDrop"
-            [selectedCategory]="inventoryGroup" [search]="inventorySearch"
-            (dropChanged)="changeInventoryDrop($event)" (categoryChanged)="inventoryGroup=$event"
-            (searchChanged)="inventorySearch=$event" (previewRequested)="preview($event)"
-            (equipmentRequested)="buyOrEquip($event)" (shopRequested)="setShopTab('catalog')"/>
+          <app-inventory
+            *ngIf="shopTab === 'inventory'"
+            [cards]="inventoryCards"
+            [ownedItemCount]="ownedCatalogItems.length"
+            [dropOptions]="inventoryDropOptions"
+            [categoryOptions]="inventoryCategoryOptions"
+            [selectedDrop]="inventoryDrop"
+            [selectedCategory]="inventoryGroup"
+            [search]="inventorySearch"
+            (dropChanged)="changeInventoryDrop($event)"
+            (categoryChanged)="inventoryGroup = $event"
+            (searchChanged)="inventorySearch = $event"
+            (previewRequested)="preview($event)"
+            (equipmentRequested)="buyOrEquip($event)"
+            (shopRequested)="setShopTab('catalog')"
+          />
           <section class="kenny-page" *ngIf="shopTab==='kenny'" aria-label="Kennys Dino-Season">
             <div class="kenny-play">
               <div class="kenny-stage" [class.kenny-feeding]="kennyFeeding">

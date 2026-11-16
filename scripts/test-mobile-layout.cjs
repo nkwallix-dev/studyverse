@@ -771,6 +771,25 @@ async function main(){
   assert((await maxPage.locator('.preview-requirement').innerText()).includes('Durch Kenny, den Raptor freigeschaltet'),
    'Already owned cosmetics with an incomplete learning goal must not claim it was fulfilled');
   await maxPage.locator('.shop-preview-modal .btn.secondary').click();
+  const inventoryFilters = maxPage.locator('.inventory-filter-bar');
+  const collectionFilter = inventoryFilters.getByLabel('Kollektion');
+  const categoryFilter = inventoryFilters.getByLabel('Kategorie');
+  await collectionFilter.selectOption('dsai-test-01');
+  await categoryFilter.selectOption('avatar');
+
+  const panda = maxPage.locator('.inventory-item').filter({ hasText: 'Panda' });
+  const equipmentButton = panda.locator('.drop-buy-btn');
+  assert.equal(await equipmentButton.innerText(), 'Ausrüsten');
+  await equipmentButton.click();
+  assert.equal(await equipmentButton.innerText(), 'Ablegen');
+  assert(await panda.locator('.equipped-status').isVisible());
+  assert(await equipmentButton.evaluate((button) => document.activeElement === button));
+
+  await equipmentButton.click();
+  assert.equal(await equipmentButton.innerText(), 'Ausrüsten');
+  await collectionFilter.selectOption('Alle');
+  assert.equal(await categoryFilter.inputValue(), 'Alle');
+
   await maxPage.setViewportSize({width:1200,height:850});
   const sidebarAlignment=await maxPage.locator('.navigation button').evaluateAll(buttons=>
    buttons.map(button=>({name:button.getAttribute('aria-label'),left:button.getBoundingClientRect().left})))

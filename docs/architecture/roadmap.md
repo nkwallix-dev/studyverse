@@ -30,3 +30,15 @@ then verify the Pages deployment before branching from the new `main`.
 Known technical debt: `app.ts` still owns state, Firebase orchestration and
 multiple domain actions; `app.html` contains most other feature sections;
 global CSS is order-sensitive. These are planned work, not fixed by step 1.
+
+### Inventory extraction measurements
+
+Compared with `6a60f53`. Sizes are UTF-8 bytes and line counts.
+
+| Source | Before | After |
+| --- | ---: | ---: |
+| Angular components | 6 | 7 |
+| `app.ts` | 82,151 bytes / 1,399 lines | 83,075 bytes / 1,436 lines |
+| `app.html` | 77,990 bytes / 738 lines | 75,951 bytes / 717 lines |
+| `app.scss` | 66,112 bytes / 630 lines | 64,641 bytes / 615 lines |
+| `styles.scss` | 168,861 bytes / 2,125 lines | 168,861 bytes / 2,125 lines |

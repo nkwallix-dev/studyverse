@@ -88,7 +88,7 @@ assert(!catalog.includes('item-top-badge'),'No status overlays on catalog item a
 assert(!inventory.includes('inventory-equipped-badge'),'No status overlays on inventory art');
 assert(inventory.includes('class="item-inline-status equipped-status"'),'Equipped state should be a small badge beside inventory title');
 assert(!inventory.includes('✓ OWNED')&&!inventory.includes('IM INVENTAR'),'Inventory already means owned: no redundant ownership badges');
-assert(catalog.includes('<app-cosmetic-art [item]="item"/>')&&inventory.includes('<app-cosmetic-art [item]="card.item"/>'),
+assert(catalog.includes('<app-cosmetic-art [item]="item"/>')&&/<app-cosmetic-art\s+\[item\]="card\.item"\s*\/>/.test(inventory),
  'Catalog and inventory must use the same thumbnail renderer');
 const cosmeticArt=fs.readFileSync('src/app/cosmetic-art.component.ts','utf8');
 const cosmeticAssets=fs.readFileSync('src/app/cosmetic-assets.ts','utf8');
