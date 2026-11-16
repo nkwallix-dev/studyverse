@@ -2515,6 +2515,20 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
     height: 72%;
   }
 
+  .universe.universe > .workspace > main.achievements-view > .page-title {
+    font-size: clamp(22px, 6.2vw, 28px);
+    margin: 1px 0 4px;
+  }
+
+  .universe main.achievements-view .achievements-overview {
+    margin: 3px 0 5px;
+    padding-block: 4px;
+  }
+
+  .universe main.achievements-view .achievements-section .pill {
+    padding-block: 3px;
+  }
+
   .universe main.achievements-view .achievement-content {
     display: grid;
     grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
