@@ -841,11 +841,18 @@ export class App implements OnInit,OnDestroy {
    (!this.cloudConfigured||!!this.cloud.session&&this.cloudMaySave);}
  get kennyCashback():number{return cashbackDue(this.kennyState);}
  get kennyAllSkinsOwned():boolean{return this.kennySkins.every(skin=>skin.owned);}
+ get kennyZebraChance():number{
+   return KENNY_ODDS[Math.max(0,Math.min(4,this.kennyLevel-1))].zebra;
+ }
  get kennyPoolPreview(){
    const pools=this.kennyPools;
    return ([{key:'event',name:'Saisonexklusiv'},{key:'large',name:'Prestige-Items'},
      {key:'medium',name:'Mittlere Items'},{key:'small',name:'Kleine Items'}] as const)
-     .map(category=>({...category,items:pools[category.key],chance:this.kennyOdds[category.key]}));
+     .map(category=>({...category,
+       // The item pool is a complete catalog of season exclusives, including
+       // the already-owned Zebra; only the actual draw pools exclude owned items.
+       items:category.key==='event'?KENNY_EVENT_ITEMS:pools[category.key],
+       chance:this.kennyOdds[category.key]}));
  }
  get kennyCurrentReveal(){return this.kennyReveals[0]||null;}
  get visibleKennyReveal(){return this.shopTab==='designer'?null:this.kennyCurrentReveal;}
