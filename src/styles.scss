@@ -1343,7 +1343,7 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 /* The two top-right actions on Kenny's feeding page use equal-width columns. */
 .companion-kenny-back{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
- gap:10px;width:calc(33.333333% - 4px);max-width:100%;
+ gap:10px;width:max(310px,calc(33.333333% - 4px));max-width:100%;
  margin:0 0 10px auto;
 }
 .companion-kenny-back button{
@@ -1355,7 +1355,7 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
    Under 900px it switches to .7fr / (1fr + .7fr); mirror that sizing.
    At phone widths the prize panel and buttons both span the full row. */
 @media(min-width:701px) and (max-width:900px){
- .companion-kenny-back{width:calc(41.17647% - 4.94118px)}
+ .companion-kenny-back{width:max(260px,calc(41.17647% - 4.94118px))}
 }
 /* Keep both Dino Designer destinations together, including on mobile. */
 .dino-designer-heading-actions{
