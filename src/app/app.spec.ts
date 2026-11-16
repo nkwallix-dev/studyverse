@@ -28,4 +28,12 @@ describe('App', () => {
     expect(avatarImage('kenny_avatar_zebra')).toBe('kenny/kenny-avatar.png');
     expect(cosmeticImage('kenny_skin_zebra')).toBeNull();
   });
+
+  it('updates the profile portrait when a Kenny avatar is equipped', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.componentInstance.profile.equipped['avatar'] = 'kenny_avatar_pink';
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.top-profile-avatar img')?.getAttribute('src'))
+      .toBe('cosmetics/avatars/kenny_pink_avatar.png');
+  });
 });

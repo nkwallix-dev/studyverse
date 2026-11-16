@@ -548,8 +548,15 @@ async function main(){
   assert(colorProfile.kennyWonItems['kenny_avatar_pink']);
   assert((await colorPage.locator('.kenny-reveal-modal').innerText()).includes('Neuer Kenny-Avatar'));
   await colorPage.locator('.kenny-reveal-actions .btn.primary').click();
-  assert((await colorPage.locator('.top-profile-avatar img').getAttribute('src')).includes('kenny_pink_avatar.png'),
-   'Ausrüsten & Weiter must equip the new Kenny avatar artwork');
+  await colorPage.waitForFunction(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1'))?.equipped?.avatar==='kenny_avatar_pink');
+  await colorPage.waitForFunction(()=>document.querySelector('.top-profile-avatar img')?.getAttribute('src')?.includes('kenny_pink_avatar.png'),null,{timeout:4000}).catch(()=>{});
+  const equippedPortrait=await colorPage.evaluate(()=>({
+   saved:JSON.parse(localStorage.getItem('studyverse_profile_v1'))?.equipped?.avatar,
+   src:document.querySelector('.top-profile-avatar img')?.getAttribute('src'),
+   content:document.querySelector('.top-profile-avatar')?.innerHTML
+  }));
+  assert(equippedPortrait.src?.includes('kenny_pink_avatar.png'),
+   'Ausrüsten & Weiter must equip the new Kenny avatar artwork: '+JSON.stringify(equippedPortrait));
   await colorPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Neuer Skin'));
   assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink');
   await colorPage.locator('.kenny-reveal-actions .btn.primary').click();
