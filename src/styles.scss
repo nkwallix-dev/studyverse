@@ -1924,3 +1924,49 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
  .universe.companions-mode .companion-actions button{font-size:10px;padding:6px}
  .companion-banner-brush{width:32px;height:32px;font-size:16px;right:6px;bottom:6px;border-radius:9px}
 }
+
+/* All primary page headings use the same scale. Keep card and dialog headings local. */
+.universe.universe>.workspace>main :is(.page-title,.dino-designer-heading .page-title){
+ font-size:clamp(36px,3.6vw,52px);
+ line-height:1.08;
+ letter-spacing:-1.5px;
+ margin:5px 0 9px;
+}
+
+/* The three cosmetics destinations share one tab row and the same starting edge. */
+.universe.shop-mode main,.universe.designer-mode main{padding-top:14px}
+.universe.shop-mode .shop-view-tabs,.universe.designer-mode .shop-view-tabs{
+ box-sizing:border-box;
+ width:min(100%,810px);
+ min-height:55px;
+ padding:6px;
+ margin:0 0 11px;
+ align-items:stretch;
+}
+.universe.shop-mode .shop-view-tabs button,.universe.designer-mode .shop-view-tabs button{
+ min-height:41px;
+ padding:8px 7px;
+ line-height:1.2;
+}
+.universe.kenny-mode .kenny-action-row .kenny-style-btn{
+ flex:0 0 48px;
+ padding:0;
+ font-size:22px;
+}
+@media(max-width:700px){
+ .universe>.workspace>.topbar{height:60px;min-height:60px;box-sizing:border-box}
+ .universe.universe>.workspace>main :is(.page-title,.dino-designer-heading .page-title){
+  font-size:clamp(28px,6vw,34px);
+  letter-spacing:-.9px;
+  margin:3px 0 6px;
+ }
+ .universe.shop-mode main,.universe.designer-mode main{padding-top:7px}
+ .universe.shop-mode .shop-view-tabs,.universe.designer-mode .shop-view-tabs{
+  width:100%;min-height:46px;padding:4px;margin:0 0 7px;gap:3px
+ }
+ .universe.shop-mode .shop-view-tabs button,.universe.designer-mode .shop-view-tabs button{
+  min-height:38px;padding:5px 3px;
+  font-size:clamp(9px,2.45vw,11px)
+ }
+ .universe.kenny-mode .kenny-action-row .kenny-style-btn{flex-basis:36px;font-size:17px}
+}
