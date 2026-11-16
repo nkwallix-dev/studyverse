@@ -20,7 +20,7 @@
   function apply(){
     const skin=current();
     document.documentElement.dataset.kennySkin=skin;
-    document.querySelectorAll('.kenny-visual img').forEach(image=>{
+    document.querySelectorAll?.('.kenny-visual img').forEach(image=>{
       const path='../kenny/skins/kenny-'+skin+'-portrait.png';
       if(image.getAttribute('src')!==path)image.setAttribute('src',path);
     });
