@@ -620,8 +620,15 @@
       <div class="kenny-pool-scroll">
         <div class="kenny-pool-section"><strong><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/> TOKEN-DROPS</strong><span>100 TT · {{kennyOdds.token100}} % &nbsp; 500 TT · {{kennyOdds.token500}} % &nbsp; 1.000 TT · {{kennyOdds.token1000}} %</span></div>
         <div class="kenny-pool-section" *ngFor="let tier of kennyPoolPreview">
-          <strong>{{tier.name}} · {{tier.chance | number:'1.0-1'}} %</strong>
-          <div class="kenny-pool-items"><span *ngFor="let item of tier.items"><app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="token-icon"/> {{item.name}}</span><small *ngIf="!tier.items.length">Alles aus dieser Kategorie eingesammelt.</small></div>
+          <strong>{{tier.name}} · {{tier.chance | number:'1.0-1'}} %<small *ngIf="tier.key==='event'" class="kenny-pool-chance-note"> · Zebra separat</small></strong>
+          <div class="kenny-pool-items">
+            <span *ngFor="let item of tier.items" [class.kenny-pool-zebra]="item.id==='kenny_skin_zebra'">
+              <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="token-icon"/> {{item.name}}
+              <small *ngIf="item.id==='kenny_skin_zebra'" class="kenny-pool-zebra-odds">· {{kennyZebraChance | number:'1.0-1'}} %{{kennyLevel<4?' · ab Level 4':''}}</small>
+              <small *ngIf="tier.key==='event' && owns(item)" class="kenny-pool-owned">✓</small>
+            </span>
+            <small *ngIf="!tier.items.length">Alles aus dieser Kategorie eingesammelt.</small>
+          </div>
         </div>
       </div>
     </div>
