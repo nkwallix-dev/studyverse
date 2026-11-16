@@ -87,8 +87,13 @@ assert(!catalog.includes('item-top-badge'),'No status overlays on catalog item a
 assert(!inventory.includes('inventory-equipped-badge'),'No status overlays on inventory art');
 assert(inventory.includes('class="item-inline-status equipped-status"'),'Equipped state should be a small badge beside inventory title');
 assert(!inventory.includes('✓ OWNED')&&!inventory.includes('IM INVENTAR'),'Inventory already means owned: no redundant ownership badges');
-assert(catalog.includes("[class.panda-art]=\"item.id==='dsai_panda'\"")&&inventory.includes("[class.panda-art]=\"item.id==='dsai_panda'\""),'Panda needs the larger avatar art in shop and inventory');
-assert(c.includes('.drop-item .item-art.drop-item-art.panda-art .big-item-icon'),'Panda art must have an enlarged rendering');
+assert(catalog.includes('<app-cosmetic-art [item]="item"/>')&&inventory.includes('<app-cosmetic-art [item]="item"/>'),
+ 'Catalog and inventory must use the same thumbnail renderer');
+const cosmeticArt=fs.readFileSync('src/app/cosmetic-art.component.ts','utf8');
+const cosmeticAssets=fs.readFileSync('src/app/cosmetic-assets.ts','utf8');
+assert(cosmeticArt.includes("[class.panda-art]=\"item.id==='dsai_panda'\"")&&
+ cosmeticAssets.includes('"dsai_panda": "cosmetics/avatars/dsai_panda_avatar.png"'),
+ 'Panda must resolve to its real image in both views');
 console.log('PASS: clean item art; statuses next to titles; inventory-only ownership.');
 
 const newShop=fs.readFileSync('src/app/shop-items.ts','utf8');
@@ -104,7 +109,8 @@ for(const banner of ['gold','warning','galaxy','molecule','flow','curve','cloud'
 }
 assert(!catalog.includes('class="drop-price"'),'Only the buy button shows a price once an item is unlocked');
 assert(!preview.includes('class="preview-cost"'),'Live preview must not show a duplicate or locked price');
-assert(t.includes("return '◉ '+item.cost+' TT kaufen'"),'Unlocked shop items retain the purchase price in their button');
+assert(t.includes("return item.cost+' TT kaufen'")&&catalog.includes('id="tasty_token"'),
+ 'Unlocked shop items show the same price with the TastyToken image');
 const weber=newShop.split('\n').find(x=>x.includes("id:'dsai_title_weber'"));
 const fischer=newShop.split('\n').find(x=>x.includes("id:'title_chaos'"));
 const removedCosmetics=['chem_radical','title','chem_reactor','ocean','avatar_atom','avatar_dragon'];
