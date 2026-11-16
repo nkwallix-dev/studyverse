@@ -196,11 +196,17 @@ async function main(){
      const topActions=await page.locator('.companion-kenny-back button').evaluateAll(buttons=>buttons.map(b=>({
        width:b.getBoundingClientRect().width,
        height:b.getBoundingClientRect().height,
-       visible:getComputedStyle(b).visibility
+       visible:getComputedStyle(b).visibility,
+       whiteSpace:getComputedStyle(b).whiteSpace,
+       scrollWidth:b.scrollWidth,clientWidth:b.clientWidth,
+       text:b.innerText.trim(),containerWidth:b.parentElement.getBoundingClientRect().width
      })));
      assert(topActions.length===2&&Math.abs(topActions[0].width-topActions[1].width)<=1&&
        topActions.every(action=>action.width>100&&action.height>=38&&action.visible==='visible'),
        'My Companions and Enter Kennyverse must share equal-width, visible buttons: '+JSON.stringify(topActions));
+     assert(topActions[1].text===(topActions[1].containerWidth<=410?'Kennyverse ↗':'Kennyverse betreten ↗') &&
+       topActions.every(a=>a.whiteSpace==='nowrap'&&a.scrollWidth<=a.clientWidth+1),
+       'Kennyverse action must not wrap or overflow at any viewport: '+JSON.stringify(topActions));
      const actionsToLoot=await page.evaluate(()=>{
        const actions=document.querySelector('.companion-kenny-back')?.getBoundingClientRect();
        const loot=document.querySelector('.kenny-loot')?.getBoundingClientRect();
@@ -218,7 +224,7 @@ async function main(){
      assert.equal(await page.locator('.shop-view-tabs button').filter({hasText:'Designe deinen Dino'}).getAttribute('aria-selected'),'true');
      const designerNav=page.locator('.dino-designer-heading-actions button');
      assert.equal(await designerNav.count(),2,'The designer needs shortcuts to feeding and companions');
-     assert((await designerNav.first().innerText()).includes('Season-Dino füttern')&&
+     assert((await designerNav.first().innerText()).includes('Den aktuellen Season-Dino füttern')&&
        (await designerNav.last().innerText()).includes('Meine Begleiter'),
        'Designer navigation labels must be clear');
      const designerActionLayout=await designerNav.evaluateAll(buttons=>buttons.map(b=>({
@@ -477,7 +483,7 @@ async function main(){
     localStorage.setItem('studyverse_import_prompt_seen_v1','1');
     localStorage.setItem('studyverse_profile_v1',JSON.stringify({
      xp:0,tokens:900,nickname:'PrizePreview',
-     inventory:owned,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+     inventory:sessionStorage.getItem('studyverse_test_zebra_owned')==='1'?[...owned,'kenny_skin_zebra']:owned,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
      claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
      dinoSeasons:{'kenny-2026':{feeds:25,skin:'blue',overfeeds:0,overTokenWins:0,settled:false,settlement:0}}
     }));
@@ -521,6 +527,10 @@ async function main(){
      exclusiveLayout.zebraPosition===exclusiveLayout.totalChildren-1&&
      !exclusiveLayout.heading?.includes('Zebra separat'),
      'Zebra must appear immediately after its own rarity bar, following Kenny Rot: '+JSON.stringify(exclusiveLayout));
+   assert.equal(await exclusiveSection.locator('.kenny-pool-complete-regular').count(),1,
+     'The five ordinary season exclusives must show their own completed note');
+   assert.equal(await exclusiveSection.locator('.kenny-pool-complete-zebra').count(),0,
+     'The rare Zebra note must stay absent before Zebra is owned');
    const modal=await poolPage.evaluate(()=>{
     const root=document.querySelector('.kenny-pool-dialog');
     const list=document.querySelector('.kenny-pool-scroll');
@@ -540,6 +550,29 @@ async function main(){
    assert.equal(await poolPage.locator('.kenny-pool-dialog > p').count(),0,
     'Redundant explanation paragraphs must not use modal height');
    await poolPage.screenshot({path:path.join(screenshots,'kenny-prize-modal-'+width+'.png')});
+   // addInitScript reseeds localStorage on every reload. Pass the collected
+   // state via sessionStorage so the next document loads Zebra as owned.
+   await poolPage.evaluate(()=>sessionStorage.setItem('studyverse_test_zebra_owned','1'));
+   await poolPage.reload({waitUntil:'load'});
+   await poolPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
+   await poolPage.locator('.kenny-pool-button').click();
+   await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
+   const bothComplete=await poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'}).first()
+     .locator('.kenny-pool-complete').allInnerTexts();
+   assert.deepEqual(bothComplete,[
+     'Alles aus dieser Kategorie eingesammelt.',
+     'Alles aus dieser Kategorie eingesammelt.'
+   ],'Five regular season items and rare Zebra need separate completed messages above/below the rarity bar');
+   const completeOrder=await poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'})
+     .first().locator('.kenny-pool-items').evaluate(el=>{
+       const children=[...el.children];
+       return ['.kenny-pool-complete-regular','.kenny-pool-zebra-divider',
+         '.kenny-pool-zebra','.kenny-pool-complete-zebra']
+         .map(selector=>children.indexOf(el.querySelector(selector)));
+     });
+   assert(completeOrder.every((position,index)=>position>=0&&(!index||position>completeOrder[index-1])),
+     'Collected notice for regular items must precede Zebra banner; Zebra collected notice follows it: '+
+       JSON.stringify(completeOrder));
    await poolContext.close();
   }
   console.log('PASS: Kenny complete-collection prize dialog and temporary reward gating.');

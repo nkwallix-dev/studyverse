@@ -841,6 +841,9 @@ export class App implements OnInit,OnDestroy {
    (!this.cloudConfigured||!!this.cloud.session&&this.cloudMaySave);}
  get kennyCashback():number{return cashbackDue(this.kennyState);}
  get kennyAllSkinsOwned():boolean{return this.kennySkins.every(skin=>skin.owned);}
+ get kennyRegularExclusivesComplete():boolean{
+   return KENNY_EVENT_ITEMS.filter(item=>item.id!=='kenny_skin_zebra').every(item=>this.owns(item));
+ }
  get kennyZebraChance():number{
    return KENNY_ODDS[Math.max(0,Math.min(4,this.kennyLevel-1))].zebra;
  }
