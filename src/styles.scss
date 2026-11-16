@@ -1004,11 +1004,11 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .kenny-fern{position:absolute;z-index:5;bottom:-14px;font-size:clamp(70px,11vw,135px);filter:brightness(.37) saturate(.8) drop-shadow(0 0 14px #080f13)}
 .kenny-fern.fern-left{left:-24px;transform:rotate(-22deg)}.kenny-fern.fern-right{right:-24px;transform:scaleX(-1) rotate(-22deg)}
 .kenny-stage-label{position:absolute;z-index:7;left:22px;top:17px;font-weight:950;font-size:10px;letter-spacing:2px;color:#ffdfba;text-shadow:0 2px 12px #1c1725}
-.kenny-sprite{position:absolute;z-index:6;left:50%;bottom:4%;height:min(72%,400px);width:auto;aspect-ratio:541 / 727;max-width:62%;background:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;transform:translateX(-50%) scale(var(--kenny-scale,1));transform-origin:center bottom;filter:drop-shadow(0 15px 16px #080d1d8c);animation:kenny-look 6.4s steps(1) infinite}
+.kenny-sprite{position:absolute;z-index:6;left:50%;bottom:4%;height:min(72%,400px);width:auto;aspect-ratio:541 / 727;max-width:62%;background:url('assets/kenny/skins/kenny-blue-idle-strip.png') left center / 400% 100% no-repeat;transform:translateX(-50%) scale(var(--kenny-scale,1));transform-origin:center bottom;filter:drop-shadow(0 15px 16px #080d1d8c);animation:kenny-look 6.4s steps(1) infinite}
 @keyframes kenny-look{0%,26%{background-position:0% 0}27%,48%{background-position:33.333% 0}49%,67%{background-position:66.667% 0}68%,100%{background-position:100% 0}}
 @keyframes kenny-feed-frames{0%,37%{background-position:0% 0}38%,55%{background-position:33.333% 0}56%,80%{background-position:66.667% 0}81%,100%{background-position:100% 0}}
 @keyframes kenny-feed-step{0%,38%,100%{transform:translateX(-50%) scale(var(--kenny-scale,1))}56%,81%{transform:translateX(calc(-50% + clamp(42px,13vw,170px))) scale(var(--kenny-scale,1))}}
-.kenny-stage.kenny-feeding .kenny-sprite{background-image:url('assets/kenny/kenny-feed-strip.png');animation:kenny-feed-frames 3.2s steps(1) both,kenny-feed-step 3.2s ease-in-out both}
+.kenny-stage.kenny-feeding .kenny-sprite{background-image:url('assets/kenny/skins/kenny-blue-feed-strip.png');animation:kenny-feed-frames 3.2s steps(1) both,kenny-feed-step 3.2s ease-in-out both}
 .kenny-landing-pad{position:absolute;z-index:5;left:80%;bottom:14%;width:72px;height:13px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#c39669,#413b40);box-shadow:0 8px 12px #0008;opacity:0;pointer-events:none}
 .kenny-drone{position:absolute;z-index:9;top:9%;left:calc(100% + 90px);width:82px;height:34px;transform:translateX(-50%);opacity:0;pointer-events:none;filter:drop-shadow(0 8px 8px #12152588)}
 .kenny-drone-body{position:absolute;inset:4px 16px 0;display:grid;place-items:center;border:2px solid #b7d8dc;border-radius:13px 13px 9px 9px;background:linear-gradient(135deg,#7189a0,#303e60);color:#ffe6a2;font-size:15px;box-shadow:inset 0 -6px 0 #17243b}
@@ -1025,9 +1025,20 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .kenny-stage.kenny-feeding .kenny-drone-crate{animation:kenny-crate-release 3.2s both}
 .kenny-stage.kenny-feeding .kenny-meat{animation:kenny-meat-drop 3.2s both}
 .kenny-stage.kenny-feeding .kenny-landing-pad{animation:kenny-pad-show 3.2s both}
-.kenny-sprite[data-skin="pink"],.kenny-mini-sprite[data-skin="pink"],.kenny-skin-grid img[data-skin="pink"],.kenny-reveal-art img[data-skin="pink"]{filter:hue-rotate(105deg) saturate(1.15) drop-shadow(0 12px 16px #10122382)}
-.kenny-sprite[data-skin="green"],.kenny-mini-sprite[data-skin="green"],.kenny-skin-grid img[data-skin="green"],.kenny-reveal-art img[data-skin="green"]{filter:hue-rotate(225deg) saturate(1.15) drop-shadow(0 12px 16px #10122382)}
-.kenny-sprite[data-skin="red"],.kenny-mini-sprite[data-skin="red"],.kenny-skin-grid img[data-skin="red"],.kenny-reveal-art img[data-skin="red"]{filter:hue-rotate(125deg) saturate(1.8) drop-shadow(0 12px 16px #10122382)}
+
+
+
+/* Dedicated four-frame sprite sheets: each skin has its own genuine idle and feed art. */
+.kenny-sprite[data-skin="blue"],.kenny-mini-sprite[data-skin="blue"]{background-image:url('assets/kenny/skins/kenny-blue-idle-strip.png')}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="blue"]{background-image:url('assets/kenny/skins/kenny-blue-feed-strip.png')}
+.kenny-sprite[data-skin="pink"],.kenny-mini-sprite[data-skin="pink"]{background-image:url('assets/kenny/skins/kenny-pink-idle-strip.png')}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="pink"]{background-image:url('assets/kenny/skins/kenny-pink-feed-strip.png')}
+.kenny-sprite[data-skin="green"],.kenny-mini-sprite[data-skin="green"]{background-image:url('assets/kenny/skins/kenny-green-idle-strip.png')}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="green"]{background-image:url('assets/kenny/skins/kenny-green-feed-strip.png')}
+.kenny-sprite[data-skin="red"],.kenny-mini-sprite[data-skin="red"]{background-image:url('assets/kenny/skins/kenny-red-idle-strip.png')}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="red"]{background-image:url('assets/kenny/skins/kenny-red-feed-strip.png')}
+.kenny-sprite[data-skin="zebra"],.kenny-mini-sprite[data-skin="zebra"]{background-image:url('assets/kenny/skins/kenny-zebra-idle-strip.png')}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="zebra"]{background-image:url('assets/kenny/skins/kenny-zebra-feed-strip.png')}
 @media(prefers-reduced-motion:reduce){.kenny-sprite{animation:none}.kenny-stage.kenny-feeding .kenny-sprite{animation:kenny-feed-frames 3.2s steps(1) both}.kenny-stage.kenny-feeding .kenny-drone,.kenny-stage.kenny-feeding .kenny-meat{animation:none}.kenny-stage.kenny-feeding .kenny-landing-pad{animation:none;opacity:1}}
 .kenny-stage-name{position:absolute;z-index:7;left:24px;right:145px;bottom:23px;display:grid;line-height:1.06;text-shadow:0 3px 14px #0a1019}
 .kenny-stage-name strong{font-size:clamp(26px,3vw,42px);letter-spacing:2px}.kenny-stage-name span{font-size:10px;line-height:1.25;letter-spacing:.2px;font-weight:900;color:#c9e7e7}
@@ -1052,9 +1063,9 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .kenny-pool-button{border:1px solid #8c7eb0;border-radius:11px;background:#ffffff14;color:#f3e9ff;font-size:11px;font-weight:900;padding:9px}
 .kenny-season-foot{grid-column:1/-1;display:flex;justify-content:space-between;gap:9px;align-items:center;font-size:10px;letter-spacing:.6px;color:#d9cfdd;font-weight:850}.kenny-season-foot span:nth-child(2){margin-left:auto;color:#ffd8a4}.kenny-season-foot button{display:none;background:none;border:0;color:#e7c6ff;font-weight:900}
 .kenny-avatar-image{display:block;max-height:100%;max-width:100%;width:100%;height:100%;object-fit:contain}
-.kenny-avatar-image[data-skin="pink"]{filter:hue-rotate(105deg) saturate(1.15) drop-shadow(0 5px 9px #10122382)}
-.kenny-avatar-image[data-skin="green"]{filter:hue-rotate(225deg) saturate(1.15) drop-shadow(0 5px 9px #10122382)}
-.kenny-avatar-image[data-skin="red"]{filter:hue-rotate(125deg) saturate(1.8) drop-shadow(0 5px 9px #10122382)}
+
+
+
 .avatar-pick-item>span{width:60px;height:60px;flex:0 0 60px;display:grid;place-items:center}
 .avatar-pick-item .kenny-avatar-image{width:58px;height:58px;max-width:58px;max-height:58px;object-fit:contain}
 .big-item-icon .kenny-avatar-image{width:95px;height:95px}.friend-character .kenny-avatar-image{width:100%;height:100%}
@@ -1071,7 +1082,7 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .universe .friend-showcase .friend-showcase-cover .banner-scenery>.scene-kenny-volcano{display:none!important}
 .universe .friend-showcase[data-banner="kenny_volcano"] .friend-showcase-cover .scene-kenny-volcano{display:block!important}
 .friend-showcase.universe[data-banner="kenny_volcano"]>.friend-showcase-cover.hero{background:radial-gradient(circle at 72% 28%,#ffcb9d9c,transparent 28%),linear-gradient(160deg,#30223d,#8a494d 55%,#1e3640)!important}
-.kenny-reveal-veil,.kenny-dialog-veil{z-index:100!important}.kenny-reveal-modal{width:min(440px,100%);max-height:calc(100dvh - 28px);overflow:auto;display:flex;flex-direction:column;align-items:center;text-align:center;background:radial-gradient(circle at 50% 16%,#754d6699,transparent 46%),linear-gradient(155deg,#262442,#111c2d);border-color:#eba775;padding:24px 20px}.kenny-reveal-art{width:100%;height:min(23dvh,160px);flex:0 0 auto;min-height:0;display:grid;place-items:center;overflow:hidden;isolation:isolate;margin:8px auto 12px}.kenny-reveal-art img{max-height:100%;max-width:100%;object-fit:contain;filter:drop-shadow(0 12px 18px #0007)}.kenny-mini-sprite{height:100%;aspect-ratio:541 / 727;background:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;animation:kenny-look 3.6s steps(1) infinite}.kenny-reveal-art span{font-size:clamp(72px,11vw,128px)}.kenny-reveal-modal h2{position:relative;z-index:1;width:100%;font-size:clamp(23px,4vw,32px);line-height:1.17;margin:3px 0 8px;overflow-wrap:anywhere}.kenny-reveal-modal h2 span{display:block;color:#ffcb87}.kenny-reveal-modal p{font-size:13px;margin:6px 0 9px}.kenny-reveal-modal .btn.primary{background:linear-gradient(110deg,#ffbc75,#f28e88)}
+.kenny-reveal-veil,.kenny-dialog-veil{z-index:100!important}.kenny-reveal-modal{width:min(440px,100%);max-height:calc(100dvh - 28px);overflow:auto;display:flex;flex-direction:column;align-items:center;text-align:center;background:radial-gradient(circle at 50% 16%,#754d6699,transparent 46%),linear-gradient(155deg,#262442,#111c2d);border-color:#eba775;padding:24px 20px}.kenny-reveal-art{width:100%;height:min(23dvh,160px);flex:0 0 auto;min-height:0;display:grid;place-items:center;overflow:hidden;isolation:isolate;margin:8px auto 12px}.kenny-reveal-art img{max-height:100%;max-width:100%;object-fit:contain;filter:drop-shadow(0 12px 18px #0007)}.kenny-mini-sprite{height:100%;aspect-ratio:541 / 727;background:url('assets/kenny/skins/kenny-blue-idle-strip.png') left center / 400% 100% no-repeat;animation:kenny-look 3.6s steps(1) infinite}.kenny-reveal-art span{font-size:clamp(72px,11vw,128px)}.kenny-reveal-modal h2{position:relative;z-index:1;width:100%;font-size:clamp(23px,4vw,32px);line-height:1.17;margin:3px 0 8px;overflow-wrap:anywhere}.kenny-reveal-modal h2 span{display:block;color:#ffcb87}.kenny-reveal-modal p{font-size:13px;margin:6px 0 9px}.kenny-reveal-modal .btn.primary{background:linear-gradient(110deg,#ffbc75,#f28e88)}
 .kenny-reveal-art img{display:block;width:auto;height:100%;max-width:100%;min-height:0;object-fit:contain}
 .kenny-level-reward{font-size:11px;color:#a9e9f7;margin:8px 2px 0}
 .kenny-reveal-actions{width:100%;display:flex;gap:9px;margin-top:10px}.kenny-reveal-actions .btn{flex:1;min-width:0}.kenny-reveal-actions .kenny-inventory-btn{border:1px solid #ae9dd6;background:#ffffff13;color:#f5edff}
@@ -1296,42 +1307,6 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @media(max-width:1000px){.dino-designer-grid{gap:7px}.dino-designer-skin-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.dino-designer-grid{grid-template-columns:minmax(0,1fr)}.dino-designer-live{height:320px}.dino-designer-locked{min-height:165px}.dino-mystery{width:110px}.dino-designer-skin-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-width:430px){.dino-designer-skin-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-/* Zebra: black stripes are blended with the actual sprite, not painted as
-   opaque white shapes that erase Kenny's face, eyes and animation details.
-   Keep the same frame mask and timing as the original idle/feed strips. */
-.kenny-sprite[data-skin="zebra"],.kenny-mini-sprite[data-skin="zebra"]{
- filter:grayscale(1) brightness(1.75) contrast(1.35)
-}
-.kenny-sprite[data-skin="zebra"]::after{
- content:"";position:absolute;inset:0;pointer-events:none;
- background:repeating-linear-gradient(114deg,transparent 0 12px,#101014c9 12px 18px,transparent 18px 30px,#101014b8 30px 34px);
- mix-blend-mode:multiply;opacity:.86;
- mask:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;
- -webkit-mask:url('assets/kenny/kenny-idle-strip.png') left center / 400% 100% no-repeat;
- animation:kenny-zebra-mask 6.4s steps(1) infinite
-}
-@keyframes kenny-zebra-mask{
- 0%,26%{mask-position:0% 0;-webkit-mask-position:0% 0}
- 27%,48%{mask-position:33.333% 0;-webkit-mask-position:33.333% 0}
- 49%,67%{mask-position:66.667% 0;-webkit-mask-position:66.667% 0}
- 68%,100%{mask-position:100% 0;-webkit-mask-position:100% 0}
-}
-.kenny-stage.kenny-feeding .kenny-sprite[data-skin="zebra"]::after{
- mask-image:url('assets/kenny/kenny-feed-strip.png');
- -webkit-mask-image:url('assets/kenny/kenny-feed-strip.png');
- animation:kenny-zebra-feed-mask 3.2s steps(1) both
-}
-@keyframes kenny-zebra-feed-mask{
- 0%,37%{mask-position:0% 0;-webkit-mask-position:0% 0}
- 38%,55%{mask-position:33.333% 0;-webkit-mask-position:33.333% 0}
- 56%,80%{mask-position:66.667% 0;-webkit-mask-position:66.667% 0}
- 81%,100%{mask-position:100% 0;-webkit-mask-position:100% 0}
-}
-.kenny-avatar-image[data-skin="zebra"],.dino-designer-skin-grid img[data-skin="zebra"],.kenny-skin-grid img[data-skin="zebra"],.kenny-reveal-art img[data-skin="zebra"]{
- filter:grayscale(1) brightness(2) contrast(1.4)
-}
-
-
 .inventory-dino-designer-btn{flex:0 0 auto;min-width:205px;border:1px solid #d18dec;border-radius:14px;background:linear-gradient(120deg,#59316f,#35204d);color:white;padding:13px 18px;font-weight:900;cursor:pointer}
 .inventory-dino-designer-btn:hover{filter:brightness(1.14)}
 @media(max-width:650px){.inventory-summary{flex-wrap:wrap}.inventory-dino-designer-btn{width:100%}}
@@ -1620,23 +1595,15 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
   width:100%!important;height:100%!important;max-width:100%;max-height:100%;
   display:block;object-fit:contain
 }
-.dino-designer-skin-grid img[data-skin="pink"]{filter:hue-rotate(105deg) saturate(1.15) drop-shadow(0 5px 9px #10122382)}
-.dino-designer-skin-grid img[data-skin="green"]{filter:hue-rotate(225deg) saturate(1.15) drop-shadow(0 5px 9px #10122382)}
-.dino-designer-skin-grid img[data-skin="red"]{filter:hue-rotate(125deg) saturate(1.8) drop-shadow(0 5px 9px #10122382)}
+
+
+
 .dino-designer-skin-grid button:disabled,
 .kenny-skin-grid button:disabled{
   opacity:1;cursor:not-allowed;background:#201c34;border-color:#534b67
 }
 .dino-designer-skin-grid button:disabled :is(strong,small),
 .kenny-skin-grid button:disabled :is(strong,small){opacity:.65}
-.kenny-skin-preview[data-skin="zebra"]::after{
-  content:"";position:absolute;inset:0;pointer-events:none;opacity:.89;
-  background:repeating-linear-gradient(112deg,#fff 0 9px,#16141c 9px 13px,#fff 13px 23px,#111 23px 28px);
-  -webkit-mask-image:var(--kenny-avatar-mask);mask-image:var(--kenny-avatar-mask);
-  -webkit-mask-size:contain;mask-size:contain;
-  -webkit-mask-position:center;mask-position:center;
-  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat
-}
 @media(max-width:700px){
   .universe.designer-mode .dino-designer-skin-grid .kenny-skin-preview{width:27px;height:27px}
 }

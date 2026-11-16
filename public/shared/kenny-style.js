@@ -20,6 +20,10 @@
   function apply(){
     const skin=current();
     document.documentElement.dataset.kennySkin=skin;
+    document.querySelectorAll?.('.kenny-visual img').forEach(image=>{
+      const path='../kenny/skins/kenny-'+skin+'-portrait.png';
+      if(image.getAttribute('src')!==path)image.setAttribute('src',path);
+    });
     const colors={blue:"#14283b",pink:"#38243d",green:"#183929",red:"#452b30",zebra:"#25252e"};
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content",colors[skin]);
     return skin;
