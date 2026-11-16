@@ -34,7 +34,7 @@ export const COSMETIC_IMAGES: Readonly<Record<string,string>> = {
   "kenny_avatar_pink": "cosmetics/avatars/kenny_pink_avatar.png",
   "kenny_avatar_green": "cosmetics/avatars/kenny_green_avatar.png",
   "kenny_avatar_red": "cosmetics/avatars/kenny_red_avatar.png",
-  "kenny_avatar_zebra": "kenny/skins/kenny-zebra-portrait.png",
+  "kenny_avatar_zebra": "cosmetics/avatars/kenny_zebra_avatar.png",
   "tasty_token": "cosmetics/currency/tasty_token.png",
   "kenny_feed_button": "cosmetics/ui/feed_exchange.png",
 };
