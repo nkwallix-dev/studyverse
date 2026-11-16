@@ -2114,3 +2114,10 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .kenny-pool-dialog .kenny-pool-items > small.kenny-pool-complete-zebra {
   margin:1px 0 0;
 }
+
+/* Keep the full destination on desktop; a legible compact label on tiny phones. */
+.companion-kenny-back .kennyverse-action-compact{display:none}
+@media(max-width:400px){
+  .companion-kenny-back .kennyverse-action-full{display:none}
+  .companion-kenny-back .kennyverse-action-compact{display:inline}
+}
