@@ -362,7 +362,9 @@ export class App implements OnInit,OnDestroy {
  }
  playerCosmetic(player:PublicPlayer,group:string):string {
    const value=player.showcase[group as keyof PublicShowcase];
-   const item=[...SHOP_ITEMS,...LEGACY_OWNED_ITEMS].find(x=>x.group===group&&(x.equip||x.id)===value);
+   const item = [...SHOP_ITEMS, ...KENNY_ITEMS, ...LEGACY_OWNED_ITEMS].find(
+     (candidate) => candidate.group === group && (candidate.equip || candidate.id) === value,
+   );
    return item?this.itemDisplayName(item):group==='theme'?'Studyverse Standard':
      group==='frame'?'Kein Rahmen':group==='banner'?'Standard-Banner':
      group==='font'?'Standardschrift':group==='atm'?'Kein Hintergrund':'Kein Effekt';
