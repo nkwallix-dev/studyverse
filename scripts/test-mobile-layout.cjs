@@ -307,7 +307,7 @@ async function main(){
        await page.screenshot({path:path.join(screenshots,'shop-preview-obstruction-390.png')});
        throw error;
       }
-      const preview=page.locator('.shop-live-stage[data-atm="dots"]');
+      const preview = page.locator('.shop-preview-modal .shop-live-stage[data-atm="dots"]');
       await preview.waitFor();
       const dotsVisual=await preview.evaluate(el=>{
        const rule=getComputedStyle(el,'::after');
