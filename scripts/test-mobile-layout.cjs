@@ -199,12 +199,12 @@ async function main(){
        visible:getComputedStyle(b).visibility,
        whiteSpace:getComputedStyle(b).whiteSpace,
        scrollWidth:b.scrollWidth,clientWidth:b.clientWidth,
-       text:b.innerText.trim()
+       text:b.innerText.trim(),containerWidth:b.parentElement.getBoundingClientRect().width
      })));
      assert(topActions.length===2&&Math.abs(topActions[0].width-topActions[1].width)<=1&&
        topActions.every(action=>action.width>100&&action.height>=38&&action.visible==='visible'),
        'My Companions and Enter Kennyverse must share equal-width, visible buttons: '+JSON.stringify(topActions));
-     assert(topActions[1].text===(width<=400?'Kennyverse ↗':'Kennyverse betreten ↗') &&
+     assert(topActions[1].text===(topActions[1].containerWidth<=410?'Kennyverse ↗':'Kennyverse betreten ↗') &&
        topActions.every(a=>a.whiteSpace==='nowrap'&&a.scrollWidth<=a.clientWidth+1),
        'Kennyverse action must not wrap or overflow at any viewport: '+JSON.stringify(topActions));
      const actionsToLoot=await page.evaluate(()=>{
