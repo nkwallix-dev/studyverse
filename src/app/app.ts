@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DinoDesignerComponent } from './features/dinoverse/dino-designer/dino-designer.component';
+import { KennyRewardOverviewComponent } from './features/dinoverse/rewards/kenny-reward-overview.component';
+import { KennyPoolDialogComponent } from './features/dinoverse/rewards/kenny-pool-dialog.component';
 import { CosmeticIconComponent } from './cosmetic-icon.component';
 import { CosmeticArtComponent } from './cosmetic-art.component';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
@@ -57,7 +59,7 @@ export const SUBJECTS:Subject[]=[
 ];
 
 @Component({
- selector:'app-root', standalone:true, imports:[CommonModule,FormsModule,CosmeticIconComponent,CosmeticArtComponent,DinoDesignerComponent],
+ selector:'app-root', standalone:true, imports:[CommonModule,FormsModule,CosmeticIconComponent,CosmeticArtComponent,DinoDesignerComponent,KennyRewardOverviewComponent,KennyPoolDialogComponent],
  templateUrl:'./app.html', styleUrl:'./app.scss'
 })
 export class App implements OnInit,OnDestroy {
@@ -813,6 +815,7 @@ export class App implements OnInit,OnDestroy {
  }
  get kennySeason(){return KENNY_SEASON;}
  readonly kennyEventItems=KENNY_EVENT_ITEMS;
+ get kennyOwnedEventIds():string[]{return KENNY_EVENT_ITEMS.filter(item=>this.owns(item)).map(item=>item.id);}
  get kennyState():DinoSeasonState{return normalizeDinoState(this.profile.dinoSeasons?.[KENNY_SEASON.id]);}
  get kennyLevel():number{return dinoLevel(this.kennyState.feeds);}
  get kennyVisualLevel():number{return dinoLevel(this.kennyVisibleFeeds??this.kennyState.feeds);}

@@ -91,9 +91,11 @@ assert(d.hasKennyCompanion({...state,feeds:25},d.KENNY_SEASON.end+180*86400000),
  'Kennyverse stays unlocked beyond the season after reaching level 5');
 const html=fs.readFileSync('src/app/app.html','utf8'),css=fs.readFileSync('src/styles.scss','utf8');
 const designer=fs.readFileSync('src/app/features/dinoverse/dino-designer/dino-designer.component.html','utf8');
+const rewardOverview=fs.readFileSync('src/app/features/dinoverse/rewards/kenny-reward-overview.component.html','utf8');
+const poolDialog=fs.readFileSync('src/app/features/dinoverse/rewards/kenny-pool-dialog.component.html','utf8');
 assert(html.includes('kenny-sprite')&&html.includes('kenny-avatar.png')&&html.includes('kenny-feeding'));
 assert(html.includes('Kennyverse betreten')&&html.includes('kenny-reveal-modal')&&html.includes('openCompanions()'));
-assert(html.includes('Ab Level 5 schließt sich Kenny deinen Begleitern an.'),
+assert(rewardOverview.includes('Ab Level 5 schließt sich Kenny deinen Begleitern an.'),
  'Level-5 hint must correctly say Kenny joins your companions');
 assert(html.includes("player.showcase.dino?.level===5?'max.'"),
  'Player showcase must display the earned maximum Dino Level as max.');
@@ -109,8 +111,11 @@ assert(html.includes('kenny-action-row')&&html.includes('kenny-style-btn')&&
  'Dino Designer must be accessible beside the feeding button and show attainable skins');
 assert(appTS.includes("item.group!=='dinoSkin'&&this.owns(item)"),
  'Dino skins are not regular Shop or Inventory cosmetics');
-assert(html.includes('kenny-pool-dialog')&&!html.includes('Ein Futter kostet 300 TT. Du erhältst'),
+assert(html.includes('<app-kenny-pool-dialog')&&poolDialog.includes('kenny-pool-dialog')&&!poolDialog.includes('Ein Futter kostet 300 TT. Du erhältst'),
  'Prize dialog must no longer waste vertical room on redundant instructions');
+assert(html.includes('<app-kenny-reward-overview')&&html.includes('[kennyRegularExclusivesComplete]')&&
+ poolDialog.includes('kenny-pool-complete-regular')&&poolDialog.includes('kenny-pool-complete-zebra')&&
+ poolDialog.includes('(click)="closeRequested.emit()"'), 'Reward tiles and popup must retain parent data and close events');
 assert(css.includes('.universe.kenny-mode.kenny-mode{height:100dvh;min-height:0;overflow:hidden}'));
 for(const skin of ['blue','pink','green','red','zebra']){
  for(const action of ['idle','feed']){
