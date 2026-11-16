@@ -14,6 +14,7 @@ trainer bridges. The feature extraction is ongoing; see [roadmap.md](roadmap.md)
 | Kenny rewards | `features/dinoverse/rewards/` | Overview and pool popup receive effective odds, catalog tiers and owned IDs; only request opening/closing the popup |
 | Kenny season | `dino-season.ts` and orchestration in `app.ts` | `profile.dinoSeasons['kenny-2026']`; keep saved IDs and odds stable |
 | Shop and inventory | `shop-items.ts`, `legacy-owned-items.ts`, selectors in `app.ts` | Stored inventory is an array of unchanged item IDs |
+| Inventory view | `features/inventory/` | Receives filtered cards and label options; emits filter, preview, equipment and shop-navigation requests |
 | Cosmetics imagery | `cosmetic-assets.ts`, `cosmetic-icon.component.ts`, `cosmetic-art.component.ts` | Pure display mapping; no migration of stored values |
 | Authentication and cloud | `cloud.ts`, orchestration in `app.ts` | Existing Firebase Auth/Firestore documents and local backup format |
 | Trainers and achievements | `trainer-registry.ts`, trainer bridges in `app.ts` | Per-verse saves, claimed rewards and XP |
@@ -29,6 +30,11 @@ still computes effective chances and ownership from the existing season and
 profile; the components never draw a prize, change a balance or write a save.
 The two separately positioned completion notices for ordinary season items
 and Zebra remain in the pool popup template.
+
+The inventory view receives already-filtered cards and collection/category
+options. Filter events update the existing parent fields; equipment requests
+still call `buyOrEquip`, which owns the existing equip, token and save rules.
+The component neither persists a profile nor interprets legacy item IDs.
 
 ## State and compatibility
 

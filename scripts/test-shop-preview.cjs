@@ -77,8 +77,9 @@ for(const [subject,path] of [['nawi','public/nawi/test-01/index.html'],['dsai','
 assert(t.includes("return item.group===slot?(item.equip||item.id)"),'Candidate item must only alter its own sample slot');
 console.log('PASS: scoped live previews and locked unavailable learning worlds.');
 
-const catalog=h.slice(h.indexOf('<div class="item-grid drop-item-grid"'),h.indexOf('class="item-grid drop-item-grid inventory-item-grid"'));
-const inventory=h.slice(h.indexOf('class="item-grid drop-item-grid inventory-item-grid"'),h.indexOf('class="empty-tests inventory-empty"'));
+const catalog=h.slice(h.indexOf('<div class="item-grid drop-item-grid"'),h.indexOf('<app-inventory'));
+const inventoryTemplate=fs.readFileSync('src/app/features/inventory/inventory.component.html','utf8');
+const inventory=inventoryTemplate.slice(inventoryTemplate.indexOf('class="item-grid drop-item-grid inventory-item-grid"'),inventoryTemplate.indexOf('class="empty-tests inventory-empty"'));
 assert(catalog.includes('class="item-title-row"'),'Shop badges must be adjacent to product title');
 assert(inventory.includes('class="item-title-row"'),'Inventory equipped badge must be adjacent to product title');
 assert(catalog.includes('class="item-inline-status unlocked-status"')&&catalog.includes('class="item-inline-status locked-status"'),'Catalog must label unlocked and locked, never owned');
@@ -87,7 +88,7 @@ assert(!catalog.includes('item-top-badge'),'No status overlays on catalog item a
 assert(!inventory.includes('inventory-equipped-badge'),'No status overlays on inventory art');
 assert(inventory.includes('class="item-inline-status equipped-status"'),'Equipped state should be a small badge beside inventory title');
 assert(!inventory.includes('✓ OWNED')&&!inventory.includes('IM INVENTAR'),'Inventory already means owned: no redundant ownership badges');
-assert(catalog.includes('<app-cosmetic-art [item]="item"/>')&&inventory.includes('<app-cosmetic-art [item]="item"/>'),
+assert(catalog.includes('<app-cosmetic-art [item]="item"/>')&&/<app-cosmetic-art\s+\[item\]="card\.item"\s*\/>/.test(inventory),
  'Catalog and inventory must use the same thumbnail renderer');
 const cosmeticArt=fs.readFileSync('src/app/cosmetic-art.component.ts','utf8');
 const cosmeticAssets=fs.readFileSync('src/app/cosmetic-assets.ts','utf8');

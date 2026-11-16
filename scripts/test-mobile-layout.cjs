@@ -307,7 +307,7 @@ async function main(){
        await page.screenshot({path:path.join(screenshots,'shop-preview-obstruction-390.png')});
        throw error;
       }
-      const preview=page.locator('.shop-live-stage[data-atm="dots"]');
+      const preview = page.locator('.shop-preview-modal .shop-live-stage[data-atm="dots"]');
       await preview.waitFor();
       const dotsVisual=await preview.evaluate(el=>{
        const rule=getComputedStyle(el,'::after');
@@ -771,6 +771,36 @@ async function main(){
   assert((await maxPage.locator('.preview-requirement').innerText()).includes('Durch Kenny, den Raptor freigeschaltet'),
    'Already owned cosmetics with an incomplete learning goal must not claim it was fulfilled');
   await maxPage.locator('.shop-preview-modal .btn.secondary').click();
+  const inventoryFilters = maxPage.locator('.inventory-filter-bar');
+  const collectionFilter = inventoryFilters.getByLabel('Kollektion');
+  const categoryFilter = inventoryFilters.getByLabel('Kategorie');
+  await collectionFilter.selectOption('dsai-test-01');
+  await categoryFilter.selectOption('avatar');
+
+  const panda = maxPage.locator('.inventory-item').filter({ hasText: 'Panda' });
+  const equipmentButton = panda.locator('.drop-buy-btn');
+  const originalButton = await equipmentButton.elementHandle();
+  assert.equal(await equipmentButton.innerText(), 'Ausrüsten');
+  assert(await equipmentButton.evaluate((button) => {
+    const control = getComputedStyle(button);
+    const card = getComputedStyle(button.closest('.inventory-item'));
+    return control.fontSize === card.fontSize && control.fontWeight === card.fontWeight;
+  }), 'Inventory actions inherit the same typography as the shell');
+  await equipmentButton.click();
+  await equipmentButton.filter({ hasText: 'Ablegen' }).waitFor({ state: 'visible', timeout: 5000 });
+  assert(await panda.locator('.equipped-status').isVisible());
+  assert(await equipmentButton.evaluate((button, original) => button === original, originalButton),
+    'Sorting the equipped avatar first must reuse its inventory card');
+  await originalButton.dispose();
+
+  await equipmentButton.click();
+  await equipmentButton.filter({ hasText: 'Ausrüsten' }).waitFor({ state: 'visible', timeout: 5000 });
+  await collectionFilter.selectOption('Alle');
+  await maxPage.waitForFunction(() => {
+    const filters = document.querySelectorAll('.inventory-filter-bar select');
+    return filters[1]?.value === 'Alle';
+  });
+
   await maxPage.setViewportSize({width:1200,height:850});
   const sidebarAlignment=await maxPage.locator('.navigation button').evaluateAll(buttons=>
    buttons.map(button=>({name:button.getAttribute('aria-label'),left:button.getBoundingClientRect().left})))

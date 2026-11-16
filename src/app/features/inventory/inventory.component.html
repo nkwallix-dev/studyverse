@@ -1,0 +1,71 @@
+<div class="inventory-filter-bar shop-filter-start">
+  <label>
+    Kollektion
+    <select [ngModel]="selectedDrop" (ngModelChange)="dropChanged.emit($event)">
+      <option *ngFor="let drop of dropOptions" [value]="drop.value">{{ drop.label }}</option>
+    </select>
+  </label>
+  <label>
+    Kategorie
+    <select [ngModel]="selectedCategory" (ngModelChange)="categoryChanged.emit($event)">
+      <option *ngFor="let group of categoryOptions" [value]="group.value">{{ group.label }}</option>
+    </select>
+  </label>
+  <label class="inventory-search-label">
+    Suchen
+    <input
+      type="search"
+      [ngModel]="search"
+      (ngModelChange)="searchChanged.emit($event)"
+      placeholder="Cosmetic suchen …"
+    />
+  </label>
+</div>
+<div class="inventory-results">
+  <strong>{{ cards.length }} Items</strong><span>in deiner Auswahl</span>
+</div>
+<div class="item-grid drop-item-grid inventory-item-grid" *ngIf="cards.length">
+  <article
+    class="item inventory-item"
+    *ngFor="let card of cards; trackBy: trackCard"
+    [attr.data-category]="card.item.group"
+    [class.equipped]="card.equipped"
+  >
+    <app-cosmetic-art [item]="card.item" />
+    <div class="inventory-item-detail">
+      <small>{{ card.collection }} · {{ card.category }}</small>
+      <h3 class="item-title-row">
+        <span class="item-name"
+          >{{ card.item.name
+          }}<span class="item-name-type" *ngIf="card.nameSuffix"> {{ card.nameSuffix }}</span></span
+        >
+        <span class="item-inline-status equipped-status" *ngIf="card.equipped">✓ Ausgerüstet</span>
+      </h3>
+      <p>{{ card.item.desc }}</p>
+    </div>
+    <div class="inventory-actions">
+      <button type="button" class="drop-preview-btn" (click)="previewRequested.emit(card.item)">
+        👁 Vorschau
+      </button>
+      <button type="button" class="drop-buy-btn" (click)="equipmentRequested.emit(card.item)">
+        {{ card.equipped ? 'Ablegen' : 'Ausrüsten' }}
+      </button>
+    </div>
+  </article>
+</div>
+<div class="empty-tests inventory-empty" *ngIf="cards.length === 0">
+  <span>🎒</span>
+  <h3>
+    {{
+      ownedItemCount === 0 ? 'Dein Inventar ist noch leer.' : 'Keine Cosmetics mit diesen Filtern.'
+    }}
+  </h3>
+  <p>
+    {{
+      ownedItemCount === 0
+        ? 'Schalte Test-Items durch Lernen frei und kaufe deine Lieblingsdesigns mit TastyTokens.'
+        : 'Probiere eine andere Kollektion, Kategorie oder Suche.'
+    }}
+  </p>
+  <button class="btn primary" (click)="shopRequested.emit()">Zum Item-Shop ↗</button>
+</div>
