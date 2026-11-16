@@ -376,7 +376,7 @@
                 <div class="dino-designer-skins"><strong>KENNYS SKINS</strong><p>{{kennyAllSkinsOwned||!kennyActive?'Alle freigeschalteten Farben':'Alle freischaltbaren Farben'}}</p>
                   <div class="dino-designer-skin-grid">
                     <button type="button" *ngFor="let skin of kennySkins" [disabled]="!skin.owned" [class.selected]="kennySkin===skin.id" (click)="setKennySkin(skin.id)">
-                      <span class="kenny-skin-preview" [attr.data-skin]="skin.id" style="--kenny-avatar-mask:url('kenny/kenny-avatar.png')"><img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id"></span>
+                      <span class="kenny-skin-preview" [attr.data-skin]="skin.id" ><img [src]="kennyPortrait(skin.id)" [alt]="skin.name"></span>
                       <strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Aktiv':'Ausrüsten'):'🔒 Gesperrt'}}</small>
                     </button>
                   </div>
@@ -567,7 +567,7 @@
       <div class="kenny-reveal-art" [class.kenny-reveal-item]="reveal.kind==='drop' && !!reveal.drop?.item">
         <div *ngIf="(reveal.kind==='level' && reveal.level!==5)||reveal.kind==='season'" class="kenny-mini-sprite" role="img" aria-label="Kenny freut sich" [attr.data-skin]="kennySkin"></div>
         <app-cosmetic-icon *ngIf="reveal.kind==='level' && reveal.level===5" id="kenny_avatar" fallback="🦖" label="Kenny Blau Avatar" [decorative]="false" [lazy]="false" class="avatar-icon"/>
-        <img *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='dinoSkin'" src="kenny/kenny-avatar.png" [attr.data-skin]="kennyRewardSkin(reveal.drop?.item?.id)" alt="Kenny-Skin">
+        <img *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='dinoSkin'" [src]="kennyPortrait(kennyRewardSkin(reveal.drop?.item?.id))" alt="Kenny-Skin">
         <span *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group!=='dinoSkin'"><app-cosmetic-icon [id]="reveal.drop?.item?.id || 'tasty_token'" [fallback]="reveal.drop?.item?.icon || '🪙'" [lazy]="false" class="avatar-icon"/></span>
       </div>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='level'">Kenny ist jetzt <span>Level {{reveal.level}}!</span></h2>
@@ -603,7 +603,7 @@
       <p>Deine Farben aus Kennys Season. Gesperrte Skins kannst du beim Füttern finden.</p>
       <div class="kenny-skin-grid">
         <button type="button" *ngFor="let skin of kennySkins" [disabled]="!skin.owned" [class.selected]="kennySkin===skin.id" (click)="setKennySkin(skin.id)">
-          <span class="kenny-skin-preview" [attr.data-skin]="skin.id" style="--kenny-avatar-mask:url('kenny/kenny-avatar.png')"><img src="kenny/kenny-avatar.png" alt="" [attr.data-skin]="skin.id"></span><strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Ausgewählt':'Ausrüsten'):'🔒 Gesperrt'}}</small>
+          <span class="kenny-skin-preview" [attr.data-skin]="skin.id" ><img [src]="kennyPortrait(skin.id)" [alt]="skin.name"></span><strong>{{skin.name}}</strong><small>{{skin.owned?(kennySkin===skin.id?'✓ Ausgewählt':'Ausrüsten'):'🔒 Gesperrt'}}</small>
         </button>
       </div>
     </div>
