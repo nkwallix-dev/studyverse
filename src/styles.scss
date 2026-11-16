@@ -2050,3 +2050,32 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
     padding:10px;
   }
 }
+
+
+/* Kenny prize sidebar: slightly smaller type gives long exclusive titles
+   (e.g. "Hat Pangea überlebt") a readable three-line wrap on desktop. */
+.universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong {
+  font-size:clamp(11px,.92vw,14px);
+  line-height:1.22;
+}
+@media(max-width:700px){
+  .universe.kenny-mode:not(.designer-mode) .kenny-exclusives strong {
+    font-size:clamp(9px,2.6vw,11px);
+    line-height:1.17;
+  }
+}
+/* Zebra is a distinct rare roll, not part of the 1–9% seasonal pool.
+   Always list it (including after collection) and show its level gate. */
+.kenny-pool-dialog .kenny-pool-chance-note {
+  color:#e6bfdc;font-weight:650;letter-spacing:0;
+}
+.kenny-pool-dialog .kenny-pool-items>span.kenny-pool-zebra {
+  border:1px solid #ffe4a65e;
+  background:#c6a66a16;
+}
+.kenny-pool-dialog .kenny-pool-items .kenny-pool-zebra-odds {
+  color:#ffdc9e;font-weight:850;
+}
+.kenny-pool-dialog .kenny-pool-items .kenny-pool-owned {
+  color:#9ee5c3;font-weight:900;
+}
