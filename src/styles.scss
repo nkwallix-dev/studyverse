@@ -500,7 +500,12 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .shop-live-stage.universe[data-banner="molecule"] .scene-molecule,
 .shop-live-stage.universe[data-banner="flow"] .scene-flow,
 .shop-live-stage.universe[data-banner="curve"] .scene-curve,
-.shop-live-stage.universe[data-banner="cloud"] .scene-cloud{display:block!important}
+.shop-live-stage.universe[data-banner='cloud'] .scene-cloud,
+.shop-live-stage.universe[data-banner='solitaire'] .scene-solitaire,
+.shop-live-stage.universe[data-banner='pink_paradise'] .scene-pink,
+.shop-live-stage.universe[data-banner='parallel_pulse'] .scene-parallel {
+  display: block !important;
+}
 .shop-live-stage.universe[data-banner="none"]>.shop-live-hero.hero,
 .shop-live-stage.universe[data-banner="default"]>.shop-live-hero.hero{
   background:var(--theme-hero,radial-gradient(circle at 78% 48%,#5546b27e,transparent 28%),linear-gradient(115deg,#1f1c48,#181933 57%,#222044))!important;
@@ -565,9 +570,12 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .universe[data-banner="solitaire"] :is(.scene-solitaire),
 .universe[data-banner="pink_paradise"] :is(.scene-pink),
 .universe[data-banner="parallel_pulse"] :is(.scene-parallel){display:block}
-.universe[data-banner="solitaire"] .hero:has(.banner-scenery){
- background:radial-gradient(ellipse at 84% 70%,#267a4fb8,transparent 45%),linear-gradient(118deg,#102e32 5%,#155a43 55%,#278563)!important;
- border-color:#6ae7b184;
+.universe[data-banner="solitaire"] .hero:has(.banner-scenery),
+.shop-live-stage.universe[data-banner='solitaire'] > .shop-live-hero.hero {
+  background:
+    radial-gradient(ellipse at 84% 70%, #267a4fb8, transparent 45%),
+    linear-gradient(118deg, #102e32 5%, #155a43 55%, #278563) !important;
+  border-color: #6ae7b184;
 }
 .universe[data-banner="solitaire"] .hero:has(.banner-scenery) .hero-badge{background:#103e3b85;border-color:#9affc86e;color:#dbffee}
 .universe[data-banner="solitaire"] .hero:has(.banner-scenery) .btn.primary{background:linear-gradient(115deg,#aef8c7,#f4ffb3);color:#123322}
@@ -583,9 +591,16 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .scene-solitaire .sol-star.s2{right:47%;top:60%;font-size:22px;animation-delay:-1.4s}
 @keyframes sharp-solitaire-fall{0%{translate:0 -14px;filter:brightness(1)}50%{translate:9px 17px;filter:brightness(1.06)}100%{translate:0 -3px;filter:brightness(1)}}
 @keyframes sharp-spark{0%{opacity:.28;scale:.75}100%{opacity:1;scale:1.25}}
-.universe[data-banner="pink_paradise"] .hero:has(.banner-scenery){
- background:radial-gradient(ellipse at 88% 26%,#ffd7f7af,transparent 44%),radial-gradient(ellipse at 35% 99%,#f7a4d375,transparent 50%),linear-gradient(110deg,#69305f 0%,#bb5e99 52%,#ffc4de 100%)!important;
- border-color:#ffd0e8bb;box-shadow:inset 0 0 40px #ffd1e43c,0 15px 38px #de85c123
+.universe[data-banner="pink_paradise"] .hero:has(.banner-scenery),
+.shop-live-stage.universe[data-banner='pink_paradise'] > .shop-live-hero.hero {
+  background:
+    radial-gradient(ellipse at 88% 26%, #ffd7f7af, transparent 44%),
+    radial-gradient(ellipse at 35% 99%, #f7a4d375, transparent 50%),
+    linear-gradient(110deg, #69305f 0%, #bb5e99 52%, #ffc4de 100%) !important;
+  border-color: #ffd0e8bb;
+  box-shadow:
+    inset 0 0 40px #ffd1e43c,
+    0 15px 38px #de85c123;
 }
 .universe[data-banner="pink_paradise"] .hero:has(.banner-scenery) .hero-badge{background:#66325d80;border-color:#ffd5eb9c;color:#ffe6f6}
 .universe[data-banner="pink_paradise"] .hero:has(.banner-scenery) .btn.primary{background:linear-gradient(115deg,#ffcfef,#ffe7ad);color:#6e315a}
@@ -599,7 +614,13 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .scene-pink .pink-spark.p2{right:46%;top:65%;font-size:23px;animation-delay:-.7s}
 .scene-pink .pink-spark.p3{right:28%;top:14%;font-size:29px;animation-delay:-1.2s}
 @keyframes sharp-pink-float{from{translate:0 10px;rotate:-7deg}to{translate:0 -14px;rotate:8deg}}
-.universe[data-banner="parallel_pulse"] .hero:has(.banner-scenery){background:radial-gradient(circle at 70% 40%,#bb83ff40,transparent 45%),repeating-linear-gradient(122deg,#172043 0 15px,#213e60 16px 17px,#161d3d 18px 37px)!important;border-color:#7df8dc79}
+.universe[data-banner="parallel_pulse"] .hero:has(.banner-scenery),
+.shop-live-stage.universe[data-banner='parallel_pulse'] > .shop-live-hero.hero {
+  background:
+    radial-gradient(circle at 70% 40%, #bb83ff40, transparent 45%),
+    repeating-linear-gradient(122deg, #172043 0 15px, #213e60 16px 17px, #161d3d 18px 37px) !important;
+  border-color: #7df8dc79;
+}
 .scene-parallel .parallel-grid{position:absolute;inset:0 0 0 43%;background:repeating-linear-gradient(0deg,transparent 0 40px,#6fe5da2b 41px 43px),repeating-linear-gradient(90deg,transparent 0 48px,#eea9ff20 49px 51px);transform:perspective(280px) rotateY(-12deg)}
 .scene-parallel .parallel-signal{position:absolute;right:6%;top:32%;color:#83ffe3;font-size:45px;text-shadow:0 0 35px #77f8e5;animation:sharp-signal 4s linear infinite}
 .scene-parallel .parallel-signal.b{right:24%;top:52%;animation-delay:-1.3s;color:#e3baff}

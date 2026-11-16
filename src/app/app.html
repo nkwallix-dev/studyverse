@@ -558,54 +558,172 @@
     </form>
   </div>
 
-  <div class="veil kenny-reveal-veil" *ngIf="visibleKennyReveal as reveal" role="dialog" aria-modal="true" aria-labelledby="kenny-reveal-title">
+  <div
+    class="veil kenny-reveal-veil"
+    *ngIf="visibleKennyReveal as reveal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="kenny-reveal-title"
+  >
+    @let reward = reveal.kind === 'drop' ? reveal.drop.item : reveal.item;
     <div class="modal kenny-reveal-modal">
-      <div class="eyebrow">🦖 {{reveal.kind==='level'?'KENNY LEVEL UP':reveal.kind==='season'?'SEASON-FINALE':'KENNY HAT AUFGEGESSEN'}}</div>
-      <div class="kenny-reveal-art" [class.kenny-reveal-item]="reveal.kind==='drop' && !!reveal.drop?.item">
-        <div *ngIf="(reveal.kind==='level' && reveal.level!==5)||reveal.kind==='season'" class="kenny-mini-sprite" role="img" aria-label="Kenny freut sich" [attr.data-skin]="kennySkin"></div>
-        <app-cosmetic-icon *ngIf="reveal.kind==='level' && reveal.level===5" id="kenny_avatar" fallback="🦖" label="Kenny Blau Avatar" [decorative]="false" [lazy]="false" class="avatar-icon"/>
-        <img *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='dinoSkin'" [src]="kennyPortrait(kennyRewardSkin(reveal.drop?.item?.id))" alt="Kenny-Skin">
-        <ng-container *ngIf="reveal.kind === 'drop' && reveal.drop?.item?.group !== 'dinoSkin'">
+      <div class="eyebrow">
+        🦖
+        @switch (reveal.kind) {
+          @case ('level') {
+            KENNY LEVEL UP
+          }
+          @case ('season') {
+            SEASON-FINALE
+          }
+          @default {
+            KENNY HAT AUFGEGESSEN
+          }
+        }
+      </div>
+      <div
+        class="kenny-reveal-art"
+        [class.kenny-reveal-item]="!!reward && reveal.kind !== 'level' && reveal.kind !== 'season'"
+      >
+        @if (reveal.kind === 'season' || (reveal.kind === 'level' && reveal.level !== 5)) {
+          <div
+            class="kenny-mini-sprite"
+            role="img"
+            aria-label="Kenny freut sich"
+            [attr.data-skin]="kennySkin"
+          ></div>
+        } @else if (reveal.kind === 'level') {
+          <app-cosmetic-icon
+            id="kenny_avatar"
+            fallback="🦖"
+            label="Kenny Blau Avatar"
+            [decorative]="false"
+            [lazy]="false"
+            class="avatar-icon"
+          />
+        } @else if (reward?.group === 'dinoSkin') {
+          <img [src]="kennyPortrait(kennyRewardSkin(reward?.id))" [alt]="reward?.name ?? ''" />
+        } @else if (reward?.group === 'banner') {
           <app-cosmetic-banner
-            *ngIf="reveal.drop?.item?.group === 'banner'; else revealIcon"
-            [banner]="reveal.drop?.item?.equip"
-            [label]="reveal.drop?.item?.name || ''"
+            [banner]="reward?.equip"
+            [label]="reward?.name ?? ''"
             loading="eager"
           />
-          <ng-template #revealIcon>
-            <span>
-              <app-cosmetic-icon
-                [id]="reveal.drop?.item?.id || 'tasty_token'"
-                [fallback]="reveal.drop?.item?.icon || '🪙'"
-                [lazy]="false"
-                class="avatar-icon"
-              />
-            </span>
-          </ng-template>
-        </ng-container>
+        } @else {
+          <span>
+            <app-cosmetic-icon
+              [id]="reward?.id ?? 'tasty_token'"
+              [fallback]="reward?.icon ?? '🪙'"
+              [lazy]="false"
+              class="avatar-icon"
+            />
+          </span>
+        }
       </div>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='level'">Kenny ist jetzt <span>Level {{reveal.level}}!</span></h2>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item?.id==='kenny_avatar'">Kenny begleitet dich jetzt <span>als Avatar!</span></h2>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='avatar'">Neuer Kenny-Avatar <span>freigeschaltet!</span></h2>
-       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && isKennyColorSkin(reveal.drop?.item?.id)">Neuer Skin für Kenny <span>freigeschaltet!</span></h2>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.id!=='kenny_avatar' && reveal.drop?.item?.group!=='avatar' && !isKennyColorSkin(reveal.drop?.item?.id)">Kenny hat dir etwas mitgebracht: <ng-container *ngIf="reveal.drop?.item as reward"><span>{{itemDisplayName(reward)}}</span></ng-container></h2>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && !reveal.drop?.item">Kenny hat TT gefunden: <span>{{reveal.drop?.tokens | number}} TT</span></h2>
-      <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='season'">Kennys Season <span>ist vorbei!</span></h2>
-      <p *ngIf="reveal.kind==='level' && reveal.level!==5">Weiterfüttern erhöht deine Chance auf wertvollere und exklusive Items.</p>
-      <p *ngIf="reveal.kind==='level' && reveal.level===5">Max-Level! 🦖 Kenny ist jetzt für immer dein Begleiter und Kennyverse bleibt auch nach Saisonende für dich spielbar. Kenny Blau liegt als Avatar im Inventar. Für jede weitere Fütterung bekommst du am Saisonende 150 TT zurück.</p>
-      <p *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='avatar'">Du kannst deinen neuen Kenny-Avatar jetzt ausrüsten oder später im Inventar auswählen.</p>
-       <p *ngIf="reveal.kind==='drop' && isKennyColorSkin(reveal.drop?.item?.id)">Neuer Skin für Kenny freigeschaltet! Du kannst Kenny individuell anpassen und seinen Look jederzeit im Dino-Designer wechseln.</p>
-       <ng-container *ngIf="reveal.kind==='drop' && reveal.drop?.item && reveal.drop?.item?.group!=='avatar' && !isKennyColorSkin(reveal.drop?.item?.id)">
-        <p class="kenny-reveal-flavor">{{reveal.line}}</p>
-        <p class="kenny-reveal-description">{{reveal.drop?.item?.desc}} Das Item liegt jetzt in deinem Inventar.</p>
-      </ng-container>
-      <p *ngIf="reveal.kind==='drop' && !reveal.drop?.item">{{reveal.line}} {{reveal.drop?.tokens | number}} TT landen in deinem Guthaben.</p>
-      <p *ngIf="reveal.kind==='season'">{{reveal.tokens ? (reveal.tokens | number)+' TT Cashback' : 'Kein Cashback'}}<span *ngIf="reveal.item"> · {{reveal.item.name}} freigeschaltet</span></p>
+      @switch (reveal.kind) {
+        @case ('skin') {
+          <h2 id="kenny-reveal-title">Neuer Skin für Kenny <span>freigeschaltet!</span></h2>
+          <p>Du hast {{ reward?.name }} gefunden!</p>
+        }
+        @case ('skinAvatar') {
+          <h2 id="kenny-reveal-title">Dazu gibt’s einen <span>Kenny-Avatar!</span></h2>
+          <p>
+            {{ reward?.name }} passt zu deinem neuen Skin. Du kannst den Avatar jetzt ausrüsten oder
+            später im Inventar auswählen.
+          </p>
+        }
+        @case ('skinDesigner') {
+          <h2 id="kenny-reveal-title">Kenny in <span>neuem Look!</span></h2>
+          <p>Du kannst deinen neuen Skin für Kenny direkt im Dino-Designer ausrüsten.</p>
+        }
+        @case ('drop') {
+          @if (reward) {
+            <h2 id="kenny-reveal-title">
+              Kenny hat dir etwas mitgebracht: <span>{{ itemDisplayName(reward) }}</span>
+            </h2>
+            @if (reward.group === 'avatar') {
+              <p>
+                Du kannst deinen neuen Avatar jetzt ausrüsten oder später im Inventar auswählen.
+              </p>
+            } @else {
+              <p class="kenny-reveal-flavor">{{ reveal.line }}</p>
+              <p class="kenny-reveal-description">
+                {{ reward.desc }} Das Item liegt jetzt in deinem Inventar.
+              </p>
+            }
+          } @else {
+            <h2 id="kenny-reveal-title">
+              Kenny hat TT gefunden: <span>{{ reveal.drop.tokens | number }} TT</span>
+            </h2>
+            <p>{{ reveal.line }} {{ reveal.drop.tokens | number }} TT landen in deinem Guthaben.</p>
+          }
+        }
+        @case ('level') {
+          <h2 id="kenny-reveal-title">
+            Kenny ist jetzt <span>Level {{ reveal.level }}!</span>
+          </h2>
+          @if (reveal.level === 5) {
+            <p>
+              Max-Level! 🦖 Kenny ist jetzt für immer dein Begleiter und Kennyverse bleibt auch nach
+              Saisonende für dich spielbar. Kenny Blau liegt als Avatar im Inventar. Für jede
+              weitere Fütterung bekommst du am Saisonende 150 TT zurück.
+            </p>
+          } @else {
+            <p>Weiterfüttern erhöht deine Chance auf wertvollere und exklusive Items.</p>
+          }
+        }
+        @case ('season') {
+          <h2 id="kenny-reveal-title">Kennys Season <span>ist vorbei!</span></h2>
+          <p>
+            {{ reveal.tokens ? (reveal.tokens | number) + ' TT Cashback' : 'Kein Cashback' }}
+            @if (reward) {
+              <span> · {{ reward.name }} freigeschaltet</span>
+            }
+          </p>
+        }
+      }
       <div class="kenny-reveal-actions">
-        <button type="button" class="btn primary" *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='avatar'" (click)="equipKennyRewardAvatar()">Ausrüsten &amp; Weiter</button>
-         <button type="button" class="btn primary" *ngIf="reveal.kind==='drop' && isKennyColorSkin(reveal.drop?.item?.id)" (click)="showKennyRewardSkin()">Zeig's mir ↗</button>
-         <button type="button" class="btn secondary" (click)="acknowledgeKennyReveal()">{{reveal.kind==='drop' && isKennyColorSkin(reveal.drop?.item?.id)?'Annehmen':kennyReveals.length>1?'Weiter →':'Annehmen'}}</button>
-        <button type="button" class="btn kenny-inventory-btn" *ngIf="(reveal.drop?.item || reveal.item) && reveal.drop?.item?.group!=='avatar' && !isKennyColorSkin(reveal.drop?.item?.id) && reveal.drop?.item?.id!=='kenny_skin_blue'" (click)="openKennyRewardInventory()">🎒 Im Inventar ansehen</button>
+        @if (
+          reveal.kind === 'skinAvatar' || (reveal.kind === 'drop' && reward?.group === 'avatar')
+        ) {
+          <button type="button" class="btn primary" (click)="equipKennyRewardAvatar()">
+            Ausrüsten &amp; Weiter
+          </button>
+        } @else if (reveal.kind === 'skinDesigner') {
+          <button type="button" class="btn primary" (click)="showKennyRewardSkin()">
+            Zeig's mir ↗
+          </button>
+        }
+        <button type="button" class="btn secondary" (click)="acknowledgeKennyReveal()">
+          @switch (reveal.kind) {
+            @case ('skin') {
+              Weiter
+            }
+            @case ('skinAvatar') {
+              Weiter
+            }
+            @case ('skinDesigner') {
+              Fertig
+            }
+            @default {
+              {{ kennyReveals.length > 1 ? 'Weiter →' : 'Annehmen' }}
+            }
+          }
+        </button>
+        @if (
+          reward &&
+          (reveal.kind === 'level' ||
+            reveal.kind === 'season' ||
+            (reveal.kind === 'drop' && reward.group !== 'avatar' && reward.group !== 'dinoSkin'))
+        ) {
+          <button
+            type="button"
+            class="btn kenny-inventory-btn"
+            (click)="openKennyRewardInventory()"
+          >
+            🎒 Im Inventar ansehen
+          </button>
+        }
       </div>
     </div>
   </div>
