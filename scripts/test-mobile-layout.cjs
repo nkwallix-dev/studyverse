@@ -193,10 +193,31 @@ async function main(){
      assert(prizes.bottom<=prizes.prizeBottom+3&&prizes.maxWidth<=prizes.parentRight+3&&
        prizes.scroll<=prizes.client+3&&prizes.lootBottom<=prizes.viewport-(width<=700?68:0)+3,
        'All Kenny-exclusive items must fit without scrolling: '+JSON.stringify(prizes));
+     const topActions=await page.locator('.companion-kenny-back button').evaluateAll(buttons=>buttons.map(b=>({
+       width:b.getBoundingClientRect().width,
+       height:b.getBoundingClientRect().height,
+       visible:getComputedStyle(b).visibility
+     })));
+     assert(topActions.length===2&&Math.abs(topActions[0].width-topActions[1].width)<=1&&
+       topActions.every(action=>action.width>100&&action.height>=38&&action.visible==='visible'),
+       'My Companions and Enter Kennyverse must share equal-width, visible buttons: '+JSON.stringify(topActions));
      await page.locator('.kenny-action-row .kenny-style-btn').click();
      await page.locator('.dino-designer-grid').waitFor({state:'visible'});
      assert.equal(await page.locator('.shop-view-tabs button').count(),3);
      assert.equal(await page.locator('.shop-view-tabs button').filter({hasText:'Designe deinen Dino'}).getAttribute('aria-selected'),'true');
+     const designerNav=page.locator('.dino-designer-heading-actions button');
+     assert.equal(await designerNav.count(),2,'The designer needs shortcuts to feeding and companions');
+     assert((await designerNav.first().innerText()).includes('Season-Dino füttern')&&
+       (await designerNav.last().innerText()).includes('Meine Begleiter'),
+       'Designer navigation labels must be clear');
+     const designerActionLayout=await designerNav.evaluateAll(buttons=>buttons.map(b=>({
+       width:b.getBoundingClientRect().width,
+       top:b.getBoundingClientRect().top,
+       right:b.getBoundingClientRect().right
+     })));
+     assert(designerActionLayout.every(b=>b.width>70&&b.right<=width+2)&&
+       Math.abs(designerActionLayout[0].top-designerActionLayout[1].top)<3,
+       'Designer navigation must stay aligned and inside the viewport: '+JSON.stringify(designerActionLayout));
      const colors=await page.locator('.dino-designer-skin-grid .kenny-skin-preview').evaluateAll(nodes=>nodes.map(node=>({
       skin:node.dataset.skin,
       imageSrc:node.querySelector('img').getAttribute('src'),
@@ -227,6 +248,10 @@ async function main(){
        designer.skinBottom<=designer.viewport-(width<=700?68:0)+3&&designer.stageHeight>65,
        'The complete Dino Designer including five skin buttons must fit at '+width+': '+JSON.stringify(designer));
      if(width===390)await page.screenshot({path:path.join(screenshots,'dino-designer-390.png'),fullPage:true});
+     await designerNav.first().click();
+     await page.locator('.kenny-feed-btn').waitFor({state:'visible'});
+     assert(await page.locator('.kenny-page').isVisible(),
+       'Feeding shortcut must open the existing current-season Dino-Verse, not trigger feeding');
     }
     if(label==='Item-Shop'){
      assert.equal(await page.locator('.shop-banner.drop-hero').count(),0,
@@ -424,7 +449,7 @@ async function main(){
   const unlockedSkins=dinoProfile.inventory.filter(id=>id.startsWith('kenny_skin_')&&id!=='kenny_skin_blue').length;
   assert.equal(await dinoPage.locator('.dino-designer-skin-grid button:disabled').count(),4-unlockedSkins,
    'Only owned skins may be selected, including the rare zebra skin');
-  await dinoPage.locator('.dino-designer-heading button').click();
+  await dinoPage.locator('.dino-designer-heading-actions button').filter({hasText:'Meine Begleiter'}).click();
   await dinoContext.close();
   console.log('PASS: Kenny viewport, three feeds, reward reveals, XP isolation and locked skins.');
   // The blue avatar is granted at the 25th feed, independently of the random drop.
@@ -467,6 +492,12 @@ async function main(){
      JSON.stringify(poolButtonFit));
    await poolPage.locator('.kenny-pool-button').click();
    await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
+   const exclusiveSection=poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'}).first();
+   assert.equal(await exclusiveSection.locator('.kenny-pool-items > span').count(),6,
+     'All six Season items must stay visible in the Item Pool, including Zebra');
+   assert((await exclusiveSection.innerText()).includes('Kenny Zebra') &&
+     (await exclusiveSection.innerText()).includes('0,5 %'),
+     'Zebra must visibly show its separately reserved 0.5% odds at level 5');
    const modal=await poolPage.evaluate(()=>{
     const root=document.querySelector('.kenny-pool-dialog');
     const list=document.querySelector('.kenny-pool-scroll');
@@ -568,7 +599,7 @@ async function main(){
   await colorPage.locator('.dino-designer-grid').waitFor({state:'visible'});
   assert(await colorPage.locator('.dino-designer-skin-grid button').filter({hasText:'Kenny Pink'}).isEnabled(),
    'Zeig\'s mir must open the skin selector with the new color unlocked');
-  await colorPage.locator('.dino-designer-heading button').click();
+  await colorPage.locator('.dino-designer-heading-actions button').filter({hasText:'Meine Begleiter'}).click();
   await colorPage.locator('.navigation button[aria-label="Item-Shop"]').click();
   await colorPage.locator('.shop-view-tabs button').filter({hasText:'Inventar'}).click();
   await colorPage.locator('.inventory-search-label input').fill('Kenny Pink');

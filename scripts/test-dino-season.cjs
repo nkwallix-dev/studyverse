@@ -22,7 +22,8 @@ assert.equal(pool.event.length,5);
 assert.equal(pool.zebra.length,1);
 assert.equal(d.KENNY_ZEBRA_SKIN.id,'kenny_skin_zebra');
 assert.equal(d.KENNY_ODDS[4].zebra,0.5,'Level 5 zebra chance must be 0.5%');
-assert.deepEqual(Array.from(d.KENNY_ODDS,x=>x.zebra),[0.1,0.2,0.3,0.4,0.5]);
+assert.deepEqual(Array.from(d.KENNY_ODDS,x=>x.zebra),[0,0,0,0.5,0.5],
+ 'Zebra MUST NOT be obtainable below level 4; level 4 and 5 have fixed 0.5% odds');
 assert.equal(d.KENNY_BLUE_AVATAR.id,'kenny_avatar');
 assert.equal(d.KENNY_BLUE_SKIN.id,'kenny_skin_blue');
 assert(!pool.event.some(item=>item.id==='kenny_avatar'),'Blue Kenny must unlock at level 5, not by chance');
@@ -49,13 +50,22 @@ assert.equal(d.actualDinoOdds(5,rich).event,9,'More than 20 ordinary rewards mus
 assert.equal(d.actualDinoOdds(5,noSmall).token100,48.5,'Empty small-item tier shifts to 100 TT, not the remaining cosmetics');
 const sparse=d.eligibleDinoItems([{id:'sharp_only',drop:'pos-pa-01',group:'avatar',cost:200,requirement:{metric:'boss',value:99}}],new Set());
 assert.equal(sparse.small.length,0,'Kenny must never drop Sharpverse cosmetics');
-assert(Math.abs(d.actualDinoOdds(2,sparse).token100-90.8)<1e-8,'Empty regular tiers shift their chance to 100 TT');
+assert(Math.abs(d.actualDinoOdds(2,sparse).token100-91)<1e-8,'Empty regular tiers shift their chance to 100 TT');
 const empty=d.eligibleDinoItems([...professors,...ordinary],new Set([
  ...professors.map(item=>item.id),...ordinary.map(item=>item.id),...d.KENNY_EVENT_ITEMS.map(item=>item.id)
 ]));
 assert.equal(Object.values(empty).flat().length,0);
 assert.equal(d.actualDinoOdds(5,empty).zebra,0,'Owned zebra cannot drop twice');
 assert.equal(d.drawDinoReward(5,pool,()=>0.6675).item?.id,'kenny_skin_zebra','Zebra owns a reserved 0.5% slot');
+assert.equal(d.drawDinoReward(4,pool,()=>0.6575).item?.id,'kenny_skin_zebra','Level 4 Zebra also has a reserved 0.5% slot');
+for(let level=1;level<=5;level++){
+ assert.equal(d.actualDinoOdds(level,pool).zebra,level<4?0:0.5,
+   'Wrong effective Zebra chance for Kenny level '+level);
+ const zebraRolls=Array.from({length:10000},(_,i)=>d.drawDinoReward(level,pool,()=>(i+0.5)/10000))
+   .filter(prize=>prize.tier==='zebra').length;
+ assert.equal(zebraRolls,level<4?0:50,
+   'Every 10,000 equally spaced rolls must give exactly 0 / 50 Zebra slots at level '+level);
+}
 const emptyOdds=d.actualDinoOdds(5,empty);
 assert.equal(Object.values(emptyOdds).reduce((n,x)=>n+x,0),100);
 assert.deepEqual([emptyOdds.token100,emptyOdds.token500,emptyOdds.token1000],[93,5,2]);

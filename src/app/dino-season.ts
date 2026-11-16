@@ -8,15 +8,18 @@ export const KENNY_SEASON={
 export const KENNY_THRESHOLDS=[0,3,8,15,25] as const;
 export type DinoTier='small'|'medium'|'large'|'event'|'zebra'|'token100'|'token500'|'token1000';
 export const KENNY_ODDS:ReadonlyArray<Readonly<Record<DinoTier,number>>>=[
-  {small:33.9,medium:24,large:5,event:1,zebra:0.1,token100:30,token500:5,token1000:1},
-  {small:31.8,medium:24,large:6,event:3,zebra:0.2,token100:29,token500:5,token1000:1},
-  {small:28.7,medium:25,large:7,event:5,zebra:0.3,token100:28,token500:5,token1000:1},
-  {small:25.6,medium:25,large:8,event:7,zebra:0.4,token100:27,token500:5,token1000:2},
+  // Zebra is inaccessible at Levels 1–3, then has a fixed 0.5% roll
+  // at both Levels 4 and 5. Other prizes and token odds stay unchanged.
+  // The small-items tier absorbs the 0.1–0.3pp redistribution.
+  {small:34,medium:24,large:5,event:1,zebra:0,token100:30,token500:5,token1000:1},
+  {small:32,medium:24,large:6,event:3,zebra:0,token100:29,token500:5,token1000:1},
+  {small:29,medium:25,large:7,event:5,zebra:0,token100:28,token500:5,token1000:1},
+  {small:25.5,medium:25,large:8,event:7,zebra:0.5,token100:27,token500:5,token1000:2},
   {small:22.5,medium:26,large:9,event:9,zebra:0.5,token100:26,token500:5,token1000:2}
 ];
 export const KENNY_ZEBRA_SKIN:ShopItem={
   id:'kenny_skin_zebra',kind:'dinoSkin',icon:'🦓',name:'Kenny Zebra',cost:0,
-  desc:'ULTRA RARE: weiß mit schwarzen Zebrastreifen. Selbst auf Level 5 nur 0,5 % Dropchance.',
+  desc:'ULTRA RARE: weiß mit schwarzen Zebrastreifen. Erst ab Level 4 mit genau 0,5 % Dropchance.',
   group:'dinoSkin',equip:'zebra',drop:KENNY_SEASON.id
 };
 export const KENNY_EVENT_ITEMS:ShopItem[]=[
