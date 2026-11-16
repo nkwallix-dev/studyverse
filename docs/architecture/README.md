@@ -11,6 +11,7 @@ trainer bridges. The feature extraction is ongoing; see [roadmap.md](roadmap.md)
 | --- | --- | --- |
 | Shell and navigation | `src/app/app.ts`, `app.html` | `View` / `shopTab` are local UI state |
 | Dino Designer | `features/dinoverse/dino-designer/` | Inputs are current skin, level, availability and choices; outputs request navigation or a skin selection |
+| Kenny rewards | `features/dinoverse/rewards/` | Overview and pool popup receive effective odds, catalog tiers and owned IDs; only request opening/closing the popup |
 | Kenny season | `dino-season.ts` and orchestration in `app.ts` | `profile.dinoSeasons['kenny-2026']`; keep saved IDs and odds stable |
 | Shop and inventory | `shop-items.ts`, `legacy-owned-items.ts`, selectors in `app.ts` | Stored inventory is an array of unchanged item IDs |
 | Cosmetics imagery | `cosmetic-assets.ts`, `cosmetic-icon.component.ts`, `cosmetic-art.component.ts` | Pure display mapping; no migration of stored values |
@@ -22,6 +23,12 @@ The Dino Designer is a presentation component: its events call the existing
 parent methods. `setKennySkin` still checks ownership and saves through the
 existing path. Its portrait helper only chooses an image URL; sprite animation
 and reward odds remain in the existing code.
+
+The Kenny reward overview and prize popup use typed display inputs. `app.ts`
+still computes effective chances and ownership from the existing season and
+profile; the components never draw a prize, change a balance or write a save.
+The two separately positioned completion notices for ordinary season items
+and Zebra remain in the pool popup template.
 
 ## State and compatibility
 

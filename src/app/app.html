@@ -342,20 +342,9 @@
                 <p class="kenny-error" *ngIf="kennyError">{{kennyError}}</p>
               </div>
             </div>
-            <aside class="kenny-loot">
-              <div class="kenny-loot-head"><span>✦ MÖGLICHE GEWINNE</span><small>Chancen für Level {{kennyLevel}}</small></div>
-              <div class="kenny-token-prizes">
-                <div><span><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/></span><strong>100 TT</strong><small>{{kennyOdds.token100}} %</small></div>
-                <div><span><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/></span><strong>500 TT</strong><small>{{kennyOdds.token500}} %</small></div>
-                <div class="jackpot"><span><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/></span><strong>1.000 TT</strong><small>{{kennyOdds.token1000}} %</small></div>
-              </div>
-              <div class="kenny-loot-subhead"><strong>KENNY-EXKLUSIV</strong><span>6 exklusive Drops</span></div>
-              <div class="kenny-exclusives">
-                <div *ngFor="let item of kennyEventItems" [class.collected]="owns(item)"><span><app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="avatar-icon"/></span><strong>{{item.name}}</strong><small>{{owns(item)?'✓':'🔒'}}</small></div>
-              </div>
-              <p class="kenny-level-reward">🦖 Ab Level 5 schließt sich Kenny deinen Begleitern an.</p>
-              <button type="button" class="kenny-pool-button" (click)="kennyPoolOpen=true">Alle möglichen Items ansehen ↗</button>
-            </aside>
+            <app-kenny-reward-overview [kennyLevel]="kennyLevel" [kennyOdds]="kennyOdds"
+              [kennyEventItems]="kennyEventItems" [ownedEventIds]="kennyOwnedEventIds"
+              (prizesRequested)="kennyPoolOpen=true"/>
             <div class="kenny-season-foot"><span>✦ LEVEL 5: KENNY BLEIBT ALS BEGLEITER · SAISONENDE: URZEIT-FOSSILRAHMEN</span><span>{{kennyPermanent&&!kennyActive?'✦ DEIN DAUERHAFTER BEGLEITER':'⏳ '+kennyCountdown}}</span><button type="button" (click)="kennyPoolOpen=true">Gewinne ansehen ↗</button></div>
           </section>
           <app-dino-designer *ngIf="shopTab==='designer'"
@@ -584,31 +573,9 @@
     </div>
   </div>
 
-  <div class="veil kenny-dialog-veil" *ngIf="kennyPoolOpen" role="dialog" aria-modal="true" aria-label="Kennys mögliche Gewinne" (click)="kennyPoolOpen=false">
-    <div class="modal kenny-dialog kenny-pool-dialog" (click)="$event.stopPropagation()">
-      <button type="button" class="kenny-dialog-close" (click)="kennyPoolOpen=false" aria-label="Schließen">✕</button>
-      <span class="eyebrow">✦ KENNY · LEVEL {{kennyLevel}}</span><h2>Alle <span>Gewinne.</span></h2>
-
-      <div class="kenny-pool-scroll">
-        <div class="kenny-pool-section"><strong><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/> TOKEN-DROPS</strong><span>100 TT · {{kennyOdds.token100}} % &nbsp; 500 TT · {{kennyOdds.token500}} % &nbsp; 1.000 TT · {{kennyOdds.token1000}} %</span></div>
-        <div class="kenny-pool-section" *ngFor="let tier of kennyPoolPreview">
-          <strong>{{tier.name}} · {{tier.chance | number:'1.0-1'}} %</strong>
-          <div class="kenny-pool-items">
-            <ng-container *ngFor="let item of tier.items">
-              <small class="kenny-pool-complete kenny-pool-complete-regular" *ngIf="item.id==='kenny_skin_zebra' && kennyRegularExclusivesComplete">Alles aus dieser Kategorie eingesammelt.</small>
-              <div class="kenny-pool-zebra-divider" *ngIf="item.id==='kenny_skin_zebra'">Exklusiv ab Level 4 mit 0,5%</div>
-              <span [class.kenny-pool-zebra]="item.id==='kenny_skin_zebra'">
-                <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="token-icon"/> {{item.name}}
-                <small *ngIf="tier.key==='event' && owns(item)" class="kenny-pool-owned">✓</small>
-              </span>
-              <small class="kenny-pool-complete kenny-pool-complete-zebra" *ngIf="item.id==='kenny_skin_zebra' && owns(item)">Alles aus dieser Kategorie eingesammelt.</small>
-            </ng-container>
-            <small *ngIf="!tier.items.length">Alles aus dieser Kategorie eingesammelt.</small>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <app-kenny-pool-dialog *ngIf="kennyPoolOpen" [kennyLevel]="kennyLevel" [kennyOdds]="kennyOdds"
+    [kennyPoolPreview]="kennyPoolPreview" [kennyRegularExclusivesComplete]="kennyRegularExclusivesComplete"
+    [ownedEventIds]="kennyOwnedEventIds" (closeRequested)="kennyPoolOpen=false"/>
 
   <div class="veil avatar-picker-veil" *ngIf="avatarPickerOpen" role="dialog" aria-modal="true" aria-label="Avatar auswählen" (click)="closeAvatarPicker()">
     <div class="modal avatar-picker-modal" (click)="$event.stopPropagation()">

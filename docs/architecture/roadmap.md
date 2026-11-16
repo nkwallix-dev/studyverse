@@ -4,12 +4,11 @@ Baseline on `main` at `6cc087e` (before extraction): 3 standalone Angular
 components, `app.ts` 1,395 lines, `app.html` 799 lines, `app.scss` 630 lines,
 `styles.scss` 2,125 lines. Record the same measurements after each PR.
 
-1. **Dino Designer presentation** — own template, typed inputs and output
-   events; leave save and season logic in the parent. Keep all current CSS
-   selectors in place for a zero-layout-change first PR. Correct the preexisting
-   Zebra portrait assertion to match the current PNG asset.
-2. **Kenny rewards and pool** — extract the modals and prize tiles, then isolate
-   their selectors in a separate review. Preserve the five sprite strips,
+1. **Dino Designer presentation** — completed in PR #43; own template, typed
+   inputs and output events. Save and season logic remain in the parent.
+2. **Kenny rewards and pool** — overview and full-prize popup extracted as
+   display components. Move their global CSS selectors in a separate review
+   after responsive comparison. Preserve the five sprite strips,
    level gates, 0/0.5% Zebra odds and independent collection messages.
 3. **Shop and inventory** — separate catalog, filters, owned list and preview;
    centralize typed selectors and equipment actions without changing item IDs.
