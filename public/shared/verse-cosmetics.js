@@ -5,6 +5,47 @@
 const PROFILE_KEY='studyverse_profile_v1';
 const DEFAULTS={theme:'base',atm:'none',frame:'none',font:'standard',banner:'default',fx:'none'};
 const SLOTS=Object.keys(DEFAULTS);
+const AVATAR_ROOT = new URL('../cosmetics/avatars/', document.currentScript.src);
+const AVATAR_FILES = new Map(Object.entries({
+  default: 'default_avatar.png',
+  avatar_pizza: 'pizza_avatar.png',
+  avatar_alien: 'alien_avatar.png',
+  avatar_frog: 'laborfish_avatar.png',
+  avatar_brain: 'galaxy_brain_avatar.png',
+  avatar_crown: 'gold_crown_avatar.png',
+  chem_flask: 'chem_flask_avatar.png',
+  dsai_bot: 'dsai_bot_avatar.png',
+  dsai_panda: 'dsai_panda_avatar.png',
+  dsai_spider: 'dsai_spider_avatar.png',
+  dsai_python: 'dsai_python_avatar.png',
+  sharp_sheep: 'sharp_sheep_avatar.png',
+  sharp_scissors: 'sharp_scissors_avatar.png',
+  sharp_ram: 'sharp_ram_avatar.png',
+  kenny_avatar: 'kenny_blue_avatar.png',
+  kenny_avatar_pink: 'kenny_pink_avatar.png',
+  kenny_avatar_green: 'kenny_green_avatar.png',
+  kenny_avatar_red: 'kenny_red_avatar.png',
+  kenny_avatar_zebra: 'kenny_zebra_avatar.png',
+}));
+const LEGACY_AVATARS = new Map(Object.entries({
+  '🧪': 'default',
+  '🍕': 'avatar_pizza',
+  '👽': 'avatar_alien',
+  '🐟': 'avatar_frog',
+  '🧠': 'avatar_brain',
+  '👑': 'avatar_crown',
+  '⚗️': 'chem_flask',
+  '🤖': 'dsai_bot',
+  '🐼': 'dsai_panda',
+  '🕷️': 'dsai_spider',
+  '🐍': 'dsai_python',
+  '🐑': 'sharp_sheep',
+  '✂️': 'sharp_scissors',
+  '🐏': 'sharp_ram',
+  '🦖': 'kenny_avatar',
+  zebra_avatar: 'kenny_avatar_zebra',
+  kenny_zebra_avatar: 'kenny_avatar_zebra',
+}));
 const BANNERS={
  gold:['🏆','✦','🥇'],warning:['⚠️','🧪','⚡'],galaxy:['🪐','✨','🌠'],
  molecule:['⚛️','🔬','✦'],flow:['▣','→','▣'],curve:['📈','✦','📊'],
@@ -70,6 +111,23 @@ function refreshFx(fx){
  }
  lastFx=fx;
 }
+function renderAvatar(element, avatar) {
+  const file = AVATAR_FILES.get(LEGACY_AVATARS.get(avatar) ?? avatar);
+  if (!file) {
+    const fallback = /^[a-z0-9_-]+$/i.test(avatar) ? '🧪' : avatar;
+    if (element.textContent !== fallback) element.textContent = fallback;
+    return;
+  }
+
+  const source = new URL(file, AVATAR_ROOT).href;
+  if (element.firstElementChild?.src === source) return;
+  const image = document.createElement('img');
+  image.className = 'studyverse-verse-avatar';
+  image.src = source;
+  image.alt = 'Avatar';
+  element.replaceChildren(image);
+}
+
 function applyEquipment(){
  document.body.classList.add('studyverse-cosmetics');
  const profile=readProfile();
@@ -86,7 +144,7 @@ function applyEquipment(){
  const avatar=typeof equip.avatar==='string'&&equip.avatar?equip.avatar:null;
  if(avatar){
   for(const sel of ['#levelAvatar','#brandAvatar','#avatar','.profile-link .avatar']){
-   document.querySelectorAll(sel).forEach(el=>{if(el.textContent!==avatar)el.textContent=avatar});
+   document.querySelectorAll(sel).forEach((element) => renderAvatar(element, avatar));
   }
  }
  const title=typeof equip.title==='string'?TITLES[equip.title]:null;

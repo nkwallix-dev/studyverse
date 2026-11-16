@@ -92,7 +92,7 @@ assert(catalog.includes('<app-cosmetic-art [item]="item"/>')&&/<app-cosmetic-art
  'Catalog and inventory must use the same thumbnail renderer');
 const cosmeticArt=fs.readFileSync('src/app/cosmetic-art.component.ts','utf8');
 const cosmeticAssets=fs.readFileSync('src/app/cosmetic-assets.ts','utf8');
-assert(cosmeticArt.includes("[class.panda-art]=\"item.id==='dsai_panda'\"")&&
+assert(/\[class\.panda-art\]="item\.id\s*===\s*'dsai_panda'"/.test(cosmeticArt)&&
  cosmeticAssets.includes('"dsai_panda": "cosmetics/avatars/dsai_panda_avatar.png"'),
  'Panda must resolve to its real image in both views');
 console.log('PASS: clean item art; statuses next to titles; inventory-only ownership.');
@@ -107,6 +107,14 @@ for(const banner of ['gold','warning','galaxy','molecule','flow','curve','cloud'
  assert(c.includes('.universe[data-banner="'+banner+'"] .hero:has(.banner-scenery)'),banner+' needs its own full hero design');
  const scene=({pink_paradise:'pink',parallel_pulse:'parallel'})[banner]||banner;
  assert(h.includes('scene-'+scene),banner+' needs actual thematic scenery');
+}
+const bannerPreviews = [
+  'default', 'gold', 'warning', 'galaxy', 'molecule', 'flow', 'curve',
+  'cloud', 'solitaire', 'pink_paradise', 'parallel_pulse', 'kenny_volcano',
+];
+assert(cosmeticArt.includes('<app-cosmetic-banner'), 'Banner cards must use the shared image renderer');
+for (const banner of bannerPreviews) {
+  assert(fs.existsSync('public/cosmetics/banners/' + banner + '.webp'), banner + ' preview image is missing');
 }
 assert(!catalog.includes('class="drop-price"'),'Only the buy button shows a price once an item is unlocked');
 assert(!preview.includes('class="preview-cost"'),'Live preview must not show a duplicate or locked price');

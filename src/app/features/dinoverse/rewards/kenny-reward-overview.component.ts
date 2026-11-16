@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CosmeticBannerComponent } from '../../../cosmetic-banner.component';
 import { CosmeticIconComponent } from '../../../cosmetic-icon.component';
 import type { ShopItem } from '../../../shop-items';
 import type { KennyPrizeOdds } from './kenny-rewards.model';
@@ -8,7 +9,7 @@ import type { KennyPrizeOdds } from './kenny-rewards.model';
 @Component({
   selector: 'app-kenny-reward-overview',
   standalone: true,
-  imports: [CommonModule, CosmeticIconComponent],
+  imports: [CommonModule, CosmeticIconComponent, CosmeticBannerComponent],
   templateUrl: './kenny-reward-overview.component.html',
   styleUrl: './kenny-reward-overview.component.scss',
 })

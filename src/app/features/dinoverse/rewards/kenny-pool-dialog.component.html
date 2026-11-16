@@ -42,7 +42,14 @@
               Exklusiv ab Level 4 mit 0,5%
             </div>
             <span [class.kenny-pool-zebra]="item.id === 'kenny_skin_zebra'">
-              <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="token-icon" />
+              <app-cosmetic-banner
+                *ngIf="item.group === 'banner'; else itemIcon"
+                class="prize-banner"
+                [banner]="item.equip"
+              />
+              <ng-template #itemIcon>
+                <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="token-icon" />
+              </ng-template>
               {{ item.name }}
               <small *ngIf="tier.key === 'event' && isOwned(item)" class="kenny-pool-owned">
                 ✓

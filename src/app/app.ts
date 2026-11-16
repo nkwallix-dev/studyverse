@@ -7,6 +7,7 @@ import type { InventoryCard, InventoryOption } from './features/inventory/invent
 import { KennyRewardOverviewComponent } from './features/dinoverse/rewards/kenny-reward-overview.component';
 import { KennyPoolDialogComponent } from './features/dinoverse/rewards/kenny-pool-dialog.component';
 import { CosmeticIconComponent } from './cosmetic-icon.component';
+import { CosmeticBannerComponent } from './cosmetic-banner.component';
 import { CosmeticArtComponent } from './cosmetic-art.component';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
 import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
@@ -68,6 +69,7 @@ export const SUBJECTS:Subject[]=[
     FormsModule,
     CosmeticIconComponent,
     CosmeticArtComponent,
+    CosmeticBannerComponent,
     DinoDesignerComponent,
     KennyRewardOverviewComponent,
     KennyPoolDialogComponent,
@@ -360,7 +362,9 @@ export class App implements OnInit,OnDestroy {
  }
  playerCosmetic(player:PublicPlayer,group:string):string {
    const value=player.showcase[group as keyof PublicShowcase];
-   const item=[...SHOP_ITEMS,...LEGACY_OWNED_ITEMS].find(x=>x.group===group&&(x.equip||x.id)===value);
+   const item = [...SHOP_ITEMS, ...KENNY_ITEMS, ...LEGACY_OWNED_ITEMS].find(
+     (candidate) => candidate.group === group && (candidate.equip || candidate.id) === value,
+   );
    return item?this.itemDisplayName(item):group==='theme'?'Studyverse Standard':
      group==='frame'?'Kein Rahmen':group==='banner'?'Standard-Banner':
      group==='font'?'Standardschrift':group==='atm'?'Kein Hintergrund':'Kein Effekt';

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CosmeticBannerComponent } from '../../../cosmetic-banner.component';
 import { CosmeticIconComponent } from '../../../cosmetic-icon.component';
 import type { ShopItem } from '../../../shop-items';
 import type { KennyPoolTier, KennyPrizeOdds } from './kenny-rewards.model';
@@ -8,7 +9,7 @@ import type { KennyPoolTier, KennyPrizeOdds } from './kenny-rewards.model';
 @Component({
   selector: 'app-kenny-pool-dialog',
   standalone: true,
-  imports: [CommonModule, CosmeticIconComponent],
+  imports: [CommonModule, CosmeticIconComponent, CosmeticBannerComponent],
   templateUrl: './kenny-pool-dialog.component.html',
   styleUrl: './kenny-pool-dialog.component.scss',
 })

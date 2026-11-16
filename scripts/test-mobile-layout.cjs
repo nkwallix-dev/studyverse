@@ -374,6 +374,13 @@ async function main(){
       assert.equal(itemColumns, 3);
      }
      if(width===390){
+      const bannerArt = page.locator('.drop-item[data-category="banner"] app-cosmetic-banner img').first();
+      await bannerArt.scrollIntoViewIfNeeded();
+      assert(await bannerArt.evaluate(async (image) => {
+        await image.decode();
+        return image.src.includes('/cosmetics/banners/') &&
+          image.naturalWidth > image.naturalHeight;
+      }), 'Shop banners use images of the dashboard scenery');
       const dotsCard=page.locator('.drop-item').filter({hasText:'Dots & Lines'}).first();
       try{await dotsCard.locator('.drop-preview-btn').click({timeout:5000})}catch(error){
        const geometry=await page.evaluate(()=>{
@@ -834,9 +841,28 @@ async function main(){
     height:element.getBoundingClientRect().height})));
   assert(artHeights.length>=4&&artHeights.every(art=>Math.abs(art.height-artHeights[0].height)<=1),
    'Panda and sheep avatar panels should match the other inventory art: '+JSON.stringify(artHeights));
-  const inventoryScroll=await maxPage.locator('.inventory-item-grid').evaluate(el=>({height:el.clientHeight,content:el.scrollHeight}));
-  assert(inventoryScroll.content>inventoryScroll.height,
-   'Only the inventory item grid should scroll when many items are owned: '+JSON.stringify(inventoryScroll));
+  const inventoryGrid = maxPage.locator('.inventory-item-grid');
+  for (const width of [320, 390]) {
+    await maxPage.setViewportSize({ width, height: 800 });
+    assert.equal(await inventoryGrid.evaluate((grid) =>
+      getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+    ), 3, 'Phone inventory uses the same three columns as the shop');
+  }
+  const bannerThumbnail = maxPage.locator('.inventory-item[data-category="banner"] app-cosmetic-banner img');
+  await bannerThumbnail.scrollIntoViewIfNeeded();
+  assert(await bannerThumbnail.evaluate(async (image) => {
+    await image.decode();
+    return image.src.endsWith('/cosmetics/banners/molecule.webp') &&
+      image.naturalWidth > image.naturalHeight;
+  }), 'The inventory must display the actual equipped-banner scene as a thumbnail');
+  await maxPage.setViewportSize({ width: 390, height: 475 });
+  const inventoryScroll = await inventoryGrid.evaluate((grid) => ({
+    height: grid.clientHeight,
+    content: grid.scrollHeight,
+  }));
+  assert(inventoryScroll.content > inventoryScroll.height,
+    'The item grid must scroll when owned items exceed the available phone height');
+  await maxPage.setViewportSize({ width: 390, height: 800 });
   const ownedAvatar=maxPage.locator('.inventory-item[data-category="avatar"]').first();
   assert(await ownedAvatar.count()>0,'Kenny must have a real avatar in inventory at level five');
   await ownedAvatar.locator('.drop-preview-btn').click();
@@ -874,8 +900,8 @@ async function main(){
   assert(await equipmentButton.evaluate((button) => {
     const control = getComputedStyle(button);
     const card = getComputedStyle(button.closest('.inventory-item'));
-    return control.fontSize === card.fontSize && control.fontWeight === card.fontWeight;
-  }), 'Inventory actions inherit the same typography as the shell');
+    return control.fontFamily === card.fontFamily && Number.parseFloat(control.fontSize) <= 12;
+  }), 'Mobile inventory actions use the same compact type scale as shop actions');
   await equipmentButton.click();
   await equipmentButton.filter({ hasText: 'Ablegen' }).waitFor({ state: 'visible', timeout: 5000 });
   assert(await panda.locator('.equipped-status').isVisible());
@@ -1071,6 +1097,14 @@ async function main(){
    else await versePage.locator('#topHome').click();
    await versePage.locator('.hero h1').waitFor({state:'visible'});
    await assertVerseFits(width,'Home');
+   if (width <= 610) {
+    const ground = await versePage.locator('.kenny-home-screen .hero').evaluate((hero) => {
+      const terrain = hero.querySelector('.kenny-banner-ground').getBoundingClientRect();
+      const portrait = hero.querySelector('.hero-icon img').getBoundingClientRect();
+      return { groundTop: terrain.top, feet: portrait.bottom - portrait.height * 0.05 };
+    });
+    assert(ground.feet > ground.groundTop, 'Kenny must stand on the ground in the mobile hero');
+   }
    if(width===1365){
     const stage=await versePage.evaluate(()=>{
      const rect=sel=>document.querySelector(sel).getBoundingClientRect();
@@ -1250,11 +1284,19 @@ async function main(){
    await cosmeticPage.addInitScript(()=>{
     localStorage.setItem('studyverse_profile_v1',JSON.stringify({
      equipped:{theme:'sharp_cutline',atm:'dots',frame:'legend',font:'serif',
-      banner:'pink_paradise',fx:'thread_sparks',avatar:'🐑',title:'sharp_title_spermann'}
+      banner:'pink_paradise',fx:'thread_sparks',avatar:'kenny_avatar_zebra',title:'sharp_title_spermann'}
     }));
    });
    const issues=[];cosmeticPage.on('pageerror',e=>issues.push(e.message));
    await cosmeticPage.goto(base+url,{waitUntil:'load'});
+   const headerAvatar = cosmeticPage.locator('.topbar .studyverse-verse-avatar').first();
+   await headerAvatar.waitFor({ state: 'visible' });
+   assert(await headerAvatar.evaluate(async (image) => {
+     await image.decode();
+     return image.naturalWidth > 0 && image.src.endsWith('/kenny_zebra_avatar.png') &&
+       image.parentElement.textContent.trim() === '';
+   }), world + ' must show the Zebra artwork without its raw ID');
+
    await cosmeticPage.locator('.verse-banner span').first().waitFor({timeout:10000});
    const appearance=await cosmeticPage.evaluate(()=>{
     const body=document.body;
@@ -1268,8 +1310,7 @@ async function main(){
      cards:document.querySelectorAll('.verse-banner span').length,
      effectCount:document.querySelectorAll('.verse-fx i').length,
      cardBorder:card?getComputedStyle(card).borderTopColor:'',
-     title:document.querySelector('.verse-equipped-title')?.textContent||'',
-     avatar:document.querySelector('.profile-link .avatar,#avatar,#levelAvatar')?.textContent||''
+     title:document.querySelector('.verse-equipped-title')?.textContent||''
     };
    });
    for(const [key,val] of Object.entries({theme:'sharp_cutline',atm:'dots',frame:'legend',
@@ -1281,7 +1322,6 @@ async function main(){
    assert(appearance.cards>=3&&appearance.effectCount===9,
     world+' must render the equipped banner and 9 effect particles');
    assert(appearance.title.includes('Professor Spermann'),world+' must display equipped title');
-   assert(appearance.avatar.includes('🐑'),world+' must display equipped avatar');
    assert(!issues.length,world+' cosmetics caused JS errors: '+issues.join('; '));
    if(world==='Sharpverse')assert(await cosmeticPage.locator('.studyverse-back').isVisible(),
     'Sharpverse must have a top-right back button just like Chemverse and Dsaiverse');

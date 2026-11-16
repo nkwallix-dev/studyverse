@@ -2187,13 +2187,13 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
     margin-bottom: 6px;
   }
 
-  .universe.shop-mode .drop-item-grid:not(.inventory-item-grid),
+  .universe.shop-mode .drop-item-grid,
   .universe .learning-worlds-view .all-subjects {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
   }
 
-  .universe.shop-mode .drop-item-grid > .drop-item {
+  .universe.shop-mode .drop-item-grid > :is(.drop-item, .inventory-item) {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -2202,27 +2202,27 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
     border-radius: 12px;
   }
 
-  .universe.shop-mode .drop-item > app-cosmetic-art {
+  .universe.shop-mode :is(.drop-item, .inventory-item) > app-cosmetic-art {
     min-width: 0;
   }
 
-  .universe.shop-mode .drop-item .item-art.drop-item-art {
+  .universe.shop-mode :is(.drop-item, .inventory-item) .item-art.drop-item-art {
     width: 100%;
     height: auto;
     min-height: 0;
     aspect-ratio: 1.2;
   }
 
-  .universe.shop-mode .drop-item .item-art.drop-item-art::before {
+  .universe.shop-mode :is(.drop-item, .inventory-item) .item-art.drop-item-art::before {
     max-width: 80%;
     max-height: 80%;
   }
 
-  .universe.shop-mode .drop-item .item-art .big-item-icon {
+  .universe.shop-mode :is(.drop-item, .inventory-item) .item-art .big-item-icon {
     font-size: clamp(22px, 8vw, 43px);
   }
 
-  .universe.shop-mode .drop-item .item-art .kenny-avatar-image {
+  .universe.shop-mode :is(.drop-item, .inventory-item) .item-art .kenny-avatar-image {
     width: 90%;
     height: auto;
     max-height: 100%;
@@ -2239,14 +2239,14 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
     overflow-wrap: anywhere;
   }
 
-  .universe.shop-mode .drop-item .item-title-row {
+  .universe.shop-mode :is(.drop-item, .inventory-item) .item-title-row {
     display: block;
     flex: none;
     margin: 0;
     line-height: 1.2;
   }
 
-  .universe.shop-mode .drop-item .item-title-row .item-name {
+  .universe.shop-mode :is(.drop-item, .inventory-item) .item-title-row .item-name {
     font-size: clamp(11px, 3vw, 15px);
     overflow-wrap: anywhere;
   }
@@ -2269,19 +2269,37 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
     overflow-wrap: anywhere;
   }
 
-  .universe.shop-mode .drop-item .drop-actions {
+  .universe.shop-mode .drop-item .drop-actions,
+  .universe.shop-mode .inventory-item .inventory-actions {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 4px;
   }
 
-  .universe.shop-mode .drop-item .drop-actions button {
+  .universe.shop-mode .drop-item .drop-actions button,
+  .universe.shop-mode .inventory-item .inventory-actions button {
     min-width: 0;
     min-height: 32px;
     padding: 3px 2px;
     font-size: clamp(9px, 2.6vw, 12px);
     line-height: 1.2;
     overflow-wrap: anywhere;
+  }
+
+  .universe.shop-mode .inventory-item .inventory-item-detail {
+    min-height: 0;
+    margin: 0;
+  }
+
+  .universe.shop-mode .inventory-item .inventory-item-detail > small,
+  .universe.shop-mode .inventory-item .equipped-status {
+    font-size: 8px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .universe.shop-mode .inventory-item .inventory-item-detail > p {
+    display: none;
   }
 
   .universe .learning-worlds-view .mobile-category-filter {
@@ -2561,4 +2579,60 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
   .universe main.achievements-view .achievement-content > :is(.achievement-reward, .achievement-foot, .progress-track) {
     margin: 0;
   }
+}
+
+@media (max-width: 700px) {
+  .friend-showcase-cover-tag {
+    display: none;
+  }
+
+  .friend-showcase.universe > .friend-showcase-cover.hero {
+    height: auto;
+    padding-top: 43px;
+  }
+
+  .friend-showcase-close {
+    top: 7px;
+    right: 7px;
+    width: 33px;
+    height: 33px;
+  }
+
+  .universe.kenny-mode .kenny-cashback-hint {
+    display: grid;
+    align-items: start;
+    gap: 5px;
+  }
+
+  .universe.kenny-mode .kenny-cashback-status {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 3px 7px;
+    width: 100%;
+    padding: 5px 6px;
+    margin-left: 0;
+    border-radius: 7px;
+    background: #ffffff09;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .universe.kenny-mode .kenny-cashback-divider {
+    display: none;
+  }
+}
+
+.friend-showcase-cosmetic .loadout-banner {
+  flex: 0 0 clamp(23px, 5vw, 36px);
+  height: 24px;
+  border-radius: 3px;
+}
+
+.reward-unlock-art.reward-banner-art {
+  width: min(100%, 260px);
+  height: auto;
+  aspect-ratio: 2.6;
+  border-radius: 12px;
+  overflow: hidden;
 }

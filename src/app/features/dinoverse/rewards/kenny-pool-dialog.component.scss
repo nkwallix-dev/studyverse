@@ -4,3 +4,10 @@
 
 // Keep the modal's existing global selectors and override order until the
 // dedicated stylesheet migration has its own responsive browser comparison.
+
+.prize-banner {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 16px;
+  border-radius: 2px;
+}
