@@ -492,6 +492,12 @@ async function main(){
      JSON.stringify(poolButtonFit));
    await poolPage.locator('.kenny-pool-button').click();
    await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
+   const exclusiveSection=poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'}).first();
+   assert.equal(await exclusiveSection.locator('.kenny-pool-items > span').count(),6,
+     'All six Season items must stay visible in the Item Pool, including Zebra');
+   assert((await exclusiveSection.innerText()).includes('Kenny Zebra') &&
+     (await exclusiveSection.innerText()).includes('0,5 %'),
+     'Zebra must visibly show its separately reserved 0.5% odds at level 5');
    const modal=await poolPage.evaluate(()=>{
     const root=document.querySelector('.kenny-pool-dialog');
     const list=document.querySelector('.kenny-pool-scroll');
