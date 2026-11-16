@@ -2514,4 +2514,37 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
   .universe.companions-mode .companion-stage .kenny-sprite {
     height: 72%;
   }
+
+  .universe main.achievements-view .achievement-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    align-content: start;
+    align-items: end;
+    gap: 3px 4px;
+  }
+
+  .universe main.achievements-view .achievement-content > :is(.achievement-status, h3, p, .progress-track) {
+    grid-column: 1 / -1;
+  }
+
+  .universe main.achievements-view .achievement-card h3 {
+    padding-right: 0;
+    margin: 0;
+  }
+
+  .universe main.achievements-view .achievement-symbol {
+    top: 4px;
+    width: 13px;
+    height: 13px;
+    font-size: 9px;
+  }
+
+  .universe main.achievements-view .achievement-reward {
+    justify-self: start;
+    padding-block: 1px;
+  }
+
+  .universe main.achievements-view .achievement-content > :is(.achievement-reward, .achievement-foot, .progress-track) {
+    margin: 0;
+  }
 }

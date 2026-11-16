@@ -152,16 +152,27 @@ async function main(){
     }
     if (label === 'Achievements' && width <= 700) {
      if (width === 320) await page.setViewportSize({ width, height: 568 });
-     await page.evaluate(() => window.scrollTo(0, 0));
+     await page.evaluate(async () => {
+       await document.fonts.ready;
+       window.scrollTo({ top: 0, behavior: 'instant' });
+     });
      const achievements = await page.locator('.achievement-grid').first().evaluate((grid) => {
        const navTop = document.querySelector('.sidebar').getBoundingClientRect().top;
+       const cards = [...grid.children].slice(0, 4).map((card) => {
+         const { top, bottom } = card.getBoundingClientRect();
+         return { top, bottom };
+       });
        return {
          columns: getComputedStyle(grid).gridTemplateColumns.split(' ').length,
-         visibleCards: [...grid.children].filter((card) => card.getBoundingClientRect().bottom <= navTop).length,
+         viewport: { width: innerWidth, height: innerHeight },
+         cards,
+         navTop,
        };
      });
      assert.equal(achievements.columns, 2);
-     assert(achievements.visibleCards >= 4, 'Four achievements should fit above mobile navigation');
+     assert(achievements.cards.length === 4 &&
+       achievements.cards.every(({ top, bottom }) => top >= 0 && bottom <= achievements.navTop),
+       'Four achievements should fit above mobile navigation: ' + JSON.stringify(achievements));
      if (width === 390) await page.screenshot({ path: path.join(screenshots, 'studyverse-achievements-390.png') });
      if (width === 320) await page.setViewportSize({ width, height: 800 });
     }
