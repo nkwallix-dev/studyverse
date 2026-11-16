@@ -22,7 +22,7 @@
 
 .kenny-exclusives>div>span{flex:none;width:1.3em;height:1.3em;display:grid;place-items:center}
 
-.kenny-reveal-art>app-cosmetic-icon,.kenny-reveal-art>span app-cosmetic-icon{width:min(140px,23dvh);height:min(140px,23dvh)}
+.kenny-reveal-art>app-cosmetic-icon.avatar-icon,.kenny-reveal-art>span app-cosmetic-icon.avatar-icon{width:min(140px,23dvh)!important;height:min(140px,23dvh)!important}
 
 .kenny-reveal-art>span{display:grid;place-items:center}
 
