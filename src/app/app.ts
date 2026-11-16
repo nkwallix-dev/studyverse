@@ -844,6 +844,9 @@ export class App implements OnInit,OnDestroy {
  get kennyZebraChance():number{
    return KENNY_ODDS[Math.max(0,Math.min(4,this.kennyLevel-1))].zebra;
  }
+ get kennyZebraChanceLabel():string{
+   return this.kennyZebraChance.toLocaleString('de-AT',{maximumFractionDigits:1});
+ }
  get kennyPoolPreview(){
    const pools=this.kennyPools;
    return ([{key:'event',name:'Saisonexklusiv'},{key:'large',name:'Prestige-Items'},
