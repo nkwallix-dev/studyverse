@@ -193,10 +193,31 @@ async function main(){
      assert(prizes.bottom<=prizes.prizeBottom+3&&prizes.maxWidth<=prizes.parentRight+3&&
        prizes.scroll<=prizes.client+3&&prizes.lootBottom<=prizes.viewport-(width<=700?68:0)+3,
        'All Kenny-exclusive items must fit without scrolling: '+JSON.stringify(prizes));
+     const topActions=await page.locator('.companion-kenny-back button').evaluateAll(buttons=>buttons.map(b=>({
+       width:b.getBoundingClientRect().width,
+       height:b.getBoundingClientRect().height,
+       visible:getComputedStyle(b).visibility
+     })));
+     assert(topActions.length===2&&Math.abs(topActions[0].width-topActions[1].width)<=1&&
+       topActions.every(action=>action.width>100&&action.height>=38&&action.visible==='visible'),
+       'My Companions and Enter Kennyverse must share equal-width, visible buttons: '+JSON.stringify(topActions));
      await page.locator('.kenny-action-row .kenny-style-btn').click();
      await page.locator('.dino-designer-grid').waitFor({state:'visible'});
      assert.equal(await page.locator('.shop-view-tabs button').count(),3);
      assert.equal(await page.locator('.shop-view-tabs button').filter({hasText:'Designe deinen Dino'}).getAttribute('aria-selected'),'true');
+     const designerNav=page.locator('.dino-designer-heading-actions button');
+     assert.equal(await designerNav.count(),2,'The designer needs shortcuts to feeding and companions');
+     assert((await designerNav.first().innerText()).includes('Season-Dino füttern')&&
+       (await designerNav.last().innerText()).includes('Meine Begleiter'),
+       'Designer navigation labels must be clear');
+     const designerActionLayout=await designerNav.evaluateAll(buttons=>buttons.map(b=>({
+       width:b.getBoundingClientRect().width,
+       top:b.getBoundingClientRect().top,
+       right:b.getBoundingClientRect().right
+     })));
+     assert(designerActionLayout.every(b=>b.width>70&&b.right<=innerWidth+2)&&
+       Math.abs(designerActionLayout[0].top-designerActionLayout[1].top)<3,
+       'Designer navigation must stay aligned and inside the viewport: '+JSON.stringify(designerActionLayout));
      const colors=await page.locator('.dino-designer-skin-grid .kenny-skin-preview').evaluateAll(nodes=>nodes.map(node=>({
       skin:node.dataset.skin,
       imageSrc:node.querySelector('img').getAttribute('src'),
@@ -227,6 +248,10 @@ async function main(){
        designer.skinBottom<=designer.viewport-(width<=700?68:0)+3&&designer.stageHeight>65,
        'The complete Dino Designer including five skin buttons must fit at '+width+': '+JSON.stringify(designer));
      if(width===390)await page.screenshot({path:path.join(screenshots,'dino-designer-390.png'),fullPage:true});
+     await designerNav.first().click();
+     await page.locator('.kenny-feed-btn').waitFor({state:'visible'});
+     assert(await page.locator('.kenny-page').isVisible(),
+       'Feeding shortcut must open the existing current-season Dino-Verse, not trigger feeding');
     }
     if(label==='Item-Shop'){
      assert.equal(await page.locator('.shop-banner.drop-hero').count(),0,
