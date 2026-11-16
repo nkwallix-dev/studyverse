@@ -201,6 +201,17 @@ async function main(){
      assert(topActions.length===2&&Math.abs(topActions[0].width-topActions[1].width)<=1&&
        topActions.every(action=>action.width>100&&action.height>=38&&action.visible==='visible'),
        'My Companions and Enter Kennyverse must share equal-width, visible buttons: '+JSON.stringify(topActions));
+     const actionsToLoot=await page.evaluate(()=>{
+       const actions=document.querySelector('.companion-kenny-back')?.getBoundingClientRect();
+       const loot=document.querySelector('.kenny-loot')?.getBoundingClientRect();
+       return {actions:{width:actions?.width,right:actions?.right},
+         loot:{width:loot?.width,right:loot?.right}};
+     });
+     assert(Math.abs(actionsToLoot.actions.width-actionsToLoot.loot.width)<=3&&
+       Math.abs(actionsToLoot.actions.right-actionsToLoot.loot.right)<=3,
+       'The two buttons together must match the exact width of possible prizes at '+width+': '+JSON.stringify(actionsToLoot));
+     assert((await page.locator('.kenny-level-reward').innerText()).includes('schließt sich Kenny deinen Begleitern an'),
+       'The level-five companion text must use the correct plural wording');
      await page.locator('.kenny-action-row .kenny-style-btn').click();
      await page.locator('.dino-designer-grid').waitFor({state:'visible'});
      assert.equal(await page.locator('.shop-view-tabs button').count(),3);
@@ -495,9 +506,21 @@ async function main(){
    const exclusiveSection=poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'}).first();
    assert.equal(await exclusiveSection.locator('.kenny-pool-items > span').count(),6,
      'All six Season items must stay visible in the Item Pool, including Zebra');
-   assert((await exclusiveSection.innerText()).includes('Kenny Zebra') &&
-     (await exclusiveSection.innerText()).includes('0,5 %'),
-     'Zebra must visibly show its separately reserved 0.5% odds at level 5');
+   const exclusiveLayout=await exclusiveSection.locator('.kenny-pool-items').evaluate(el=>{
+     const bar=el.querySelector('.kenny-pool-zebra-divider');
+     const zebra=el.querySelector('.kenny-pool-zebra');
+     const children=[...el.children];
+     return {bar:bar?.textContent?.trim(),barPosition:children.indexOf(bar),
+       zebraPosition:children.indexOf(zebra),totalChildren:children.length,
+       heading:el.closest('.kenny-pool-section')?.querySelector(':scope > strong')?.textContent?.trim(),
+       zebraLabel:zebra?.textContent?.trim()};
+   });
+   assert(exclusiveLayout.bar==='Exklusiv ab Level 4 mit 0,5%'&&
+     exclusiveLayout.zebraLabel?.includes('Kenny Zebra')&&
+     exclusiveLayout.barPosition===exclusiveLayout.totalChildren-2&&
+     exclusiveLayout.zebraPosition===exclusiveLayout.totalChildren-1&&
+     !exclusiveLayout.heading?.includes('Zebra separat'),
+     'Zebra must appear immediately after its own rarity bar, following Kenny Rot: '+JSON.stringify(exclusiveLayout));
    const modal=await poolPage.evaluate(()=>{
     const root=document.querySelector('.kenny-pool-dialog');
     const list=document.querySelector('.kenny-pool-scroll');

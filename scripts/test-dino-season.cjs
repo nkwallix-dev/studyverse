@@ -92,6 +92,10 @@ assert(d.hasKennyCompanion({...state,feeds:25},d.KENNY_SEASON.end+180*86400000),
 const html=fs.readFileSync('src/app/app.html','utf8'),css=fs.readFileSync('src/styles.scss','utf8');
 assert(html.includes('kenny-sprite')&&html.includes('kenny-avatar.png')&&html.includes('kenny-feeding'));
 assert(html.includes('Kennyverse betreten')&&html.includes('kenny-reveal-modal')&&html.includes('openCompanions()'));
+assert(html.includes('Ab Level 5 schließt sich Kenny deinen Begleitern an.'),
+ 'Level-5 hint must correctly say Kenny joins your companions');
+assert(html.includes("player.showcase.dino?.level===5?'max.'"),
+ 'Player showcase must display the earned maximum Dino Level as max.');
 assert(!html.includes("shopTab===\'earn\'"),'No leftover earning tab');
 const appTS=fs.readFileSync('src/app/app.ts','utf8');
 assert(!html.includes('kenny-test-unlock')&&!appTS.includes('testUnlockZebra')&&!appTS.includes('canTestUnlockZebra'),

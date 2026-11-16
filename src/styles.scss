@@ -1343,13 +1343,19 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 /* The two top-right actions on Kenny's feeding page use equal-width columns. */
 .companion-kenny-back{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
- gap:10px;width:min(100%,570px);max-width:100%;
+ gap:10px;width:max(310px,calc(33.333333% - 4px));max-width:100%;
  margin:0 0 10px auto;
 }
 .companion-kenny-back button{
  box-sizing:border-box;min-width:0;min-height:49px;width:100%;
  padding:11px 13px;font-size:clamp(12px,1.1vw,15px);
  text-align:center;line-height:1.25;
+}
+/* The prize column uses .75fr / (1.5fr + .75fr) with a 12px gap.
+   Under 900px it switches to .7fr / (1fr + .7fr); mirror that sizing.
+   At phone widths the prize panel and buttons both span the full row. */
+@media(min-width:701px) and (max-width:900px){
+ .companion-kenny-back{width:max(260px,calc(41.17647% - 4.94118px))}
 }
 /* Keep both Dino Designer destinations together, including on mobile. */
 .dino-designer-heading-actions{
@@ -2066,15 +2072,26 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 }
 /* Zebra is a distinct rare roll, not part of the 1–9% seasonal pool.
    Always list it (including after collection) and show its level gate. */
-.kenny-pool-dialog .kenny-pool-chance-note {
-  color:#e6bfdc;font-weight:650;letter-spacing:0;
+.kenny-pool-dialog .kenny-pool-items>.kenny-pool-zebra-divider {
+  box-sizing:border-box;
+  flex:0 0 100%;
+  width:100%;
+  min-width:0;
+  border:1px solid #f7ce8a7a;
+  background:linear-gradient(90deg,#e1ab6225,#c8a2f129);
+  border-radius:8px;
+  padding:5px 7px;
+  margin:2px 0 0;
+  font-size:clamp(10px,.85vw,12px);
+  font-weight:900;
+  line-height:1.25;
+  color:#ffe0a6;
+  text-align:center;
+  letter-spacing:.12px;
 }
 .kenny-pool-dialog .kenny-pool-items>span.kenny-pool-zebra {
   border:1px solid #ffe4a65e;
   background:#c6a66a16;
-}
-.kenny-pool-dialog .kenny-pool-items .kenny-pool-zebra-odds {
-  color:#ffdc9e;font-weight:850;
 }
 .kenny-pool-dialog .kenny-pool-items .kenny-pool-owned {
   color:#9ee5c3;font-weight:900;

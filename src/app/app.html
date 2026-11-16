@@ -353,7 +353,7 @@
               <div class="kenny-exclusives">
                 <div *ngFor="let item of kennyEventItems" [class.collected]="owns(item)"><span><app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="avatar-icon"/></span><strong>{{item.name}}</strong><small>{{owns(item)?'✓':'🔒'}}</small></div>
               </div>
-              <p class="kenny-level-reward">🦖 Ab Level 5 schließt sich Kenny deinem Begleiter an.</p>
+              <p class="kenny-level-reward">🦖 Ab Level 5 schließt sich Kenny deinen Begleitern an.</p>
               <button type="button" class="kenny-pool-button" (click)="kennyPoolOpen=true">Alle möglichen Items ansehen ↗</button>
             </aside>
             <div class="kenny-season-foot"><span>✦ LEVEL 5: KENNY BLEIBT ALS BEGLEITER · SAISONENDE: URZEIT-FOSSILRAHMEN</span><span>{{kennyPermanent&&!kennyActive?'✦ DEIN DAUERHAFTER BEGLEITER':'⏳ '+kennyCountdown}}</span><button type="button" (click)="kennyPoolOpen=true">Gewinne ansehen ↗</button></div>
@@ -540,7 +540,7 @@
           </div>
           <ng-template #noPlayerCourses><div class="friend-showcase-no-courses">🪐 Noch kein abgeschlossener Kursfortschritt veröffentlicht.</div></ng-template>
         </div>
-        <div class="friend-showcase-dino"><span>🦖 DINO-VERSE</span><strong>{{player.showcase.dino?.level ? 'Kenny Level: '+player.showcase.dino?.level : 'Kenny noch nicht gefüttert'}}</strong></div>
+        <div class="friend-showcase-dino"><span>🦖 DINO-VERSE</span><strong>{{player.showcase.dino?.level ? 'Kenny Level: '+(player.showcase.dino?.level===5?'max.':player.showcase.dino?.level) : 'Kenny noch nicht gefüttert'}}</strong></div>
       </div>
     </section>
   </div>
@@ -620,13 +620,15 @@
       <div class="kenny-pool-scroll">
         <div class="kenny-pool-section"><strong><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/> TOKEN-DROPS</strong><span>100 TT · {{kennyOdds.token100}} % &nbsp; 500 TT · {{kennyOdds.token500}} % &nbsp; 1.000 TT · {{kennyOdds.token1000}} %</span></div>
         <div class="kenny-pool-section" *ngFor="let tier of kennyPoolPreview">
-          <strong>{{tier.name}} · {{tier.chance | number:'1.0-1'}} %<small *ngIf="tier.key==='event'" class="kenny-pool-chance-note"> · Zebra separat</small></strong>
+          <strong>{{tier.name}} · {{tier.chance | number:'1.0-1'}} %</strong>
           <div class="kenny-pool-items">
-            <span *ngFor="let item of tier.items" [class.kenny-pool-zebra]="item.id==='kenny_skin_zebra'">
-              <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="token-icon"/> {{item.name}}
-              <small *ngIf="item.id==='kenny_skin_zebra'" class="kenny-pool-zebra-odds">· {{kennyZebraChanceLabel}} %{{kennyLevel<4?' · ab Level 4':''}}</small>
-              <small *ngIf="tier.key==='event' && owns(item)" class="kenny-pool-owned">✓</small>
-            </span>
+            <ng-container *ngFor="let item of tier.items">
+              <div class="kenny-pool-zebra-divider" *ngIf="item.id==='kenny_skin_zebra'">Exklusiv ab Level 4 mit 0,5%</div>
+              <span [class.kenny-pool-zebra]="item.id==='kenny_skin_zebra'">
+                <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="token-icon"/> {{item.name}}
+                <small *ngIf="tier.key==='event' && owns(item)" class="kenny-pool-owned">✓</small>
+              </span>
+            </ng-container>
             <small *ngIf="!tier.items.length">Alles aus dieser Kategorie eingesammelt.</small>
           </div>
         </div>
