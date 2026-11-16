@@ -624,7 +624,7 @@
           <div class="kenny-pool-items">
             <span *ngFor="let item of tier.items" [class.kenny-pool-zebra]="item.id==='kenny_skin_zebra'">
               <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="token-icon"/> {{item.name}}
-              <small *ngIf="item.id==='kenny_skin_zebra'" class="kenny-pool-zebra-odds">· {{kennyZebraChance | number:'1.0-1'}} %{{kennyLevel<4?' · ab Level 4':''}}</small>
+              <small *ngIf="item.id==='kenny_skin_zebra'" class="kenny-pool-zebra-odds">· {{kennyZebraChanceLabel}} %{{kennyLevel<4?' · ab Level 4':''}}</small>
               <small *ngIf="tier.key==='event' && owns(item)" class="kenny-pool-owned">✓</small>
             </span>
             <small *ngIf="!tier.items.length">Alles aus dieser Kategorie eingesammelt.</small>
