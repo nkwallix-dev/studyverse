@@ -145,11 +145,15 @@ async function main(){
       const cards=[...document.querySelectorAll('.companions-grid .companion-card')].map(el=>el.getBoundingClientRect());
       return {viewport:innerHeight,scroll:document.documentElement.scrollHeight,
        cardBottom:Math.max(...cards.map(x=>x.bottom)),
+       cta:document.querySelector('.companion-enter').getBoundingClientRect().toJSON(),
+       firstCard:cards[0].toJSON(),
        cardWidths:cards.map(x=>x.width),visibleHeight:cards[0].height};
      });
      assert(companionLayout.scroll<=companionLayout.viewport+3&&
        companionLayout.cardBottom<=companionLayout.viewport-(width<=700?68:0)+2&&
        companionLayout.visibleHeight>95&&companionLayout.cardWidths.every(x=>x>90)&&
+       companionLayout.cta.top>=companionLayout.firstCard.top+2&&
+       companionLayout.cta.bottom<=companionLayout.firstCard.bottom-2&&
        companionLayout.cardBottom>=companionLayout.viewport-(width<=700?108:48),
        'Begleiter cards, actions and footer must fit without scrolling at '+width+': '+JSON.stringify(companionLayout));
      if(width===390)await page.screenshot({path:path.join(screenshots,'begleiter-390.png'),fullPage:true});
@@ -202,7 +206,7 @@ async function main(){
       stripe:getComputedStyle(node,'::after').webkitMaskImage
      })));
      assert.equal(colors.length,5,'Every Dino Designer skin needs its own preview');
-     assert(colors.every(c=>c.imageLoaded&&c.imageSrc?.endsWith('kenny-'+c.skin+'-portrait.png')),
+     assert(colors.every(c=>c.imageLoaded&&c.imageSrc?.endsWith('kenny_'+c.skin+'_avatar.png')),
       'Each skin must load its own dedicated real portrait PNG: '+JSON.stringify(colors));
      assert.equal(new Set(colors.map(c=>c.imageSrc)).size,5,'All five previews need distinct assets');
      assert(colors.every(c=>c.imageFilter==='none'&&c.stripe==='none'),
@@ -559,7 +563,7 @@ async function main(){
   assert(equippedPortrait.src?.includes('kenny_pink_avatar.png'),
    'Ausrüsten & Weiter must equip the new Kenny avatar artwork: '+JSON.stringify(equippedPortrait));
   await colorPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Neuer Skin'));
-  assert((await colorPage.locator('.kenny-reveal-art img').getAttribute('src')).endsWith('kenny-pink-portrait.png'),'The pink reward must show its actual sprite portrait');
+  assert((await colorPage.locator('.kenny-reveal-art img').getAttribute('src')).endsWith('kenny_pink_avatar.png'),'The pink reward must show its own new avatar artwork');
   await colorPage.locator('.kenny-reveal-actions .btn.primary').click();
   await colorPage.locator('.dino-designer-grid').waitFor({state:'visible'});
   assert(await colorPage.locator('.dino-designer-skin-grid button').filter({hasText:'Kenny Pink'}).isEnabled(),
@@ -656,6 +660,26 @@ async function main(){
   const inventoryScroll=await maxPage.locator('.inventory-item-grid').evaluate(el=>({height:el.clientHeight,content:el.scrollHeight}));
   assert(inventoryScroll.content>inventoryScroll.height,
    'Only the inventory item grid should scroll when many items are owned: '+JSON.stringify(inventoryScroll));
+  const ownedAvatar=maxPage.locator('.inventory-item[data-category="avatar"]').first();
+  assert(await ownedAvatar.count()>0,'Kenny must have a real avatar in inventory at level five');
+  await ownedAvatar.locator('.drop-preview-btn').click();
+  const avatarPreview=maxPage.locator('.shop-preview-modal[data-category="avatar"] .preview-visual');
+  await avatarPreview.waitFor({state:'visible'});
+  await maxPage.waitForFunction(()=>{
+    const img=document.querySelector('.shop-preview-modal[data-category="avatar"] .preview-visual img');
+    return img&&img.complete&&img.naturalWidth>0;
+  });
+  const avatarPreviewGeometry=await avatarPreview.evaluate(el=>{
+    const art=el.querySelector('img').getBoundingClientRect(), frame=el.getBoundingClientRect();
+    return {frame:frame.toJSON(),image:art.toJSON(),fit:getComputedStyle(el.querySelector('img')).objectFit};
+  });
+  assert(avatarPreviewGeometry.fit==='contain'&&
+    avatarPreviewGeometry.image.top>=avatarPreviewGeometry.frame.top-1&&
+    avatarPreviewGeometry.image.bottom<=avatarPreviewGeometry.frame.bottom+1&&
+    avatarPreviewGeometry.image.left>=avatarPreviewGeometry.frame.left-1&&
+    avatarPreviewGeometry.image.right<=avatarPreviewGeometry.frame.right+1,
+    'Avatar PNG must remain completely inside the preview box: '+JSON.stringify(avatarPreviewGeometry));
+  await maxPage.locator('.shop-preview-modal .btn.secondary').click();
   await maxPage.locator('.inventory-item').filter({hasText:'Molekül-Matrix'}).locator('.drop-preview-btn').click();
   assert((await maxPage.locator('.preview-requirement').innerText()).includes('Durch Kenny, den Raptor freigeschaltet'),
    'Already owned cosmetics with an incomplete learning goal must not claim it was fulfilled');
