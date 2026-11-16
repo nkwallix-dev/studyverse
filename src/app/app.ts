@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DinoDesignerComponent } from './features/dinoverse/dino-designer/dino-designer.component';
 import { CosmeticIconComponent } from './cosmetic-icon.component';
 import { CosmeticArtComponent } from './cosmetic-art.component';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
@@ -9,7 +10,7 @@ import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
 import { StudyverseCloud, CloudSnapshot, PublicPlayer, PublicShowcase, PublicCourseProgress, AccountNotice, CLOUD_DAILY_KEY, CLOUD_SESSION_KEY, cloudError, isAllowedNickname } from './cloud';
 import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, KENNY_ZEBRA_SKIN, KENNY_BLUE_SKIN, KENNY_BLUE_AVATAR, KENNY_SKIN_AVATARS, DinoSeasonState, DinoDrop,
   freshDinoState, normalizeDinoState, dinoLevel, nextDinoLevel, isKennyActive, cashbackDue, kennyCountdown,
-  eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason, hasKennyCompanion, kennyStaysAfterSeason, kennyAvatarForSkin, kennyAvatarSkin } from './dino-season';
+  eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason, hasKennyCompanion, kennyStaysAfterSeason, kennyAvatarForSkin, kennyAvatarSkin, kennyPortrait } from './dino-season';
 
 type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements' | 'friends' | 'companions';
 interface Subject { id:string; short:string; name:string; icon:string; group:string; color:string; desc:string; }
@@ -56,7 +57,7 @@ export const SUBJECTS:Subject[]=[
 ];
 
 @Component({
- selector:'app-root', standalone:true, imports:[CommonModule,FormsModule,CosmeticIconComponent,CosmeticArtComponent],
+ selector:'app-root', standalone:true, imports:[CommonModule,FormsModule,CosmeticIconComponent,CosmeticArtComponent,DinoDesignerComponent],
  templateUrl:'./app.html', styleUrl:'./app.scss'
 })
 export class App implements OnInit,OnDestroy {
@@ -826,7 +827,7 @@ export class App implements OnInit,OnDestroy {
    const begin=KENNY_THRESHOLDS[this.kennyLevel-1],end=KENNY_THRESHOLDS[this.kennyLevel];
    return Math.round(100*(this.kennyState.feeds-begin)/(end-begin));
  }
- kennyPortrait(skin:string|null):string{return 'cosmetics/avatars/kenny_'+(['blue','pink','green','red','zebra'].includes(skin||'')?skin:'blue')+'_avatar.png';}
+ readonly kennyPortrait=kennyPortrait;
  get kennySkin():DinoSeasonState['skin']{
    const selected=this.kennyState.skin;
    return selected==='blue'||this.profile.inventory.includes('kenny_skin_'+selected)?selected:'blue';

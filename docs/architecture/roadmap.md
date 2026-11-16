@@ -1,0 +1,31 @@
+# Incremental refactoring roadmap
+
+Baseline on `main` at `6cc087e` (before extraction): 3 standalone Angular
+components, `app.ts` 1,395 lines, `app.html` 799 lines, `app.scss` 630 lines,
+`styles.scss` 2,125 lines. Record the same measurements after each PR.
+
+1. **Dino Designer presentation** — own template, typed inputs and output
+   events; leave save and season logic in the parent. Keep all current CSS
+   selectors in place for a zero-layout-change first PR. Correct the preexisting
+   Zebra portrait assertion to match the current PNG asset.
+2. **Kenny rewards and pool** — extract the modals and prize tiles, then isolate
+   their selectors in a separate review. Preserve the five sprite strips,
+   level gates, 0/0.5% Zebra odds and independent collection messages.
+3. **Shop and inventory** — separate catalog, filters, owned list and preview;
+   centralize typed selectors and equipment actions without changing item IDs.
+4. **Profile, friends and account flows** — extract public profile and editor
+   views, then move cloud orchestration behind a narrow service interface.
+   Keep local/cloud hydration and Firestore document shapes compatible.
+5. **Dashboard, achievements and learning worlds** — extract remaining large
+   page sections and bridge logic in independent PRs.
+6. **Styles and domain boundaries** — remove proven dead overrides, move
+   feature CSS in cascade-preserving batches, add shared design tokens, and
+   separate pure economy/progression calculations from the shell.
+
+For each step: compare the new branch with fresh `main`, run unit, static and
+browser regressions, review screenshots and asset paths, merge only green PRs,
+then verify the Pages deployment before branching from the new `main`.
+
+Known technical debt: `app.ts` still owns state, Firebase orchestration and
+multiple domain actions; `app.html` contains most other feature sections;
+global CSS is order-sensitive. These are planned work, not fixed by step 1.

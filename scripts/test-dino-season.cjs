@@ -90,6 +90,7 @@ assert(d.kennyStaysAfterSeason({...state,feeds:25}),'25 feeds retain Kenny perma
 assert(d.hasKennyCompanion({...state,feeds:25},d.KENNY_SEASON.end+180*86400000),
  'Kennyverse stays unlocked beyond the season after reaching level 5');
 const html=fs.readFileSync('src/app/app.html','utf8'),css=fs.readFileSync('src/styles.scss','utf8');
+const designer=fs.readFileSync('src/app/features/dinoverse/dino-designer/dino-designer.component.html','utf8');
 assert(html.includes('kenny-sprite')&&html.includes('kenny-avatar.png')&&html.includes('kenny-feeding'));
 assert(html.includes('Kennyverse betreten')&&html.includes('kenny-reveal-modal')&&html.includes('openCompanions()'));
 assert(html.includes('Ab Level 5 schließt sich Kenny deinen Begleitern an.'),
@@ -102,7 +103,9 @@ assert(!html.includes('kenny-test-unlock')&&!appTS.includes('testUnlockZebra')&&
  'Temporary zebra Test control and its unlock logic must be removed, without removing the earned reward');
 assert(appTS.includes('KENNY_ZEBRA_SKIN')&&appTS.includes('get kennySkin()'),
  'Zebra cosmetic and its equipped skin must remain compatible with saved profiles');
-assert(html.includes('kenny-action-row')&&html.includes('kenny-style-btn')&&html.includes('Alle freischaltbaren Farben'),
+assert(html.includes('kenny-action-row')&&html.includes('kenny-style-btn')&&
+ html.includes('<app-dino-designer')&&html.includes('(skinSelected)="setKennySkin($event)"')&&
+ designer.includes('Alle freischaltbaren Farben')&&designer.includes('(click)="skinSelected.emit(skin.id)"'),
  'Dino Designer must be accessible beside the feeding button and show attainable skins');
 assert(appTS.includes("item.group!=='dinoSkin'&&this.owns(item)"),
  'Dino skins are not regular Shop or Inventory cosmetics');

@@ -25,7 +25,7 @@ describe('App', () => {
 
   it('keeps legacy avatars and Kenny skins separate', () => {
     expect(avatarImage('🐟')).toBe('cosmetics/avatars/laborfish_avatar.png');
-    expect(avatarImage('kenny_avatar_zebra')).toBe('kenny/kenny-avatar.png');
+    expect(avatarImage('kenny_avatar_zebra')).toBe('cosmetics/avatars/kenny_zebra_avatar.png');
     expect(cosmeticImage('kenny_skin_zebra')).toBeNull();
   });
 

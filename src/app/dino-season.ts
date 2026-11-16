@@ -49,6 +49,10 @@ export function kennyAvatarForSkin(id:string|undefined):ShopItem|undefined{
   return KENNY_SKIN_AVATARS.find(item=>id==='kenny_skin_'+item.id.slice('kenny_avatar_'.length));
 }
 export type KennySkin='blue'|'pink'|'green'|'red'|'zebra';
+/** Profile portraits are separate from Kenny's idle/feed sprite sheets. */
+export function kennyPortrait(skin:string|null):string{
+  return 'cosmetics/avatars/kenny_'+(['blue','pink','green','red','zebra'].includes(skin||'')?skin:'blue')+'_avatar.png';
+}
 export function kennyAvatarSkin(value:string):KennySkin|null{
   if(value==='🦖'||value==='kenny_avatar')return 'blue';
   const skin=value.startsWith('kenny_avatar_')?value.slice('kenny_avatar_'.length):'';

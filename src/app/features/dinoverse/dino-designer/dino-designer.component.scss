@@ -1,0 +1,3 @@
+/* The existing designer selectors remain global until their cascade is
+   isolated in a separate visual-regression-checked refactoring step. */
+:host { display: contents; }
