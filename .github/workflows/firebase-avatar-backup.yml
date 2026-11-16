@@ -1,0 +1,75 @@
+name: Backup Studyverse Firestore (manual only)
+
+# No push, pull_request, cron or automatic database writes.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type BACKUP to export all Firestore collections to private Cloud Storage"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: studyverse-firestore-private-backup
+  cancel-in-progress: false
+
+jobs:
+  export:
+    if: github.ref == 'refs/heads/main' && inputs.confirm == 'BACKUP'
+    runs-on: ubuntu-latest
+    environment: firebase-production
+    env:
+      PROJECT_ID: studyverse-logins
+      BUCKET: ${{ vars.FIREBASE_BACKUP_BUCKET }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$BUCKET" || ! "$BUCKET" =~ ^[a-z0-9][a-z0-9._-]{2,62}$ ]]; then
+            echo "::error::Set the FIREBASE_BACKUP_BUCKET repository variable to a private bucket name (without gs://)."
+            exit 1
+          fi
+      - name: Authenticate with short-lived GitHub OIDC (no service-account key)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/916949777071/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: studyverse-firestore-backup@studyverse-logins.iam.gserviceaccount.com
+          project_id: studyverse-logins
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Verify backup bucket cannot be public
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud storage buckets describe "gs://$BUCKET" --format=json > "$RUNNER_TEMP/studyverse-bucket.json"
+          python3 - "$RUNNER_TEMP/studyverse-bucket.json" <<'PY'
+          import json
+          import sys
+          with open(sys.argv[1], encoding="utf-8") as f:
+              data=json.load(f)
+          iam=data.get("iamConfiguration") or data.get("iam_config") or {}
+          pap=iam.get("publicAccessPrevention") or iam.get("public_access_prevention")
+          uniform=iam.get("uniformBucketLevelAccess") or iam.get("uniform_bucket_level_access")
+          if isinstance(uniform, dict):
+              uniform=uniform.get("enabled")
+          if str(pap).lower() != "enforced" or str(uniform).lower() != "true":
+              raise SystemExit("Backup bucket must enforce public access prevention and uniform bucket-level access")
+          print("Backup bucket privacy checks passed")
+          PY
+      - name: Export complete Firestore database and verify object listing
+        shell: bash
+        run: |
+          set -euo pipefail
+          DATE="$(date -u +%Y%m%dT%H%M%SZ)"
+          DESTINATION="gs://$BUCKET/studyverse-firestore/$DATE-$GITHUB_RUN_ID"
+          # Omitting --collection-ids exports ALL collection groups.
+          # Without --async, gcloud waits for the export operation.
+          gcloud firestore export "$DESTINATION" --project="$PROJECT_ID" --database="(default)" --quiet
+          # No user document content is printed or uploaded as a GitHub artifact.
+          gcloud storage ls "$DESTINATION/" >/dev/null
+          echo "Firestore backup finished; private export prefix: $DESTINATION"
