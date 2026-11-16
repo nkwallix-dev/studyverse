@@ -449,6 +449,70 @@ async function main(){
    assert(!errors.length,'Studyverse script errors at '+width+': '+errors.join('; '));
    await context.close();
   }
+  const bannerContext = await browser.newContext({ viewport: { width: 390, height: 800 } });
+  const bannerPage = await bannerContext.newPage();
+  await bannerPage.addInitScript((itemIds) => {
+    localStorage.setItem('studyverse_import_prompt_seen_v1', '1');
+    localStorage.setItem('studyverse_profile_v1', JSON.stringify({
+      xp: 0,
+      tokens: 10000,
+      nickname: 'BannerTester',
+      inventory: ['chem_link'],
+      equipped: { banner: 'molecule' },
+      claimedLevels: {},
+      activity: [],
+      shopDropMigrationV1: true,
+      rewardSeen: Object.fromEntries(itemIds.map((id) => [id, true])),
+      rewardQueue: [],
+      trainerSaves: {
+        'pos-pa-01': {
+          courseDone: { first: true, second: true },
+          solved: Object.fromEntries(Array.from({ length: 10 }, (_, index) => ['d' + index, true])),
+        },
+      },
+    }));
+  }, [...fs.readFileSync('src/app/shop-items.ts', 'utf8').matchAll(/\{id:'([^']+)'/g)]
+    .map((match) => match[1]));
+  await bannerPage.goto(base, { waitUntil: 'load' });
+  const bannerNotice = bannerPage.locator('.notice button');
+  if (await bannerNotice.isVisible()) await bannerNotice.click();
+  await bannerPage.locator('.navigation button[aria-label="Item-Shop"]').click();
+  const specialBanners = [
+    { name: 'Pink Paradise', key: 'pink_paradise', scene: 'pink', color: 'rgb(105, 48, 95)', drop: 'global' },
+    { name: 'Solitaire Cascade', key: 'solitaire', scene: 'solitaire', color: 'rgb(16, 46, 50)', drop: 'pos-pa-01' },
+    { name: 'Parallel Pulse', key: 'parallel_pulse', scene: 'parallel', color: 'rgb(23, 32, 67)', drop: 'pos-pa-01' },
+  ];
+  async function openBannerPreview(card, { name, key, scene, color }) {
+    const thumbnail = card.locator('app-cosmetic-banner img');
+    await thumbnail.scrollIntoViewIfNeeded();
+    assert(await thumbnail.evaluate(async (image, key) => {
+      await image.decode();
+      return image.naturalWidth > 0 && image.src.endsWith('/' + key + '.webp');
+    }, key), name + ' must use its own thumbnail');
+    await card.locator('.drop-preview-btn').click();
+    const stage = bannerPage.locator('.shop-live-stage[data-banner="' + key + '"]');
+    await stage.locator('.scene-' + scene).waitFor({ state: 'visible' });
+    assert.equal(await stage.locator('.banner-scene:visible').count(), 1);
+    assert((await stage.locator('.shop-live-hero').evaluate((hero) =>
+      getComputedStyle(hero).backgroundImage)).includes(color),
+    name + ' must show its own background instead of the equipped one');
+  }
+  for (const banner of specialBanners) {
+    await bannerPage.locator('#shop-drop-select').selectOption(banner.drop);
+    const card = bannerPage.locator('.drop-item[data-category="banner"]').filter({ hasText: banner.name });
+    await openBannerPreview(card, banner);
+    await bannerPage.locator('.shop-preview-modal .btn.primary').click();
+    await bannerNotice.click();
+  }
+  await bannerPage.locator('.shop-view-tabs button').filter({ hasText: 'Inventar' }).click();
+  for (const banner of specialBanners) {
+    const card = bannerPage.locator('.inventory-item[data-category="banner"]').filter({ hasText: banner.name });
+    await openBannerPreview(card, banner);
+    await bannerPage.getByRole('button', { name: 'Vorschau schließen' }).click();
+  }
+  await bannerContext.close();
+  console.log('PASS: Pink Paradise, Solitaire Cascade, and Parallel Pulse show their Shop and Inventory previews.');
+
   const refundContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
   const refundPage=await refundContext.newPage();
   await refundPage.addInitScript(()=>{
@@ -729,14 +793,24 @@ async function main(){
   await colorPage.locator('.navigation button[aria-label="Begleiter"]').click();
   await colorPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   await colorPage.locator('.kenny-feed-btn').click();
-  await colorPage.locator('.kenny-reveal-modal').waitFor();
-  assert((await colorPage.locator('.kenny-reveal-art img').getAttribute('src')).includes('kenny_pink_avatar.png'),
-   'The pink avatar artwork must be revealed before the matching skin');
+  const colorReveal = colorPage.getByRole('dialog', { name: /Neuer Skin für Kenny/ });
+  await colorReveal.waitFor();
+  assert((await colorReveal.locator('.kenny-reveal-art img').getAttribute('src'))
+    .endsWith('kenny_pink_avatar.png'));
+  assert.deepEqual(
+    (await colorReveal.getByRole('button').allTextContents()).map((label) => label.trim()),
+    ['Weiter'],
+  );
   const colorProfile=await colorPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
   assert(colorProfile.inventory.includes('kenny_skin_blue')&&colorProfile.inventory.includes('kenny_skin_pink')&&colorProfile.inventory.includes('kenny_avatar_pink'));
   assert(colorProfile.kennyWonItems['kenny_avatar_pink']);
-  assert((await colorPage.locator('.kenny-reveal-modal').innerText()).includes('Neuer Kenny-Avatar'));
-  await colorPage.locator('.kenny-reveal-actions .btn.primary').click();
+  await colorReveal.getByRole('button', { name: 'Weiter', exact: true }).click();
+  const pairedAvatarReveal = colorPage.getByRole('dialog', { name: /Dazu gibt’s einen Kenny-Avatar/ });
+  await pairedAvatarReveal.waitFor();
+  assert((await pairedAvatarReveal.locator('.kenny-reveal-art img').getAttribute('src'))
+    .endsWith('kenny_pink_avatar.png'));
+  assert(await pairedAvatarReveal.getByRole('button', { name: 'Weiter', exact: true }).isVisible());
+  await pairedAvatarReveal.getByRole('button', { name: 'Ausrüsten & Weiter' }).click();
   await colorPage.waitForFunction(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1'))?.equipped?.avatar==='kenny_avatar_pink');
   await colorPage.waitForFunction(()=>document.querySelector('.top-profile-avatar img')?.getAttribute('src')?.includes('kenny_pink_avatar.png'),null,{timeout:4000}).catch(()=>{});
   const equippedPortrait=await colorPage.evaluate(()=>({
@@ -746,10 +820,11 @@ async function main(){
   }));
   assert(equippedPortrait.src?.includes('kenny_pink_avatar.png'),
    'Ausrüsten & Weiter must equip the new Kenny avatar artwork: '+JSON.stringify(equippedPortrait));
-  await colorPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Neuer Skin'));
-  assert((await colorPage.locator('.kenny-reveal-art img').getAttribute('src')).endsWith('kenny_pink_avatar.png'),'The pink reward must show its own new avatar artwork');
-  await colorPage.locator('.kenny-reveal-actions .btn.primary').click();
+  const designerReveal = colorPage.getByRole('dialog', { name: /Kenny in neuem Look/ });
+  await designerReveal.waitFor();
+  await designerReveal.getByRole('button', { name: "Zeig's mir" }).click();
   await colorPage.locator('.dino-designer-grid').waitFor({state:'visible'});
+  assert.equal(await colorPage.locator('.kenny-reveal-modal').count(), 0);
   assert(await colorPage.locator('.dino-designer-skin-grid button').filter({hasText:'Kenny Pink'}).isEnabled(),
    'Zeig\'s mir must open the skin selector with the new color unlocked');
   await colorPage.locator('.dino-designer-heading-actions button').filter({hasText:'Meine Begleiter'}).click();
@@ -761,7 +836,38 @@ async function main(){
    'The avatar stays in Inventory while Dino skins are exclusive to Dino Designer');
   assert((await colorPage.locator('.inventory-item').allTextContents()).every(text=>text.includes('Kenny Pink')));
   await colorContext.close();
-  console.log('PASS: pink Kenny skin grants its own avatar and equips across the profile.');
+  console.log('PASS: color skin, matching profile avatar, then Dino Designer shortcut.');
+
+  const botContext = await browser.newContext({ viewport: { width: 390, height: 800 } });
+  const botPage = await botContext.newPage();
+  await botPage.addInitScript((inventory) => {
+    localStorage.setItem('studyverse_import_prompt_seen_v1', '1');
+    localStorage.setItem('studyverse_profile_v1', JSON.stringify({
+      xp: 0, tokens: 900, nickname: 'BotTester', inventory, equipped: { avatar: '🧪' },
+      claimedLevels: {}, activity: [], shopDropMigrationV1: true, rewardSeen: {}, rewardQueue: [],
+    }));
+    const original = crypto.getRandomValues.bind(crypto);
+    crypto.getRandomValues = (array) => {
+      if (!(array instanceof Uint32Array)) return original(array);
+      array[0] = 0;
+      return array;
+    };
+  }, allIds.filter((id) => id !== 'dsai_bot'));
+  await botPage.goto(base, { waitUntil: 'load' });
+  await botPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
+  await botPage.locator('.kenny-feed-btn').click();
+  const botReveal = botPage.getByRole('dialog', { name: /Data-Bot Avatar/ });
+  await botReveal.waitFor();
+  assert(!(await botReveal.innerText()).includes('Kenny-Avatar'));
+  assert((await botReveal.locator('.kenny-reveal-art img').getAttribute('src'))
+    .endsWith('dsai_bot_avatar.png'));
+  await botReveal.getByRole('button', { name: 'Ausrüsten & Weiter' }).click();
+  await botReveal.waitFor({ state: 'hidden' });
+  assert.equal(await botPage.evaluate(() => {
+    return JSON.parse(localStorage.getItem('studyverse_profile_v1')).equipped.avatar;
+  }), '🤖');
+  await botContext.close();
+  console.log('PASS: a standalone Data-Bot drop displays its own name and can be equipped.');
 
   // A non-avatar prize must name the cosmetic category (as Shop / Inventory
   // do) and put Kenny's random sentence on a separate line from its description.

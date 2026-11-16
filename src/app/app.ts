@@ -18,6 +18,12 @@ import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_IT
   eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason, hasKennyCompanion, kennyStaysAfterSeason, kennyAvatarForSkin, kennyAvatarSkin, kennyPortrait } from './dino-season';
 
 type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements' | 'friends' | 'companions';
+type KennyReveal =
+  | { kind: 'drop'; drop: DinoDrop; line: string }
+  | { kind: 'level'; level: number; item?: ShopItem }
+  | { kind: 'season'; tokens: number; item?: ShopItem }
+  | { kind: 'skin' | 'skinAvatar' | 'skinDesigner'; item: ShopItem };
+
 interface Subject { id:string; short:string; name:string; icon:string; group:string; color:string; desc:string; }
 interface Activity {label:string;date:string;amount?:number}
 interface Profile {
@@ -85,7 +91,7 @@ export class App implements OnInit,OnDestroy {
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
  shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'kenny'|'designer'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
  kennyClock=Date.now();kennyBusy=false;kennyFeeding=false;kennyVisibleFeeds:number|null=null;kennyError='';kennyCustomizeOpen=false;kennyPoolOpen=false;
- kennyReveals:Array<{kind:'drop'|'level'|'season';drop?:DinoDrop;level?:number;tokens?:number;item?:ShopItem;line?:string}>=[];
+ kennyReveals: KennyReveal[] = [];
  private kennyTimer:ReturnType<typeof setInterval>|null=null;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  readonly cloud=new StudyverseCloud();
@@ -905,23 +911,39 @@ export class App implements OnInit,OnDestroy {
        items:category.key==='event'?KENNY_EVENT_ITEMS:pools[category.key],
        chance:this.kennyOdds[category.key]}));
  }
- get kennyCurrentReveal(){return this.kennyReveals[0]||null;}
- get visibleKennyReveal(){return this.shopTab==='designer'?null:this.kennyCurrentReveal;}
- acknowledgeKennyReveal(){this.kennyReveals.shift();this.changeDetector.markForCheck();}
- equipKennyRewardAvatar(){
-   const item=this.kennyCurrentReveal?.drop?.item;
-   if(!item||item.group!=='avatar'||!this.owns(item))return;
-   this.profile.equipped['avatar']=this.avatarEquipValue(item);
-   this.save();this.acknowledgeKennyReveal();
+ get kennyCurrentReveal(): KennyReveal | null {
+   return this.kennyReveals[0] ?? null;
  }
- showKennyRewardSkin(){this.kennyReveals.shift();this.openDinoDesigner();this.changeDetector.markForCheck();}
- isKennyColorSkin(id:string|undefined){return !!id&&id.startsWith('kenny_skin_')&&id!==KENNY_BLUE_SKIN.id;}
- openKennyRewardInventory(){
-   const prize=this.kennyCurrentReveal?.drop?.item||this.kennyCurrentReveal?.item;
-   if(!prize)return;
-   this.kennyReveals=[];
+ get visibleKennyReveal(): KennyReveal | null {
+   return this.shopTab === 'designer' ? null : this.kennyCurrentReveal;
+ }
+ acknowledgeKennyReveal() {
+   this.kennyReveals.shift();
+   this.changeDetector.markForCheck();
+ }
+ equipKennyRewardAvatar() {
+   const reveal = this.kennyCurrentReveal;
+   const item = reveal?.kind === 'drop' ? reveal.drop.item : reveal?.item;
+   if (!item || item.group !== 'avatar' || !this.owns(item)) return;
+
+   this.profile.equipped['avatar'] = this.avatarEquipValue(item);
+   this.save();
+   this.acknowledgeKennyReveal();
+ }
+ showKennyRewardSkin() {
+   this.acknowledgeKennyReveal();
+   this.openDinoDesigner();
+ }
+ openKennyRewardInventory() {
+   const reveal = this.kennyCurrentReveal;
+   const prize = reveal?.kind === 'drop' ? reveal.drop.item : reveal?.item;
+   if (!prize) return;
+
+   this.kennyReveals = [];
    this.openInventory();
-   this.inventoryDrop='Alle';this.inventoryGroup='Alle';this.inventorySearch=prize.name;
+   this.inventoryDrop = 'Alle';
+   this.inventoryGroup = 'Alle';
+   this.inventorySearch = prize.name;
  }
  setKennySkin(skin:string){
    if(!['blue','pink','green','red','zebra'].includes(skin)||
@@ -943,6 +965,7 @@ export class App implements OnInit,OnDestroy {
    const previous=structuredClone(this.profile),before=this.kennyState;
    const priorLevel=dinoLevel(before.feeds);
    const prize=drawDinoReward(priorLevel,this.kennyPools,()=>this.randomDino());
+   const avatar = kennyAvatarForSkin(prize.item?.id);
    const next={...before,feeds:before.feeds+1};
    const reachedLevelFive=priorLevel<5&&dinoLevel(next.feeds)===5;
    if(priorLevel===5){next.overfeeds++;next.overTokenWins+=prize.tokens;}
@@ -953,7 +976,6 @@ export class App implements OnInit,OnDestroy {
    this.profile.tokens=this.profile.tokens-KENNY_SEASON.price+prize.tokens;
    this.profile.dinoSeasons={...(this.profile.dinoSeasons||{}),[KENNY_SEASON.id]:next};
    if(prize.item){
-     const avatar=kennyAvatarForSkin(prize.item.id);
      const firstColor=!!avatar&&!previous.inventory.includes(KENNY_BLUE_SKIN.id);
      this.profile.inventory=[...new Set([...this.profile.inventory,
        ...(firstColor?[KENNY_BLUE_SKIN.id]:[]),prize.item.id,...(avatar?[avatar.id]:[])])];
@@ -976,16 +998,15 @@ export class App implements OnInit,OnDestroy {
    void this.publishFriendCard();
    this.kennyFeeding=false;this.kennyVisibleFeeds=null;
 
-   if(prize.item){
-     const avatar=kennyAvatarForSkin(prize.item.id);
-     if(avatar&&!previous.inventory.includes(avatar.id))
-       this.kennyReveals.push({kind:'drop',drop:{tier:prize.tier,tokens:0,item:avatar},line:'Neuer Kenny-Avatar freigeschaltet!'});
-     this.kennyReveals.push({kind:'drop',drop:prize,line:avatar
-       ?'Neuer Skin für Kenny freigeschaltet! Passe deinen Dino im Designer individuell an.'
-       :line});
-     // Blue is already granted along with the first color. Don't interrupt
-     // the requested Avatar → Skin journey with a third popup.
-   }else this.kennyReveals.push({kind:'drop',drop:prize,line});
+   if (prize.item && avatar) {
+     this.kennyReveals.push(
+       { kind: 'skin', item: prize.item },
+       { kind: 'skinAvatar', item: avatar },
+       { kind: 'skinDesigner', item: prize.item },
+     );
+   } else {
+     this.kennyReveals.push({ kind: 'drop', drop: prize, line });
+   }
    if(dinoLevel(next.feeds)>priorLevel)this.kennyReveals.push({kind:'level',level:dinoLevel(next.feeds),
      ...(reachedLevelFive&&!previous.inventory.includes(KENNY_BLUE_AVATAR.id)?{item:KENNY_BLUE_AVATAR}:{})});
    this.kennyBusy=false;this.changeDetector.markForCheck();
