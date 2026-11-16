@@ -195,17 +195,18 @@ async function main(){
      assert.equal(await page.locator('.shop-view-tabs button').filter({hasText:'Designe deinen Dino'}).getAttribute('aria-selected'),'true');
      const colors=await page.locator('.dino-designer-skin-grid .kenny-skin-preview').evaluateAll(nodes=>nodes.map(node=>({
       skin:node.dataset.skin,
+      imageSrc:node.querySelector('img').getAttribute('src'),
       imageFilter:getComputedStyle(node.querySelector('img')).filter,
       imageLoaded:node.querySelector('img').naturalWidth>0,
       imageOpacity:Number(getComputedStyle(node.querySelector('img')).opacity),
       stripe:getComputedStyle(node,'::after').webkitMaskImage
      })));
      assert.equal(colors.length,5,'Every Dino Designer skin needs its own preview');
-     const expected={blue:'none',pink:'hue-rotate(105deg)',green:'hue-rotate(225deg)',red:'hue-rotate(125deg)',zebra:'grayscale'};
-     assert(colors.every(c=>c.imageLoaded&&c.imageFilter.includes(expected[c.skin])),
-      'Pink, green, red and zebra previews must not all show the default blue dinosaur: '+JSON.stringify(colors));
-     assert(colors.find(c=>c.skin==='zebra').stripe.includes('kenny-avatar.png'),
-      'Zebra must show real black/white stripes masked to Kenny, not only grayscale');
+     assert(colors.every(c=>c.imageLoaded&&c.imageSrc?.endsWith('kenny-'+c.skin+'-portrait.png')),
+      'Each skin must load its own dedicated real portrait PNG: '+JSON.stringify(colors));
+     assert.equal(new Set(colors.map(c=>c.imageSrc)).size,5,'All five previews need distinct assets');
+     assert(colors.every(c=>c.imageFilter==='none'&&c.stripe==='none'),
+      'Kenny must not use CSS color filters or zebra overlays: '+JSON.stringify(colors));
      assert(colors.every(c=>c.imageOpacity>.9),
       'Locked colors should remain fully visible, even if unavailable to equip');
      const designer=await page.evaluate(()=>{
@@ -558,7 +559,7 @@ async function main(){
   assert(equippedPortrait.src?.includes('kenny_pink_avatar.png'),
    'Ausrüsten & Weiter must equip the new Kenny avatar artwork: '+JSON.stringify(equippedPortrait));
   await colorPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Neuer Skin'));
-  assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink');
+  assert((await colorPage.locator('.kenny-reveal-art img').getAttribute('src')).endsWith('kenny-pink-portrait.png'),'The pink reward must show its actual sprite portrait');
   await colorPage.locator('.kenny-reveal-actions .btn.primary').click();
   await colorPage.locator('.dino-designer-grid').waitFor({state:'visible'});
   assert(await colorPage.locator('.dino-designer-skin-grid button').filter({hasText:'Kenny Pink'}).isEnabled(),
@@ -767,8 +768,8 @@ async function main(){
    const sidebar=document.querySelector('.kenny-side-art .kenny-visual img');
    const root=getComputedStyle(document.documentElement);
    return {skin:document.documentElement.dataset.kennySkin,
-    heroFilter:getComputedStyle(image).filter,
-    sidebarFilter:getComputedStyle(sidebar).filter,
+    heroSrc:image.getAttribute('src'),heroLoaded:image.naturalWidth>0,
+    sidebarSrc:sidebar.getAttribute('src'),sidebarLoaded:sidebar.naturalWidth>0,
     accent:root.getPropertyValue('--kenny-primary').trim(),
     sun:!!document.querySelector('.hero .kenny-banner-sun'),
     volcano:!!document.querySelector('.hero .kenny-banner-volcano i'),
@@ -776,8 +777,8 @@ async function main(){
     ground:!!document.querySelector('.hero .kenny-banner-ground')};
   });
   assert(equippedAppearance.skin==='red'&&
-    equippedAppearance.heroFilter.includes('hue-rotate(125deg)')&&
-    equippedAppearance.sidebarFilter.includes('hue-rotate(125deg)')&&
+    equippedAppearance.heroSrc?.endsWith('kenny-red-portrait.png')&&equippedAppearance.heroLoaded&&
+    equippedAppearance.sidebarSrc?.endsWith('kenny-red-portrait.png')&&equippedAppearance.sidebarLoaded&&
     equippedAppearance.accent==='#ffa397'&&
     equippedAppearance.sun&&equippedAppearance.volcano&&equippedAppearance.fern&&equippedAppearance.ground,
     'Kennyverse must render equipped red Kenny, a matching red UI and the prehistoric banner: '+
@@ -818,10 +819,10 @@ async function main(){
   });
   const updatedAppearance=await versePage.evaluate(()=>({
     skin:document.documentElement.dataset.kennySkin,
-    questionFilter:getComputedStyle(document.querySelector('.kenny-play-title .kenny-visual img')).filter,
+    questionSrc:document.querySelector('.kenny-play-title .kenny-visual img').getAttribute('src'),questionLoaded:document.querySelector('.kenny-play-title .kenny-visual img').naturalWidth>0,
     accent:getComputedStyle(document.documentElement).getPropertyValue('--kenny-primary').trim()
   }));
-  assert(updatedAppearance.skin==='pink'&&updatedAppearance.questionFilter.includes('hue-rotate(105deg)')&&
+  assert(updatedAppearance.skin==='pink'&&updatedAppearance.questionSrc?.endsWith('kenny-pink-portrait.png')&&updatedAppearance.questionLoaded&&
     updatedAppearance.accent==='#ffa7ed',
     'Kennyverse must recolor the quiz companion and entire UI when equipped skin changes: '+
      JSON.stringify(updatedAppearance));
