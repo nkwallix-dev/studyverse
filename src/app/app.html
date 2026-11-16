@@ -566,9 +566,9 @@
       <div class="eyebrow">🦖 {{reveal.kind==='level'?'KENNY LEVEL UP':reveal.kind==='season'?'SEASON-FINALE':'KENNY HAT AUFGEGESSEN'}}</div>
       <div class="kenny-reveal-art" [class.kenny-reveal-item]="reveal.kind==='drop' && !!reveal.drop?.item">
         <div *ngIf="(reveal.kind==='level' && reveal.level!==5)||reveal.kind==='season'" class="kenny-mini-sprite" role="img" aria-label="Kenny freut sich" [attr.data-skin]="kennySkin"></div>
-        <app-cosmetic-icon *ngIf="reveal.kind==='level' && reveal.level===5" id="kenny_avatar" fallback="🦖" label="Kenny Blau Avatar" [decorative]="false" class="avatar-icon"/>
-
-        <span *ngIf="reveal.kind==='drop'"><app-cosmetic-icon [id]="reveal.drop?.item?.id || 'tasty_token'" [fallback]="reveal.drop?.item?.icon || '🪙'" class="avatar-icon"/></span>
+        <app-cosmetic-icon *ngIf="reveal.kind==='level' && reveal.level===5" id="kenny_avatar" fallback="🦖" label="Kenny Blau Avatar" [decorative]="false" [lazy]="false" class="avatar-icon"/>
+        <img *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group==='dinoSkin'" src="kenny/kenny-avatar.png" [attr.data-skin]="kennyRewardSkin(reveal.drop?.item?.id)" alt="Kenny-Skin">
+        <span *ngIf="reveal.kind==='drop' && reveal.drop?.item?.group!=='dinoSkin'"><app-cosmetic-icon [id]="reveal.drop?.item?.id || 'tasty_token'" [fallback]="reveal.drop?.item?.icon || '🪙'" [lazy]="false" class="avatar-icon"/></span>
       </div>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='level'">Kenny ist jetzt <span>Level {{reveal.level}}!</span></h2>
       <h2 id="kenny-reveal-title" *ngIf="reveal.kind==='drop' && reveal.drop?.item?.id==='kenny_avatar'">Kenny begleitet dich jetzt <span>als Avatar!</span></h2>

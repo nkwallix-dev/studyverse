@@ -541,15 +541,15 @@ async function main(){
   await colorPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
   await colorPage.locator('.kenny-feed-btn').click();
   await colorPage.locator('.kenny-reveal-modal').waitFor();
-  assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink',
-   'The avatar must be revealed before the matching skin');
+  assert((await colorPage.locator('.kenny-reveal-art img').getAttribute('src')).includes('kenny_pink_avatar.png'),
+   'The pink avatar artwork must be revealed before the matching skin');
   const colorProfile=await colorPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
   assert(colorProfile.inventory.includes('kenny_skin_blue')&&colorProfile.inventory.includes('kenny_skin_pink')&&colorProfile.inventory.includes('kenny_avatar_pink'));
   assert(colorProfile.kennyWonItems['kenny_avatar_pink']);
   assert((await colorPage.locator('.kenny-reveal-modal').innerText()).includes('Neuer Kenny-Avatar'));
   await colorPage.locator('.kenny-reveal-actions .btn.primary').click();
-  assert.equal(await colorPage.locator('.top-profile-avatar img').getAttribute('data-skin'),'pink',
-   'Ausrüsten & Weiter must equip the new Kenny avatar');
+  assert((await colorPage.locator('.top-profile-avatar img').getAttribute('src')).includes('kenny_pink_avatar.png'),
+   'Ausrüsten & Weiter must equip the new Kenny avatar artwork');
   await colorPage.waitForFunction(()=>document.querySelector('#kenny-reveal-title')?.textContent?.includes('Neuer Skin'));
   assert.equal(await colorPage.locator('.kenny-reveal-art img').getAttribute('data-skin'),'pink');
   await colorPage.locator('.kenny-reveal-actions .btn.primary').click();
