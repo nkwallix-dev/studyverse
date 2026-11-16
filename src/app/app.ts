@@ -826,7 +826,7 @@ export class App implements OnInit,OnDestroy {
    const begin=KENNY_THRESHOLDS[this.kennyLevel-1],end=KENNY_THRESHOLDS[this.kennyLevel];
    return Math.round(100*(this.kennyState.feeds-begin)/(end-begin));
  }
- kennyPortrait(skin:string):string{return 'kenny/skins/kenny-'+(['blue','pink','green','red','zebra'].includes(skin)?skin:'blue')+'-portrait.png';}
+ kennyPortrait(skin:string|null):string{return 'kenny/skins/kenny-'+(['blue','pink','green','red','zebra'].includes(skin)?skin:'blue')+'-portrait.png';}
  get kennySkin():DinoSeasonState['skin']{
    const selected=this.kennyState.skin;
    return selected==='blue'||this.profile.inventory.includes('kenny_skin_'+selected)?selected:'blue';
