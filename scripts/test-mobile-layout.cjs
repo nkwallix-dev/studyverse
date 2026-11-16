@@ -215,7 +215,7 @@ async function main(){
        top:b.getBoundingClientRect().top,
        right:b.getBoundingClientRect().right
      })));
-     assert(designerActionLayout.every(b=>b.width>70&&b.right<=innerWidth+2)&&
+     assert(designerActionLayout.every(b=>b.width>70&&b.right<=width+2)&&
        Math.abs(designerActionLayout[0].top-designerActionLayout[1].top)<3,
        'Designer navigation must stay aligned and inside the viewport: '+JSON.stringify(designerActionLayout));
      const colors=await page.locator('.dino-designer-skin-grid .kenny-skin-preview').evaluateAll(nodes=>nodes.map(node=>({
