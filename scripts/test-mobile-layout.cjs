@@ -449,7 +449,7 @@ async function main(){
   const unlockedSkins=dinoProfile.inventory.filter(id=>id.startsWith('kenny_skin_')&&id!=='kenny_skin_blue').length;
   assert.equal(await dinoPage.locator('.dino-designer-skin-grid button:disabled').count(),4-unlockedSkins,
    'Only owned skins may be selected, including the rare zebra skin');
-  await dinoPage.locator('.dino-designer-heading button').click();
+  await dinoPage.locator('.dino-designer-heading-actions button').filter({hasText:'Meine Begleiter'}).click();
   await dinoContext.close();
   console.log('PASS: Kenny viewport, three feeds, reward reveals, XP isolation and locked skins.');
   // The blue avatar is granted at the 25th feed, independently of the random drop.
@@ -593,7 +593,7 @@ async function main(){
   await colorPage.locator('.dino-designer-grid').waitFor({state:'visible'});
   assert(await colorPage.locator('.dino-designer-skin-grid button').filter({hasText:'Kenny Pink'}).isEnabled(),
    'Zeig\'s mir must open the skin selector with the new color unlocked');
-  await colorPage.locator('.dino-designer-heading button').click();
+  await colorPage.locator('.dino-designer-heading-actions button').filter({hasText:'Meine Begleiter'}).click();
   await colorPage.locator('.navigation button[aria-label="Item-Shop"]').click();
   await colorPage.locator('.shop-view-tabs button').filter({hasText:'Inventar'}).click();
   await colorPage.locator('.inventory-search-label input').fill('Kenny Pink');
