@@ -88,8 +88,8 @@ assert(!html.includes('kenny-test-unlock')&&!appTS.includes('testUnlockZebra')&&
  'Temporary zebra Test control and its unlock logic must be removed, without removing the earned reward');
 assert(appTS.includes('KENNY_ZEBRA_SKIN')&&appTS.includes('get kennySkin()'),
  'Zebra cosmetic and its equipped skin must remain compatible with saved profiles');
-assert(html.includes('companion-banner-brush')&&html.includes('Alle freischaltbaren Farben'),
- 'Dino Designer must be accessible from the companion banner and show attainable skins');
+assert(html.includes('kenny-action-row')&&html.includes('kenny-style-btn')&&html.includes('Alle freischaltbaren Farben'),
+ 'Dino Designer must be accessible beside the feeding button and show attainable skins');
 assert(appTS.includes("item.group!=='dinoSkin'&&this.owns(item)"),
  'Dino skins are not regular Shop or Inventory cosmetics');
 assert(html.includes('kenny-pool-dialog')&&!html.includes('Ein Futter kostet 300 TT. Du erhältst'),
