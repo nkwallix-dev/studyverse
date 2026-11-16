@@ -133,7 +133,44 @@ async function main(){
      assert(layout.page<=layout.viewport+3&&layout.mainBottom<=layout.viewport+3,
       'Shop destinations should fit the screen without page scrolling: '+JSON.stringify(layout));
     }
+    if (label === 'Lernwelten' && width <= 700) {
+     const categoryFilter = page.getByRole('combobox', { name: 'Lernwelten nach Kategorie filtern' });
+     await categoryFilter.selectOption('Informatik');
+     await page.waitForFunction(() =>
+       [...document.querySelectorAll('.all-subjects .subject-card')].every((card) =>
+         card.querySelector('small').textContent.includes('Informatik'),
+       ),
+     );
+     assert(await page.locator('.all-subjects .subject-card').count());
+     await categoryFilter.selectOption('Alle');
+     await page.waitForFunction(() => document.querySelectorAll('.all-subjects .subject-card').length > 3);
+     const worldColumns = await page.locator('.all-subjects').evaluate((grid) =>
+       getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+     );
+     assert.equal(worldColumns, 3);
+     if (width === 390) await page.screenshot({ path: path.join(screenshots, 'studyverse-lernwelten-390.png') });
+    }
+    if (label === 'Achievements' && width <= 700) {
+     if (width === 320) await page.setViewportSize({ width, height: 568 });
+     await page.evaluate(() => window.scrollTo(0, 0));
+     const achievements = await page.locator('.achievement-grid').first().evaluate((grid) => {
+       const navTop = document.querySelector('.sidebar').getBoundingClientRect().top;
+       return {
+         columns: getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+         visibleCards: [...grid.children].filter((card) => card.getBoundingClientRect().bottom <= navTop).length,
+       };
+     });
+     assert.equal(achievements.columns, 2);
+     assert(achievements.visibleCards >= 4, 'Four achievements should fit above mobile navigation');
+     if (width === 390) await page.screenshot({ path: path.join(screenshots, 'studyverse-achievements-390.png') });
+     if (width === 320) await page.setViewportSize({ width, height: 800 });
+    }
     if(label==='Begleiter'){
+     if (width <= 700) {
+      assert(await page.locator('.companions-page > .page-subtitle').isHidden());
+      assert((await page.locator('.companion-mobile-description').innerText()).includes('Jeder Dino bringt'));
+      assert(await page.locator('.companion-mobile-description').isVisible());
+     }
      assert.equal(await page.locator('.companions-hint').count(),0,'No redundant Daily cap sentence');
      await page.locator('.companions-grid').waitFor({state:'visible'});
      assert.equal(await page.locator('.companion-card').count(),3,
@@ -170,29 +207,40 @@ async function main(){
      await page.locator('.kenny-page').waitFor({state:'visible'});
      assert(await page.locator('.kenny-feed-btn').isVisible(),
       'Dino-Verse must remain a direct, independent feeding destination');
-     assert(await page.locator('.kenny-loot').isVisible()&&
-      await page.locator('.kenny-exclusives>div').count()===6,
-      'All six Kenny-exclusive drops must be visible');
-     assert.equal(await page.locator('.kenny-tiers').count(),0,'No duplicated tier summary');
-     const prizes=await page.locator('.kenny-exclusives').evaluate(el=>{
-       const parent=el.getBoundingClientRect();
-       const rows=[...el.children].map(c=>c.getBoundingClientRect());
-       const loot=el.closest('.kenny-loot').getBoundingClientRect();
-       return {viewport:innerHeight,bottom:Math.max(...rows.map(c=>c.bottom)),
-        prizeBottom:parent.bottom,lootBottom:loot.bottom,
-        maxWidth:Math.max(...rows.map(c=>c.right)),parentRight:parent.right,
-        scroll:el.scrollHeight,client:el.clientHeight};
-     });
-     const lootTypography=await page.evaluate(()=>({
-      text:Number.parseFloat(getComputedStyle(document.querySelector('.kenny-exclusives strong')).fontSize),
-      icon:Number.parseFloat(getComputedStyle(document.querySelector('.kenny-exclusives span')).fontSize),
-      level:Number.parseFloat(getComputedStyle(document.querySelector('.kenny-level-reward')).fontSize)
-     }));
-     assert(lootTypography.text>=10&&lootTypography.icon>=17&&lootTypography.level>=11,
-      'Kenny exclusive text, icons and level-five note must remain readable: '+JSON.stringify(lootTypography));
-     assert(prizes.bottom<=prizes.prizeBottom+3&&prizes.maxWidth<=prizes.parentRight+3&&
-       prizes.scroll<=prizes.client+3&&prizes.lootBottom<=prizes.viewport-(width<=700?68:0)+3,
-       'All Kenny-exclusive items must fit without scrolling: '+JSON.stringify(prizes));
+     if (width <= 700) {
+      assert(await page.locator('.kenny-loot').isHidden());
+      const stage = await page.locator('.kenny-play > .kenny-stage').boundingBox();
+      assert(stage.height >= 160, 'Kenny must have room for the feeding animation');
+      const prizesDialog = page.getByRole('dialog', { name: 'Kennys mögliche Gewinne' });
+      await page.locator('.kenny-mobile-prizes').click();
+      await prizesDialog.waitFor({ state: 'visible' });
+      await page.locator('.kenny-dialog-close').click();
+      await prizesDialog.waitFor({ state: 'hidden' });
+     } else {
+      assert(await page.locator('.kenny-loot').isVisible()&&
+       await page.locator('.kenny-exclusives>div').count()===6,
+       'All six Kenny-exclusive drops must be visible');
+      assert.equal(await page.locator('.kenny-tiers').count(),0,'No duplicated tier summary');
+      const prizes=await page.locator('.kenny-exclusives').evaluate(el=>{
+        const parent=el.getBoundingClientRect();
+        const rows=[...el.children].map(c=>c.getBoundingClientRect());
+        const loot=el.closest('.kenny-loot').getBoundingClientRect();
+        return {viewport:innerHeight,bottom:Math.max(...rows.map(c=>c.bottom)),
+         prizeBottom:parent.bottom,lootBottom:loot.bottom,
+         maxWidth:Math.max(...rows.map(c=>c.right)),parentRight:parent.right,
+         scroll:el.scrollHeight,client:el.clientHeight};
+      });
+      const lootTypography=await page.evaluate(()=>({
+       text:Number.parseFloat(getComputedStyle(document.querySelector('.kenny-exclusives strong')).fontSize),
+       icon:Number.parseFloat(getComputedStyle(document.querySelector('.kenny-exclusives span')).fontSize),
+       level:Number.parseFloat(getComputedStyle(document.querySelector('.kenny-level-reward')).fontSize)
+      }));
+      assert(lootTypography.text>=10&&lootTypography.icon>=17&&lootTypography.level>=11,
+       'Kenny exclusive text, icons and level-five note must remain readable: '+JSON.stringify(lootTypography));
+      assert(prizes.bottom<=prizes.prizeBottom+3&&prizes.maxWidth<=prizes.parentRight+3&&
+        prizes.scroll<=prizes.client+3&&prizes.lootBottom<=prizes.viewport-(width<=700?68:0)+3,
+        'All Kenny-exclusive items must fit without scrolling: '+JSON.stringify(prizes));
+     }
      const topActions=await page.locator('.companion-kenny-back button').evaluateAll(buttons=>buttons.map(b=>({
        width:b.getBoundingClientRect().width,
        height:b.getBoundingClientRect().height,
@@ -207,17 +255,19 @@ async function main(){
      assert(topActions[1].text===(topActions[1].containerWidth<=410?'Kennyverse ↗':'Kennyverse betreten ↗') &&
        topActions.every(a=>a.whiteSpace==='nowrap'&&a.scrollWidth<=a.clientWidth+1),
        'Kennyverse action must not wrap or overflow at any viewport: '+JSON.stringify(topActions));
-     const actionsToLoot=await page.evaluate(()=>{
+     const actionsToLoot=await page.evaluate((isPhone)=>{
        const actions=document.querySelector('.companion-kenny-back')?.getBoundingClientRect();
-       const loot=document.querySelector('.kenny-loot')?.getBoundingClientRect();
+       const content=document.querySelector(isPhone?'.kenny-play':'.kenny-loot')?.getBoundingClientRect();
        return {actions:{width:actions?.width,right:actions?.right},
-         loot:{width:loot?.width,right:loot?.right}};
-     });
+         loot:{width:content?.width,right:content?.right}};
+     }, width <= 700);
      assert(Math.abs(actionsToLoot.actions.width-actionsToLoot.loot.width)<=3&&
        Math.abs(actionsToLoot.actions.right-actionsToLoot.loot.right)<=3,
        'The two buttons together must match the exact width of possible prizes at '+width+': '+JSON.stringify(actionsToLoot));
-     assert((await page.locator('.kenny-level-reward').innerText()).includes('schließt sich Kenny deinen Begleitern an'),
-       'The level-five companion text must use the correct plural wording');
+     if (width > 700) {
+      assert((await page.locator('.kenny-level-reward').innerText()).includes('schließt sich Kenny deinen Begleitern an'),
+        'The level-five companion text must use the correct plural wording');
+     }
      await page.locator('.kenny-action-row .kenny-style-btn').click();
      await page.locator('.dino-designer-grid').waitFor({state:'visible'});
      assert.equal(await page.locator('.shop-view-tabs button').count(),3);
@@ -293,6 +343,25 @@ async function main(){
      });
      assert(layout.selectLeft>=layout.headRight-4||Math.abs(layout.selectTop-layout.headingBottom)<48,
       'Drop selector should be in same header row on mobile '+width+'px: '+JSON.stringify(layout));
+     if (width <= 700) {
+      const categoryFilter = page.getByRole('combobox', { name: 'Shop-Artikel nach Kategorie filtern' });
+      const collection = await select.boundingBox();
+      const category = await categoryFilter.boundingBox();
+      assert(category.y >= collection.y + collection.height);
+      assert(Math.abs(category.x - collection.x) <= 2 && Math.abs(category.width - collection.width) <= 2);
+      await categoryFilter.selectOption('frame');
+      await page.waitForFunction(() => {
+        const cards = [...document.querySelectorAll('.drop-item-grid > .drop-item')];
+        return cards.length > 0 && cards.every((card) => card.dataset.category === 'frame');
+      });
+      assert.equal(await categoryFilter.inputValue(), 'frame');
+      await categoryFilter.selectOption('Alle');
+      await page.waitForFunction(() => document.querySelector('.drop-item-grid > [data-category]:not([data-category="frame"])'));
+      const itemColumns = await page.locator('.drop-item-grid').evaluate((grid) =>
+        getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+      );
+      assert.equal(itemColumns, 3);
+     }
      if(width===390){
       const dotsCard=page.locator('.drop-item').filter({hasText:'Dots & Lines'}).first();
       try{await dotsCard.locator('.drop-preview-btn').click({timeout:5000})}catch(error){
@@ -494,20 +563,30 @@ async function main(){
    await poolPage.waitForFunction(()=>document.querySelector('.universe')?.classList.contains('kenny-mode'));
    assert.equal(await poolPage.locator('.kenny-test-unlock').count(),0,
     'The temporary free drop is not available without an authenticated cloud account');
-   const poolButtonFit=await poolPage.evaluate(()=>{
+   if (width <= 700) {
+    const spriteFits = await poolPage.locator('.kenny-play .kenny-sprite').evaluate((sprite) => {
+      const bounds = sprite.getBoundingClientRect();
+      const stage = sprite.parentElement.getBoundingClientRect();
+      return bounds.top >= stage.top && bounds.bottom <= stage.bottom &&
+        bounds.left >= stage.left && bounds.right <= stage.right;
+    });
+    assert(spriteFits, 'Kenny’s max-level sprite must fit completely in the mobile feeding stage');
+   }
+   const prizeSelector = width <= 700 ? '.kenny-mobile-prizes' : '.kenny-pool-button';
+   const poolButtonFit=await poolPage.evaluate((selector)=>{
     const rect=selector=>{const box=document.querySelector(selector)?.getBoundingClientRect();return box?{top:box.top,bottom:box.bottom,height:box.height}:null};
-    return {button:rect('.kenny-pool-button'),loot:rect('.kenny-loot'),
+    return {button:rect(selector),
       navigation:rect('.sidebar .navigation'),navButton:rect('.sidebar .navigation button'),
       page:rect('.kenny-page'),main:rect('main'),workspace:rect('.workspace'),
       ctrl:rect('.kenny-controls'),viewport:innerHeight};
-   });
+   }, prizeSelector);
    console.log('KENNY POOL BUTTON GEOMETRY '+width+': '+JSON.stringify(poolButtonFit));
-   assert(poolButtonFit.button&&poolButtonFit.loot&&
+   assert(poolButtonFit.button&&
       (width>700 || (poolButtonFit.navigation.height<=80 &&
         poolButtonFit.button.bottom<=poolButtonFit.navigation.top+2)),
     'The collector prize button must stay above the single-row mobile navigation: '+
      JSON.stringify(poolButtonFit));
-   await poolPage.locator('.kenny-pool-button').click();
+   await poolPage.locator(prizeSelector).click();
    await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
    const exclusiveSection=poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'}).first();
    assert.equal(await exclusiveSection.locator('.kenny-pool-items > span').count(),6,
@@ -555,7 +634,7 @@ async function main(){
    await poolPage.evaluate(()=>sessionStorage.setItem('studyverse_test_zebra_owned','1'));
    await poolPage.reload({waitUntil:'load'});
    await poolPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
-   await poolPage.locator('.kenny-pool-button').click();
+   await poolPage.locator(prizeSelector).click();
    await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
    const bothComplete=await poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'}).first()
      .locator('.kenny-pool-complete').allInnerTexts();

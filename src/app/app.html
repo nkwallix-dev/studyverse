@@ -45,7 +45,10 @@
         </button>
       </div>
     </header>
-    <main>
+    <main
+      [class.learning-worlds-view]="view === 'subjects'"
+      [class.achievements-view]="view === 'achievements'"
+    >
       <ng-container [ngSwitch]="view">
         <ng-container *ngSwitchCase="'dashboard'">
           <div class="eyebrow">Willkommen zurück, {{profile.nickname}} <span>✧</span></div>
@@ -117,10 +120,16 @@
 
 
         <ng-container *ngSwitchCase="'companions'">
-          <section class="companions-page">
+          <section class="companions-page" [class.has-kenny]="kennyPresent">
             <div class="eyebrow">✦ DINO-VERSE · DEINE BEGLEITER</div>
             <h1 class="page-title">Deine <span>Begleiter.</span></h1>
-            <p class="page-subtitle">Jeder Dino bringt eigene Missionen, Skins und ein Daily-Verse mit. Erreiche Level 5, damit er nach seiner Season bei dir bleibt.</p>
+            <ng-template #companionIntro>
+              Jeder Dino bringt eigene Missionen, Skins und ein Daily-Verse mit. Erreiche Level 5,
+              damit er nach seiner Season bei dir bleibt.
+            </ng-template>
+            <p class="page-subtitle">
+              <ng-container *ngTemplateOutlet="companionIntro" />
+            </p>
             <div class="companions-grid">
               <article class="companion-card companion-kenny" *ngIf="kennyPresent">
                 <div class="kenny-stage companion-stage">
@@ -133,6 +142,9 @@
                 <div class="companion-card-body">
                   <span class="companion-status">{{kennyPermanent?'✦ BLEIBT FÜR IMMER':'⏳ AKTUELLE SEASON'}}</span>
                   <h2>Kenny <span>der Raptor.</span></h2>
+                  <p class="companion-mobile-description">
+                    <ng-container *ngTemplateOutlet="companionIntro" />
+                  </p>
                   <p>Entdecke mit Kenny Chemie und Data Science. Sein eigenes Kennyverse bietet tägliche Quizmissionen und einen Bosskampf.</p>
                   <div class="companion-daily">
                     <span><b>{{dailyChem.questions}}/20</b> Tagesfragen</span>
@@ -171,7 +183,16 @@
           <p class="page-subtitle">Ein eigenes Universum für jedes Fach – mit Tests, Challenges und Bosskämpfen.</p>
           <ng-container *ngIf="!selectedSubject;else chosenSubjectTemplate">
             <div class="filterbar"><input [(ngModel)]="search" placeholder="🔎  Fach suchen ..."><button class="btn secondary" (click)="addSubject()">+ Eigenes Fach</button></div>
-            <div class="chips"><button *ngFor="let g of categories" (click)="group=g" [class.selected]="group===g">{{g}}</button></div>
+            <div class="chips subject-category-chips"><button *ngFor="let g of categories" (click)="group=g" [class.selected]="group===g">{{g}}</button></div>
+            <select
+              class="mobile-category-filter"
+              aria-label="Lernwelten nach Kategorie filtern"
+              [(ngModel)]="group"
+            >
+              <option *ngFor="let category of categories" [value]="category">
+                {{ category === 'Alle' ? 'Alle Kategorien' : category }}
+              </option>
+            </select>
             <div class="all-subjects"><button class="subject-card detailed" *ngFor="let s of filteredSubjects" [disabled]="!subjectHasTrainer(s.id)" [class.subject-locked]="!subjectHasTrainer(s.id)" (click)="choose(s.id)" [style.--tilecolor]="s.color" [attr.aria-label]="subjectHasTrainer(s.id)?s.name+' öffnen':s.name+' – noch gesperrt'"><span class="subject-icon">{{s.icon}}</span><span class="card-arrow" *ngIf="subjectHasTrainer(s.id)">↗</span><small>{{s.short}} · {{s.group}}</small><strong>{{s.name}}</strong><p>{{s.desc}}</p><span class="tile-bottom">{{subjectCountLabel(s.id)}} <span *ngIf="subjectHasTrainer(s.id)">→</span></span><span class="subject-lock-overlay" *ngIf="!subjectHasTrainer(s.id)" aria-hidden="true"><span class="subject-lock-symbol">🔒</span><strong>LOCKED</strong><small>COMING SOON</small></span></button></div>
           </ng-container>
           <ng-template #chosenSubjectTemplate>
@@ -250,6 +271,15 @@
               {{g==='Alle'?'Alle':groupLabel(g)}} <small *ngIf="g==='Alle'">({{dropItems.length}})</small>
             </button>
           </div>
+          <select
+            class="mobile-category-filter shop-category-filter"
+            aria-label="Shop-Artikel nach Kategorie filtern"
+            [(ngModel)]="shopGroup"
+          >
+            <option *ngFor="let category of shopCategories" [value]="category">
+              {{ category === 'Alle' ? 'Alle Kategorien' : groupLabel(category) }}
+            </option>
+          </select>
           <ng-container *ngIf="selectedDrop.status==='live'">
 
             <p class="shop-owned-empty" *ngIf="filteredItems.length===0 && !selectedCategoryHasItems">✧ In {{selectedDrop.title}} gibt es aktuell keine {{groupLabel(shopGroup)}}. Du kannst die Kategorie trotzdem in einem anderen Test auswählen.</p>
@@ -324,7 +354,18 @@
             <app-kenny-reward-overview [kennyLevel]="kennyLevel" [kennyOdds]="kennyOdds"
               [kennyEventItems]="kennyEventItems" [ownedEventIds]="kennyOwnedEventIds"
               (prizesRequested)="kennyPoolOpen=true"/>
-            <div class="kenny-season-foot"><span>✦ LEVEL 5: KENNY BLEIBT ALS BEGLEITER · SAISONENDE: URZEIT-FOSSILRAHMEN</span><span>{{kennyPermanent&&!kennyActive?'✦ DEIN DAUERHAFTER BEGLEITER':'⏳ '+kennyCountdown}}</span><button type="button" (click)="kennyPoolOpen=true">Gewinne ansehen ↗</button></div>
+            <div class="kenny-season-foot">
+              <span>✦ LEVEL 5: KENNY BLEIBT ALS BEGLEITER · SAISONENDE: URZEIT-FOSSILRAHMEN</span>
+              <span>{{ kennyPermanent && !kennyActive ? '✦ DEIN DAUERHAFTER BEGLEITER' : '⏳ ' + kennyCountdown }}</span>
+              <button
+                type="button"
+                class="kenny-mobile-prizes"
+                aria-haspopup="dialog"
+                (click)="kennyPoolOpen = true"
+              >
+                Mögliche Gewinne ↗
+              </button>
+            </div>
           </section>
           <app-dino-designer *ngIf="shopTab==='designer'"
             [kennySkin]="kennySkin" [kennyLevel]="kennyLevel" [kennyActive]="kennyActive"
