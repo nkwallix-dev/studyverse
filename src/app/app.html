@@ -540,7 +540,7 @@
           </div>
           <ng-template #noPlayerCourses><div class="friend-showcase-no-courses">🪐 Noch kein abgeschlossener Kursfortschritt veröffentlicht.</div></ng-template>
         </div>
-        <div class="friend-showcase-dino"><span>🦖 DINO-VERSE</span><strong>{{player.showcase.dino?.level ? 'Kenny Level: '+(player.showcase.dino.level>=5?'max.':player.showcase.dino.level) : 'Kenny noch nicht gefüttert'}}</strong></div>
+        <div class="friend-showcase-dino"><span>🦖 DINO-VERSE</span><strong>{{player.showcase.dino?.level ? 'Kenny Level: '+(player.showcase.dino?.level===5?'max.':player.showcase.dino?.level) : 'Kenny noch nicht gefüttert'}}</strong></div>
       </div>
     </section>
   </div>
