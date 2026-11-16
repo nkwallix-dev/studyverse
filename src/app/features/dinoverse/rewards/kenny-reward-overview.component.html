@@ -33,7 +33,14 @@
   <div class="kenny-exclusives">
     <div *ngFor="let item of kennyEventItems" [class.collected]="isOwned(item)">
       <span>
-        <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="avatar-icon" />
+        <app-cosmetic-banner
+          *ngIf="item.group === 'banner'; else itemIcon"
+          class="prize-banner"
+          [banner]="item.equip"
+        />
+        <ng-template #itemIcon>
+          <app-cosmetic-icon [id]="item.id" [fallback]="item.icon" class="avatar-icon" />
+        </ng-template>
       </span>
       <strong>{{ item.name }}</strong>
       <small>{{ isOwned(item) ? '✓' : '🔒' }}</small>

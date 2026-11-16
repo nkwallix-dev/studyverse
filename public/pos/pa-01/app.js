@@ -180,10 +180,8 @@ function endgameLink(name,label,icon){
  return '<button type="button" class="verse-endgame-button'+(view===name?' active':'')+'" data-action="view:'+name+'"><span class="verse-endgame-icon" aria-hidden="true">'+icon+'</span><span class="verse-endgame-label">'+h(label)+'</span></button>';
 }
 function header(){
- const p=progress(),player=(()=>{try{return JSON.parse(localStorage.getItem(PROFILE)||'{}')}catch{return {}}})();
- const avatar=player.equipped?.avatar||'🐑';
  return '<header class="topbar"><button type="button" class="mobile-menu" data-action="menu">☰</button><div class="breadcrumbs">✦ SHARPVERSE <span>/</span> <b>1. PA</b></div>'+
- '<div class="top-info"><a class="studyverse-back" href="../../" title="Zur Studyverse-Homepage"><span>↩</span><span>STUDYVERSE</span></a><a class="profile-link" href="../../#profile"><span class="avatar">'+h(avatar)+'</span> Mein Profil</a></div></header>';
+ '<div class="top-info"><a class="studyverse-back" href="../../" title="Zur Studyverse-Homepage"><span>↩</span><span>STUDYVERSE</span></a><a class="profile-link" href="../../#profile"><span class="avatar">🐑</span> Mein Profil</a></div></header>';
 }
 function sidebar(){
  return '<aside class="sidebar'+(menuOpen?' open':'')+'"><a class="brand" href="../../"><span class="logo">♯</span><span><b>Sharpverse</b><small>1. PA · C# &amp; THREADING</small></span></a>'+

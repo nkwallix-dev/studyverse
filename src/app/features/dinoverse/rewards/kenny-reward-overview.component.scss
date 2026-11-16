@@ -4,3 +4,10 @@
 
 // The established reward selectors still live in styles.scss. Their responsive
 // cascade is moved in a separate visual-regression-reviewed CSS change.
+
+.prize-banner {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 16px;
+  border-radius: 2px;
+}

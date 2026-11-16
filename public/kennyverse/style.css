@@ -366,9 +366,27 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
 }
 @media(max-width:610px){
  .kenny-home-screen .hero>div:first-child{max-width:100%}
- .kenny-home-screen .hero-icon{
-  right:4px;top:10px;bottom:auto;width:clamp(100px,31vw,160px);
-  height:clamp(125px,24vh,190px);opacity:.23
+ .kenny-home-screen .hero-icon {
+  top: auto;
+  right: clamp(8px, 4vw, 20px);
+  bottom: clamp(9px, 2.2vh, 19px);
+  width: clamp(84px, min(34vw, 18vh), 150px);
+  height: auto;
+  aspect-ratio: 1;
+  opacity: 0.78;
+ }
+ .kenny-home-screen .hero-icon::before {
+  content: '';
+  position: absolute;
+  inset: auto 13% 3%;
+  height: 11%;
+  border-radius: 50%;
+  background: #080b13aa;
+  filter: blur(4px);
+ }
+ .kenny-home-screen .hero > div:first-child {
+  position: relative;
+  z-index: 7;
  }
  .kenny-home-screen .hero:before{
   background:linear-gradient(90deg,#171628ef 0%,#201a30c4 67%,#201a3070)
