@@ -1,4 +1,6 @@
-:host { display: contents; }
+:host {
+  display: contents;
+}
 
 // Keep the modal's existing global selectors and override order until the
 // dedicated stylesheet migration has its own responsive browser comparison.
