@@ -275,43 +275,13 @@
             </div>
           </ng-container>
           </ng-container>
-          <ng-container *ngIf="shopTab==='inventory'">
-            <div class="inventory-filter-bar shop-filter-start">
-              <label>Kollektion
-                <select [ngModel]="inventoryDrop" (ngModelChange)="changeInventoryDrop($event)">
-                  <option *ngFor="let drop of inventoryDrops" [value]="drop">{{drop==='Alle'?'Alle Verses':dropLabel(drop)}}</option>
-                </select>
-              </label>
-              <label>Kategorie
-                <select [(ngModel)]="inventoryGroup">
-                  <option *ngFor="let group of inventoryCategories" [value]="group">{{group==='Alle'?'Alle Kategorien':groupLabel(group)}}</option>
-                </select>
-              </label>
-              <label class="inventory-search-label">Suchen
-                <input type="search" [(ngModel)]="inventorySearch" placeholder="Cosmetic suchen …">
-              </label>
-            </div>
-            <div class="inventory-results"><strong>{{inventoryItems.length}} Items</strong><span>in deiner Auswahl</span></div>
-            <div class="item-grid drop-item-grid inventory-item-grid" *ngIf="inventoryItems.length">
-              <article class="item inventory-item" *ngFor="let item of inventoryItems" [attr.data-category]="item.group" [class.equipped]="active(item)">
-                <app-cosmetic-art [item]="item"/>
-                <div class="inventory-item-detail"><small>{{dropLabel(item.drop)}} · {{groupLabel(item.group)}}</small>
-                  <h3 class="item-title-row"><span class="item-name">{{item.name}}<span class="item-name-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></span>
-                    <span class="item-inline-status equipped-status" *ngIf="active(item)">✓ Ausgerüstet</span>
-                  </h3><p>{{item.desc}}</p>
-                </div>
-                <div class="inventory-actions">
-                  <button type="button" class="drop-preview-btn" (click)="preview(item)">👁 Vorschau</button>
-                  <button type="button" class="drop-buy-btn" (click)="buyOrEquip(item)">{{active(item)?'Ablegen':'Ausrüsten'}}</button>
-                </div>
-              </article>
-            </div>
-            <div class="empty-tests inventory-empty" *ngIf="inventoryItems.length===0">
-              <span>🎒</span><h3>{{ownedCatalogItems.length===0?'Dein Inventar ist noch leer.':'Keine Cosmetics mit diesen Filtern.'}}</h3>
-              <p>{{ownedCatalogItems.length===0?'Schalte Test-Items durch Lernen frei und kaufe deine Lieblingsdesigns mit TastyTokens.':'Probiere eine andere Kollektion, Kategorie oder Suche.'}}</p>
-              <button class="btn primary" (click)="setShopTab('catalog')">Zum Item-Shop ↗</button>
-            </div>
-          </ng-container>
+          <app-inventory *ngIf="shopTab==='inventory'" [cards]="inventoryCards"
+            [ownedItemCount]="ownedCatalogItems.length" [dropOptions]="inventoryDropOptions"
+            [categoryOptions]="inventoryCategoryOptions" [selectedDrop]="inventoryDrop"
+            [selectedCategory]="inventoryGroup" [search]="inventorySearch"
+            (dropChanged)="changeInventoryDrop($event)" (categoryChanged)="inventoryGroup=$event"
+            (searchChanged)="inventorySearch=$event" (previewRequested)="preview($event)"
+            (equipmentRequested)="buyOrEquip($event)" (shopRequested)="setShopTab('catalog')"/>
           <section class="kenny-page" *ngIf="shopTab==='kenny'" aria-label="Kennys Dino-Season">
             <div class="kenny-play">
               <div class="kenny-stage" [class.kenny-feeding]="kennyFeeding">

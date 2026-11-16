@@ -5,6 +5,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const shop=fs.readFileSync('src/app/shop-items.ts','utf8');
 const host=fs.readFileSync('src/app/app.ts','utf8');
 const html=fs.readFileSync('src/app/app.html','utf8');
+const inventory=fs.readFileSync('src/app/features/inventory/inventory.component.html','utf8');
 const css=fs.readFileSync('src/app/app.scss','utf8');
 const registry=fs.readFileSync('src/app/trainer-registry.ts','utf8');
 const commonjs=ts.transpileModule(shop,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
@@ -78,13 +79,18 @@ assert(html.includes('(click)="acceptReward()"')&&html.includes('(click)="buyAnd
 assert(html.includes('Kaufen &amp; Ausrüsten')&&html.includes('Weiter →'));
 assert(!html.includes('[(ngModel)]="hideOwnedItems"'),'Hide-owned toggle no longer needed');
 const catalog=html.slice(html.indexOf('<div class="item-grid drop-item-grid"'),
-  html.indexOf('class="item-grid drop-item-grid inventory-item-grid"'));
+  html.indexOf('<app-inventory'));
 assert(!catalog.includes('✓ OWNED'),'Catalog may never label owned items');
 assert(catalog.includes('drop-buy-btn')&&catalog.includes('{{priceLabel(item)}}'),'Catalog uses live purchase labels and disables locked items');
 assert(!catalog.includes('GRATIS'),'Test items must not be advertised as free');
 assert(catalog.includes('🎁 FREIGESCHALTET')&&catalog.includes('🔒 GESPERRT'));
-assert(html.includes('class="item-grid drop-item-grid inventory-item-grid"'),
+assert(html.includes('<app-inventory')&&inventory.includes('class="item-grid drop-item-grid inventory-item-grid"'),
  'Inventory remains the only place for owned items');
+assert(html.includes('(dropChanged)="changeInventoryDrop($event)"')&&
+ html.includes('(equipmentRequested)="buyOrEquip($event)"')&&
+ html.includes('(previewRequested)="preview($event)"')&&
+ inventory.includes('(ngModelChange)="searchChanged.emit($event)"'),
+ 'Inventory filters, equipment and preview must keep using their existing parent actions');
 assert(css.includes('.reward-unlock-modal')&&css.includes('.reward-unlock-actions'),
  'Reward popup must have specific styles');
 console.log('PASS: '+global.length+' paid Essentials + '+testItems.length+

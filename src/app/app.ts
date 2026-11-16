@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DinoDesignerComponent } from './features/dinoverse/dino-designer/dino-designer.component';
+import { InventoryComponent, InventoryCard, InventoryOption } from './features/inventory/inventory.component';
 import { KennyRewardOverviewComponent } from './features/dinoverse/rewards/kenny-reward-overview.component';
 import { KennyPoolDialogComponent } from './features/dinoverse/rewards/kenny-pool-dialog.component';
 import { CosmeticIconComponent } from './cosmetic-icon.component';
@@ -59,7 +60,7 @@ export const SUBJECTS:Subject[]=[
 ];
 
 @Component({
- selector:'app-root', standalone:true, imports:[CommonModule,FormsModule,CosmeticIconComponent,CosmeticArtComponent,DinoDesignerComponent,KennyRewardOverviewComponent,KennyPoolDialogComponent],
+ selector:'app-root', standalone:true, imports:[CommonModule,FormsModule,CosmeticIconComponent,CosmeticArtComponent,DinoDesignerComponent,KennyRewardOverviewComponent,KennyPoolDialogComponent,InventoryComponent],
  templateUrl:'./app.html', styleUrl:'./app.scss'
 })
 export class App implements OnInit,OnDestroy {
@@ -785,6 +786,16 @@ export class App implements OnInit,OnDestroy {
       (!query||(this.itemDisplayName(item)+' '+item.desc+' '+this.groupLabel(item.group)).toLocaleLowerCase('de').includes(query))
    ).sort((a,b)=>Number(this.active(b))-Number(this.active(a))||a.name.localeCompare(b.name,'de'));
  }
+ get inventoryCards():InventoryCard[]{return this.inventoryItems.map(item=>({
+   item,equipped:this.active(item),collection:this.dropLabel(item.drop),
+   category:this.groupLabel(item.group),nameSuffix:this.itemNameSuffix(item)
+ }));}
+ get inventoryDropOptions():InventoryOption[]{return this.inventoryDrops.map(value=>({
+   value,label:value==='Alle'?'Alle Verses':this.dropLabel(value)
+ }));}
+ get inventoryCategoryOptions():InventoryOption[]{return this.inventoryCategories.map(value=>({
+   value,label:value==='Alle'?'Alle Kategorien':this.groupLabel(value)
+ }));}
  get inventoryEquippedCount(){return this.ownedCatalogItems.filter(item=>this.active(item)).length;}
  dropLabel(id:string){
    const names:Record<string,string>={

@@ -210,13 +210,14 @@ console.log('Reaction Finish tests passed: 10/12 -> two missing missions -> all 
 
 const inventoryAppTs=fs.readFileSync('src/app/app.ts','utf8');
 const inventoryHtml=fs.readFileSync('src/app/app.html','utf8');
+const inventoryTemplate=fs.readFileSync('src/app/features/inventory/inventory.component.html','utf8');
 const inventoryStyles=fs.readFileSync('src/app/app.scss','utf8');
 assert(inventoryAppTs.includes("shopTab:'catalog'|'inventory'"),'Shop and inventory must be separate tabs');
 assert(inventoryAppTs.includes('get inventoryItems()'),'Inventory filtering must exist');
 assert(inventoryAppTs.includes('this.ownedCatalogItems.filter(item=>'),'Inventory must list owned items only');
 assert(inventoryAppTs.includes("this.inventoryDrop==='Alle'")&&studyTs.includes("this.inventoryGroup==='Alle'"),'Drop/category inventory filters required');
-assert(inventoryHtml.includes('class="shop-view-tabs"')&&inventoryHtml.includes('class="item-grid drop-item-grid inventory-item-grid"'),'Inventory UI tab and item cards missing');
-const inventoryCard=inventoryHtml.slice(inventoryHtml.indexOf('class="item-grid drop-item-grid inventory-item-grid"'),inventoryHtml.indexOf('class="empty-tests inventory-empty"'));
+assert(inventoryHtml.includes('class="shop-view-tabs"')&&inventoryHtml.includes('<app-inventory')&&inventoryTemplate.includes('class="item-grid drop-item-grid inventory-item-grid"'),'Inventory UI tab and item cards missing');
+const inventoryCard=inventoryTemplate.slice(inventoryTemplate.indexOf('class="item-grid drop-item-grid inventory-item-grid"'),inventoryTemplate.indexOf('class="empty-tests inventory-empty"'));
 assert(!inventoryCard.includes('OWNED')&&!inventoryCard.includes('IM INVENTAR'),'No redundant owned badges in the inventory');
 assert(inventoryStyles.includes('overflow-x:clip'),'Layout must not create a scroll ancestor that breaks sticky sidebar');
 assert(inventoryStyles.includes('height:100dvh;align-self:flex-start'),'Sidebar should remain full viewport height');
