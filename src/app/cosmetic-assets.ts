@@ -34,6 +34,7 @@ export const COSMETIC_IMAGES: Readonly<Record<string,string>> = {
   "kenny_avatar_pink": "cosmetics/avatars/kenny_pink_avatar.png",
   "kenny_avatar_green": "cosmetics/avatars/kenny_green_avatar.png",
   "kenny_avatar_red": "cosmetics/avatars/kenny_red_avatar.png",
+  "kenny_avatar_zebra": "kenny/skins/kenny-zebra-portrait.png",
   "tasty_token": "cosmetics/currency/tasty_token.png",
   "kenny_feed_button": "cosmetics/ui/feed_exchange.png",
 };
@@ -48,13 +49,10 @@ const LEGACY_AVATARS: Readonly<Record<string,string>> = {
 /** Paths are document-base-relative so /studyverse/ works on GitHub Pages. */
 export function cosmeticImage(id:string|null|undefined):string|null {
   if (!id) return null;
-  return COSMETIC_IMAGES[id] ?? (id==='kenny_avatar_zebra' ? 'kenny/kenny-avatar.png' : null);
+  return COSMETIC_IMAGES[id] ?? null;
 }
 
 export function avatarImage(value:string|null|undefined):string|null {
   return cosmeticImage(LEGACY_AVATARS[value||''] || value);
 }
 
-export function isZebraAvatar(value:string|null|undefined):boolean {
-  return value==='kenny_avatar_zebra';
-}
