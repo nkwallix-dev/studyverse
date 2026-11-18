@@ -186,7 +186,7 @@ function header(){
 function sidebar(){
  return '<aside class="sidebar'+(menuOpen?' open':'')+'"><a class="brand" href="../../"><span class="logo">♯</span><span><b>Sharpverse</b><small>1. PA · C# &amp; THREADING</small></span></a>'+
  '<p class="nav-title">DEIN PROGRAMMIER-UNIVERSUM</p>'+navLink('home','Kommandozentrale','◈')+
- '<p class="nav-title">LERNEN</p>'+navLink('academy','Lernakademie','📘')+navLink('vs','Visual Studio Crashkurs','🖥️')+navLink('lab','Threading-Labor','⚡')+
+ '<p class="nav-title">LERNEN</p>'+navLink('academy','Lernakademie','📘')+navLink('vs','Visual Studio Crashkurs','🖥️')+navLink('lab','Threading-Labor','⚡')+navLink('bridgeguide','Brückenbeispiel','🌉')+
  '<p class="nav-title">ANWENDEN</p>'+navLink('code','Code-Detective','🧩')+navLink('writing','Code-Schreibtrainer','✍️')+navLink('transfer','PA-Transferaufgaben','🧠')+navLink('extras','Extra Extensions','🔥')+
  '<div class="verse-endgame" aria-label="Endgame"><div class="verse-endgame-title">ENDGAME</div>'+
  endgameLink('boss','1. PA · Bosskampf','👑')+endgameLink('sources','Quellen','📚')+
@@ -314,6 +314,7 @@ function render(){
  // Initial entry only contains #app; #main is created by this first render.
  let page='';
  switch(view){
+  case 'bridgeguide':page=window.PA_BRIDGE_GUIDE ? window.PA_BRIDGE_GUIDE.render() : '<p>Nachschlagewerk nicht geladen.</p>';break;
   case 'sources':page=sources();break;
   case 'academy':page=academy();break;case 'vs':page=academy(true);break;
   case 'lesson':page=lessonPage();break;
