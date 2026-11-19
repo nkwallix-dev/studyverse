@@ -394,7 +394,7 @@ async function main(){
        await page.screenshot({path:path.join(screenshots,'shop-preview-obstruction-390.png')});
        throw error;
       }
-      const preview = page.locator('.shop-preview-modal .shop-live-stage[data-atm="dots"]');
+      const preview = page.locator('.shop-preview-modal .preview-after .shop-live-stage[data-atm="dots"]');
       await preview.waitFor();
       const dotsVisual=await preview.evaluate(el=>{
        const rule=getComputedStyle(el,'::after');
@@ -449,6 +449,124 @@ async function main(){
    assert(!errors.length,'Studyverse script errors at '+width+': '+errors.join('; '));
    await context.close();
   }
+  // Compare actual saved equipment with one cosmetic, including readable text thumbnails.
+  const comparisonIds = [
+    ...fs.readFileSync('src/app/shop-items.ts', 'utf8').matchAll(/\{id:'([^']+)'/g),
+    ...fs.readFileSync('src/app/dino-season.ts', 'utf8').matchAll(/\{id:'([^']+)'/g),
+  ].map((match) => match[1]);
+  for (const width of [320, 390, 1365]) {
+    const comparisonContext = await browser.newContext({ viewport: { width, height: 800 } });
+    const comparisonPage = await comparisonContext.newPage();
+    await comparisonPage.addInitScript((inventory) => {
+      localStorage.setItem('studyverse_import_prompt_seen_v1', '1');
+      localStorage.setItem('studyverse_profile_v1', JSON.stringify({
+        xp: 0, tokens: 5000, nickname: 'PreviewTester', inventory,
+        equipped: {
+          title: 'kenny_pangea_title', font: 'velvet_voltage', avatar: 'kenny_avatar_pink',
+          theme: 'sakura', banner: 'pink_paradise', frame: 'neural', atm: 'dots', fx: 'pulse_rings',
+        },
+        claimedLevels: {}, activity: [], shopDropMigrationV1: true, rewardSeen: {}, rewardQueue: [],
+      }));
+    }, comparisonIds);
+    await comparisonPage.goto(base, { waitUntil: 'load' });
+    const notice = comparisonPage.locator('.notice button');
+    if (await notice.isVisible()) await notice.click();
+    await comparisonPage.locator('.navigation button[aria-label="Item-Shop"]').click();
+    await comparisonPage.locator('.shop-view-tabs button').filter({ hasText: 'Inventar' }).click();
+    await comparisonPage.locator('.inventory-item').first().waitFor();
+    const baseline = await comparisonPage.evaluate(() =>
+      JSON.parse(localStorage.getItem('studyverse_profile_v1')));
+    const category = comparisonPage.locator('.inventory-filter-bar select').nth(1);
+    for (const group of ['title', 'font']) {
+      await category.selectOption(group);
+      const equippedCard = comparisonPage.locator('.inventory-item.equipped[data-category="' + group + '"]');
+      await equippedCard.scrollIntoViewIfNeeded();
+      assert.equal((await equippedCard.locator('.cosmetic-text').innerText()), 'Hat Pangea überlebt');
+      assert.equal(await equippedCard.locator('.item-art app-cosmetic-icon').count(), 0);
+      const badgeFits = await equippedCard.locator('.equipped-status').evaluate((badge) => {
+        const box = badge.getBoundingClientRect();
+        const detail = badge.closest('.inventory-item-detail').getBoundingClientRect();
+        return box.top >= detail.top && box.bottom <= detail.bottom && box.width > 0;
+      });
+      assert(badgeFits, group + ' equipped status must be fully visible at ' + width);
+      assert((await equippedCard.locator('.cosmetic-text').evaluate((text) =>
+        getComputedStyle(text).fontFamily)).includes('Unbounded'));
+      if (width === 390) {
+        await comparisonPage.screenshot({ path: path.join(screenshots, 'inventory-' + group + '-text-390.png') });
+      }
+    }
+    for (const group of ['theme', 'atm', 'frame', 'font', 'banner', 'fx', 'avatar', 'title']) {
+      await category.selectOption(group);
+      const card = comparisonPage.locator('.inventory-item:not(.equipped)[data-category="' + group + '"]').first();
+      const candidateName = await card.locator('.item-name').innerText();
+      const candidateText = await card.locator('.cosmetic-text').allTextContents();
+      await card.locator('.drop-preview-btn').click();
+      const slider = comparisonPage.getByRole('slider', { name: 'Vorher / Nachher' });
+      await slider.waitFor();
+      assert.equal(await slider.inputValue(), '100', 'Each preview starts at After');
+      const before = comparisonPage.locator('.preview-before');
+      const after = comparisonPage.locator('.preview-after');
+      if (group === 'title') {
+        assert.equal(await before.locator('.cosmetic-text').innerText(), 'Hat Pangea überlebt');
+        assert.equal(await after.locator('.cosmetic-text').innerText(), candidateText[0]);
+      } else if (group !== 'avatar') {
+        const beforeEquipment = await before.locator('.shop-live-stage').evaluate((stage) => {
+          return Object.fromEntries(['theme', 'atm', 'frame', 'font', 'banner', 'fx']
+            .map((slot) => [slot, stage.dataset[slot]]));
+        });
+        const afterEquipment = await after.locator('.shop-live-stage').evaluate((stage) => {
+          return Object.fromEntries(['theme', 'atm', 'frame', 'font', 'banner', 'fx']
+            .map((slot) => [slot, stage.dataset[slot]]));
+        });
+        for (const slot of Object.keys(beforeEquipment)) {
+          assert.equal(beforeEquipment[slot], baseline.equipped[slot], 'Before must show saved ' + slot);
+          if (slot !== group) {
+            assert.equal(afterEquipment[slot], beforeEquipment[slot], 'Preview must preserve other slots');
+          }
+        }
+        assert.notEqual(afterEquipment[group], beforeEquipment[group], candidateName + ' must change its slot');
+        if (group === 'font') {
+          assert.equal(await after.locator('.cosmetic-text').innerText(), 'Hat Pangea überlebt');
+          assert.notEqual(
+            await before.locator('.cosmetic-text').evaluate((text) => getComputedStyle(text).fontFamily),
+            await after.locator('.cosmetic-text').evaluate((text) => getComputedStyle(text).fontFamily),
+          );
+        }
+      }
+      await slider.focus();
+      await slider.press('Home');
+      assert.equal(await slider.inputValue(), '0');
+      await comparisonPage.waitForFunction(() =>
+        document.querySelector('.preview-after').getAttribute('aria-hidden') === 'true');
+      await slider.press('End');
+      assert.equal(await slider.inputValue(), '100');
+      await comparisonPage.waitForFunction(() =>
+        document.querySelector('.preview-before').getAttribute('aria-hidden') === 'true');
+      await slider.evaluate((input) => {
+        input.stepDown(50);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      await comparisonPage.waitForFunction(() =>
+        getComputedStyle(document.querySelector('.preview-after')).clipPath === 'inset(0px 50% 0px 0px)');
+      const geometry = await comparisonPage.locator('.shop-preview-modal').evaluate((modal) => ({
+        height: modal.clientHeight, content: modal.scrollHeight, bottom: modal.getBoundingClientRect().bottom,
+      }));
+      assert(geometry.content <= geometry.height + 2 && geometry.bottom <= 801,
+        group + ' comparison and controls must fit at ' + width + ': ' + JSON.stringify(geometry));
+      if (width === 390 && ['font', 'title'].includes(group)) {
+        await comparisonPage.screenshot({ path: path.join(screenshots, 'compare-' + group + '-390.png') });
+      }
+      await comparisonPage.getByRole('button', { name: 'Vorschau schließen' }).click();
+      const saved = await comparisonPage.evaluate(() =>
+        JSON.parse(localStorage.getItem('studyverse_profile_v1')));
+      assert.deepEqual(saved.equipped, baseline.equipped);
+      assert.deepEqual(saved.inventory, baseline.inventory);
+      assert.equal(saved.tokens, baseline.tokens);
+    }
+    await comparisonContext.close();
+  }
+  console.log('PASS: text thumbnails, visible equipped badges and all eight before/after previews preserve the saved loadout.');
+
   const bannerContext = await browser.newContext({ viewport: { width: 390, height: 800 } });
   const bannerPage = await bannerContext.newPage();
   await bannerPage.addInitScript((itemIds) => {
@@ -490,7 +608,7 @@ async function main(){
       return image.naturalWidth > 0 && image.src.endsWith('/' + key + '.webp');
     }, key), name + ' must use its own thumbnail');
     await card.locator('.drop-preview-btn').click();
-    const stage = bannerPage.locator('.shop-live-stage[data-banner="' + key + '"]');
+    const stage = bannerPage.locator('.preview-after .shop-live-stage[data-banner="' + key + '"]');
     await stage.locator('.scene-' + scene).waitFor({ state: 'visible' });
     assert.equal(await stage.locator('.banner-scene:visible').count(), 1);
     assert((await stage.locator('.shop-live-hero').evaluate((hero) =>
@@ -631,10 +749,14 @@ async function main(){
    const poolContext=await browser.newContext({viewport:{width,height:800},deviceScaleFactor:1});
    const poolPage=await poolContext.newPage();
    await poolPage.addInitScript(owned=>{
+    const collected = sessionStorage.getItem('studyverse_test_zebra_owned') === '1'
+      ? [...owned, 'kenny_skin_zebra'] : owned;
+    const inventory = collected.filter(id => sessionStorage.getItem('studyverse_test_missing_green') !== '1' ||
+      id !== 'kenny_skin_green');
     localStorage.setItem('studyverse_import_prompt_seen_v1','1');
     localStorage.setItem('studyverse_profile_v1',JSON.stringify({
      xp:0,tokens:900,nickname:'PrizePreview',
-     inventory:sessionStorage.getItem('studyverse_test_zebra_owned')==='1'?[...owned,'kenny_skin_zebra']:owned,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+     inventory,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
      claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
      dinoSeasons:{'kenny-2026':{feeds:25,skin:'blue',overfeeds:0,overTokenWins:0,settled:false,settlement:0}}
     }));
@@ -671,8 +793,8 @@ async function main(){
    await poolPage.locator(prizeSelector).click();
    await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
    const exclusiveSection=poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'}).first();
-   assert.equal(await exclusiveSection.locator('.kenny-pool-items > span').count(),6,
-     'All six Season items must stay visible in the Item Pool, including Zebra');
+   assert.equal(await exclusiveSection.locator('.kenny-pool-items > span').count(), 1,
+     'A completed regular collection must leave only the missing Zebra in the prize pool');
    const exclusiveLayout=await exclusiveSection.locator('.kenny-pool-items').evaluate(el=>{
      const bar=el.querySelector('.kenny-pool-zebra-divider');
      const zebra=el.querySelector('.kenny-pool-zebra');
@@ -718,22 +840,28 @@ async function main(){
    await poolPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
    await poolPage.locator(prizeSelector).click();
    await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
-   const bothComplete=await poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'}).first()
-     .locator('.kenny-pool-complete').allInnerTexts();
-   assert.deepEqual(bothComplete,[
-     'Alles aus dieser Kategorie eingesammelt.',
-     'Alles aus dieser Kategorie eingesammelt.'
-   ],'Five regular season items and rare Zebra need separate completed messages above/below the rarity bar');
-   const completeOrder=await poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'})
-     .first().locator('.kenny-pool-items').evaluate(el=>{
-       const children=[...el.children];
-       return ['.kenny-pool-complete-regular','.kenny-pool-zebra-divider',
-         '.kenny-pool-zebra','.kenny-pool-complete-zebra']
-         .map(selector=>children.indexOf(el.querySelector(selector)));
-     });
-   assert(completeOrder.every((position,index)=>position>=0&&(!index||position>completeOrder[index-1])),
-     'Collected notice for regular items must precede Zebra banner; Zebra collected notice follows it: '+
-       JSON.stringify(completeOrder));
+   const completeSection = poolPage.locator('.kenny-pool-section')
+     .filter({ hasText: 'Saisonexklusiv' }).first();
+   assert.deepEqual(await completeSection.locator('.kenny-pool-complete').allInnerTexts(),
+     ['Alles aus dieser Kategorie eingesammelt.'],
+     'The fully owned exclusive category must show the same single completion message as other categories');
+   assert.equal(await completeSection.locator('.kenny-pool-items > span').count(), 0);
+   assert.equal(await completeSection.locator('.kenny-pool-zebra-divider').count(), 0);
+   if (width === 390) {
+     await poolPage.screenshot({ path: path.join(screenshots, 'kenny-prizes-complete-390.png') });
+   }
+   await poolPage.evaluate(() => sessionStorage.setItem('studyverse_test_missing_green', '1'));
+   await poolPage.reload({ waitUntil: 'load' });
+   await poolPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
+   await poolPage.locator(prizeSelector).click();
+   const partialSection = poolPage.locator('.kenny-pool-section')
+     .filter({ hasText: 'Saisonexklusiv' }).first();
+   await partialSection.waitFor();
+   assert.equal(await partialSection.locator('.kenny-pool-items > span').count(), 1);
+   assert((await partialSection.locator('.kenny-pool-items > span').innerText()).includes('Kenny Grün'));
+   assert.equal(await partialSection.locator('.kenny-pool-complete-regular').count(), 0);
+   assert.equal(await partialSection.locator('.kenny-pool-complete-zebra').count(), 1,
+     'Directly granted Zebra must complete only its own group while a missing regular skin stays listed');
    await poolContext.close();
   }
   console.log('PASS: Kenny complete-collection prize dialog and temporary reward gating.');
@@ -972,10 +1100,10 @@ async function main(){
   const ownedAvatar=maxPage.locator('.inventory-item[data-category="avatar"]').first();
   assert(await ownedAvatar.count()>0,'Kenny must have a real avatar in inventory at level five');
   await ownedAvatar.locator('.drop-preview-btn').click();
-  const avatarPreview=maxPage.locator('.shop-preview-modal[data-category="avatar"] .preview-visual');
+  const avatarPreview=maxPage.locator('.shop-preview-modal[data-category="avatar"] .preview-after .preview-visual');
   await avatarPreview.waitFor({state:'visible'});
   await maxPage.waitForFunction(()=>{
-    const img=document.querySelector('.shop-preview-modal[data-category="avatar"] .preview-visual img');
+    const img=document.querySelector('.shop-preview-modal[data-category="avatar"] .preview-after .preview-visual img');
     return img&&img.complete&&img.naturalWidth>0;
   });
   const avatarPreviewGeometry=await avatarPreview.evaluate(el=>{

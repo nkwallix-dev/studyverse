@@ -31,7 +31,11 @@
     [attr.data-category]="card.item.group"
     [class.equipped]="card.equipped"
   >
-    <app-cosmetic-art [item]="card.item" />
+    <app-cosmetic-art
+      [item]="card.item"
+      [equippedTitle]="equippedTitle"
+      [equippedFont]="equippedFont"
+    />
     <div class="inventory-item-detail">
       <small>{{ card.collection }} · {{ card.category }}</small>
       <h3 class="item-title-row">
@@ -39,8 +43,8 @@
           >{{ card.item.name
           }}<span class="item-name-type" *ngIf="card.nameSuffix"> {{ card.nameSuffix }}</span></span
         >
-        <span class="item-inline-status equipped-status" *ngIf="card.equipped">✓ Ausgerüstet</span>
       </h3>
+      <span class="item-inline-status equipped-status" *ngIf="card.equipped">✓ Ausgerüstet</span>
       <p>{{ card.item.desc }}</p>
     </div>
     <div class="inventory-actions">

@@ -52,21 +52,29 @@ import { CosmeticIconComponent } from './cosmetic-icon.component';
       </ng-container></ng-template
     >
     <ng-template #artwork>
-      <app-cosmetic-banner
-        *ngIf="item.group === 'banner'; else iconArtwork"
-        [banner]="item.equip"
-        [label]="item.name"
-      />
-      <ng-template #iconArtwork>
-        <app-cosmetic-icon
-          [id]="item.id"
-          [fallback]="item.icon"
+      @if (item.group === 'title' || item.group === 'font') {
+        <span
+          class="cosmetic-text"
+          [attr.data-font]="item.group === 'font' ? item.equip || item.id : equippedFont"
+          >{{ item.group === 'title' ? item.name : equippedTitle }}</span
+        >
+      } @else {
+        <app-cosmetic-banner
+          *ngIf="item.group === 'banner'; else iconArtwork"
+          [banner]="item.equip"
           [label]="item.name"
-          [decorative]="false"
-          class="art-icon"
-          [class.theme-art]="item.group === 'theme'"
         />
-      </ng-template>
+        <ng-template #iconArtwork>
+          <app-cosmetic-icon
+            [id]="item.id"
+            [fallback]="item.icon"
+            [label]="item.name"
+            [decorative]="false"
+            class="art-icon"
+            [class.theme-art]="item.group === 'theme'"
+          />
+        </ng-template>
+      }
     </ng-template>
   </div>`,
   styles: [
@@ -129,5 +137,7 @@ import { CosmeticIconComponent } from './cosmetic-icon.component';
 })
 export class CosmeticArtComponent {
   @Input({ required: true }) item!: ShopItem;
+  @Input() equippedTitle = 'Weltenentdecker';
+  @Input() equippedFont = 'standard';
   readonly particles = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 }

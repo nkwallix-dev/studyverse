@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CosmeticBannerComponent } from '../../../cosmetic-banner.component';
 import { CosmeticIconComponent } from '../../../cosmetic-icon.component';
-import type { ShopItem } from '../../../shop-items';
 import type { KennyPoolTier, KennyPrizeOdds } from './kenny-rewards.model';
 
 /** The existing prize popup, without season calculations or inventory mutations. */
@@ -20,8 +19,4 @@ export class KennyPoolDialogComponent {
   @Input({ required: true }) kennyRegularExclusivesComplete!: boolean;
   @Input({ required: true }) ownedEventIds: ReadonlyArray<string> = [];
   @Output() readonly closeRequested = new EventEmitter<void>();
-
-  isOwned(item: ShopItem): boolean {
-    return this.ownedEventIds.includes(item.id);
-  }
 }
