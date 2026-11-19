@@ -166,5 +166,5 @@
     var treeEl = document.querySelector('.pa-tree');
     if (treeEl) treeEl.innerHTML = tree();
   });
-  window.PA_BRIDGE_GUIDE = {render:render, setSources:setSources, setError:setError};
+  window.PA_BRIDGE_GUIDE = {render:render, setSources:setSources, setError:setError, select:function(id){selected=id;tab='explain';}};
 })();
