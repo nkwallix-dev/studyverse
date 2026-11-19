@@ -746,7 +746,12 @@ async function main(){
   console.log('PASS: Kenny Sharpverse refunds are selective and idempotent.');
   // Feeding spends one shared wallet, awards a reveal for each draw and reaches
   // level 2 after precisely three feeds without granting study XP.
-  const dinoContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const dinoContext=await browser.newContext({
+    viewport: { width: 390, height: 800 },
+    deviceScaleFactor: 1,
+    isMobile: true,
+    hasTouch: true,
+  });
   const dinoPage=await dinoContext.newPage();
   await dinoPage.addInitScript(()=>{
    localStorage.setItem('studyverse_import_prompt_seen_v1','1');
@@ -755,10 +760,10 @@ async function main(){
     claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
   });
   await dinoPage.goto(base,{waitUntil:'load'});
-  await dinoPage.locator('.navigation button[aria-label="Begleiter"]').click();
-  await dinoPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
+  await dinoPage.locator('.navigation button[aria-label="Begleiter"]').tap();
+  await dinoPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).tap();
   for(let n=1;n<=3;n++){
-   await dinoPage.locator('.kenny-feed-btn').click();
+   await dinoPage.locator('.kenny-feed-btn').tap();
    await dinoPage.locator('.kenny-stage.kenny-feeding').waitFor();
    assert.equal(await dinoPage.locator('.kenny-reveal-modal').count(),0,
     'Reward must wait while Kenny walks to his meal');
@@ -797,7 +802,7 @@ async function main(){
     }
     // The primary action now means "equip" or "show designer"; the always-present
     // secondary action explicitly acknowledges any drop and advances the queue.
-    await dinoPage.locator('.kenny-reveal-actions .btn.secondary').click();
+    await dinoPage.locator('.kenny-reveal-actions .btn.secondary').tap();
     await dinoPage.waitForFunction(previous=>{
      const current=document.querySelector('#kenny-reveal-title');
      return !current||current.textContent!==previous;
@@ -810,7 +815,7 @@ async function main(){
   assert.equal(dinoProfile.dinoSeasons['kenny-2026'].feeds,3);
   assert.equal(dinoProfile.xp,0,'Feeding must never grant learning XP');
   assert(dinoProfile.tokens>=9100,'300 TT per feed, net of random Token rewards');
-  await dinoPage.locator('.kenny-action-row .kenny-style-btn').click();
+  await dinoPage.locator('.kenny-action-row .kenny-style-btn').tap();
   await dinoPage.locator('.dino-designer-grid').waitFor({state:'visible'});
   assert.equal(await dinoPage.locator('.dino-designer-card').count(),3,
    'The dedicated Dino Designer must reserve three dinosaur slots');
@@ -819,7 +824,7 @@ async function main(){
   const unlockedSkins=dinoProfile.inventory.filter(id=>id.startsWith('kenny_skin_')&&id!=='kenny_skin_blue').length;
   assert.equal(await dinoPage.locator('.dino-designer-skin-grid button:disabled').count(),4-unlockedSkins,
    'Only owned skins may be selected, including the rare zebra skin');
-  await dinoPage.locator('.dino-designer-heading-actions button').filter({hasText:'Meine Begleiter'}).click();
+  await dinoPage.locator('.dino-designer-heading-actions button').filter({hasText:'Meine Begleiter'}).tap();
   await dinoContext.close();
   console.log('PASS: Kenny viewport, three feeds, reward reveals, XP isolation and locked skins.');
   // The blue avatar is granted at the 25th feed, independently of the random drop.
