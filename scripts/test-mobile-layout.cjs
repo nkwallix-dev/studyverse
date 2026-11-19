@@ -456,6 +456,7 @@ async function main(){
   ].map((match) => match[1]);
   for (const width of [320, 390, 650, 768, 1365]) {
     const comparisonContext = await browser.newContext({ viewport: { width, height: 800 } });
+    await comparisonContext.route(/https:\/\/fonts\.(googleapis|gstatic)\.com\//, (route) => route.abort());
     const comparisonPage = await comparisonContext.newPage();
     await comparisonPage.addInitScript((inventory) => {
       localStorage.setItem('studyverse_import_prompt_seen_v1', '1');
@@ -469,6 +470,11 @@ async function main(){
       }));
     }, comparisonIds);
     await comparisonPage.goto(base, { waitUntil: 'load' });
+    await comparisonPage.evaluate(() => document.fonts.ready);
+    assert((await comparisonPage.locator('.universe').first().evaluate((universe) =>
+      getComputedStyle(universe).fontFamily)).includes('Unbounded'),
+    'The equipped Velvet Voltage font must override the default interface font');
+
     const notice = comparisonPage.locator('.notice button');
     if (await notice.isVisible()) await notice.click();
     await comparisonPage.locator('.navigation button[aria-label="Item-Shop"]').click();
@@ -524,6 +530,36 @@ async function main(){
       if (width === 390) {
         await comparisonPage.screenshot({ path: path.join(screenshots, 'inventory-' + group + '-text-390.png') });
       }
+    }
+    if (width === 390 || width === 1365) {
+      const inspector = await comparisonContext.newCDPSession(comparisonPage);
+      await inspector.send('DOM.enable');
+      await inspector.send('CSS.enable');
+      for (const [name, isVelvet] of [['Compact UI', false], ['Velvet Voltage', true]]) {
+        await comparisonPage.locator('.inventory-item').filter({ hasText: name })
+          .locator('.drop-preview-btn').click();
+        const sample = comparisonPage.locator('.preview-after .cosmetic-text');
+        await sample.waitFor();
+        await comparisonPage.evaluate(() => document.fonts.ready);
+        const family = await sample.evaluate((text) => getComputedStyle(text).fontFamily);
+        assert(family.includes(isVelvet ? 'Unbounded' : 'Arial'), name + ' must select its own font family');
+        const { root } = await inspector.send('DOM.getDocument');
+        const { nodeId } = await inspector.send('DOM.querySelector', {
+          nodeId: root.nodeId, selector: '.preview-after .cosmetic-text',
+        });
+        const { fonts } = await inspector.send('CSS.getPlatformFontsForNode', { nodeId });
+        assert(fonts.some((font) => font.glyphCount > 0), 'The sample must render actual text glyphs');
+        assert.equal(fonts.some((font) => font.isCustomFont && font.familyName.includes('Unbounded')),
+          isVelvet, name + ' must render its intended font with external font requests blocked');
+        await assertReadableText(sample);
+        if (width === 390) {
+          await comparisonPage.screenshot({
+            path: path.join(screenshots, isVelvet ? 'font-velvet-native-390.png' : 'font-compact-native-390.png'),
+          });
+        }
+        await comparisonPage.getByRole('button', { name: 'Vorschau schließen' }).click();
+      }
+      await inspector.detach();
     }
     for (const group of ['theme', 'atm', 'frame', 'font', 'banner', 'fx', 'avatar', 'title']) {
       await category.selectOption(group);
@@ -610,6 +646,7 @@ async function main(){
       assert.deepEqual(saved.inventory, baseline.inventory);
       assert.equal(saved.tokens, baseline.tokens);
     }
+    await check(comparisonPage, 'Velvet Voltage inventory ' + width);
     await comparisonContext.close();
   }
   console.log('PASS: complete titles fit every thumbnail and preview; effects and backgrounds show only the selected cosmetic.');
@@ -1647,6 +1684,16 @@ async function main(){
    assert((await cosmeticPage.locator('.sources-list').innerText()).length>150,world+' must list real teaching sources');
    assert.equal(await cosmeticPage.locator('.sources-list input,.sources-list select,#resetBtn,#exportBtn,#focusToggle,#soundToggle,#testDate').count(),0,
     world+' sources page must not contain settings');
+   await cosmeticPage.evaluate(() => {
+     const profile = JSON.parse(localStorage.getItem('studyverse_profile_v1'));
+     profile.equipped.font = 'velvet_voltage';
+     localStorage.setItem('studyverse_profile_v1', JSON.stringify(profile));
+     window.dispatchEvent(new Event('pageshow'));
+   });
+   await cosmeticPage.waitForFunction(() => {
+     return getComputedStyle(document.body).fontFamily.includes('Unbounded') &&
+       Array.from(document.fonts).some((font) => font.family.includes('Unbounded') && font.status === 'loaded');
+   });
    await check(cosmeticPage,world+' sources');
    await cosmeticPage.screenshot({path:path.join(screenshots,world.toLowerCase()+'-sources-390.png'),fullPage:true});
    await equipped.close();
