@@ -57,3 +57,21 @@
 .pa-editor-footer button:not(:disabled):hover{border-color:#bba5ff}
 @media(max-width:1000px){.pa-explorer-layout{grid-template-columns:210px minmax(0,1fr)}.pa-file{font-size:10px;padding-left:12px}.pa-editor-body{padding:19px}}
 @media(max-width:700px){.pa-doc-top{padding:20px}.pa-explorer-layout{display:flex;flex-direction:column}.pa-explorer{height:auto;max-height:340px;position:static;width:100%;border-right:0;border-bottom:1px solid #41516d}.pa-editor{width:100%;min-height:0}.pa-tree{max-height:230px;overflow:auto}.pa-editor-body{padding:16px}.pa-info-block{padding:15px}.pa-tabs button{font-size:11px;padding:9px 8px}.pa-code{font-size:11px;padding:14px}}
+
+/* Full-code editor: every line from the real file, markers never truncate source. */
+.pa-source-origin{background:#183b3b;border:1px solid #348778;color:#b2f4e7!important;padding:9px 13px;border-radius:9px;font-size:12px!important}
+.pa-code-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:13px 0 0;background:#1a2741;border:1px solid #3f5474;border-bottom:none;border-radius:10px 10px 0 0;padding:10px 13px}
+.pa-code-toolbar span{font-size:11px;color:#bed0e9}
+.pa-code-toolbar button{font:inherit;color:#e8f1ff;background:#34496a;border:1px solid #7183a8;border-radius:7px;padding:8px 11px;font-size:11px;font-weight:800}
+.pa-code-toolbar button:hover{background:#465a7d}
+.pa-code-complete{background:#080f1e;border:1px solid #45597b;border-radius:0 0 10px 10px;overflow:auto;max-height:66vh;scrollbar-color:#5e719a #101929}
+.pa-code-complete code{display:block;font:12px/1.65 Consolas,"Cascadia Code",monospace;min-width:max-content;color:#cfe6f9}
+.pa-code-line{display:flex;min-width:max-content;border-left:3px solid transparent}
+.pa-code-line:hover{background:#23324c}
+.pa-code-line.pa-code-highlight{background:#6f591e42;border-left-color:#ffd06b}
+.pa-code-line.pa-code-highlight .pa-line-content{color:#ffeac0}
+.pa-line-num{position:sticky;left:0;flex:none;width:48px;padding:0 12px 0 3px;background:#10192a;color:#6883a5;text-align:right;user-select:none;border-right:1px solid #344057}
+.pa-code-line.pa-code-highlight .pa-line-num{background:#41391e;color:#ffd88a}
+.pa-line-content{white-space:pre;padding:0 20px 0 13px;tab-size:4}
+.pa-full-source{padding:18px!important}
+@media(max-width:700px){.pa-code-complete{max-height:60vh}.pa-code-complete code{font-size:11px}.pa-line-num{width:38px;padding-right:9px}.pa-line-content{padding-left:9px}}
