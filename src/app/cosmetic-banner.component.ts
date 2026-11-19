@@ -26,13 +26,16 @@ const BANNER_PREVIEWS = new Set([
         width: 100%;
         height: 100%;
         min-width: 0;
+        border-radius: inherit;
+        overflow: hidden;
       }
 
       img {
         display: block;
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: cover;
+        object-position: right center;
         border-radius: inherit;
       }
     `,

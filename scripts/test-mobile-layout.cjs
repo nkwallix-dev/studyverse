@@ -749,10 +749,14 @@ async function main(){
    const poolContext=await browser.newContext({viewport:{width,height:800},deviceScaleFactor:1});
    const poolPage=await poolContext.newPage();
    await poolPage.addInitScript(owned=>{
+    const collected = sessionStorage.getItem('studyverse_test_zebra_owned') === '1'
+      ? [...owned, 'kenny_skin_zebra'] : owned;
+    const inventory = collected.filter(id => sessionStorage.getItem('studyverse_test_missing_green') !== '1' ||
+      id !== 'kenny_skin_green');
     localStorage.setItem('studyverse_import_prompt_seen_v1','1');
     localStorage.setItem('studyverse_profile_v1',JSON.stringify({
      xp:0,tokens:900,nickname:'PrizePreview',
-     inventory:sessionStorage.getItem('studyverse_test_zebra_owned')==='1'?[...owned,'kenny_skin_zebra']:owned,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
+     inventory,equipped:{theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'},
      claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],
      dinoSeasons:{'kenny-2026':{feeds:25,skin:'blue',overfeeds:0,overTokenWins:0,settled:false,settlement:0}}
     }));
@@ -789,8 +793,8 @@ async function main(){
    await poolPage.locator(prizeSelector).click();
    await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
    const exclusiveSection=poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'}).first();
-   assert.equal(await exclusiveSection.locator('.kenny-pool-items > span').count(),6,
-     'All six Season items must stay visible in the Item Pool, including Zebra');
+   assert.equal(await exclusiveSection.locator('.kenny-pool-items > span').count(), 1,
+     'A completed regular collection must leave only the missing Zebra in the prize pool');
    const exclusiveLayout=await exclusiveSection.locator('.kenny-pool-items').evaluate(el=>{
      const bar=el.querySelector('.kenny-pool-zebra-divider');
      const zebra=el.querySelector('.kenny-pool-zebra');
@@ -836,22 +840,28 @@ async function main(){
    await poolPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
    await poolPage.locator(prizeSelector).click();
    await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
-   const bothComplete=await poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'}).first()
-     .locator('.kenny-pool-complete').allInnerTexts();
-   assert.deepEqual(bothComplete,[
-     'Alles aus dieser Kategorie eingesammelt.',
-     'Alles aus dieser Kategorie eingesammelt.'
-   ],'Five regular season items and rare Zebra need separate completed messages above/below the rarity bar');
-   const completeOrder=await poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'})
-     .first().locator('.kenny-pool-items').evaluate(el=>{
-       const children=[...el.children];
-       return ['.kenny-pool-complete-regular','.kenny-pool-zebra-divider',
-         '.kenny-pool-zebra','.kenny-pool-complete-zebra']
-         .map(selector=>children.indexOf(el.querySelector(selector)));
-     });
-   assert(completeOrder.every((position,index)=>position>=0&&(!index||position>completeOrder[index-1])),
-     'Collected notice for regular items must precede Zebra banner; Zebra collected notice follows it: '+
-       JSON.stringify(completeOrder));
+   const completeSection = poolPage.locator('.kenny-pool-section')
+     .filter({ hasText: 'Saisonexklusiv' }).first();
+   assert.deepEqual(await completeSection.locator('.kenny-pool-complete').allInnerTexts(),
+     ['Alles aus dieser Kategorie eingesammelt.'],
+     'The fully owned exclusive category must show the same single completion message as other categories');
+   assert.equal(await completeSection.locator('.kenny-pool-items > span').count(), 0);
+   assert.equal(await completeSection.locator('.kenny-pool-zebra-divider').count(), 0);
+   if (width === 390) {
+     await poolPage.screenshot({ path: path.join(screenshots, 'kenny-prizes-complete-390.png') });
+   }
+   await poolPage.evaluate(() => sessionStorage.setItem('studyverse_test_missing_green', '1'));
+   await poolPage.reload({ waitUntil: 'load' });
+   await poolPage.locator('.navigation button[aria-label="Dino-Verse"]').click();
+   await poolPage.locator(prizeSelector).click();
+   const partialSection = poolPage.locator('.kenny-pool-section')
+     .filter({ hasText: 'Saisonexklusiv' }).first();
+   await partialSection.waitFor();
+   assert.equal(await partialSection.locator('.kenny-pool-items > span').count(), 1);
+   assert((await partialSection.locator('.kenny-pool-items > span').innerText()).includes('Kenny Grün'));
+   assert.equal(await partialSection.locator('.kenny-pool-complete-regular').count(), 0);
+   assert.equal(await partialSection.locator('.kenny-pool-complete-zebra').count(), 1,
+     'Directly granted Zebra must complete only its own group while a missing regular skin stays listed');
    await poolContext.close();
   }
   console.log('PASS: Kenny complete-collection prize dialog and temporary reward gating.');

@@ -907,15 +907,20 @@ export class App implements OnInit,OnDestroy {
  get kennyZebraChanceLabel():string{
    return this.kennyZebraChance.toLocaleString('de-AT',{maximumFractionDigits:1});
  }
- get kennyPoolPreview(){
-   const pools=this.kennyPools;
-   return ([{key:'event',name:'Saisonexklusiv'},{key:'large',name:'Prestige-Items'},
-     {key:'medium',name:'Mittlere Items'},{key:'small',name:'Kleine Items'}] as const)
-     .map(category=>({...category,
-       // The item pool is a complete catalog of season exclusives, including
-       // the already-owned Zebra; only the actual draw pools exclude owned items.
-       items:category.key==='event'?KENNY_EVENT_ITEMS:pools[category.key],
-       chance:this.kennyOdds[category.key]}));
+ get kennyPoolPreview() {
+   const pools = this.kennyPools;
+   const categories = [
+     { key: 'event', name: 'Saisonexklusiv' },
+     { key: 'large', name: 'Prestige-Items' },
+     { key: 'medium', name: 'Mittlere Items' },
+     { key: 'small', name: 'Kleine Items' },
+   ] as const;
+
+   return categories.map((category) => ({
+     ...category,
+     items: category.key === 'event' ? [...pools.event, ...pools.zebra] : pools[category.key],
+     chance: this.kennyOdds[category.key],
+   }));
  }
  get kennyCurrentReveal(): KennyReveal | null {
    return this.kennyReveals[0] ?? null;
