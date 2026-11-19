@@ -9,6 +9,7 @@ import { KennyPoolDialogComponent } from './features/dinoverse/rewards/kenny-poo
 import { CosmeticIconComponent } from './cosmetic-icon.component';
 import { CosmeticBannerComponent } from './cosmetic-banner.component';
 import { CosmeticArtComponent } from './cosmetic-art.component';
+import { FitCosmeticTextDirective } from './fit-cosmetic-text.directive';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
 import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
 import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
@@ -75,6 +76,7 @@ export const SUBJECTS:Subject[]=[
     FormsModule,
     CosmeticIconComponent,
     CosmeticArtComponent,
+    FitCosmeticTextDirective,
     CosmeticBannerComponent,
     DinoDesignerComponent,
     KennyRewardOverviewComponent,

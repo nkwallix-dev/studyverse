@@ -838,28 +838,30 @@
     aria-label="Live-Vorschau für ein Cosmetic"
   >
     <div class="modal shop-preview-modal" [attr.data-category]="item.group">
+      @let compare = item.group !== 'fx' && item.group !== 'atm';
       <div
         class="preview-comparison"
         [class.portrait-comparison]="item.group === 'avatar' || item.group === 'title'"
       >
-        <div class="preview-before" [attr.aria-hidden]="previewPosition === 100">
+        <div class="preview-before" *ngIf="compare" [attr.aria-hidden]="previewPosition === 100">
           <ng-container *ngTemplateOutlet="cosmeticPreview; context: { $implicit: false }" />
         </div>
         <div
           class="preview-after"
-          [style.clip-path]="'inset(0 ' + (100 - previewPosition) + '% 0 0)'"
-          [attr.aria-hidden]="previewPosition === 0"
+          [style.clip-path]="'inset(0 ' + (compare ? 100 - previewPosition : 0) + '% 0 0)'"
+          [attr.aria-hidden]="compare && previewPosition === 0"
         >
           <ng-container *ngTemplateOutlet="cosmeticPreview; context: { $implicit: true }" />
         </div>
         <div
           class="preview-divider"
+          *ngIf="compare"
           [style.left.%]="previewPosition"
           [hidden]="previewPosition === 0 || previewPosition === 100"
           aria-hidden="true"
         ></div>
       </div>
-      <label class="preview-comparison-control">
+      <label class="preview-comparison-control" *ngIf="compare">
         <span><span>Vorher</span><span>Nachher</span></span>
         <input
           type="range"
@@ -906,6 +908,7 @@
               @if (item.group === 'font') {
                 <strong
                   class="cosmetic-text"
+                  [fitCosmeticText]="25"
                   [attr.data-font]="previewValue('font', item, after)"
                   >{{ title }}</strong
                 >
@@ -1044,9 +1047,12 @@
           </div>
         } @else if (item.group === 'title') {
           <div class="preview-visual preview-title">
-            <span class="cosmetic-text" [attr.data-font]="previewSlot('font')">{{
-              after ? item.name : title
-            }}</span>
+            <span
+              class="cosmetic-text"
+              [fitCosmeticText]="32"
+              [attr.data-font]="previewSlot('font')"
+              >{{ after ? item.name : title }}</span
+            >
           </div>
         }
       </ng-template>

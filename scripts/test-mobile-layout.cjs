@@ -454,7 +454,7 @@ async function main(){
     ...fs.readFileSync('src/app/shop-items.ts', 'utf8').matchAll(/\{id:'([^']+)'/g),
     ...fs.readFileSync('src/app/dino-season.ts', 'utf8').matchAll(/\{id:'([^']+)'/g),
   ].map((match) => match[1]);
-  for (const width of [320, 390, 1365]) {
+  for (const width of [320, 390, 650, 768, 1365]) {
     const comparisonContext = await browser.newContext({ viewport: { width, height: 800 } });
     const comparisonPage = await comparisonContext.newPage();
     await comparisonPage.addInitScript((inventory) => {
@@ -477,12 +477,42 @@ async function main(){
     const baseline = await comparisonPage.evaluate(() =>
       JSON.parse(localStorage.getItem('studyverse_profile_v1')));
     const category = comparisonPage.locator('.inventory-filter-bar select').nth(1);
+    async function assertReadableText(text) {
+      const element = await text.elementHandle();
+      await comparisonPage.waitForFunction((element) => {
+        const parent = element.parentElement;
+        const box = parent.getBoundingClientRect();
+        const style = getComputedStyle(parent);
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const lines = Array.from(range.getClientRects());
+        return lines.length > 0 && lines.every((line) =>
+          line.top >= box.top + parseFloat(style.paddingTop) - 1 &&
+          line.bottom <= box.bottom - parseFloat(style.paddingBottom) + 1 &&
+          line.left >= box.left + parseFloat(style.paddingLeft) - 1 &&
+          line.right <= box.right - parseFloat(style.paddingRight) + 1);
+      }, element);
+    }
     for (const group of ['title', 'font']) {
       await category.selectOption(group);
       const equippedCard = comparisonPage.locator('.inventory-item.equipped[data-category="' + group + '"]');
       await equippedCard.scrollIntoViewIfNeeded();
       assert.equal((await equippedCard.locator('.cosmetic-text').innerText()), 'Hat Pangea überlebt');
       assert.equal(await equippedCard.locator('.item-art app-cosmetic-icon').count(), 0);
+      const text = equippedCard.locator('.cosmetic-text');
+      await assertReadableText(text);
+      for (const content of [
+        'Hat Pangea überlebt und die gesamte Urzeit erforscht '.repeat(4),
+        'Pangea'.repeat(35),
+      ]) {
+        await text.evaluate((element, content) => { element.textContent = content; }, content);
+        await assertReadableText(text);
+        assert(await text.evaluate((element) => parseFloat(getComputedStyle(element).fontSize) < 21),
+          'Long text must shrink to fit the thumbnail');
+      }
+      await text.evaluate((element) => { element.textContent = 'Hat Pangea überlebt'; });
+      await assertReadableText(text);
+
       const badgeFits = await equippedCard.locator('.equipped-status').evaluate((badge) => {
         const box = badge.getBoundingClientRect();
         const detail = badge.closest('.inventory-item-detail').getBoundingClientRect();
@@ -502,6 +532,20 @@ async function main(){
       const candidateText = await card.locator('.cosmetic-text').allTextContents();
       await card.locator('.drop-preview-btn').click();
       const slider = comparisonPage.getByRole('slider', { name: 'Vorher / Nachher' });
+      if (group === 'fx' || group === 'atm') {
+        const stage = comparisonPage.locator('.preview-after .shop-live-stage[data-preview-group="' + group + '"]');
+        await stage.waitFor();
+        assert.equal(await slider.count(), 0, 'Effects and backgrounds have no comparison slider');
+        assert.equal(await comparisonPage.locator('.preview-before').count(), 0);
+        assert.equal(await comparisonPage.locator('.preview-divider').count(), 0);
+        assert.equal(await stage.locator('.cosmetic-text').count(), 0);
+        await comparisonPage.getByRole('button', { name: 'Vorschau schließen' }).click();
+        const saved = await comparisonPage.evaluate(() =>
+          JSON.parse(localStorage.getItem('studyverse_profile_v1')));
+        assert.deepEqual(saved.equipped, baseline.equipped);
+        assert.equal(saved.tokens, baseline.tokens);
+        continue;
+      }
       await slider.waitFor();
       assert.equal(await slider.inputValue(), '100', 'Each preview starts at After');
       const before = comparisonPage.locator('.preview-before');
@@ -532,6 +576,9 @@ async function main(){
             await after.locator('.cosmetic-text').evaluate((text) => getComputedStyle(text).fontFamily),
           );
         }
+      }
+      for (const text of await after.locator('.cosmetic-text').all()) {
+        await assertReadableText(text);
       }
       await slider.focus();
       await slider.press('Home');
@@ -565,7 +612,7 @@ async function main(){
     }
     await comparisonContext.close();
   }
-  console.log('PASS: text thumbnails, visible equipped badges and all eight before/after previews preserve the saved loadout.');
+  console.log('PASS: complete titles fit every thumbnail and preview; effects and backgrounds show only the selected cosmetic.');
 
   const bannerContext = await browser.newContext({ viewport: { width: 390, height: 800 } });
   const bannerPage = await bannerContext.newPage();
