@@ -456,6 +456,7 @@ async function main(){
   ].map((match) => match[1]);
   for (const width of [320, 390, 650, 768, 1365]) {
     const comparisonContext = await browser.newContext({ viewport: { width, height: 800 } });
+    await comparisonContext.route(/https:\/\/fonts\.(googleapis|gstatic)\.com\//, (route) => route.abort());
     const comparisonPage = await comparisonContext.newPage();
     await comparisonPage.addInitScript((inventory) => {
       localStorage.setItem('studyverse_import_prompt_seen_v1', '1');
@@ -469,6 +470,11 @@ async function main(){
       }));
     }, comparisonIds);
     await comparisonPage.goto(base, { waitUntil: 'load' });
+    await comparisonPage.evaluate(() => document.fonts.ready);
+    assert((await comparisonPage.locator('.universe').first().evaluate((universe) =>
+      getComputedStyle(universe).fontFamily)).includes('Unbounded'),
+    'The equipped Velvet Voltage font must override the default interface font');
+
     const notice = comparisonPage.locator('.notice button');
     if (await notice.isVisible()) await notice.click();
     await comparisonPage.locator('.navigation button[aria-label="Item-Shop"]').click();
@@ -524,6 +530,36 @@ async function main(){
       if (width === 390) {
         await comparisonPage.screenshot({ path: path.join(screenshots, 'inventory-' + group + '-text-390.png') });
       }
+    }
+    if (width === 390 || width === 1365) {
+      const inspector = await comparisonContext.newCDPSession(comparisonPage);
+      await inspector.send('DOM.enable');
+      await inspector.send('CSS.enable');
+      for (const [name, isVelvet] of [['Compact UI', false], ['Velvet Voltage', true]]) {
+        await comparisonPage.locator('.inventory-item').filter({ hasText: name })
+          .locator('.drop-preview-btn').click();
+        const sample = comparisonPage.locator('.preview-after .cosmetic-text');
+        await sample.waitFor();
+        await comparisonPage.evaluate(() => document.fonts.ready);
+        const family = await sample.evaluate((text) => getComputedStyle(text).fontFamily);
+        assert(family.includes(isVelvet ? 'Unbounded' : 'Arial'), name + ' must select its own font family');
+        const { root } = await inspector.send('DOM.getDocument');
+        const { nodeId } = await inspector.send('DOM.querySelector', {
+          nodeId: root.nodeId, selector: '.preview-after .cosmetic-text',
+        });
+        const { fonts } = await inspector.send('CSS.getPlatformFontsForNode', { nodeId });
+        assert(fonts.some((font) => font.glyphCount > 0), 'The sample must render actual text glyphs');
+        assert.equal(fonts.some((font) => font.isCustomFont && font.familyName.includes('Unbounded')),
+          isVelvet, name + ' must render its intended font with external font requests blocked');
+        await assertReadableText(sample);
+        if (width === 390) {
+          await comparisonPage.screenshot({
+            path: path.join(screenshots, isVelvet ? 'font-velvet-native-390.png' : 'font-compact-native-390.png'),
+          });
+        }
+        await comparisonPage.getByRole('button', { name: 'Vorschau schließen' }).click();
+      }
+      await inspector.detach();
     }
     for (const group of ['theme', 'atm', 'frame', 'font', 'banner', 'fx', 'avatar', 'title']) {
       await category.selectOption(group);
@@ -610,6 +646,7 @@ async function main(){
       assert.deepEqual(saved.inventory, baseline.inventory);
       assert.equal(saved.tokens, baseline.tokens);
     }
+    await check(comparisonPage, 'Velvet Voltage inventory ' + width);
     await comparisonContext.close();
   }
   console.log('PASS: complete titles fit every thumbnail and preview; effects and backgrounds show only the selected cosmetic.');
@@ -709,7 +746,12 @@ async function main(){
   console.log('PASS: Kenny Sharpverse refunds are selective and idempotent.');
   // Feeding spends one shared wallet, awards a reveal for each draw and reaches
   // level 2 after precisely three feeds without granting study XP.
-  const dinoContext=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
+  const dinoContext=await browser.newContext({
+    viewport: { width: 390, height: 800 },
+    deviceScaleFactor: 1,
+    isMobile: true,
+    hasTouch: true,
+  });
   const dinoPage=await dinoContext.newPage();
   await dinoPage.addInitScript(()=>{
    localStorage.setItem('studyverse_import_prompt_seen_v1','1');
@@ -718,10 +760,10 @@ async function main(){
     claimedLevels:{},activity:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[]}));
   });
   await dinoPage.goto(base,{waitUntil:'load'});
-  await dinoPage.locator('.navigation button[aria-label="Begleiter"]').click();
-  await dinoPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).click();
+  await dinoPage.locator('.navigation button[aria-label="Begleiter"]').tap();
+  await dinoPage.locator('.companion-actions button').filter({hasText:'Kenny füttern'}).tap();
   for(let n=1;n<=3;n++){
-   await dinoPage.locator('.kenny-feed-btn').click();
+   await dinoPage.locator('.kenny-feed-btn').tap();
    await dinoPage.locator('.kenny-stage.kenny-feeding').waitFor();
    assert.equal(await dinoPage.locator('.kenny-reveal-modal').count(),0,
     'Reward must wait while Kenny walks to his meal');
@@ -760,7 +802,7 @@ async function main(){
     }
     // The primary action now means "equip" or "show designer"; the always-present
     // secondary action explicitly acknowledges any drop and advances the queue.
-    await dinoPage.locator('.kenny-reveal-actions .btn.secondary').click();
+    await dinoPage.locator('.kenny-reveal-actions .btn.secondary').tap();
     await dinoPage.waitForFunction(previous=>{
      const current=document.querySelector('#kenny-reveal-title');
      return !current||current.textContent!==previous;
@@ -773,7 +815,7 @@ async function main(){
   assert.equal(dinoProfile.dinoSeasons['kenny-2026'].feeds,3);
   assert.equal(dinoProfile.xp,0,'Feeding must never grant learning XP');
   assert(dinoProfile.tokens>=9100,'300 TT per feed, net of random Token rewards');
-  await dinoPage.locator('.kenny-action-row .kenny-style-btn').click();
+  await dinoPage.locator('.kenny-action-row .kenny-style-btn').tap();
   await dinoPage.locator('.dino-designer-grid').waitFor({state:'visible'});
   assert.equal(await dinoPage.locator('.dino-designer-card').count(),3,
    'The dedicated Dino Designer must reserve three dinosaur slots');
@@ -782,7 +824,7 @@ async function main(){
   const unlockedSkins=dinoProfile.inventory.filter(id=>id.startsWith('kenny_skin_')&&id!=='kenny_skin_blue').length;
   assert.equal(await dinoPage.locator('.dino-designer-skin-grid button:disabled').count(),4-unlockedSkins,
    'Only owned skins may be selected, including the rare zebra skin');
-  await dinoPage.locator('.dino-designer-heading-actions button').filter({hasText:'Meine Begleiter'}).click();
+  await dinoPage.locator('.dino-designer-heading-actions button').filter({hasText:'Meine Begleiter'}).tap();
   await dinoContext.close();
   console.log('PASS: Kenny viewport, three feeds, reward reveals, XP isolation and locked skins.');
   // The blue avatar is granted at the 25th feed, independently of the random drop.
@@ -1647,6 +1689,16 @@ async function main(){
    assert((await cosmeticPage.locator('.sources-list').innerText()).length>150,world+' must list real teaching sources');
    assert.equal(await cosmeticPage.locator('.sources-list input,.sources-list select,#resetBtn,#exportBtn,#focusToggle,#soundToggle,#testDate').count(),0,
     world+' sources page must not contain settings');
+   await cosmeticPage.evaluate(() => {
+     const profile = JSON.parse(localStorage.getItem('studyverse_profile_v1'));
+     profile.equipped.font = 'velvet_voltage';
+     localStorage.setItem('studyverse_profile_v1', JSON.stringify(profile));
+     window.dispatchEvent(new Event('pageshow'));
+   });
+   await cosmeticPage.waitForFunction(() => {
+     return getComputedStyle(document.body).fontFamily.includes('Unbounded') &&
+       Array.from(document.fonts).some((font) => font.family.includes('Unbounded') && font.status === 'loaded');
+   });
    await check(cosmeticPage,world+' sources');
    await cosmeticPage.screenshot({path:path.join(screenshots,world.toLowerCase()+'-sources-390.png'),fullPage:true});
    await equipped.close();

@@ -1,5 +1,5 @@
 @use './cosmetic-previews';
-@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800&display=swap');
+@import url('../public/shared/cosmetic-fonts.css');
 html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Segoe UI",system-ui,sans-serif}*{box-sizing:border-box}::selection{background:#ae93ff;color:#0b0920}
 /* STUDYVERSE drops: global shop styles, shared by every Angular screen. */
 .universe[data-theme="chem_reactor"]{--bg:#041910;--sidebar:#062116;--card:#103126;--card2:#09271b;--border:#326b4a;--text:#effff1;--muted:#a8cfb9;--accent:#77f8a6;--accent2:#e1ff93;--glow:#1cc07a}
@@ -122,7 +122,10 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .universe[data-frame="neural"] :is(.stat,.subject-card,.item,.profile-panel,.test-row,.level-card,.activity-card,.loot-card){border:1px solid #c791ff!important;box-shadow:0 0 16px #ad65ff65,0 0 0 2px #7bdff340}
 .universe[data-frame="soft"] :is(.stat,.subject-card,.item,.profile-panel,.test-row,.level-card,.activity-card,.loot-card){border-radius:24px!important;border-color:#bad0ff79!important}
 .universe[data-frame="glass"] :is(.stat,.subject-card,.item,.profile-panel,.test-row,.level-card,.activity-card,.loot-card){background-color:#f9f9ff0c!important;backdrop-filter:blur(13px)}
-.universe[data-font="compact"]{font-family:Arial,"Segoe UI",sans-serif;letter-spacing:-.25px}
+.universe.universe[data-font="compact"] {
+  font-family: Arial, "Segoe UI", sans-serif;
+  letter-spacing: -0.25px;
+}
 .universe[data-banner="flow"] .hero{background:repeating-linear-gradient(114deg,#2a1f60,#453882 21%,#212d69 28%,#2a1f60 49%)}
 .universe[data-banner="curve"] .hero{background:radial-gradient(ellipse at 70% 70%,#66dccb65,transparent 35%),linear-gradient(110deg,#171c42,#365679)}
 .universe[data-banner="cloud"] .hero{background:radial-gradient(ellipse at 65% 90%,#d5e5ff8c,transparent 40%),linear-gradient(130deg,#263c62,#476f9c)}
@@ -636,7 +639,10 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 @keyframes sharp-rings{from{scale:.7;opacity:.25}to{scale:1.3;opacity:.8}}
 /* Stylish rounded-wide comic-futurist typography; not monospace/terminal. */
 
-.universe[data-font="velvet_voltage"]{font-family:"Unbounded","Trebuchet MS","Century Gothic",sans-serif;letter-spacing:-.35px}
+.universe.universe[data-font="velvet_voltage"] {
+  font-family: "Unbounded", "Trebuchet MS", "Century Gothic", sans-serif;
+  letter-spacing: -0.35px;
+}
 .universe[data-font="velvet_voltage"] :is(.hero h1,.page-title,.section-heading h2,.shop-live-hero-copy strong){font-weight:800;letter-spacing:-1.6px}
 .universe.universe[data-theme="sharp_theme"]{--bg:#1f0b2d;--sidebar:#2e103c;--card:#391747;--card2:#2d113c;--border:#a44891;--accent:#ff81d2;--accent2:#ffb76f;--glow:#f044aa;--text:#fff0fa;--muted:#edb7db;--theme-hero:repeating-linear-gradient(135deg,transparent 0 41px,#ff93b646 42px 44px,transparent 45px 100px),radial-gradient(circle at 82% 36%,#ffaf7185,transparent 38%),linear-gradient(115deg,#360e53,#853075 57%,#cb496d)}
 .universe[data-theme="sharp_theme"]:is([data-banner="none"],[data-banner="default"]) .hero{background:var(--theme-hero)!important}
