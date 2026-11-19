@@ -33,6 +33,8 @@ export class InventoryComponent {
   @Input({ required: true }) selectedDrop = 'Alle';
   @Input({ required: true }) selectedCategory = 'Alle';
   @Input({ required: true }) search = '';
+  @Input() equippedTitle = 'Weltenentdecker';
+  @Input() equippedFont = 'standard';
 
   @Output() readonly dropChanged = new EventEmitter<string>();
   @Output() readonly categoryChanged = new EventEmitter<string>();

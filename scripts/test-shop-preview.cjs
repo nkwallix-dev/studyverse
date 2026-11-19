@@ -6,7 +6,7 @@ const t=fs.readFileSync('src/app/app.ts','utf8');
 const c=fs.readFileSync('src/styles.scss','utf8');
 const registry=fs.readFileSync('src/app/trainer-registry.ts','utf8');
 const items=fs.readFileSync('src/app/shop-items.ts','utf8');
-const preview=h.slice(h.indexOf('<div class="veil shop-preview-veil"'),h.indexOf('<div class="notice"'));
+const preview=h.slice(h.indexOf('class="veil shop-preview-veil"'),h.indexOf('<div class="notice"'));
 
 // Item-Shop filters have a fixed catalog-wide set and keep the selected category
 // when switching tests, including tests that do not offer that cosmetic type.
@@ -41,15 +41,16 @@ assert(versePalette.includes('body[data-theme="sakura"]:is([data-banner="none"],
  'Kawaii should not overwrite an equipped banner');
 
 assert(preview.includes('class="universe shop-live-stage"'),'A live mini-universe must be in the popup');
-assert(preview.includes("item.group!=='avatar' && item.group!=='title'"),'Avatar/title should retain their current simple preview');
+assert(preview.includes('preview-title') && preview.includes('after ? item.id : currentAvatar'),
+ 'Title and avatar previews must compare the candidate with the equipped cosmetic');
 for(const group of ['theme','atm','frame','font','banner','fx']){
- assert(preview.includes("[attr.data-"+group+"]=\"previewValue('"+group+"',item)\""),
+ assert(preview.includes("[attr.data-"+group+"]=\"previewValue('"+group+"', item, after)\""),
   group+' is missing from the active sample');
 }
 assert(preview.includes('class="hero')||preview.includes('class="shop-live-hero hero"'),'A banner sample must be displayed');
 assert(preview.includes('class="profile-panel shop-frame-card"'),'A real previewable frame card is required');
 assert(preview.includes('class="stat shop-frame-card"'),'Second frame comparison tile is required');
-assert(preview.includes("item.group==='fx'"),'Effect visuals must be animated in the mini scene');
+assert(preview.includes('previewEffect(item, after)'),'Effect visuals must be animated in the mini scene');
 assert(preview.includes('previewParticleSlots'),'Particle rendering must be wired in the Angular template');
 assert(c.includes('@keyframes shop-fx-fall')&&c.includes('@keyframes shop-atm-fall'), 'Particle and background animation must exist');
 assert(c.includes('.shop-live-stage.universe[data-frame="dataframe"] .shop-frame-card'),'DataFrame item needs an actual table-like frame');
@@ -57,8 +58,8 @@ assert(c.includes('.universe[data-frame="dataframe"] :is('),'DataFrame frame mus
 assert(c.includes('.shop-live-stage.universe[data-frame="gold"] .shop-frame-card')&&c.includes('.shop-live-stage.universe[data-frame="legend"] .shop-frame-card'), 'Gold and legendary borders need distinct appearances');
 assert(t.includes('get previewTheme(){return this.currentTheme;}'),'Preview must NOT change main homepage design');
 assert(t.includes('previewSlot(k:string){return this.profile.equipped[k]'),'Preview must NOT equip the candidate elsewhere');
-assert(t.includes('previewValue(slot:string,item:ShopItem)'),'Preview method must choose candidate only for the popup');
-assert(t.includes("preview(item:ShopItem){this.previewed=item;}"),'Preview must not purchase an item');
+assert(t.includes('previewValue(slot: string, item: ShopItem, after = true)'),'Preview method must choose candidate only for the popup');
+assert(t.includes('this.previewed = item;'),'Preview must not purchase an item');
 assert(!preview.includes('Vorschau ohne Kauf')&&!preview.includes('Lernziel in Arbeit'),
  'Preview should not repeat the lock status or add a footer disclaimer');
 for(const category of ['theme','atm','frame','font','banner','fx']){
@@ -74,7 +75,8 @@ for(const [subject,path] of [['nawi','public/nawi/test-01/index.html'],['dsai','
  assert(registry.includes("subjectId:'"+subject+"'"),'Live subject not in trainer registry: '+subject);
  assert(fs.existsSync(path),'Registered trainer is not deployable: '+path);
 }
-assert(t.includes("return item.group===slot?(item.equip||item.id)"),'Candidate item must only alter its own sample slot');
+assert(t.includes("if (after && item.group === slot) return this.avatarEquipValue(item);"),
+ 'Candidate item must only alter its own sample slot on the After side');
 console.log('PASS: scoped live previews and locked unavailable learning worlds.');
 
 const catalog=h.slice(h.indexOf('<div class="item-grid drop-item-grid"'),h.indexOf('<app-inventory'));
@@ -88,7 +90,7 @@ assert(!catalog.includes('item-top-badge'),'No status overlays on catalog item a
 assert(!inventory.includes('inventory-equipped-badge'),'No status overlays on inventory art');
 assert(inventory.includes('class="item-inline-status equipped-status"'),'Equipped state should be a small badge beside inventory title');
 assert(!inventory.includes('✓ OWNED')&&!inventory.includes('IM INVENTAR'),'Inventory already means owned: no redundant ownership badges');
-assert(catalog.includes('<app-cosmetic-art [item]="item"/>')&&/<app-cosmetic-art\s+\[item\]="card\.item"\s*\/>/.test(inventory),
+assert(/<app-cosmetic-art\s+\[item\]="item"/.test(catalog)&&/<app-cosmetic-art\s+\[item\]="card\.item"/.test(inventory),
  'Catalog and inventory must use the same thumbnail renderer');
 const cosmeticArt=fs.readFileSync('src/app/cosmetic-art.component.ts','utf8');
 const cosmeticAssets=fs.readFileSync('src/app/cosmetic-assets.ts','utf8');

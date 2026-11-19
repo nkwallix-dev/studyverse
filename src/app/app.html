@@ -287,7 +287,11 @@
 
             <div class="item-grid drop-item-grid" [class.few-items]="filteredItems.length<=6">
               <article class="item drop-item" *ngFor="let item of filteredItems" [attr.data-category]="item.group" [class.locked]="!isUnlocked(item)" [class.reward-spotlight]="spotlightRewardId===item.id">
-                <app-cosmetic-art [item]="item"/>
+                <app-cosmetic-art
+                  [item]="item"
+                  [equippedTitle]="title"
+                  [equippedFont]="previewSlot('font')"
+                />
                 <div class="item-meta"><span class="item-kind">{{groupLabel(item.group)}}</span></div>
                 <h3 class="item-title-row"><span class="item-name">{{item.name}}<span class="item-name-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></span>
                   <span class="item-inline-status unlocked-status" *ngIf="isUnlocked(item) && item.drop!=='global'">🎁 FREIGESCHALTET</span>
@@ -314,6 +318,8 @@
             [selectedDrop]="inventoryDrop"
             [selectedCategory]="inventoryGroup"
             [search]="inventorySearch"
+            [equippedTitle]="title"
+            [equippedFont]="previewSlot('font')"
             (dropChanged)="changeInventoryDrop($event)"
             (categoryChanged)="inventoryGroup = $event"
             (searchChanged)="inventorySearch = $event"
@@ -824,57 +830,265 @@
       <small *ngIf="profile.tokens<reward.cost">Nicht genug TastyTokens? Kein Problem: später im Item-Shop kaufen.</small>
     </div>
   </div>
-  <div class="veil shop-preview-veil" *ngIf="previewed as item" role="dialog" aria-modal="true" aria-label="Live-Vorschau für ein Cosmetic">
+  <div
+    class="veil shop-preview-veil"
+    *ngIf="previewed as item"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Live-Vorschau für ein Cosmetic"
+  >
     <div class="modal shop-preview-modal" [attr.data-category]="item.group">
-      <div class="universe shop-live-stage" *ngIf="item.group!=='avatar' && item.group!=='title'"
-           [attr.data-theme]="previewValue('theme',item)" [attr.data-atm]="previewValue('atm',item)"
-           [attr.data-frame]="previewValue('frame',item)" [attr.data-font]="previewValue('font',item)"
-           [attr.data-banner]="previewValue('banner',item)" [attr.data-fx]="previewValue('fx',item)"
-           [attr.data-preview-group]="item.group" [attr.data-preview-id]="item.id">
-        <div class="shop-live-topbar topbar"><strong>✦ STUDYVERSE</strong><span>LEVEL 6 <b><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/> 1.745 TT</b></span></div>
-        <div class="shop-live-hero hero">
-          <div class="shop-live-hero-copy hero-copy"><span class="hero-badge">✦ DEINE LERNWELT</span>
-            <strong>Lernen. <em>Leveln.</em> Looten.</strong>
-            <small>So sieht dein Dashboard mit diesem Item aus.</small>
+      <div
+        class="preview-comparison"
+        [class.portrait-comparison]="item.group === 'avatar' || item.group === 'title'"
+      >
+        <div class="preview-before" [attr.aria-hidden]="previewPosition === 100">
+          <ng-container *ngTemplateOutlet="cosmeticPreview; context: { $implicit: false }" />
+        </div>
+        <div
+          class="preview-after"
+          [style.clip-path]="'inset(0 ' + (100 - previewPosition) + '% 0 0)'"
+          [attr.aria-hidden]="previewPosition === 0"
+        >
+          <ng-container *ngTemplateOutlet="cosmeticPreview; context: { $implicit: true }" />
+        </div>
+        <div
+          class="preview-divider"
+          [style.left.%]="previewPosition"
+          [hidden]="previewPosition === 0 || previewPosition === 100"
+          aria-hidden="true"
+        ></div>
+      </div>
+      <label class="preview-comparison-control">
+        <span><span>Vorher</span><span>Nachher</span></span>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          aria-label="Vorher / Nachher"
+          [attr.aria-valuetext]="
+            previewPosition === 0
+              ? 'Vorher'
+              : previewPosition === 100
+                ? 'Nachher'
+                : previewPosition + ' % Nachher'
+          "
+          [(ngModel)]="previewPosition"
+        />
+      </label>
+      <ng-template #cosmeticPreview let-after>
+        <div
+          class="universe shop-live-stage"
+          *ngIf="item.group !== 'avatar' && item.group !== 'title'"
+          [attr.data-theme]="previewValue('theme', item, after)"
+          [attr.data-atm]="previewValue('atm', item, after)"
+          [attr.data-frame]="previewValue('frame', item, after)"
+          [attr.data-font]="previewValue('font', item, after)"
+          [attr.data-banner]="previewValue('banner', item, after)"
+          [attr.data-fx]="previewValue('fx', item, after)"
+          [attr.data-preview-group]="item.group"
+          [attr.data-preview-id]="item.id"
+        >
+          <div class="shop-live-topbar topbar">
+            <strong>✦ STUDYVERSE</strong
+            ><span
+              >LEVEL {{ level }}
+              <b
+                ><app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon" />
+                {{ profile.tokens | number }} TT</b
+              ></span
+            >
           </div>
-          <span class="shop-live-hero-icon">🚀</span><div class="banner-scenery" aria-hidden="true">
-  <div class="banner-scene scene-gold"><div class="gold-rays"></div><div class="gold-trophy">🏆</div><span class="gold-spark sp1">✦</span><span class="gold-spark sp2">✧</span><span class="gold-spark sp3">✦</span></div>
-  <div class="banner-scene scene-warning"><div class="warning-chevrons"></div><div class="warning-flask">⚗️</div><div class="warning-bio">☣</div><span class="warning-ident">LAB · 001 / HAZARD</span></div>
-  <div class="banner-scene scene-galaxy"><div class="galaxy-halo"></div><div class="galaxy-orbit a"></div><div class="galaxy-orbit b"></div><div class="galaxy-core"></div><span class="galaxy-star a">✦</span><span class="galaxy-star b">✧</span><span class="galaxy-star c">✶</span></div>
-  <div class="banner-scene scene-molecule"><div class="molecule-link a"></div><div class="molecule-link b"></div><div class="molecule-link c"></div><div class="molecule-link d"></div><span class="molecule-atom a">C</span><span class="molecule-atom b">H</span><span class="molecule-atom c">O</span><span class="molecule-atom d">N</span><span class="molecule-atom e">H</span></div>
-  <div class="banner-scene scene-flow"><div class="flow-steps"><span><b>01</b><small>DATA</small></span><i>→</i><span><b>02</b><small>MODEL</small></span><i>→</i><span><b>03</b><small>INSIGHT</small></span></div></div>
-  <div class="banner-scene scene-curve"><div class="curve-grid"></div><svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid meet"><path d="M22 198 C86 193 106 146 152 135 S232 113 273 65 S331 61 383 18" fill="none" stroke="#78ffdc" stroke-width="7" stroke-linecap="round"/><path d="M22 198 C86 193 106 146 152 135 S232 113 273 65 S331 61 383 18 L383 239 L22 239Z" fill="#5fffd022"/><circle cx="152" cy="135" r="10" fill="#ffc77e"/><circle cx="273" cy="65" r="10" fill="#ffc77e"/></svg><span class="curve-label">PREDICTION ↗</span></div>
-  <div class="banner-scene scene-cloud"><span class="cloud-blob cloud-one">☁</span><span class="cloud-blob cloud-two">☁</span><span class="cloud-blob cloud-three">☁</span><span class="cloud-sun">☀</span></div>
-  <div class="banner-scene scene-solitaire">
-    <div class="sol-table"></div>
-    <span class="sol-card c1">A<b>♠</b></span><span class="sol-card c2">7<b>♥</b></span><span class="sol-card c3">K<b>♦</b></span>
-    <span class="sol-card c4">Q<b>♣</b></span><span class="sol-card c5">J<b>♥</b></span><span class="sol-star s1">✦</span><span class="sol-star s2">✧</span>
-  </div>
-  <div class="banner-scene scene-pink">
-    <div class="pink-cloud p1"></div><div class="pink-cloud p2"></div>
-    <span class="pink-heart h1">♥</span><span class="pink-heart h2">♥</span><span class="pink-heart h3">♥</span><span class="pink-heart h4">♥</span>
-    <span class="pink-spark p1">✦</span><span class="pink-spark p2">✧</span><span class="pink-spark p3">✧</span>
-  </div>
-  <div class="banner-scene scene-parallel"><div class="parallel-grid"></div><span class="parallel-signal a">●</span><span class="parallel-signal b">●</span><span class="parallel-signal c">●</span><span class="parallel-symbol">♯</span></div>
-  <div class="banner-scene scene-kenny-volcano"><span class="kenny-banner-sun"></span><span class="kenny-banner-volcano"></span><span class="kenny-banner-smoke">☁</span><span class="kenny-banner-fern">🌿</span></div>
-</div>
+          <div class="shop-live-hero hero">
+            <div class="shop-live-hero-copy hero-copy">
+              <span class="hero-badge">✦ DEINE LERNWELT</span>
+              @if (item.group === 'font') {
+                <strong
+                  class="cosmetic-text"
+                  [attr.data-font]="previewValue('font', item, after)"
+                  >{{ title }}</strong
+                >
+              } @else {
+                <strong>Lernen. <em>Leveln.</em> Looten.</strong>
+              }
+              <small>{{ profile.nickname }}</small>
+            </div>
+            <span class="shop-live-hero-icon">🚀</span>
+            <div class="banner-scenery" aria-hidden="true">
+              <div class="banner-scene scene-gold">
+                <div class="gold-rays"></div>
+                <div class="gold-trophy">🏆</div>
+                <span class="gold-spark sp1">✦</span><span class="gold-spark sp2">✧</span
+                ><span class="gold-spark sp3">✦</span>
+              </div>
+              <div class="banner-scene scene-warning">
+                <div class="warning-chevrons"></div>
+                <div class="warning-flask">⚗️</div>
+                <div class="warning-bio">☣</div>
+                <span class="warning-ident">LAB · 001 / HAZARD</span>
+              </div>
+              <div class="banner-scene scene-galaxy">
+                <div class="galaxy-halo"></div>
+                <div class="galaxy-orbit a"></div>
+                <div class="galaxy-orbit b"></div>
+                <div class="galaxy-core"></div>
+                <span class="galaxy-star a">✦</span><span class="galaxy-star b">✧</span
+                ><span class="galaxy-star c">✶</span>
+              </div>
+              <div class="banner-scene scene-molecule">
+                <div class="molecule-link a"></div>
+                <div class="molecule-link b"></div>
+                <div class="molecule-link c"></div>
+                <div class="molecule-link d"></div>
+                <span class="molecule-atom a">C</span><span class="molecule-atom b">H</span
+                ><span class="molecule-atom c">O</span><span class="molecule-atom d">N</span
+                ><span class="molecule-atom e">H</span>
+              </div>
+              <div class="banner-scene scene-flow">
+                <div class="flow-steps">
+                  <span><b>01</b><small>DATA</small></span
+                  ><i>→</i><span><b>02</b><small>MODEL</small></span
+                  ><i>→</i><span><b>03</b><small>INSIGHT</small></span>
+                </div>
+              </div>
+              <div class="banner-scene scene-curve">
+                <div class="curve-grid"></div>
+                <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid meet">
+                  <path
+                    d="M22 198 C86 193 106 146 152 135 S232 113 273 65 S331 61 383 18"
+                    fill="none"
+                    stroke="#78ffdc"
+                    stroke-width="7"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M22 198 C86 193 106 146 152 135 S232 113 273 65 S331 61 383 18 L383 239 L22 239Z"
+                    fill="#5fffd022"
+                  />
+                  <circle cx="152" cy="135" r="10" fill="#ffc77e" />
+                  <circle cx="273" cy="65" r="10" fill="#ffc77e" /></svg
+                ><span class="curve-label">PREDICTION ↗</span>
+              </div>
+              <div class="banner-scene scene-cloud">
+                <span class="cloud-blob cloud-one">☁</span
+                ><span class="cloud-blob cloud-two">☁</span
+                ><span class="cloud-blob cloud-three">☁</span><span class="cloud-sun">☀</span>
+              </div>
+              <div class="banner-scene scene-solitaire">
+                <div class="sol-table"></div>
+                <span class="sol-card c1">A<b>♠</b></span
+                ><span class="sol-card c2">7<b>♥</b></span
+                ><span class="sol-card c3">K<b>♦</b></span>
+                <span class="sol-card c4">Q<b>♣</b></span
+                ><span class="sol-card c5">J<b>♥</b></span
+                ><span class="sol-star s1">✦</span><span class="sol-star s2">✧</span>
+              </div>
+              <div class="banner-scene scene-pink">
+                <div class="pink-cloud p1"></div>
+                <div class="pink-cloud p2"></div>
+                <span class="pink-heart h1">♥</span><span class="pink-heart h2">♥</span
+                ><span class="pink-heart h3">♥</span><span class="pink-heart h4">♥</span>
+                <span class="pink-spark p1">✦</span><span class="pink-spark p2">✧</span
+                ><span class="pink-spark p3">✧</span>
+              </div>
+              <div class="banner-scene scene-parallel">
+                <div class="parallel-grid"></div>
+                <span class="parallel-signal a">●</span><span class="parallel-signal b">●</span
+                ><span class="parallel-signal c">●</span><span class="parallel-symbol">♯</span>
+              </div>
+              <div class="banner-scene scene-kenny-volcano">
+                <span class="kenny-banner-sun"></span><span class="kenny-banner-volcano"></span
+                ><span class="kenny-banner-smoke">☁</span><span class="kenny-banner-fern">🌿</span>
+              </div>
+            </div>
+          </div>
+          <div class="shop-live-cards">
+            <div class="profile-panel shop-frame-card">
+              <span>⚡</span>
+              <div><b>3.175 XP</b><small>Dein Fortschritt</small></div>
+            </div>
+            <div class="stat shop-frame-card">
+              <span>🏆</span>
+              <div><b>Achievements</b><small>Alle Welten</small></div>
+            </div>
+          </div>
+          @if (previewEffect(item, after); as effect) {
+            <div class="shop-live-fx" aria-hidden="true">
+              <span
+                *ngFor="let particle of previewParticleSlots; let i = index"
+                [style.--particle-index]="i"
+                ><app-cosmetic-icon
+                  *ngIf="effect.id === 'effect_coinrain'; else effectText"
+                  id="tasty_token"
+                  fallback="🪙"
+                  class="token-icon"
+                /><ng-template #effectText>{{ previewParticle(effect) }}</ng-template></span
+              >
+            </div>
+          }
         </div>
-        <div class="shop-live-cards">
-          <div class="profile-panel shop-frame-card"><span>⚡</span><div><b>3.175 XP</b><small>Dein Fortschritt</small></div></div>
-          <div class="stat shop-frame-card"><span>🏆</span><div><b>Achievements</b><small>Alle Welten</small></div></div>
-        </div>
-        <div class="shop-live-fx" *ngIf="item.group==='fx'" aria-hidden="true">
-          <span *ngFor="let particle of previewParticleSlots; let i=index" [style.--particle-index]="i"><app-cosmetic-icon *ngIf="item.id==='effect_coinrain';else effectText" id="tasty_token" fallback="🪙" class="token-icon"/><ng-template #effectText>{{previewParticle(item)}}</ng-template></span>
-        </div>
+        @if (item.group === 'avatar') {
+          <div class="preview-visual">
+            <span>
+              <app-cosmetic-icon
+                [id]="after ? item.id : currentAvatar"
+                [avatar]="!after"
+                [fallback]="after ? item.icon : currentAvatar"
+                [label]="after ? item.name : 'Aktueller Avatar'"
+                [decorative]="false"
+                [lazy]="false"
+                class="avatar-icon"
+              />
+            </span>
+          </div>
+        } @else if (item.group === 'title') {
+          <div class="preview-visual preview-title">
+            <span class="cosmetic-text" [attr.data-font]="previewSlot('font')">{{
+              after ? item.name : title
+            }}</span>
+          </div>
+        }
+      </ng-template>
+      <div class="eyebrow">
+        LIVE-VORSCHAU ·
+        {{
+          item.drop === 'global'
+            ? 'STUDYVERSE GLOBAL'
+            : item.drop === 'dsai-test-01'
+              ? 'Dsaiverse DROP'
+              : item.drop === 'pos-pa-01'
+                ? 'Sharpverse DROP'
+                : 'CHEMVERSE DROP'
+        }}
       </div>
-      <div class="preview-visual" *ngIf="item.group==='avatar'||item.group==='title'" [style.background]="themeStyle(item)"><span><app-cosmetic-icon [id]="item.id" [fallback]="item.icon" [label]="item.name" [decorative]="false" class="avatar-icon"/></span><i>✦</i></div>
-      <div class="eyebrow">LIVE-VORSCHAU · {{item.drop==='global'?'STUDYVERSE GLOBAL':item.drop==='dsai-test-01'?'Dsaiverse DROP':item.drop==='pos-pa-01'?'Sharpverse DROP':'CHEMVERSE DROP'}}</div>
-      <h2 class="preview-item-name">{{item.name}}<span class="preview-item-type" *ngIf="itemNameSuffix(item)"> {{itemNameSuffix(item)}}</span></h2><p>{{item.desc}}</p>
-      <div class="preview-requirement ready" *ngIf="isKennyReward(item)||itemProgressPercent(item)===100">
-        <ng-container *ngIf="isKennyReward(item);else normalPreviewRequirement">🦖 Durch Kenny, den Raptor freigeschaltet</ng-container>
-        <ng-template #normalPreviewRequirement>✓ Lernziel erfüllt · {{requirementLabel(item)}}</ng-template>
+      <h2 class="preview-item-name">
+        {{ item.name
+        }}<span class="preview-item-type" *ngIf="itemNameSuffix(item)">
+          {{ itemNameSuffix(item) }}</span
+        >
+      </h2>
+      <p>{{ item.desc }}</p>
+      <div
+        class="preview-requirement ready"
+        *ngIf="isKennyReward(item) || itemProgressPercent(item) === 100"
+      >
+        <ng-container *ngIf="isKennyReward(item); else normalPreviewRequirement"
+          >🦖 Durch Kenny, den Raptor freigeschaltet</ng-container
+        >
+        <ng-template #normalPreviewRequirement
+          >✓ Lernziel erfüllt · {{ requirementLabel(item) }}</ng-template
+        >
       </div>
-      <button class="btn primary full" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)"><app-cosmetic-icon *ngIf="!owns(item) && isUnlocked(item)" id="tasty_token" fallback="◉" class="token-icon"/> {{priceLabel(item)}}</button>
+      <button class="btn primary full" [disabled]="!isUnlocked(item)" (click)="buyOrEquip(item)">
+        <app-cosmetic-icon
+          *ngIf="!owns(item) && isUnlocked(item)"
+          id="tasty_token"
+          fallback="◉"
+          class="token-icon"
+        />
+        {{ priceLabel(item) }}
+      </button>
       <button class="btn secondary full" (click)="closePreview()">Vorschau schließen</button>
     </div>
   </div>

@@ -791,8 +791,14 @@ export class App implements OnInit,OnDestroy {
    url.searchParams.set('mode',mode);
    window.location.assign(url.href);
  }
- preview(item:ShopItem){this.previewed=item;}
- closePreview(){this.previewed=null;}
+ previewPosition = 100;
+ preview(item: ShopItem) {
+   this.previewPosition = 100;
+   this.previewed = item;
+ }
+ closePreview() {
+   this.previewed = null;
+ }
 
  get categories(){return ['Alle','Informatik','Naturwissenschaften','Wirtschaft','Gesellschaft','Andere'];}
  get claimed(){return this.ownedCatalogItems.length;}
@@ -1148,8 +1154,18 @@ export class App implements OnInit,OnDestroy {
  // Keep the equipped design on the real homepage; only the modal showcases a candidate item.
  get previewTheme(){return this.currentTheme;}
  previewSlot(k:string){return this.profile.equipped[k] || (k==='font'?'standard':'none');}
- previewValue(slot:string,item:ShopItem):string{
-   return item.group===slot?(item.equip||item.id):(slot==='theme'?'base':slot==='font'?'standard':'none');
+ previewValue(slot: string, item: ShopItem, after = true): string {
+   if (after && item.group === slot) return this.avatarEquipValue(item);
+   const defaults = defaultEquip();
+   return (
+     this.profile.equipped[slot] ||
+     defaults[slot as keyof typeof defaults] ||
+     'none'
+   );
+ }
+ previewEffect(item: ShopItem, after: boolean): ShopItem | undefined {
+   const effect = this.previewValue('fx', item, after);
+   return this.items.find((candidate) => candidate.group === 'fx' && candidate.equip === effect);
  }
  previewParticle(item:ShopItem):string{
    if(item.id==='effect_coinrain')return '🪙';
