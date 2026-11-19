@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ShopItem } from './shop-items';
 import { CosmeticBannerComponent } from './cosmetic-banner.component';
 import { CosmeticIconComponent } from './cosmetic-icon.component';
+import { FitCosmeticTextDirective } from './fit-cosmetic-text.directive';
 
 /** Catalog thumbnail: supplied art, or a miniature of the actual CSS cosmetic. */
 @Component({
   selector: 'app-cosmetic-art',
   standalone: true,
-  imports: [CommonModule, CosmeticIconComponent, CosmeticBannerComponent],
+  imports: [CommonModule, CosmeticIconComponent, CosmeticBannerComponent, FitCosmeticTextDirective],
   template: `<div
     class="item-art drop-item-art"
     [class.avatar-art]="item.group === 'avatar'"
@@ -55,6 +56,7 @@ import { CosmeticIconComponent } from './cosmetic-icon.component';
       @if (item.group === 'title' || item.group === 'font') {
         <span
           class="cosmetic-text"
+          [fitCosmeticText]="21"
           [attr.data-font]="item.group === 'font' ? item.equip || item.id : equippedFont"
           >{{ item.group === 'title' ? item.name : equippedTitle }}</span
         >
