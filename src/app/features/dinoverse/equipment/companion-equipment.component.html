@@ -53,7 +53,11 @@
       <span>🏆 ACHIEVEMENT FREIGESCHALTET!</span>
       <h2 id="companion-reward-title">{{ item.achievement }}</h2>
       <p>{{ item.quip }}</p>
-      <img class="reward-art" [src]="'kenny/hornweide/drops/' + item.id + '.png'" [alt]="item.name" />
+      <img
+        class="reward-art"
+        [src]="'kenny/hornweide/drops/' + item.id + '.png'"
+        [alt]="item.name"
+      />
       <p>
         Neue Begleiter-Ausrüstung freigeschaltet: <strong>{{ item.name }}</strong>
       </p>
