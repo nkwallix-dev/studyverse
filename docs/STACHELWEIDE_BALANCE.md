@@ -2,7 +2,7 @@
 
 One field is 50 immutable world coordinates. Physics steps at 120 Hz; canvas size,
 DPR, browser zoom and viewport only change rendering. Combat uses directional logical
-body bands, never PNG alpha. Ranges below measure empty space from body edges;
+body bands, never PNG alpha. Horizontal attacks have a narrow vertical band so a platform above a Stegosaurus remains safe. Ranges below measure empty space from body edges;
 vision and pickup distance measure centre to centre. Special ranges are capped at
 the attack's starting position, so running during a special cannot extend its range.
 Charge damage additionally requires reaching the target during the sprint (0.25-field
