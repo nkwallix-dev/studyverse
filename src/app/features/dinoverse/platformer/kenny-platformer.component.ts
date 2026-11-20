@@ -55,6 +55,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   @Input() skin = 'blue';
   @Input() startEquipment: EquipmentSlots = { offense: null, defense: null };
   @Input() amberBalance = 0;
+  @Input() claimedAmber: Record<string, true> = {};
   @Input() tutorialSeen = false;
   @Input() autoTutorial = false;
   @Output() tutorialAcknowledged = new EventEmitter<void>();
@@ -183,11 +184,25 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
       void document.exitFullscreen().catch(() => {});
   }
 
+  private todayKey(): string {
+    const now = new Date();
+    // Use a stable Austrian local calendar day, irrespective of browser locale.
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/Vienna', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).formatToParts(now);
+    const part = (type: string) => parts.find((value) => value.type === type)?.value || '';
+    return `${part('year')}-${part('month')}-${part('day')}`;
+  }
+
   start(): void {
     if (!this.available || !this.renderer || !this.assetsReady()) return;
     this.tutorialActive = false;
     this.tutorialDropPending = false;
-    this.world = new KennyWorld(this.startEquipment, { expedition: true });
+    this.world = new KennyWorld(this.startEquipment, {
+      expedition: true,
+      claimedAmber: this.claimedAmber,
+      amberDay: this.todayKey(),
+    });
     this.accumulator = 0;
     this.clearInput();
     this.publishHud();
