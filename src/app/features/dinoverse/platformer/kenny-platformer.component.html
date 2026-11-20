@@ -32,7 +32,8 @@
       <span class="health" [attr.aria-label]="hud().health + ' von 3 Herzen'">
         {{ hud().healthLabel }}/3
         <span aria-hidden="true"
-          >{{ hud().fullHearts }}<b *ngIf="hud().partialHeart">◐</b><i>{{ hud().emptyHearts }}</i></span
+          >{{ hud().fullHearts }}<b *ngIf="hud().partialHeart">◐</b
+          ><i>{{ hud().emptyHearts }}</i></span
         >
       </span>
       <span class="shield" [attr.aria-label]="hud().shield + ' Schildherzen'"
