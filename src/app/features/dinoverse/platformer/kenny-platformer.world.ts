@@ -795,7 +795,7 @@ export class KennyWorld {
           this.walkEnemy(
             enemy,
             ((enemy.attackFacing * BALANCE.charge.travel * FIELD) / BALANCE.charge.active) * dt,
-            this.hardcore,
+            true,
           );
           if (!enemy.tailHit && overlaps(this.player, enemy)) {
             this.hurt(enemy, BALANCE.charge.damage, 'charge');
@@ -879,7 +879,7 @@ export class KennyWorld {
   }
 
   private applyBleedTick(): void {
-    if (!this.bleedRemaining || this.dead) return;
+    if (this.dead) return;
     const amount = BALANCE.stegoBleed.damage;
     this.sinceDamage = 0;
     const absorbed = Math.min(this.shield, amount);
