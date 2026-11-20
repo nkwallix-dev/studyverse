@@ -175,6 +175,7 @@ function seconds(w, s, input = idle) {
   e.direction = -1;
   w.player.x = e.x - 120;
   w.player.y = 390;
+  w.equipRun('triceratops-frill'); // A three-heart tail sweep must consume shields first.
   seconds(w, 0.75);
   assert.equal(w.health, 2, 'tail range three');
   assert.ok(e.direction === 1, 'turned for tail');
@@ -220,11 +221,11 @@ console.log(
   tail.player.x = enemy.x - 110;
   tail.step(STEP, { ...idle, special: true });
   seconds(tail, 0.65);
-  assert.equal(enemy.health, 3);
+  assert.equal(enemy.health, 1);
   assert(enemy.poison > 0);
   tail.player.x = 100;
   seconds(tail, 4.1);
-  assert.equal(enemy.health, 2, 'one direct plus one total DOT');
+  assert.equal(enemy.health, 0, 'three direct plus one total DOT');
   const bounded = new KennyWorld();
   const target = bounded.enemies[1];
   bounded.player.x = target.x - target.w - 200;

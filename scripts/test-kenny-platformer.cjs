@@ -225,7 +225,7 @@ assert.equal(
   3,
   'Only one damage event per enemy per attack, not one each collision tick',
 );
-const stego = new KennyWorld();
+const stego = new KennyWorld('triceratops-frill');
 const armored = stego.enemies[2];
 stego.player.x = armored.x - 120;
 stego.step(STEP, idle);

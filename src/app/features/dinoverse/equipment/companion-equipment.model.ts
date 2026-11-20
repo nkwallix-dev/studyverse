@@ -51,7 +51,7 @@ export const COMPANION_ITEMS: readonly CompanionItem[] = [
     species: 'stegosaurus',
     name: 'Stegosaurus-Schwanzstacheln',
     description:
-      'L: Schwanzschlag mit Reichweite 3 und 1 Schaden; danach 0,25 Schaden/s für 4 Sekunden.',
+      'L: Schwanzschlag mit Reichweite 3 und 3 Schaden; danach 0,25 Schaden/s für 4 Sekunden.',
     achievement: 'Ganz schön stachelig!',
     quip: '50-mal Stacheln eingesammelt. Kenny besser nicht von hinten überraschen.',
     icon: '✧',

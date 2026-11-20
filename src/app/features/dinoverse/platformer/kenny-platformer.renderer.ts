@@ -209,7 +209,8 @@ export class KennyRenderer {
       const state = enemyAnimation(enemy, world.elapsed);
       const image = this.images.get(`${enemy.species}-${state.animation}`);
       if (!image) return;
-      const size = enemy.species === 'stegosaurus' ? 172 : 104;
+      const size = enemy.species === 'stegosaurus' ? 190 : 104;
+      const bodyWidth = enemy.species === 'stegosaurus' ? 224 : size;
       const feet = enemy.y + enemy.h;
       ctx.save();
       ctx.translate(enemy.x + enemy.w / 2, feet);
@@ -229,9 +230,9 @@ export class KennyRenderer {
         0,
         192,
         192,
-        -size / 2,
+        -bodyWidth / 2,
         (-size * 180) / 192,
-        size,
+        bodyWidth,
         size,
       );
       ctx.restore();
