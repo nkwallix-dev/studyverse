@@ -298,6 +298,13 @@ export class App implements OnInit,OnDestroy {
    this.saveCompanionProgress();
  }
  get amberBalance(): number { return amberTotal(this.companionState); }
+ get kennyTutorialSeen(): boolean { return this.profile['kennyTutorialSeen'] === true; }
+ acknowledgeKennyTutorial(): void {
+   if (this.cloud.session && !this.cloudMaySave) return;
+   if (this.kennyTutorialSeen) return;
+   this.profile['kennyTutorialSeen'] = true;
+   this.save();
+ }
  collectAmber(id: string): void {
    if (this.cloud.session && !this.cloudMaySave) return;
    this.profile['companions'] = recordAmber(this.companionState, id);
