@@ -62,6 +62,11 @@ const sandbox={module:mod,exports:mod.exports,fetch,
  localStorage:{getItem:k=>state.get(k)||null,setItem:(k,v)=>state.set(k,String(v)),removeItem:k=>state.delete(k)},
  document:{baseURI:'https://example.com/studyverse/'},URL,URLSearchParams,AbortController,Date,
  setTimeout,clearTimeout,console};
+require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename);
+sandbox.require = name => {
+ if (name !== './features/dinoverse/equipment/companion-equipment.model') throw Error('Unexpected dependency: ' + name);
+ return require('../src/app/features/dinoverse/equipment/companion-equipment.model.ts');
+};
 vm.runInNewContext(transpiled,sandbox);
 const {StudyverseCloud}=mod.exports;
 (async()=>{

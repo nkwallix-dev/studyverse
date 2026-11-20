@@ -1,0 +1,49 @@
+<section class="equipment" aria-label="Begleiter-Ausrüstung">
+  <nav aria-label="Begleiter-Sammlung">
+    <button type="button" [class.active]="tab === 'inventory'" (click)="tab = 'inventory'">
+      Begleiter-Inventar
+    </button>
+    <button type="button" [class.active]="tab === 'achievements'" (click)="tab = 'achievements'">
+      Begleiter-Achievements
+    </button>
+    <button type="button" (click)="playRequested.emit()">Spielen</button>
+  </nav>
+  <h2>{{ tab === 'inventory' ? 'Kleine Arme. Große Auswahl.' : 'Urzeitlich gut drauf.' }}</h2>
+  <p>Hornweide · 50 Pickups pro Item schalten es dauerhaft frei. Ein Start-Ausrüstungsslot.</p>
+  <div class="cards">
+    <article *ngFor="let item of items" [class.unlocked]="count(item.id) >= 50">
+      <img [src]="'kenny/hornweide/' + item.asset + '.svg'" [alt]="item.name + ' – Platzhalter'" />
+      <small>{{ count(item.id) >= 50 ? 'FREIGESCHALTET' : 'GESPERRT' }}</small>
+      <h3>{{ tab === 'inventory' ? item.name : item.achievement }}</h3>
+      <p>{{ tab === 'inventory' ? item.description : item.quip }}</p>
+      <label
+        >{{ count(item.id) }} / 50 gesammelt <progress [value]="count(item.id)" max="50"></progress
+      ></label>
+      <button
+        *ngIf="tab === 'inventory'"
+        type="button"
+        [disabled]="count(item.id) < 50"
+        (click)="equipRequested.emit(state.equipped === item.id ? null : item.id)"
+      >
+        {{ state.equipped === item.id ? 'Ablegen' : 'Ausrüsten' }}
+      </button>
+    </article>
+  </div>
+  <div class="veil" *ngIf="pending as item">
+    <section
+      class="reward"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="companion-reward-title"
+    >
+      <span>🏆 ACHIEVEMENT FREIGESCHALTET!</span>
+      <h2 id="companion-reward-title">{{ item.achievement }}</h2>
+      <p>{{ item.quip }}</p>
+      <p>
+        Neue Begleiter-Ausrüstung freigeschaltet: <strong>{{ item.name }}</strong>
+      </p>
+      <button type="button" (click)="accept(item.id)">Annehmen</button>
+      <button type="button" (click)="accept(item.id, true)">Zum Begleiter-Inventar</button>
+    </section>
+  </div>
+</section>

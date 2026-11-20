@@ -1,7 +1,9 @@
 <app-kenny-platformer
   *ngIf="view === 'platformer'"
   [skin]="kennySkin"
-  [available]="kennyPresent"
+  [startItem]="companionState.equipped"
+  (pickupCollected)="collectCompanion($event)"
+  [available]="kennyPresent && (!cloud.session || cloudMaySave)"
   (exitRequested)="closeKennyPlatformer()"
 ></app-kenny-platformer>
 <div class="universe" [attr.inert]="view==='platformer'?'':null" [class.kenny-mode]="view==='shop' && (shopTab==='kenny'||shopTab==='designer')" [class.shop-mode]="view==='shop' && (shopTab==='catalog'||shopTab==='inventory')" [class.friends-mode]="view==='friends'" [class.designer-mode]="view==='shop' && shopTab==='designer'" [class.companions-mode]="view==='companions'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
@@ -136,6 +138,7 @@
             <p class="page-subtitle">
               <ng-container *ngTemplateOutlet="companionIntro" />
             </p>
+            <app-companion-equipment (playRequested)="go('platformer')" [state]="companionState" (equipRequested)="equipCompanionItem($event)" (seenRequested)="acknowledgeCompanion($event)" />
             <div class="companions-grid">
               <article class="companion-card companion-kenny" *ngIf="kennyPresent">
                 <div class="kenny-stage companion-stage">

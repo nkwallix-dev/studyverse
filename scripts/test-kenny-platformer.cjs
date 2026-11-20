@@ -2,16 +2,8 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs'),
   ts = require('typescript');
-const Module = require('module');
-const mod = new Module(__filename);
-mod._compile(
-  ts.transpileModule(
-    fs.readFileSync('src/app/features/dinoverse/platformer/kenny-platformer.world.ts', 'utf8'),
-    { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
-  ).outputText,
-  '/tmp/world.cjs',
-);
-const { KennyWorld, STEP } = mod.exports;
+require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename);
+const { KennyWorld, STEP } = require('../src/app/features/dinoverse/platformer/kenny-platformer.world.ts');
 const w = new KennyWorld();
 const idle = { axis: 0, crouch: false, jump: false, jumpHeld: false, bite: false };
 const trace = [];
@@ -179,6 +171,7 @@ fighter.player.y = 390;
 fighter.step(STEP, { ...idle, bite: true });
 assert(armored.alive && armored.stun > 0, 'A frontal bite stuns the armored enemy');
 for (let i = 0; i < 60; i++) fighter.step(STEP, idle);
+armored.health = 1;
 fighter.player.x = armored.x + armored.w + 10;
 fighter.player.facing = -1;
 fighter.step(STEP, { ...idle, bite: true });

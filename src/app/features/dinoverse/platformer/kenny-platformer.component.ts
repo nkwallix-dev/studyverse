@@ -1,3 +1,4 @@
+import { ItemId, COMPANION_ITEMS } from '../equipment/companion-equipment.model';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -46,6 +47,9 @@ const KEYS: Record<string, Action> = {
 })
 export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
   @Input() skin = 'blue';
+  @Input() startItem: ItemId | null = null;
+  @Output() pickupCollected = new EventEmitter<{ id: string; item: ItemId }>();
+  readonly fusionNames = signal<string[]>([]);
   @Input() available = false;
   @Output() exitRequested = new EventEmitter<void>();
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
@@ -115,7 +119,10 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
 
   start(): void {
     if (!this.available || !this.renderer) return;
-    this.world = new KennyWorld();
+    this.world = new KennyWorld(this.startItem);
+    this.fusionNames.set(
+      [...this.world.fusions].map((id) => COMPANION_ITEMS.find((item) => item.id === id)!.name),
+    );
     this.accumulator = 0;
     this.clearInput();
     this.publishHud();
@@ -252,6 +259,17 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
           bite: this.biteQueued,
         };
         this.world.step(STEP, controls);
+        if (this.world.pickupEvents.length) {
+          const events = this.world.pickupEvents.splice(0);
+          this.zone.run(() => {
+            this.fusionNames.set(
+              [...this.world.fusions].map(
+                (id) => COMPANION_ITEMS.find((item) => item.id === id)!.name,
+              ),
+            );
+            for (const event of events) this.pickupCollected.emit(event);
+          });
+        }
         this.jumpQueued = false;
         this.biteQueued = false;
         this.accumulator -= STEP;
