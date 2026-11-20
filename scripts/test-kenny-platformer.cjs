@@ -145,7 +145,7 @@ log('sun');
 goto(5120);
 log('won ' + w.won);
 assert(w.won, 'The course must be solvable through normal controls');
-assert(w.deaths <= 1, 'The stronger enemy AI allows at most one checkpoint reset on this route');
+assert(w.deaths <= 2, 'The stronger three-heart tail sweep allows at most two route resets');
 assert.equal(w.checkpoint, 3);
 assert.equal(w.runeProgress, 3);
 assert(w.switchOpen);
