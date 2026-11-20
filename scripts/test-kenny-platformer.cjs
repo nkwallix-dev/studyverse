@@ -231,3 +231,12 @@ for (const aim of [-1, 1]) {
  assert.equal(enemy.health, 1, 'Aimed jump strikes reach targets ' + (aim < 0 ? 'above' : 'below'));
 }
 console.log('Kenny platformer: up/down aimed attack hitboxes reach their intended targets.');
+
+const outsideTail = new KennyWorld();
+const outsideStego = outsideTail.enemies[2];
+outsideTail.player.x = outsideStego.x + outsideStego.w + 50;
+outsideTail.step(STEP, idle);
+assert(outsideStego.attackTime > 0, 'Stegosaurus can telegraph while Kenny is nearby');
+for(let i=0;i<65;i++)outsideTail.step(STEP,idle);
+assert.equal(outsideTail.health,3,'A tail sweep must miss Kenny outside the visible tail reach');
+console.log('Stegosaurus: tail hits match sprite reach, with a safe miss outside the arc.');

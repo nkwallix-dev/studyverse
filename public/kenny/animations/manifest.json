@@ -1,4 +1,5 @@
 {
+  "version": 2,
   "cell": 192,
   "frames": 4,
   "baseline": 180,
@@ -6,67 +7,67 @@
     "blue-walk": {
       "path": "kenny/animations/blue-walk.png",
       "source": "exec-804a2b3a-5a8f-42ce-aaa2-4de6bae1ad7a.png",
-      "bytes": 106443
+      "bytes": 122570
     },
     "blue-attack": {
       "path": "kenny/animations/blue-attack.png",
       "source": "exec-804a2b3a-5a8f-42ce-aaa2-4de6bae1ad7a.png",
-      "bytes": 104455
+      "bytes": 119921
     },
     "red-walk": {
       "path": "kenny/animations/red-walk.png",
       "source": "exec-bf477616-b51b-4ddf-9418-8fcb34c316bf.png",
-      "bytes": 108894
+      "bytes": 124547
     },
     "red-attack": {
       "path": "kenny/animations/red-attack.png",
       "source": "exec-bf477616-b51b-4ddf-9418-8fcb34c316bf.png",
-      "bytes": 104390
+      "bytes": 120060
     },
     "green-walk": {
       "path": "kenny/animations/green-walk.png",
       "source": "exec-4496d9a5-bf30-4ffb-a0cd-3a5422db8ec2.png",
-      "bytes": 109562
+      "bytes": 129404
     },
     "green-attack": {
       "path": "kenny/animations/green-attack.png",
       "source": "exec-4496d9a5-bf30-4ffb-a0cd-3a5422db8ec2.png",
-      "bytes": 105452
+      "bytes": 123768
     },
     "pink-walk": {
       "path": "kenny/animations/pink-walk.png",
       "source": "exec-bcce36f7-f348-46dc-901e-fba8f08b13f6.png",
-      "bytes": 111537
+      "bytes": 129981
     },
     "pink-attack": {
       "path": "kenny/animations/pink-attack.png",
       "source": "exec-bcce36f7-f348-46dc-901e-fba8f08b13f6.png",
-      "bytes": 106829
+      "bytes": 124839
     },
     "zebra-walk": {
       "path": "kenny/animations/zebra-walk.png",
       "source": "exec-9673c43d-e13e-44f0-b63e-94b5900ddbfa.png",
-      "bytes": 116999
+      "bytes": 130333
     },
     "zebra-attack": {
       "path": "kenny/animations/zebra-attack.png",
       "source": "exec-9673c43d-e13e-44f0-b63e-94b5900ddbfa.png",
-      "bytes": 113037
+      "bytes": 126061
     },
     "triceratops-walk": {
       "path": "kenny/animations/triceratops-walk.png",
       "source": "exec-1885ac06-7ff3-45e7-9abd-8ec78e8c0f6a.png",
-      "bytes": 138374
+      "bytes": 159676
     },
     "stegosaurus-walk": {
       "path": "kenny/animations/stegosaurus-walk.png",
       "source": "exec-0340d594-583f-4780-9db6-0103dfd3945d.png",
-      "bytes": 111279
+      "bytes": 115352
     },
     "stegosaurus-attack": {
       "path": "kenny/animations/stegosaurus-attack.png",
       "source": "exec-0340d594-583f-4780-9db6-0103dfd3945d.png",
-      "bytes": 105968
+      "bytes": 108949
     }
   }
 }

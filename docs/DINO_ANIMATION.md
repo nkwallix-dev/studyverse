@@ -46,7 +46,7 @@ Triceratops uses the same black-outlined cartoon style, four legs, an orange fri
 and ivory horns, in a 2×2 four-frame walk cycle. Stegosaurus uses a green body,
 amber back plates and a four-spiked tail, with a 4×2 walk / turn-and-tail-sweep atlas.
 No scene, text, baked checkerboard or ground shadows were requested. Runtime
-packing only trims transparent padding, scales and aligns cells; it does not
+packing trims padding using visible alpha above 32/255 (ignoring faint generated edge noise), scales and aligns cells; it does not
 invent motion, paint body parts or recolour generated artwork.
 
 ## Checks

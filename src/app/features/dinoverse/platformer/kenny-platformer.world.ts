@@ -459,10 +459,14 @@ export class KennyWorld {
         const progress = 1 - enemy.attackTime / STEGO_ATTACK_DURATION;
         if (progress >= 0.5) {
           enemy.direction = -enemy.attackFacing;
+          // The 128px atlas has its tail tip ~56 units from the body centre.
+          // A small 14-unit tolerance keeps hits readable without invisible reach.
+          const centre = enemy.x + enemy.w / 2;
+          const reach = 70;
           const tail: Rect = {
-            x: enemy.attackFacing > 0 ? enemy.x + enemy.w - 10 : enemy.x - 95,
+            x: enemy.attackFacing > 0 ? centre : centre - reach,
             y: enemy.y - 5,
-            w: 105,
+            w: reach,
             h: enemy.h + 5,
           };
           if (progress < 0.85 && !enemy.tailHit && overlaps(this.player, tail)) {

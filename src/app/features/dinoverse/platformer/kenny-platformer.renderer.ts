@@ -34,7 +34,7 @@ export class KennyRenderer {
               resolve();
             };
             image.onerror = () => reject(new Error(`Sprite fehlt: ${name}`));
-            image.src = new URL(`kenny/animations/${name}.png`, document.baseURI).href;
+            image.src = new URL(`kenny/animations/${name}.png?v=2`, document.baseURI).href;
           }),
       ),
     ).then(() => undefined);
