@@ -54,7 +54,9 @@ unchanged; final fusion artwork is a separate asset task.
 | Basic enemy drops | None |
 | Medium enemy drops | One species item, 50% offense / 50% defense |
 | Elite enemy drops | Both species items |
-| Bernstein | Automatic pickup, 23 per fresh run, separate persistent total in Kennyverse header |
+| Map Bernstein | 23 fixed locations, each collectible once per account and Vienna calendar day (deduplicated cloud receipts) |
+| Enemy Bernstein | Basic 1–2, Medium 2–4, Elite exactly 6; spawned as collectible crystals after defeating a dino, new receipt per run |
+| Special stun | All successful specials stun their target for 1 second; Kenny gets 1 second of collision protection after a successful special |
 | TastyTokens / XP | No rewards or conversion from this game |
 
 Run pickups do not overwrite the saved start loadout. A fresh run reloads both saved
@@ -114,3 +116,9 @@ The world solver completes the full unchanged course through ordinary controls.
 Browser CI replays that course through DOM keyboard events, checks bite vs special,
 movement locks and sprite baselines, verifies both slots and empty inventory, and
 checks desktop/mobile HUD/controls at 320, 390, 768, 844 and 1280 pixels.
+
+## Daily crystals and special-attack stun
+
+Map crystals have receipt ids `stachelweide_YYYY-MM-DD_map_INDEX`, where the calendar date is computed for Europe/Vienna. Loaded account receipts suppress already collected locations for that day, including new runs and refreshes. Defeated enemies instead spawn 1–2 (basic), 2–4 (medium), or 6 (elite) amber crystals that are collected by proximity. Their per-run IDs avoid accidental duplicates. Both types are persisted in the same owner-scoped cloud collection. **Current Firestore rules allow the profile JSON to be edited by its owner, so these receipts are not verified anti-cheat evidence**; the server-authoritative migration is tracked by issue #62.
+
+A successful Kenny special stuns each hit enemy for one second and grants temporary contact protection. An enemy special that damages Kenny stuns him for one second. Existing damage invulnerability remains active to avoid an immediate second contact hit.
