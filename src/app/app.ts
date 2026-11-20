@@ -107,7 +107,8 @@ export class App implements OnInit,OnDestroy {
  readonly items=[...SHOP_ITEMS,...KENNY_ITEMS];
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
  shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'kenny'|'designer'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
- kennyClock=Date.now();kennyBusy=false;kennyFeeding=false;kennyVisibleFeeds:number|null=null;kennyError='';kennyCustomizeOpen=false;kennyPoolOpen=false;
+ kennyAutoTutorial = false;
+  kennyClock=Date.now();kennyBusy=false;kennyFeeding=false;kennyVisibleFeeds:number|null=null;kennyError='';kennyCustomizeOpen=false;kennyPoolOpen=false;
  kennyReveals: KennyReveal[] = [];
  private kennyTimer:ReturnType<typeof setInterval>|null=null;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
@@ -186,7 +187,8 @@ export class App implements OnInit,OnDestroy {
    this.nicknameEdit=this.profile.nickname;
    // Standalone Verses link to the shared player profile; resolve the hash
    // without changing the single-page app's existing navigation model.
-   if (window.location.hash === '#kenny-platformer') {
+   if (window.location.hash === '#kenny-platformer' || window.location.hash === '#kenny-platformer-tutorial') {
+     this.kennyAutoTutorial = window.location.hash === '#kenny-platformer-tutorial';
      this.view = 'platformer';
    }
    if(window.location.hash==='#profile'||window.location.hash==='#companions'){
