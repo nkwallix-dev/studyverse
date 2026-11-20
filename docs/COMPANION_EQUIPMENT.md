@@ -31,7 +31,7 @@ The start item is copied once into a fresh world's fusion set. Drops add tempora
 abilities to that set and never modify the saved equipment selection. Checkpoints
 preserve run fusion; starting another run clears it and reloads the start item.
 Basic / medium / elite enemies have 2 / 4 / 7 health and drop zero / one random /
-both species items. J attacks repeatedly with a cooldown. Horns deal 2 damage;
+both species items. J performs a committed jump strike with a cooldown. A/D lock during the attack; W/S aim and Space jumps. Horns deal 2 damage;
 frill blocks frontal contact; plates block rear contact; spikes also reach behind
 Kenny and apply 0.25 damage/second over four seconds (refresh, no stacking).
 
@@ -40,7 +40,7 @@ Kenny and apply 0.25 damage/second over four seconds (refresh, no stacking).
 `public/kenny/hornweide/{triceratops-horns,triceratops-frill,stegosaurus-plates,stegosaurus-spikes}.svg`
 are explicitly labelled neutral placeholders, not recoloured final art. Replace
 `asset` metadata and the card URL together when supplied PNGs arrive.
-Enemy sprites can replace the existing renderer's schematic drawings. No filters
+Enemy walk and Stegosaurus tail-strike PNGs now replace the schematic drawings. No filters
 or fake body-part overlays are added. Active fusion names are shown in the HUD;
 actual fused Kenny animation sheets remain a separate asset integration.
 

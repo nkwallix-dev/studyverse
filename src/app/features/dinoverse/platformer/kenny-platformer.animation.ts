@@ -1,0 +1,38 @@
+import {
+  ATTACK_DURATION,
+  Enemy,
+  KennyWorld,
+  STEGO_ATTACK_DURATION,
+} from './kenny-platformer.world';
+
+export type PlayerMotion = 'idle' | 'walk' | 'jump' | 'attack';
+export function playerAnimation(world: KennyWorld): { motion: PlayerMotion; frame: number } {
+  if (world.attackTime > 0) {
+    const progress = 1 - world.attackTime / ATTACK_DURATION;
+    return {
+      motion: 'attack',
+      frame: progress < 0.16 ? 0 : progress < 0.38 ? 1 : progress < 0.76 ? 2 : 3,
+    };
+  }
+  if (!world.grounded) return { motion: 'jump', frame: world.player.vy < 0 ? 1 : 3 };
+  if (Math.abs(world.player.vx) > 10)
+    return { motion: 'walk', frame: Math.floor(world.elapsed * 10) % 4 };
+  return { motion: 'idle', frame: 0 };
+}
+export function enemyAnimation(
+  enemy: Enemy,
+  elapsed: number,
+): { animation: 'walk' | 'attack'; frame: number; facing: number } {
+  if (enemy.attackTime > 0) {
+    return {
+      animation: 'attack',
+      frame: Math.min(3, Math.floor((1 - enemy.attackTime / STEGO_ATTACK_DURATION) * 4)),
+      facing: enemy.attackFacing,
+    };
+  }
+  return {
+    animation: 'walk',
+    frame: enemy.stun > 0 ? 0 : Math.floor(elapsed * 7) % 4,
+    facing: enemy.direction,
+  };
+}

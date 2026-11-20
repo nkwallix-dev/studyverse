@@ -154,7 +154,7 @@ async function initialize(context, retained = true, companions = undefined) {
     const wallet = await page.evaluate(
       () => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens,
     );
-    const codes = { left: 'KeyA', right: 'KeyD', crouch: 'KeyS', jump: 'Space', bite: 'KeyJ' };
+    const codes = { left: 'KeyA', right: 'KeyD', aimDown: 'KeyS', aimUp: 'KeyW', jump: 'Space', attack: 'KeyJ' };
     let keys = new Set();
     // The engine solver records normal controls. Replay them through real DOM keyboard events.
     for (let start = 0; start < trace.length;) {
@@ -165,9 +165,10 @@ async function initialize(context, retained = true, companions = undefined) {
       const next = new Set();
       if (input.axis < 0) next.add(codes.left);
       if (input.axis > 0) next.add(codes.right);
-      if (input.crouch) next.add(codes.crouch);
+      if (input.aim > 0) next.add(codes.aimDown);
+      if (input.aim < 0) next.add(codes.aimUp);
       if (input.jumpHeld || input.jump) next.add(codes.jump);
-      if (input.bite) next.add(codes.bite);
+      if (input.attack) next.add(codes.attack);
       for (const key of keys) if (!next.has(key)) await page.keyboard.up(key);
       for (const key of next) if (!keys.has(key)) await page.keyboard.down(key);
       await page.evaluate((count) => window.__kennyFrames(count), end - start);
@@ -226,6 +227,47 @@ async function initialize(context, retained = true, companions = undefined) {
         .innerText()
         .then((text) => text.includes('Checkpoint')),
     );
+    // W/S aim without jumping or shrinking; running and attacks select new art.
+    await page.keyboard.press('KeyR');
+    await page.evaluate(() => window.__kennyFrames(12));
+    const sprite = page.locator('.platformer-player');
+    const beforeAim = await sprite.evaluate(el => ({ height: el.style.height, top: el.style.top }));
+    for (const key of ['KeyW', 'KeyS']) {
+      await page.keyboard.down(key);
+      await page.evaluate(() => window.__kennyFrames(12));
+      await page.keyboard.up(key);
+      assert.deepEqual(await sprite.evaluate(el => ({ height: el.style.height, top: el.style.top })), beforeAim);
+      assert.equal(await sprite.getAttribute('data-motion'), 'idle');
+    }
+    await page.keyboard.down('KeyD');
+    await page.evaluate(() => window.__kennyFrames(18));
+    assert.equal(await sprite.getAttribute('data-motion'), 'walk');
+    assert((await sprite.evaluate(el => el.style.backgroundImage)).includes('green-walk.png'));
+    const walkFrame = await sprite.getAttribute('data-frame');
+    await page.evaluate(() => window.__kennyFrames(12));
+    assert.notEqual(await sprite.getAttribute('data-frame'), walkFrame, 'Walking must advance leg frames');
+    await page.screenshot({ path: path.join(screenshots, 'kenny-walking.png') });
+    await page.keyboard.up('KeyD');
+    await page.keyboard.press('KeyR');
+    await page.evaluate(() => window.__kennyFrames(12));
+    const startCenter = await sprite.evaluate(el => parseFloat(el.style.left) + parseFloat(el.style.width) / 2);
+    await page.keyboard.press('KeyJ');
+    await page.evaluate(() => window.__kennyFrames(18));
+    assert.equal(await sprite.getAttribute('data-motion'), 'attack');
+    assert((await sprite.evaluate(el => el.style.backgroundImage)).includes('green-attack.png'));
+    await page.screenshot({ path: path.join(screenshots, 'kenny-jump-attack.png') });
+    await page.keyboard.down('KeyA');
+    await page.keyboard.down('KeyW');
+    await page.evaluate(() => window.__kennyFrames(18));
+    assert.equal(await sprite.evaluate(el => el.style.transform), 'scaleX(1)', 'A/D cannot turn an active lunge');
+    await page.keyboard.up('KeyA');
+    await page.keyboard.up('KeyW');
+    await page.evaluate(() => window.__kennyFrames(30));
+    const endCenter = await sprite.evaluate(el => parseFloat(el.style.left) + parseFloat(el.style.width) / 2);
+    const scale = await page.locator('canvas').evaluate(el => el.getBoundingClientRect().height / 540);
+    assert(Math.abs((endCenter - startCenter) / scale - 150) < 1, 'The committed leap has fixed horizontal travel');
+    assert.equal(await sprite.getAttribute('data-motion'), 'idle');
+    assert((await sprite.evaluate(el => getComputedStyle(el).backgroundImage)).includes('kenny-green-idle-strip'));
     assert.deepEqual(errors, []);
     await context.close();
 

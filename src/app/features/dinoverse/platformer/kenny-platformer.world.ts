@@ -9,10 +9,10 @@ export interface Rect {
 
 export interface Controls {
   axis: number;
-  crouch: boolean;
+  aim: number;
   jump: boolean;
   jumpHeld: boolean;
-  bite: boolean;
+  attack: boolean;
 }
 
 export interface Platform extends Rect {
@@ -33,11 +33,20 @@ export interface Enemy extends Rect {
   tier: 'basic' | 'medium' | 'elite';
   health: number;
   poison: number;
+  attackTime: number;
+  attackCooldown: number;
+  attackFacing: number;
+  tailHit: boolean;
 }
 
 export const WORLD_WIDTH = 5300;
 export const WORLD_HEIGHT = 540;
 export const STEP = 1 / 120;
+export const ATTACK_DURATION = 0.5;
+export const ATTACK_WINDUP = 0.08;
+export const ATTACK_TRAVEL_TIME = 0.3;
+export const ATTACK_DISTANCE = 150;
+export const STEGO_ATTACK_DURATION = 0.8;
 export const overlaps = (a: Rect, b: Rect): boolean =>
   a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 
@@ -51,7 +60,7 @@ const ferry = (x: number, y: number, travel: number, period: number): Platform =
   period,
 });
 
-/** One compact course: ravine, crawl tunnel, bite gate, ferries, rune temple. */
+/** One compact course: ravine, full-height ruins, strike gate, ferries, rune temple. */
 export class KennyWorld {
   readonly platforms: Platform[] = [
     floor(0, 520),
@@ -60,7 +69,7 @@ export class KennyWorld {
     ledge(280, 360, 145),
     ledge(470, 240, 110),
     ledge(850, 355, 140),
-    { x: 1260, y: 305, w: 380, h: 110 },
+    { x: 1260, y: 245, w: 380, h: 110 },
     ledge(2750, 410, 100),
     ledge(3060, 365, 100),
     ledge(3370, 405, 120),
@@ -122,6 +131,7 @@ export class KennyWorld {
   readonly fusions = new Set<ItemId>();
   constructor(startItem: ItemId | null = null) {
     if (startItem) this.fusions.add(startItem);
+    this.grounded = this.platforms[0];
   }
   player = { x: 90, y: 390, w: 34, h: 60, vx: 0, vy: 0, facing: 1 };
   grounded: Platform | undefined;
@@ -133,13 +143,19 @@ export class KennyWorld {
   switchOpen = false;
   runeProgress = 0;
   won = false;
-  biteTime = 0;
+  attackTime = 0;
+  aim = 0;
+  attackAim = 0;
+  attackFacing = 1;
+  private attackLaunched = false;
+  private attackHits = new Set<Enemy>();
+  private activatedRunes = new Set<number>();
   invulnerable = 0;
   message = 'Los geht’s! Über die Schlucht: laufen, dann springen.';
   private messageTime = 0;
   private jumpBuffer = 0;
   private coyote = 0;
-  private biteCooldown = 0;
+  private attackCooldown = 0;
   private lastZone = -1;
 
   get progress(): number {
@@ -149,16 +165,16 @@ export class KennyWorld {
   get hint(): string {
     if (this.messageTime > 0) return this.message;
     const x = this.player.x;
-    if (x < 1100) return 'A / D bewegen · Leertaste springen · J beißen';
-    if (x < 1660) return 'Kriechgang: S halten. Unter der Decke kannst du nicht aufstehen.';
+    if (x < 1100) return 'A / D bewegen · Leertaste springen · W / S zielen · J Sprungangriff';
+    if (x < 1660) return 'Durch die Ruinen: W zielt nach oben, S nach unten. Space springt.';
     if (x < 1900 && !this.switchOpen)
-      return 'Stell dich vor den goldenen Schalter und beiß mit J zu.';
+      return 'Stell dich vor den goldenen Schalter und aktiviere ihn mit J.';
     if (x < 2500)
       return 'Über die Stacheln springen. Die Fahne dahinter speichert deinen Checkpoint.';
     if (x < 3700)
       return 'Die Steinplatten bewegen sich. Mitfahren, auf die nächste Insel springen.';
     if (this.runeProgress < 3) {
-      return `Tempelrätsel: MOND → FARN → SONNE. Als Nächstes: ${this.runes[this.runeProgress].label} mit J aktivieren.`;
+      return `Tempelrätsel: MOND → FARN → SONNE. Als Nächstes: ${this.runes[this.runeProgress].label} mit einem J-Angriff aktivieren.`;
     }
     return 'Das Tempeltor ist offen! Erreiche das leuchtende Portal rechts.';
   }
@@ -177,7 +193,8 @@ export class KennyWorld {
     this.grounded = undefined;
     this.jumpBuffer = 0;
     this.coyote = 0;
-    this.biteTime = 0;
+    this.attackTime = 0;
+    this.attackCooldown = 0;
     this.invulnerable = 1.5;
     this.deaths++;
     this.say('Zurück am Checkpoint. Bernstein und gelöste Schalter bleiben erhalten.');
@@ -189,32 +206,57 @@ export class KennyWorld {
     dt = Math.min(STEP, Math.max(0, dt));
     this.elapsed += dt;
     this.messageTime = Math.max(0, this.messageTime - dt);
-    this.biteTime = Math.max(0, this.biteTime - dt);
-    this.biteCooldown = Math.max(0, this.biteCooldown - dt);
+    this.attackCooldown = Math.max(0, this.attackCooldown - dt);
     this.invulnerable = Math.max(0, this.invulnerable - dt);
     this.movePlatforms();
-    this.crouch(input.crouch);
-    this.jumpBuffer = input.jump ? 0.12 : Math.max(0, this.jumpBuffer - dt);
-    this.coyote = this.grounded ? 0.1 : Math.max(0, this.coyote - dt);
     const player = this.player;
-    const speed = input.crouch ? 125 : 280;
-    const target = Math.max(-1, Math.min(1, input.axis)) * speed;
-    const acceleration = (this.grounded ? 2400 : 1600) * dt;
-    player.vx += Math.max(-acceleration, Math.min(acceleration, target - player.vx));
-    if (input.axis) player.facing = Math.sign(input.axis);
-    if (this.jumpBuffer > 0 && this.coyote > 0 && player.h === 60) {
-      player.vy = -650;
-      this.grounded = undefined;
-      this.coyote = 0;
-      this.jumpBuffer = 0;
+    this.aim = Math.max(-1, Math.min(1, input.aim));
+    if (input.attack && this.attackTime <= 0 && this.attackCooldown === 0) {
+      if (input.axis) player.facing = Math.sign(input.axis);
+      this.attackTime = ATTACK_DURATION;
+      this.attackCooldown = 0.78;
+      this.attackFacing = player.facing;
+      this.attackAim = this.aim;
+      this.attackLaunched = false;
+      this.attackHits.clear();
+      this.activatedRunes.clear();
     }
-    if (!input.jumpHeld && player.vy < -260) player.vy = -260;
+    if (this.attackTime > 0) {
+      const elapsed = ATTACK_DURATION - this.attackTime;
+      player.facing = this.attackFacing;
+      const active =
+        elapsed + 1e-9 >= ATTACK_WINDUP && elapsed < ATTACK_WINDUP + ATTACK_TRAVEL_TIME - 1e-9;
+      player.vx = active ? (this.attackFacing * ATTACK_DISTANCE) / ATTACK_TRAVEL_TIME : 0;
+      if (active && !this.attackLaunched) {
+        player.vy =
+          this.attackAim < 0 ? -520 : this.attackAim > 0 ? (this.grounded ? -200 : 250) : -340;
+        this.attackLaunched = true;
+        this.grounded = undefined;
+        this.jumpBuffer = 0;
+        this.coyote = 0;
+      }
+    } else {
+      this.jumpBuffer = input.jump ? 0.12 : Math.max(0, this.jumpBuffer - dt);
+      this.coyote = this.grounded ? 0.1 : Math.max(0, this.coyote - dt);
+      const target = Math.max(-1, Math.min(1, input.axis)) * 280;
+      const acceleration = (this.grounded ? 2400 : 1600) * dt;
+      player.vx += Math.max(-acceleration, Math.min(acceleration, target - player.vx));
+      if (input.axis) player.facing = Math.sign(input.axis);
+      if (this.jumpBuffer > 0 && this.coyote > 0) {
+        player.vy = -650;
+        this.grounded = undefined;
+        this.coyote = 0;
+        this.jumpBuffer = 0;
+      }
+      if (!input.jumpHeld && player.vy < -260) player.vy = -260;
+    }
     player.vy += 1700 * dt;
     this.movePlayer(dt);
-    if (input.bite && this.biteCooldown === 0) {
-      this.biteTime = 0.34;
-      this.biteCooldown = 0.42;
-      this.bite();
+    if (this.attackTime > 0) {
+      const elapsed = ATTACK_DURATION - this.attackTime;
+      if (elapsed + 1e-9 >= ATTACK_WINDUP && elapsed < ATTACK_WINDUP + ATTACK_TRAVEL_TIME)
+        this.strike();
+      this.attackTime = Math.max(0, this.attackTime - dt);
     }
     this.moveEnemies(dt);
     this.collect();
@@ -231,9 +273,9 @@ export class KennyWorld {
     const tier = armored ? 'elite' : x > 1000 ? 'medium' : 'basic';
     return {
       x,
-      y: 414,
-      w: 40,
-      h: 36,
+      y: 398,
+      w: 84,
+      h: 52,
       min,
       max,
       direction: -1,
@@ -244,6 +286,10 @@ export class KennyWorld {
       tier,
       health: tier === 'elite' ? 7 : tier === 'medium' ? 4 : 2,
       poison: 0,
+      attackTime: 0,
+      attackCooldown: 0,
+      attackFacing: -1,
+      tailHit: false,
     };
   }
 
@@ -268,20 +314,6 @@ export class KennyWorld {
         platform.origin +
         Math.sin((this.elapsed / platform.period!) * Math.PI * 2) * platform.travel!;
       if (this.grounded === platform) this.player.x += platform.x - platform.previousX;
-    }
-  }
-
-  private crouch(pressed: boolean): void {
-    const player = this.player;
-    if (pressed && player.h === 60) {
-      player.y += 28;
-      player.h = 32;
-    } else if (!pressed && player.h === 32) {
-      const standing = { ...player, y: player.y - 28, h: 60 };
-      if (!this.solids().some((solid) => overlaps(standing, solid))) {
-        player.y -= 28;
-        player.h = 60;
-      }
     }
   }
 
@@ -311,7 +343,7 @@ export class KennyWorld {
     }
   }
 
-  private bite(): void {
+  private strike(): void {
     const player = this.player;
     const mouth: Rect = {
       x: player.facing > 0 ? player.x + player.w - 4 : player.x - 51,
@@ -319,6 +351,15 @@ export class KennyWorld {
       w: 55,
       h: player.h - 6,
     };
+    const hitbox: Rect =
+      this.attackAim === 0
+        ? mouth
+        : {
+            x: player.x - 10,
+            y: this.attackAim < 0 ? player.y - 48 : player.y + player.h - 8,
+            w: player.w + 20,
+            h: 56,
+          };
     if (overlaps(mouth, { x: 1722, y: 396, w: 24, h: 43 }) && !this.switchOpen) {
       this.switchOpen = true;
       this.say('Knack! Das Steintor ist offen.');
@@ -326,9 +367,11 @@ export class KennyWorld {
     this.runes.forEach((rune, index) => {
       if (
         this.runeProgress === 3 ||
+        this.activatedRunes.has(index) ||
         !overlaps(mouth, { x: rune.x - 13, y: rune.y - 17, w: 26, h: 34 })
       )
         return;
+      this.activatedRunes.add(index);
       if (index === this.runeProgress) {
         this.runeProgress++;
         this.say(
@@ -349,10 +392,12 @@ export class KennyWorld {
         h: player.h - 12,
       };
       const tailHit = this.fusions.has('stegosaurus-spikes') && overlaps(tail, enemy);
-      if (!enemy.alive || (!overlaps(mouth, enemy) && !tailHit)) continue;
+      if (!enemy.alive || this.attackHits.has(enemy) || (!overlaps(hitbox, enemy) && !tailHit))
+        continue;
+      this.attackHits.add(enemy);
       if (enemy.armored && player.facing !== enemy.direction) {
         enemy.stun = 0.9;
-        this.say('Vorne gepanzert! Spring über ihn und beiß von hinten.');
+        this.say('Vorne gepanzert! Spring über ihn und greif von hinten an.');
       } else {
         enemy.health -= this.fusions.has('triceratops-horns') ? 2 : 1;
         if (this.fusions.has('stegosaurus-spikes')) enemy.poison = 4;
@@ -380,7 +425,7 @@ export class KennyWorld {
         collected: false,
       });
     });
-    this.say('Haps! Heb die Beute auf, um mit ihr zu fusionieren.');
+    this.say('Besiegt! Heb die Beute auf, um mit ihr zu fusionieren.');
   }
 
   private moveEnemies(dt: number): void {
@@ -395,30 +440,63 @@ export class KennyWorld {
         }
       }
       enemy.stun = Math.max(0, enemy.stun - dt);
-      if (!enemy.stun) enemy.x += enemy.direction * (enemy.armored ? 45 : 65) * dt;
+      enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
+      if (
+        enemy.species === 'stegosaurus' &&
+        !enemy.stun &&
+        enemy.attackTime <= 0 &&
+        enemy.attackCooldown === 0 &&
+        Math.abs(this.player.x - enemy.x) < 155 &&
+        Math.abs(this.player.y + this.player.h - (enemy.y + enemy.h)) < 65
+      ) {
+        enemy.attackTime = STEGO_ATTACK_DURATION;
+        enemy.attackCooldown = 1.9;
+        enemy.attackFacing = this.player.x < enemy.x ? -1 : 1;
+        enemy.direction = enemy.attackFacing;
+        enemy.tailHit = false;
+      }
+      if (enemy.attackTime > 0) {
+        const progress = 1 - enemy.attackTime / STEGO_ATTACK_DURATION;
+        if (progress >= 0.5) {
+          enemy.direction = -enemy.attackFacing;
+          const tail: Rect = {
+            x: enemy.attackFacing > 0 ? enemy.x + enemy.w - 10 : enemy.x - 95,
+            y: enemy.y - 5,
+            w: 105,
+            h: enemy.h + 5,
+          };
+          if (progress < 0.85 && !enemy.tailHit && overlaps(this.player, tail)) {
+            enemy.tailHit = true;
+            this.hurt(enemy);
+          }
+        }
+        enemy.attackTime = Math.max(0, enemy.attackTime - dt);
+      } else if (!enemy.stun) enemy.x += enemy.direction * (enemy.armored ? 45 : 65) * dt;
       if (enemy.x < enemy.min || enemy.x > enemy.max) {
         enemy.x = Math.max(enemy.min, Math.min(enemy.max, enemy.x));
         enemy.direction *= -1;
       }
-      if (!overlaps(this.player, enemy) || this.invulnerable > 0 || enemy.stun > 0) continue;
-      const inFront = (enemy.x - this.player.x) * this.player.facing >= 0;
-      if (
-        (inFront && this.fusions.has('triceratops-frill')) ||
-        (!inFront && this.fusions.has('stegosaurus-plates'))
-      ) {
-        enemy.stun = 0.7;
-        continue;
-      }
-      this.health--;
-      this.invulnerable = 1.3;
-      this.player.vx = this.player.x < enemy.x ? -270 : 270;
-      this.player.vy = -290;
-      if (this.health <= 0) {
-        this.respawn();
-        return;
-      }
-      this.say('Autsch! Mit J fressen oder drüberspringen.');
+      if (enemy.species !== 'stegosaurus' && overlaps(this.player, enemy) && enemy.stun === 0)
+        this.hurt(enemy);
     }
+  }
+
+  private hurt(enemy: Enemy): void {
+    if (this.invulnerable > 0) return;
+    const inFront = (enemy.x - this.player.x) * this.player.facing >= 0;
+    if (
+      (inFront && this.fusions.has('triceratops-frill')) ||
+      (!inFront && this.fusions.has('stegosaurus-plates'))
+    ) {
+      enemy.stun = 0.7;
+      return;
+    }
+    this.health--;
+    this.invulnerable = 1.3;
+    this.player.vx = this.player.x < enemy.x ? -270 : 270;
+    this.player.vy = -290;
+    if (this.health <= 0) this.respawn();
+    else this.say('Autsch! Space weicht aus, J startet deinen Sprungangriff.');
   }
 
   private collect(): void {

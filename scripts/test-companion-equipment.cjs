@@ -31,11 +31,12 @@ for(const species of ['triceratops','stegosaurus']) {
 }
 const w=new KennyWorld(item);
 assert(w.fusions.has(item));
-const idle={axis:0,crouch:false,jump:false,jumpHeld:false,bite:false};
+const idle={axis:0,aim:0,jump:false,jumpHeld:false,attack:false};
 const enemy=w.enemies[1];
 enemy.health=1;
-w.player.x=enemy.x-45;
-w.step(STEP,{...idle,bite:true});
+w.player.x=enemy.x-55;
+w.step(STEP,{...idle,attack:true});
+for(let i=0;i<60 && enemy.alive;i++)w.step(STEP,idle);
 assert.equal(w.loot.length,1);
 assert.equal(w.pickupEvents.length,0,'Defeating an enemy is not a pickup');
 w.player.x=w.loot[0].x;
