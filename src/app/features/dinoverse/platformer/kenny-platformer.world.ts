@@ -919,7 +919,7 @@ export class KennyWorld {
     );
     if (blocked) return false;
     if (!allowFall) {
-      const footX = movement > 0 ? next.x + next.w - 5 : next.x + 5;
+      const footX = movement > 0 ? next.x + next.w : next.x;
       const supported = this.platforms.some(
         (platform) =>
           Math.abs(platform.y - (enemy.y + enemy.h)) < 4 &&
