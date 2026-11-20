@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DinoDesignerComponent } from './features/dinoverse/dino-designer/dino-designer.component';
+import { KennyPlatformerComponent } from './features/dinoverse/platformer/kenny-platformer.component';
 import { InventoryComponent } from './features/inventory/inventory.component';
 import type { InventoryCard, InventoryOption } from './features/inventory/inventory.component';
 import { KennyRewardOverviewComponent } from './features/dinoverse/rewards/kenny-reward-overview.component';
@@ -18,7 +19,15 @@ import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_IT
   freshDinoState, normalizeDinoState, dinoLevel, nextDinoLevel, isKennyActive, cashbackDue, kennyCountdown,
   eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason, hasKennyCompanion, kennyStaysAfterSeason, kennyAvatarForSkin, kennyAvatarSkin, kennyPortrait } from './dino-season';
 
-type View = 'dashboard' | 'subjects' | 'shop' | 'profile' | 'achievements' | 'friends' | 'companions';
+type View =
+  | 'dashboard'
+  | 'subjects'
+  | 'shop'
+  | 'profile'
+  | 'achievements'
+  | 'friends'
+  | 'companions'
+  | 'platformer';
 type KennyReveal =
   | { kind: 'drop'; drop: DinoDrop; line: string }
   | { kind: 'level'; level: number; item?: ShopItem }
@@ -72,6 +81,7 @@ export const SUBJECTS:Subject[]=[
   selector: 'app-root',
   standalone: true,
   imports: [
+    KennyPlatformerComponent,
     CommonModule,
     FormsModule,
     CosmeticIconComponent,
@@ -128,6 +138,9 @@ export class App implements OnInit,OnDestroy {
    this.nicknameEdit=this.profile.nickname;
    // Standalone Verses link to the shared player profile; resolve the hash
    // without changing the single-page app's existing navigation model.
+   if (window.location.hash === '#kenny-platformer') {
+     this.view = 'platformer';
+   }
    if(window.location.hash==='#profile'||window.location.hash==='#companions'){
      this.view=window.location.hash==='#profile'?'profile':'companions';
      window.history.replaceState(null,'',window.location.pathname+window.location.search);
@@ -858,6 +871,10 @@ export class App implements OnInit,OnDestroy {
  }
  openInventory(){this.go('shop');this.setShopTab('inventory');}
  openCompanions(){this.go('companions');}
+ closeKennyPlatformer(): void {
+   this.openCompanions();
+   history.replaceState(null, '', window.location.pathname + window.location.search);
+ }
  openDinoVerse(){
    this.kennyClock=Date.now();
    if(!this.kennyPresent){this.openCompanions();return;}
