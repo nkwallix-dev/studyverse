@@ -316,6 +316,7 @@ async function initialize(context, retained = true, companions = undefined) {
     });
     const inventory = await collection.newPage();
     await inventory.goto(base + '#companions');
+    await inventory.getByRole('button', { name: 'Inventar & Erfolge', exact: true }).click();
     await inventory.getByRole('heading', { name: 'Mit dem Kopf durch die Wand' }).waitFor();
     await inventory.getByRole('button', { name: 'Annehmen', exact: true }).click();
     const cards = inventory.locator('app-companion-equipment article');

@@ -29,6 +29,7 @@ type View =
   | 'achievements'
   | 'friends'
   | 'companions'
+  | 'companion-equipment'
   | 'platformer';
 type KennyReveal =
   | { kind: 'drop'; drop: DinoDrop; line: string }
