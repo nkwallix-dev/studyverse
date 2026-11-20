@@ -151,6 +151,26 @@ async function initialize(context, retained = true, companions = undefined) {
     );
     const spriteUrl = /url\("?([^"\)]+)/.exec(image)[1];
     assert((await page.request.get(spriteUrl)).ok(), 'The sprite image must load');
+    const baselines = await page.evaluate(async () => {
+      const names = ['blue-walk', 'red-walk', 'pink-walk', 'green-walk', 'zebra-walk', 'triceratops-walk', 'stegosaurus-walk'];
+      const result = [];
+      for (const name of names) {
+        const image = new Image();
+        await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; image.src = new URL(`kenny/animations/${name}.png?v=2`, document.baseURI).href; });
+        const canvas = document.createElement('canvas'); canvas.width = 768; canvas.height = 192;
+        const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
+        const data = ctx.getImageData(0, 0, 768, 192).data;
+        for (let frame = 0; frame < 4; frame++) {
+          let bottom = 0;
+          for (let y = 0; y < 192; y++) for (let x = frame * 192; x < (frame + 1) * 192; x++) {
+            if (data[(y * 768 + x) * 4 + 3] > 32) bottom = y + 1;
+          }
+          result.push({ name, frame, bottom });
+        }
+      }
+      return result;
+    });
+    assert(baselines.every(frame => frame.bottom >= 178 && frame.bottom <= 181), 'Visible feet must sit at the common baseline: ' + JSON.stringify(baselines));
     const wallet = await page.evaluate(
       () => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens,
     );

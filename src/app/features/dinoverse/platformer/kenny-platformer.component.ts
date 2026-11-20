@@ -325,7 +325,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
         ? this.skin
         : 'blue';
       const animation = state.motion === 'walk' ? 'walk' : 'attack';
-      element.style.backgroundImage = `url("kenny/animations/${skin}-${animation}.png")`;
+      element.style.backgroundImage = `url("kenny/animations/${skin}-${animation}.png?v=2")`;
       element.style.backgroundPosition = `${(state.frame * 100) / 3}% 0`;
       element.style.animation = 'none';
     }
