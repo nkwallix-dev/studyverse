@@ -1,6 +1,6 @@
-<section class="equipment" aria-label="Begleiter-Ausrüstung">
+<section class="equipment" [class.embedded]="!showNavigation" aria-label="Begleiter-Ausrüstung">
   <ng-container *ngIf="!popupOnly">
-    <nav aria-label="Begleiter-Sammlung">
+    <nav *ngIf="showNavigation" aria-label="Begleiter-Sammlung">
       <button type="button" [class.active]="tab === 'inventory'" (click)="tab = 'inventory'">
         Begleiter-Inventar
       </button>

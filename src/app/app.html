@@ -1,3 +1,15 @@
+<ng-container *ngIf="kennyPanel; else fullStudyverse">
+  <main class="kenny-collection-panel">
+    <h1>{{ kennyPanel === 'inventory' ? 'Begleiter-Inventar' : 'Begleiter-Achievements' }}</h1>
+    <p *ngIf="!cloudReady" role="status">Deine Sammlung wird geladen …</p>
+    <p *ngIf="cloudMessage" role="alert">{{ cloudMessage }}</p>
+    <app-companion-equipment *ngIf="cloudReady" [showNavigation]="false" [tab]="kennyPanel" [state]="companionState"
+      (equipRequested)="equipCompanionItem($event)" (seenRequested)="acknowledgeCompanion($event)"
+      (inventoryRequested)="openKennyCollectionTab('inventory')" />
+    <p *ngIf="cloud.session" role="status">{{ cloudStatus }}</p>
+  </main>
+</ng-container>
+<ng-template #fullStudyverse>
 <app-kenny-platformer
   *ngIf="view === 'platformer'"
   [skin]="kennySkin"
@@ -1148,3 +1160,5 @@
   </div>
   <div class="notice" *ngIf="info"><span>{{info}}</span><button (click)="info=''">✕</button></div>
 </div>
+
+</ng-template>

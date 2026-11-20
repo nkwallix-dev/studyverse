@@ -34,7 +34,36 @@ function shuffledOptions(q){
  return order.map(i=>({label:q.choices[i],correct:i===q.answer}));
 }
 let mode=(new URLSearchParams(location.search).get("mode")==="boss"?"boss":"quiz");
-let session=null,screen="overview";
+const requestedScreen=new URLSearchParams(location.search).get("mode");
+let session=null,screen=["inventory","achievements"].includes(requestedScreen)?requestedScreen:"overview";
+let collectionFrame=null;
+function showCollection(tab){
+ if(tab!=="inventory"&&tab!=="achievements")return;
+ screen=tab;
+ history.replaceState(null,"","?mode="+tab);
+ render();
+}
+function collectionScreen(){
+ const host=document.getElementById("kennyCollection");
+ if(!host)return;
+ if(!collectionFrame){
+  collectionFrame=document.createElement("iframe");
+  collectionFrame.src="../?kenny-panel="+screen;
+  collectionFrame.addEventListener("load",()=>syncCollectionTab());
+  host.append(collectionFrame);
+ }
+ syncCollectionTab();
+}
+function syncCollectionTab(){
+ if(!collectionFrame||!["inventory","achievements"].includes(screen))return;
+ collectionFrame.title=screen==="inventory"?"Begleiter-Inventar":"Begleiter-Achievements";
+ collectionFrame.contentWindow?.postMessage({type:"studyverse-kenny-tab",tab:screen},location.origin);
+}
+window.addEventListener("message",event=>{
+ if(event.origin!==location.origin||event.source!==collectionFrame?.contentWindow||event.data?.type!=="studyverse-kenny-navigate")return;
+ if(event.data.tab==="platformer")location.assign("../#kenny-platformer");
+ else showCollection(event.data.tab);
+});
 const sessions={quiz:null,boss:null};
 function toast(x){const e=document.getElementById("toast");e.textContent=x;e.classList.add("visible");clearTimeout(toast.timeout);toast.timeout=setTimeout(()=>e.classList.remove("visible"),2700)}
 function addTT(amount,label){
@@ -111,12 +140,17 @@ function resultScreen(){
  stats()+'</div>';
 }
 function render(){
- const nav=screen==="overview"?"overview":mode;
+ const collection=screen==="inventory"||screen==="achievements";
+ const nav=collection?screen:screen==="overview"?"overview":mode;
+ ROOT.hidden=collection;
+ const collectionHost=document.getElementById("kennyCollection");
+ if(collectionHost)collectionHost.hidden=!collection;
  document.querySelectorAll('[data-kenny-nav]').forEach(button=>{
   const active=button.dataset.kennyNav===nav;
   button.classList.toggle("active",active);
   button.setAttribute("aria-pressed",String(active));
  });
+ if(collection){collectionScreen();return;}
  const actual=screen==="overview"?"home":session&&session.pos<session.questions.length?"play":"result";
  ROOT.dataset.screen=actual;
  ROOT.innerHTML=actual==="home"?startScreen():actual==="play"?questionScreen():resultScreen();
@@ -156,8 +190,9 @@ ROOT.addEventListener("click",e=>{
 });
 document.querySelectorAll('[data-kenny-nav]').forEach(button=>button.addEventListener("click",()=>{
  if(button.dataset.kennyNav==="overview")goHome();
+ else if(["inventory","achievements"].includes(button.dataset.kennyNav))showCollection(button.dataset.kennyNav);
  else begin(button.dataset.kennyNav);
 }));
 document.getElementById("topHome").addEventListener("click",goHome);
-screen="overview";render();
+render();
 })();
