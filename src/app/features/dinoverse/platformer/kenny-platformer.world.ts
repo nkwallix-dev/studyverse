@@ -733,6 +733,7 @@ export class KennyWorld {
     this.invulnerable = BALANCE.enemy.invulnerability;
     if (special) {
       this.playerStun = BALANCE.specialStun;
+      this.say('Kenny ist für 1 Sekunde betäubt!');
       this.attackTime = 0;
       this.player.vx = 0;
     }
