@@ -188,9 +188,14 @@
             <ng-container *ngSwitchCase="'lost'">
               <div class="dialog-emblem" aria-hidden="true">💀</div>
               <h2 id="game-dialog-title">Kenny hat's erwischt.</h2>
-              <p>Dein Run ist vorbei. Checkpoints sind Orientierungspunkte, keine Respawns. Der nächste Versuch startet mit einer neuen Gegnerverteilung.</p>
+              <p>
+                Dein Run ist vorbei. Checkpoints sind Orientierungspunkte, keine Respawns. Der
+                nächste Versuch startet mit einer neuen Gegnerverteilung.
+              </p>
               <p>Bereits gesammelte Achievements und Ausrüstung bleiben erhalten.</p>
-              <button #dialogAction type="button" class="primary" (click)="start()">Neuer Versuch</button>
+              <button #dialogAction type="button" class="primary" (click)="start()">
+                Neuer Versuch
+              </button>
               <button type="button" (click)="close()">Kennyverse verlassen</button>
             </ng-container>
             <ng-container *ngSwitchCase="'won'">
