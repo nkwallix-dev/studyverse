@@ -25,19 +25,21 @@ export class KennyRenderer {
         `${skin}-attack`,
       ]),
     ];
+    const sources = [
+      ...names.map((name) => ({ name, path: `kenny/animations/${name}.png?v=2` })),
+      ...[
+        'triceratops-horns', 'triceratops-frill',
+        'stegosaurus-plates', 'stegosaurus-spikes',
+      ].map((name) => ({ name: `drop-${name}`, path: `kenny/hornweide/drops/${name}.png` })),
+      { name: 'amber-icon', path: 'kenny/hornweide/ui/bernstein.png' },
+    ];
     this.ready = Promise.all(
-      names.map(
-        (name) =>
-          new Promise<void>((resolve, reject) => {
-            const image = new Image();
-            image.onload = () => {
-              this.images.set(name, image);
-              resolve();
-            };
-            image.onerror = () => reject(new Error(`Sprite fehlt: ${name}`));
-            image.src = new URL(`kenny/animations/${name}.png?v=2`, document.baseURI).href;
-          }),
-      ),
+      sources.map(({ name, path }) => new Promise<void>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => { this.images.set(name, image); resolve(); };
+        image.onerror = () => reject(new Error(`Spielgrafik fehlt: ${path}`));
+        image.src = new URL(path, document.baseURI).href;
+      })),
     ).then(() => undefined);
   }
 
@@ -172,16 +174,8 @@ export class KennyRenderer {
     world.amber.forEach((amber) => {
       if (amber.collected) return;
       const y = amber.y + Math.sin(world.elapsed * 3 + amber.x) * 3;
-      this.polygon(
-        [
-          [amber.x, y - 10],
-          [amber.x + 7, y],
-          [amber.x, y + 10],
-          [amber.x - 7, y],
-        ],
-        '#f5cc7c',
-      );
-      this.circle(amber.x - 1, y - 3, 2, '#fff0bb');
+      const icon = this.images.get('amber-icon');
+      if (icon) ctx.drawImage(icon, amber.x - 10, y - 12, 20, 23);
     });
     // Enemy amber is a separate physical pickup pool; unlike fixed map amber,
     // its receipt is unique per enemy and expedition.
@@ -189,27 +183,13 @@ export class KennyRenderer {
       if (drop.collected) return;
       const x = drop.x + drop.w / 2;
       const y = drop.y + drop.h / 2;
-      this.polygon(
-        [
-          [x, y - 8],
-          [x + 6, y],
-          [x, y + 8],
-          [x - 6, y],
-        ],
-        '#f6ba59',
-      );
-      this.circle(x - 1, y - 2, 2, '#fff1b1');
+      const icon = this.images.get('amber-icon');
+      if (icon) ctx.drawImage(icon, x - 8, y - 10, 16, 20);
     });
     world.loot.forEach((drop) => {
       if (drop.collected) return;
-      this.box(drop.x, drop.y, drop.w, drop.h, '#d79aee', 5);
-      this.label(
-        drop.item.includes('horns') ? '▲' : drop.item.includes('spikes') ? '✦' : '⬟',
-        drop.x + 11,
-        drop.y + 17,
-        '#241329',
-        16,
-      );
+      const icon = this.images.get(`drop-${drop.item}`);
+      if (icon) ctx.drawImage(icon, drop.x - 6, drop.y - 10, 34, 34);
       if (world.nearbyDrop === drop) this.label('E', drop.x + 11, drop.y - 10, '#ffe0a5', 17);
     });
     world.enemies.forEach((enemy) => {
