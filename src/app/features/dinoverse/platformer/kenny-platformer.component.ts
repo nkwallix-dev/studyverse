@@ -12,7 +12,9 @@ import {
   Input,
   NgZone,
   OnDestroy,
+  OnChanges,
   Output,
+  SimpleChanges,
   ViewChild,
   inject,
   signal,
@@ -49,11 +51,12 @@ const KEYS: Record<string, Action> = {
   styleUrl: './kenny-platformer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
+export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() skin = 'blue';
   @Input() startEquipment: EquipmentSlots = { offense: null, defense: null };
   @Input() amberBalance = 0;
   @Input() tutorialSeen = false;
+  @Input() autoTutorial = false;
   @Output() tutorialAcknowledged = new EventEmitter<void>();
   @Output() amberCollected = new EventEmitter<string>();
   @Output() pickupCollected = new EventEmitter<{ id: string; item: ItemId }>();
@@ -129,7 +132,11 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
       this.renderer = new KennyRenderer(this.canvas.nativeElement);
       void this.renderer.ready
         .then(() => {
-          if (!this.destroyed) this.zone.run(() => this.assetsReady.set(true));
+          if (!this.destroyed)
+            this.zone.run(() => {
+              this.assetsReady.set(true);
+              this.tryAutoTutorial();
+            });
         })
         .catch(() => {
           if (!this.destroyed) this.zone.run(() => this.status.set('error'));
@@ -149,6 +156,22 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
       this.status.set('error');
     }
     this.focusDialog();
+  }
+
+  ngOnChanges(_changes: SimpleChanges): void {
+    this.tryAutoTutorial();
+  }
+
+  private tryAutoTutorial(): void {
+    if (
+      this.autoTutorial &&
+      this.available &&
+      this.assetsReady() &&
+      this.expedition &&
+      !this.tutorialPromptHandled &&
+      this.status() === 'ready'
+    )
+      this.startTutorial();
   }
 
   ngOnDestroy(): void {
