@@ -766,10 +766,16 @@ p {
   background: #64457be8;
 }
 @media (max-width: 760px) {
-  .bleed-status, .stun-status {
+  .bleed-status,
+  .stun-status {
     top: 26px;
     font-size: 9px;
   }
-  .stun-status { left: 113px; }
-  .wallet img { width: 21px; height: 21px; }
+  .stun-status {
+    left: 113px;
+  }
+  .wallet img {
+    width: 21px;
+    height: 21px;
+  }
 }
