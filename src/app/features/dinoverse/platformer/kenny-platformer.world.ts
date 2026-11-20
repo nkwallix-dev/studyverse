@@ -368,7 +368,7 @@ export class KennyWorld {
       0,
       this.amber.length,
       ...[
-        [320, 325],
+        [360, 325],
         [450, 235],
         [580, 145],
         [850, 325],
@@ -592,7 +592,7 @@ export class KennyWorld {
     if (input.drop && this.grounded?.oneWay && this.attackTime === 0) {
       this.dropIgnore = this.grounded;
       this.dropIgnoreTime = 0.34;
-      player.y = this.grounded.y + 5;
+      player.y = this.grounded.y - player.h + 5;
       player.vy = Math.max(120, player.vy);
       this.grounded = undefined;
       this.coyote = 0;
