@@ -891,12 +891,14 @@ export class KennyWorld {
     const next = { ...enemy, x: enemy.x + movement };
     if (next.x < 0 || next.x + next.w > this.width) return false;
     // A charge may overshoot its patrol zone; allow movement BACK into the zone.
-    if (!allowFall && (
-      (enemy.x >= enemy.min && next.x < enemy.min) ||
-      (enemy.x <= enemy.max && next.x > enemy.max) ||
-      (enemy.x < enemy.min && next.x < enemy.x) ||
-      (enemy.x > enemy.max && next.x > enemy.x)
-    )) return false;
+    if (
+      !allowFall &&
+      ((enemy.x >= enemy.min && next.x < enemy.min) ||
+        (enemy.x <= enemy.max && next.x > enemy.max) ||
+        (enemy.x < enemy.min && next.x < enemy.x) ||
+        (enemy.x > enemy.max && next.x > enemy.x))
+    )
+      return false;
     // Keep a small natural gap between dinosaurs of the same ground lane.
     if (
       this.hardcore &&
