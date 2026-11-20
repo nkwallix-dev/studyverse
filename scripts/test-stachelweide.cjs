@@ -151,7 +151,6 @@ function seconds(w, s, input = idle) {
   assert.equal(e.returning, true);
   w.player.x = 4000;
   seconds(w, 5);
-  console.log('PATROL DIAGNOSTIC', { x: e.x, min: e.min, max: e.max, origin: e.originX, returning: e.returning, direction: e.direction });
   assert.ok(e.x >= e.min && e.x <= e.max, 'returned to patrol');
 }
 // Triceratops visibly prepares for 2 sec, then runs 4 fields; body vs charge damage.
@@ -187,7 +186,8 @@ function seconds(w, s, input = idle) {
   w.player.y = 390;
   w.equipRun('triceratops-frill'); // A three-heart tail sweep must consume shields first.
   seconds(w, 0.75);
-  assert.equal(w.health, 2, 'tail range three');
+  assert.equal(w.health, 3, 'stego tail damages the shield for one heart');
+  assert.equal(w.shield, 1);
   assert.ok(e.direction === 1, 'turned for tail');
   // Poison ticks exactly four times without affecting other actors.
   e.health = 7;
@@ -380,4 +380,15 @@ assert(stunnedEnemy.stun < stunExpiry);
 const enemySpecial = new KennyWorld();
 enemySpecial.hurt(enemySpecial.enemies[0], 2, true);
 assert.equal(enemySpecial.playerStun, BALANCE.specialStun);
+const charged = new KennyWorld();
+charged.hurt(charged.enemies[0], 2, 'charge');
+assert.equal(charged.playerStun, BALANCE.triceratopsStun, 'Trike charge stun lasts 3 seconds');
+const bleeding = new KennyWorld();
+bleeding.hurt(bleeding.enemies[2], 1, 'tail');
+bleeding.bleedRemaining = BALANCE.stegoBleed.duration;
+bleeding.bleedTick = BALANCE.stegoBleed.tick;
+bleeding.enemies.length = 0;
+assert.equal(bleeding.health, 2);
+seconds(bleeding, 4.01);
+assert.equal(bleeding.health, 1, 'bleed does four 0.25-heart ticks');
 console.log('Amber/Stun PASS: daily map receipts, tier ranges, physical drops, 1s special stun.');
