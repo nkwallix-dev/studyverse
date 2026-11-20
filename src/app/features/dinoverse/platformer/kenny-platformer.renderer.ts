@@ -1,6 +1,6 @@
 import { BALANCE, specialDuration } from './kenny-platformer.balance';
 import { enemyAnimation } from './kenny-platformer.animation';
-import { KennyWorld, WORLD_HEIGHT, WORLD_WIDTH } from './kenny-platformer.world';
+import { KennyWorld, WORLD_HEIGHT } from './kenny-platformer.world';
 
 /** Canvas handles the scenery; Kenny remains a real, skin-aware animated sprite. */
 export class KennyRenderer {
@@ -54,127 +54,83 @@ export class KennyRenderer {
   draw(world: KennyWorld): void {
     const ctx = this.ctx;
     const viewport = this.width / this.scale;
-    this.camera = Math.max(0, Math.min(WORLD_WIDTH - viewport, world.player.x - viewport * 0.35));
+    this.camera = Math.max(0, Math.min(world.width - viewport, world.player.x - viewport * 0.35));
     ctx.setTransform(this.canvas.width / this.width, 0, 0, this.canvas.height / this.height, 0, 0);
     ctx.scale(this.scale, this.scale);
+    // Pangaea at noon: warm sky, faraway valleys, prehistoric tree silhouettes.
     const sky = ctx.createLinearGradient(0, 0, 0, WORLD_HEIGHT);
-    sky.addColorStop(0, '#10192b');
-    sky.addColorStop(0.65, '#27364a');
-    sky.addColorStop(1, '#243a39');
+    sky.addColorStop(0, '#96d7e4');
+    sky.addColorStop(0.55, '#dbedbb');
+    sky.addColorStop(1, '#f5e6b0');
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, viewport, WORLD_HEIGHT);
-    for (let i = 0; i < 45; i++) {
-      const x =
-        (((i * 137.7 - this.camera * 0.08) % (viewport + 60)) + viewport + 60) % (viewport + 60);
-      ctx.globalAlpha = 0.25 + (Math.sin(i * 4.2) + 1) * 0.2;
-      this.circle(x, 20 + ((i * 53) % 245), i % 4 === 0 ? 2 : 1, '#c2d8db');
+    this.circle(viewport * 0.79 - this.camera * 0.025, 91, 45, '#fff4c5');
+    this.circle(viewport * 0.79 - this.camera * 0.025, 91, 56, '#fff4c54a');
+    // High, slow-moving clouds cannot be mistaken for stars.
+    for (let i = -1; i < viewport / 430 + 2; i++) {
+      const x = i * 430 - ((this.camera * 0.07) % 430) + 88;
+      const y = 85 + ((i + 7) % 3) * 29;
+      this.circle(x - 25, y + 7, 19, '#fff9e9aa');
+      this.circle(x, y, 27, '#fff9e9aa');
+      this.circle(x + 29, y + 9, 20, '#fff9e9aa');
     }
-    ctx.globalAlpha = 1;
-    this.circle(viewport * 0.76 - this.camera * 0.035, 115, 66, '#efc495');
-    for (let i = -1; i < viewport / 300 + 2; i++) {
-      const x = i * 300 - ((this.camera * 0.22) % 300);
+    for (let i = -2; i < viewport / 250 + 3; i++) {
+      const x = i * 250 - ((this.camera * 0.17) % 250);
       this.polygon(
-        [
-          [x - 80, 450],
-          [x + 145, 176 + (i % 2) * 45],
-          [x + 360, 450],
-        ],
-        '#1a2939',
+        [[x - 150, 440], [x + 105, 190 + ((i + 4) % 3) * 40], [x + 350, 440]],
+        '#a3be8b',
       );
       this.polygon(
-        [
-          [x + 115, 214],
-          [x + 145, 176 + (i % 2) * 45],
-          [x + 175, 214],
-        ],
-        '#536275',
+        [[x - 60, 455], [x + 175, 275 + ((i + 5) % 3) * 32], [x + 395, 455]],
+        '#7eac7b',
       );
     }
-    // Fern forest silhouettes move more slowly than the walkable world.
-    const foliageOffset = (this.camera * 0.38) % 215;
-    for (let i = -1; i < viewport / 215 + 2; i++) {
-      const x = i * 215 - foliageOffset + 70;
-      const height = 88 + ((i + 6) % 3) * 23;
-      const stemTop = 454 - height;
-      ctx.strokeStyle = '#1d433c';
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-      ctx.moveTo(x, 454);
-      ctx.quadraticCurveTo(x - 16, stemTop + 35, x + 8, stemTop);
-      ctx.stroke();
-      for (let leaf = 0; leaf < 5; leaf++) {
-        const y = 433 - leaf * (height / 6);
-        const half = 45 - leaf * 6;
-        this.polygon(
-          [
-            [x, y],
-            [x - half, y - 11],
-            [x - half - 14, y - 28],
-            [x - 9, y - 8],
-          ],
-          '#254c42',
-        );
-        this.polygon(
-          [
-            [x, y],
-            [x + half, y - 13],
-            [x + half + 9, y - 31],
-            [x + 7, y - 8],
-          ],
-          '#2b5547',
-        );
-      }
+    // Large fern trees provide depth, with slow parallax movement.
+    for (let i = -2; i < viewport / 215 + 3; i++) {
+      const x = i * 215 - ((this.camera * 0.36) % 215) + 30;
+      const y = 445;
+      const h = 125 + ((i + 7) % 3) * 27;
+      this.drawFernTree(x, y, h, i % 2 ? '#387b58' : '#4b9065');
     }
     ctx.save();
     ctx.translate(-this.camera, 0);
     for (const platform of world.platforms) {
       if (!this.visible(platform.x, platform.w, viewport)) continue;
-      this.box(
-        platform.x,
-        platform.y,
-        platform.w,
-        platform.h,
-        platform.origin === undefined ? '#304a49' : '#786b64',
-        4,
-      );
-      this.box(
-        platform.x,
-        platform.y,
-        platform.w,
-        5,
-        platform.origin === undefined ? '#8cd2ab' : '#f2cc8b',
-        3,
-      );
-      ctx.strokeStyle = '#ffffff10';
-      ctx.lineWidth = 1;
-      for (let x = platform.x + 20; x < platform.x + platform.w; x += 40) {
-        ctx.beginPath();
-        ctx.moveTo(x, platform.y + 8);
-        ctx.lineTo(x - 8, platform.y + Math.min(32, platform.h));
-        ctx.stroke();
+      // Soil faces and lush grass tops replace neon-scifi rectangles.
+      this.box(platform.x, platform.y, platform.w, platform.h, '#85654a', 5);
+      this.box(platform.x + 3, platform.y + 12, platform.w - 6,
+        Math.max(2, platform.h - 18), '#9f7952', 3);
+      this.box(platform.x, platform.y, platform.w, 10,
+        platform.origin === undefined ? '#72b85d' : '#82c774', 4);
+      this.box(platform.x, platform.y + 10, platform.w, 3, '#477b45', 1);
+      for (let x = platform.x + 24; x < platform.x + platform.w - 10; x += 64) {
+        this.circle(x + 7, platform.y + 27, 4, '#b18c64');
+        this.polygon(
+          [[x - 3, platform.y], [x - 8, platform.y - 8],
+            [x, platform.y - 4], [x + 5, platform.y - 11],
+            [x + 6, platform.y]],
+          '#3d874e',
+        );
       }
-      if (platform.origin !== undefined) {
-        this.label('↔', platform.x + platform.w / 2, platform.y + 17, '#ffe1b3', 13);
-      }
+      if (platform.origin !== undefined)
+        this.label('↔', platform.x + platform.w / 2, platform.y + 18, '#fff4c8', 13);
     }
     world.hazards.forEach((hazard) => {
       if (hazard.h < 30) {
-        for (let x = hazard.x; x < hazard.x + hazard.w; x += 18) {
+        this.box(hazard.x, hazard.y + 11, hazard.w, hazard.h - 11, '#865745', 0);
+        for (let x = hazard.x; x < hazard.x + hazard.w; x += 17) {
           this.polygon(
-            [
-              [x, 450],
-              [x + 9, hazard.y],
-              [x + 18, 450],
-            ],
-            '#dba19c',
+            [[x, hazard.y + hazard.h], [x + 8, hazard.y - 7],
+              [x + 17, hazard.y + hazard.h]],
+            '#e0d3b0',
+          );
+          this.polygon(
+            [[x + 6, hazard.y + 8], [x + 8, hazard.y - 7],
+              [x + 11, hazard.y + 10]],
+            '#fff4d5',
           );
         }
-      } else {
-        this.box(hazard.x, hazard.y, hazard.w, hazard.h, '#a24a3d', 0);
-        for (let x = hazard.x; x < hazard.x + hazard.w; x += 24) {
-          this.circle(x + 12, hazard.y + 5 + Math.sin(world.elapsed * 3 + x) * 3, 13, '#e7a262');
-        }
-      }
+      } else this.drawLava(hazard, world.elapsed);
     });
     world.checkpoints.forEach((x, index) => {
       this.box(x, 380, 3, 70, '#b9cbc9', 0);
@@ -198,10 +154,10 @@ export class KennyRenderer {
         }
       }
     });
-    this.box(1719, 396, 30, 43, world.switchOpen ? '#8ce8c0' : '#e3b874', 8);
-    this.label(world.switchOpen ? '✓' : 'J', 1734, 423, '#132a2b', 20);
-    this.label('BEISSEN', 1734, 383, '#e5cfa6', 11);
-    this.label('MOND → FARN → SONNE', 4025, 215, '#f5dcad', 15);
+    this.box(world.switchX - 15, 396, 30, 43, world.switchOpen ? '#8ce8c0' : '#e3b874', 8);
+    this.label(world.switchOpen ? '✓' : 'J', world.switchX, 423, '#132a2b', 20);
+    this.label('BEISSEN', world.switchX, 383, '#5c613b', 11);
+    this.label('MOND → FARN → SONNE', world.runes[0].x + 40, 215, '#3b7753', 15);
     world.runes.forEach((rune, index) => {
       this.circle(rune.x, rune.y, 19, index < world.runeProgress ? '#a2e8c0' : '#394c5d');
       this.label(
@@ -318,13 +274,13 @@ export class KennyRenderer {
       else if (enemy.alerted)
         this.label('•', enemy.x + enemy.w / 2, feet - size - 22, '#eeab99', 12);
     });
-    this.box(5110, 320, 64, 130, '#96e9c91a', 32);
+    this.box(world.exitX - 32, 320, 64, 130, '#8ddbab77', 32);
     ctx.strokeStyle = world.runeProgress === 3 ? '#a0f0cc' : '#647b7b';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.ellipse(5142, 385, 27, 60, 0, 0, Math.PI * 2);
+    ctx.ellipse(world.exitX, 385, 27, 60, 0, 0, Math.PI * 2);
     ctx.stroke();
-    this.label('ZIEL', 5142, 300, '#c6e9d3', 14);
+    this.label('ZIEL', world.exitX, 300, '#36764e', 14);
     for (const damage of world.damageTexts) {
       ctx.save();
       ctx.globalAlpha = Math.min(1, damage.life * 3);
@@ -339,20 +295,67 @@ export class KennyRenderer {
       );
       ctx.restore();
     }
-    const player = world.player;
-    const aim = world.attackTime > 0 ? world.attackAim : world.aim;
-    const facing = world.attackTime > 0 ? world.attackFacing : player.facing;
-    const targetX = player.x + player.w / 2 + (aim === 0 ? facing * 47 : 0);
-    const targetY = player.y + player.h / 2 + aim * 50;
-    ctx.strokeStyle = world.attackTime > 0 ? '#ffe2a3' : '#b5ecd6';
-    ctx.lineWidth = 2;
+    ctx.restore();
+  }
+
+  private drawFernTree(x: number, floorY: number, height: number, green: string): void {
+    const top = floorY - height;
+    this.box(x - 5, top + 30, 10, height - 20, '#6b8651', 3);
+    for (let j = 0; j < 4; j++) {
+      const y = top + 26 + j * 24;
+      const spread = 58 - j * 6;
+      this.polygon(
+        [[x, y + 15], [x - spread, y - 3], [x - spread + 11, y - 16],
+          [x - 9, y - 5], [x, y + 1]],
+        green,
+      );
+      this.polygon(
+        [[x, y + 15], [x + spread, y - 3], [x + spread - 11, y - 16],
+          [x + 9, y - 5], [x, y + 1]],
+        green,
+      );
+    }
+    this.circle(x, top + 20, 12, '#6cab6c');
+  }
+
+  private drawLava(hazard: { x: number; y: number; w: number; h: number }, time: number): void {
+    const ctx = this.ctx;
+    ctx.save();
     ctx.beginPath();
-    ctx.arc(targetX, targetY, 7, 0, Math.PI * 2);
-    ctx.moveTo(targetX - 11, targetY);
-    ctx.lineTo(targetX + 11, targetY);
-    ctx.moveTo(targetX, targetY - 11);
-    ctx.lineTo(targetX, targetY + 11);
-    ctx.stroke();
+    ctx.rect(hazard.x, hazard.y, hazard.w, hazard.h);
+    ctx.clip();
+    const gradient = ctx.createLinearGradient(0, hazard.y, 0, hazard.y + hazard.h);
+    gradient.addColorStop(0, '#ffbd3f');
+    gradient.addColorStop(0.3, '#ff7224');
+    gradient.addColorStop(0.72, '#db3c18');
+    gradient.addColorStop(1, '#942c25');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(hazard.x, hazard.y, hazard.w, hazard.h);
+    for (let band = 0; band < 3; band++) {
+      const y = hazard.y + 8 + band * 18;
+      const phase = time * (1.2 + band * 0.3);
+      ctx.beginPath();
+      ctx.moveTo(hazard.x - 20, y);
+      for (let x = hazard.x - 20; x <= hazard.x + hazard.w + 20; x += 10) {
+        const wave = Math.sin(x * 0.044 + phase + band * 2) * 5 +
+          Math.sin(x * 0.09 - phase * 0.63) * 2;
+        ctx.lineTo(x, y + wave);
+      }
+      ctx.strokeStyle = band === 0 ? '#fff08a' : band === 1 ? '#ff9a29' : '#b72e21';
+      ctx.lineWidth = band === 0 ? 5 : 9;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+    }
+    for (let i = 0; i < Math.max(3, Math.floor(hazard.w / 46)); i++) {
+      const x = hazard.x + ((i * 47.7 + time * (13 + i % 3)) % hazard.w);
+      const float = (time * (0.7 + i % 3 * 0.18) + i * 0.29) % 1;
+      const radius = 3 + (i % 3) * 2;
+      const y = hazard.y + hazard.h - float * (hazard.h + 12);
+      ctx.globalAlpha = Math.min(1, (1 - float) * 1.9);
+      this.circle(x, y, radius, i % 2 ? '#ffdb53' : '#ff961d');
+      this.circle(x - radius / 3, y - radius / 3, radius / 3, '#fff4b4');
+    }
+    ctx.globalAlpha = 1;
     ctx.restore();
   }
 
