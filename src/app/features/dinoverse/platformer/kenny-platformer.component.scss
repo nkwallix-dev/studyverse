@@ -885,29 +885,27 @@ p {
   to { filter: drop-shadow(0 0 12px #80ffb4) drop-shadow(0 0 7px #fff2a6); opacity: 1; }
 }
 /* Real jaw artwork follows aim direction; the walk sprite replaces the old arms-out bite. */
-.kenny-fusion-layer[data-bite='front']::after,
-.kenny-fusion-layer[data-bite='up']::after,
-.kenny-fusion-layer[data-bite='down']::after {
-  content: '';
+.kenny-fusion-layer .kenny-bite-graphic {
   position: absolute;
+  display: none;
   left: 47%;
   top: -12%;
   width: 76%;
   height: 65%;
-  background-image: url('kenny/animations/bite-front.svg');
+
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
   transform-origin: 20% 80%;
   animation: kenny-jaw-snap .22s ease-out both;
 }
-.kenny-fusion-layer[data-bite='up']::after {
-  background-image: url('kenny/animations/bite-up.svg');
+.kenny-fusion-layer[data-bite='up'] .kenny-bite-up {
+
   top: -47%;
   left: 38%;
 }
-.kenny-fusion-layer[data-bite='down']::after {
-  background-image: url('kenny/animations/bite-down.svg');
+.kenny-fusion-layer[data-bite='down'] .kenny-bite-down {
+
   top: 12%;
   left: 46%;
 }
@@ -1010,3 +1008,7 @@ p {
   .starter-preview > img { width: 64px; height: 62px; }
   .kit-selection { max-height: 130px; }
 }
+
+.kenny-fusion-layer[data-bite='front'] .kenny-bite-front,
+.kenny-fusion-layer[data-bite='up'] .kenny-bite-up,
+.kenny-fusion-layer[data-bite='down'] .kenny-bite-down { display: block; }
