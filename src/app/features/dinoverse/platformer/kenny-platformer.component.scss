@@ -153,12 +153,6 @@ canvas {
   filter: drop-shadow(0 3px 2px #0004);
   animation: kenny-look 3.2s steps(1) infinite;
 }
-.platformer-stage .platformer-player.walking {
-  animation-duration: 0.48s;
-}
-.platformer-stage.kenny-feeding .platformer-player.kenny-sprite {
-  animation: kenny-feed-frames 0.34s steps(1) both;
-}
 .stage-caption {
   position: absolute;
   z-index: 3;
@@ -387,7 +381,8 @@ p {
     font-size: 11px;
   }
   .touch-controls {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     flex: 0 0 80px;
     align-items: flex-start;
     gap: 8px;
@@ -395,7 +390,8 @@ p {
     user-select: none;
   }
   .touch-controls button {
-    width: 55px;
+    width: 100%;
+    min-width: 0;
     height: 62px;
     padding: 5px 0;
     touch-action: none;
@@ -406,7 +402,7 @@ p {
   .touch-controls button:active {
     background: #49685f;
   }
-  .touch-controls button[data-action='bite'] {
+  .touch-controls button[data-action='attack'] {
     margin-left: auto;
     background: #594c43;
   }
@@ -421,6 +417,7 @@ p {
   .touch-controls small {
     display: block;
     font-size: 8px;
+    overflow-wrap: anywhere;
   }
   .game-dialog {
     padding: 18px;
@@ -473,7 +470,7 @@ p {
   .touch-controls button {
     pointer-events: auto;
     height: 52px;
-    width: 46px;
+    width: 100%;
     background: #253e46db;
   }
   .dialog-veil {

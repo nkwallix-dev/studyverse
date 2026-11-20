@@ -1,7 +1,10 @@
+import { enemyAnimation } from './kenny-platformer.animation';
 import { KennyWorld, WORLD_HEIGHT, WORLD_WIDTH } from './kenny-platformer.world';
 
 /** Canvas handles the scenery; Kenny remains a real, skin-aware animated sprite. */
 export class KennyRenderer {
+  readonly ready: Promise<void>;
+  private readonly images = new Map<string, HTMLImageElement>();
   camera = 0;
   scale = 1;
   private width = 960;
@@ -12,6 +15,29 @@ export class KennyRenderer {
     const context = canvas.getContext('2d');
     if (!context) throw new Error('Canvas wird von diesem Browser nicht unterstützt.');
     this.ctx = context;
+    const names = [
+      'triceratops-walk',
+      'stegosaurus-walk',
+      'stegosaurus-attack',
+      ...['blue', 'pink', 'green', 'red', 'zebra'].flatMap((skin) => [
+        `${skin}-walk`,
+        `${skin}-attack`,
+      ]),
+    ];
+    this.ready = Promise.all(
+      names.map(
+        (name) =>
+          new Promise<void>((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => {
+              this.images.set(name, image);
+              resolve();
+            };
+            image.onerror = () => reject(new Error(`Sprite fehlt: ${name}`));
+            image.src = new URL(`kenny/animations/${name}.png`, document.baseURI).href;
+          }),
+      ),
+    ).then(() => undefined);
   }
 
   resize(): void {
@@ -172,44 +198,34 @@ export class KennyRenderer {
     });
     world.enemies.forEach((enemy) => {
       if (!enemy.alive) return;
+      const state = enemyAnimation(enemy, world.elapsed);
+      const image = this.images.get(`${enemy.species}-${state.animation}`);
+      if (!image) return;
+      const size = enemy.species === 'stegosaurus' ? 128 : 104;
+      const feet = enemy.y + enemy.h;
       ctx.save();
-      ctx.translate(enemy.x + enemy.w / 2, enemy.y + enemy.h);
-      ctx.scale(enemy.direction, 1);
-      const body = enemy.armored ? '#b798c2' : '#d79278';
-      this.box(-16, -28, 32, 23, body, 10);
-      this.box(2, -35, 22, 21, body, 7);
-      this.polygon(
-        [
-          [-13, -20],
-          [-31, -26],
-          [-15, -9],
-        ],
-        body,
-      );
-      this.box(-12, -8, 8, 8, '#bd8b75', 2);
-      this.box(9, -8, 8, 8, '#bd8b75', 2);
-      this.circle(17, -29, 3, '#172334');
-      this.box(16, -18, 8, 3, '#f5e5d1', 0);
-      if (enemy.armored) {
-        this.polygon(
-          [
-            [6, -36],
-            [16, -46],
-            [24, -32],
-          ],
-          '#d7c7e6',
-        );
-        this.circle(-11, -20, 3, '#9affc9');
-      }
-      this.label(
-        `${enemy.species === 'stegosaurus' ? 'STEG' : 'TRIC'} · ${Math.ceil(enemy.health)} ♥`,
+      ctx.translate(enemy.x + enemy.w / 2, feet);
+      ctx.scale(state.facing, 1);
+      ctx.drawImage(
+        image,
+        state.frame * 192,
         0,
-        -60,
+        192,
+        192,
+        -size / 2,
+        (-size * 180) / 192,
+        size,
+        size,
+      );
+      ctx.restore();
+      this.label(
+        `${enemy.species === 'stegosaurus' ? 'STEGO' : 'TRICERATOPS'} · ${Math.ceil(enemy.health)} ♥`,
+        enemy.x + enemy.w / 2,
+        feet - size * 0.94 - 8,
         '#f5e5d1',
         11,
       );
-      if (enemy.stun > 0) this.label('✦', 0, -48, '#ffe8ad', 17);
-      ctx.restore();
+      if (enemy.attackTime > 0.4) this.label('!', enemy.x + enemy.w / 2, feet - 70, '#ffd492', 23);
     });
     this.box(5110, 320, 64, 130, '#96e9c91a', 32);
     ctx.strokeStyle = world.runeProgress === 3 ? '#a0f0cc' : '#647b7b';
@@ -218,21 +234,20 @@ export class KennyRenderer {
     ctx.ellipse(5142, 385, 27, 60, 0, 0, Math.PI * 2);
     ctx.stroke();
     this.label('ZIEL', 5142, 300, '#c6e9d3', 14);
-    if (world.biteTime > 0) {
-      const player = world.player;
-      ctx.strokeStyle = '#fff0bd';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      const x = player.facing > 0 ? player.x + player.w : player.x;
-      ctx.arc(
-        x,
-        player.y + player.h * 0.4,
-        31,
-        player.facing > 0 ? -1.2 : 1.9,
-        player.facing > 0 ? 1.2 : 4.3,
-      );
-      ctx.stroke();
-    }
+    const player = world.player;
+    const aim = world.attackTime > 0 ? world.attackAim : world.aim;
+    const facing = world.attackTime > 0 ? world.attackFacing : player.facing;
+    const targetX = player.x + player.w / 2 + (aim === 0 ? facing * 47 : 0);
+    const targetY = player.y + player.h / 2 + aim * 50;
+    ctx.strokeStyle = world.attackTime > 0 ? '#ffe2a3' : '#b5ecd6';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(targetX, targetY, 7, 0, Math.PI * 2);
+    ctx.moveTo(targetX - 11, targetY);
+    ctx.lineTo(targetX + 11, targetY);
+    ctx.moveTo(targetX, targetY - 11);
+    ctx.lineTo(targetX, targetY + 11);
+    ctx.stroke();
     ctx.restore();
   }
 

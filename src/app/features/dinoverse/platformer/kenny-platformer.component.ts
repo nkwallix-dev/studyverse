@@ -1,3 +1,4 @@
+import { playerAnimation } from './kenny-platformer.animation';
 import { ItemId, COMPANION_ITEMS } from '../equipment/companion-equipment.model';
 import { CommonModule } from '@angular/common';
 import {
@@ -18,7 +19,7 @@ import {
 import { Controls, KennyWorld, STEP } from './kenny-platformer.world';
 import { KennyRenderer } from './kenny-platformer.renderer';
 
-type Action = 'left' | 'right' | 'crouch' | 'jump' | 'bite';
+type Action = 'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack';
 type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error';
 interface RecordTime {
   seconds: number;
@@ -30,12 +31,12 @@ const KEYS: Record<string, Action> = {
   ArrowLeft: 'left',
   KeyD: 'right',
   ArrowRight: 'right',
-  KeyS: 'crouch',
-  ArrowDown: 'crouch',
-  KeyW: 'jump',
-  ArrowUp: 'jump',
+  KeyS: 'aimDown',
+  ArrowDown: 'aimDown',
+  KeyW: 'aimUp',
+  ArrowUp: 'aimUp',
   Space: 'jump',
-  KeyJ: 'bite',
+  KeyJ: 'attack',
 };
 
 @Component({
@@ -58,6 +59,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('dialogAction') dialogAction?: ElementRef<HTMLButtonElement>;
 
   readonly status = signal<Status>('ready');
+  readonly assetsReady = signal(false);
   readonly hud = signal({
     amber: 0,
     time: '0:00',
@@ -72,9 +74,10 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
   readonly touchControls: { action: Action; label: string; symbol: string }[] = [
     { action: 'left', label: 'Nach links', symbol: '←' },
     { action: 'right', label: 'Nach rechts', symbol: '→' },
-    { action: 'crouch', label: 'Ducken', symbol: '↓' },
-    { action: 'bite', label: 'Beißen', symbol: 'J' },
-    { action: 'jump', label: 'Springen', symbol: '↑' },
+    { action: 'aimUp', label: 'Oben zielen', symbol: 'W' },
+    { action: 'aimDown', label: 'Unten zielen', symbol: 'S' },
+    { action: 'attack', label: 'Sprungangriff', symbol: 'J' },
+    { action: 'jump', label: 'Springen', symbol: '⤒' },
   ];
   private readonly zone = inject(NgZone);
   private world = new KennyWorld();
@@ -87,12 +90,19 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
   private keys = new Set<string>();
   private pointers = new Map<number, Action>();
   private jumpQueued = false;
-  private biteQueued = false;
+  private attackQueued = false;
   private destroyed = false;
 
   ngAfterViewInit(): void {
     try {
       this.renderer = new KennyRenderer(this.canvas.nativeElement);
+      void this.renderer.ready
+        .then(() => {
+          if (!this.destroyed) this.zone.run(() => this.assetsReady.set(true));
+        })
+        .catch(() => {
+          if (!this.destroyed) this.zone.run(() => this.status.set('error'));
+        });
       this.observer = new ResizeObserver(() => {
         this.renderer?.resize();
         this.render();
@@ -118,7 +128,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
   }
 
   start(): void {
-    if (!this.available || !this.renderer) return;
+    if (!this.available || !this.renderer || !this.assetsReady()) return;
     this.world = new KennyWorld(this.startItem);
     this.fusionNames.set(
       [...this.world.fusions].map((id) => COMPANION_ITEMS.find((item) => item.id === id)!.name),
@@ -231,14 +241,14 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
 
   private queue(action: Action): void {
     if (action === 'jump') this.jumpQueued = true;
-    if (action === 'bite') this.biteQueued = true;
+    if (action === 'attack') this.attackQueued = true;
   }
 
   private clearInput(): void {
     this.keys.clear();
     this.pointers.clear();
     this.jumpQueued = false;
-    this.biteQueued = false;
+    this.attackQueued = false;
   }
 
   private tick(time: number): void {
@@ -253,10 +263,10 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
       while (this.accumulator + 1e-9 >= STEP && !this.world.won) {
         const controls: Controls = {
           axis: Number(this.held('right')) - Number(this.held('left')),
-          crouch: this.held('crouch'),
+          aim: Number(this.held('aimDown')) - Number(this.held('aimUp')),
           jump: this.jumpQueued,
           jumpHeld: this.held('jump'),
-          bite: this.biteQueued,
+          attack: this.attackQueued,
         };
         this.world.step(STEP, controls);
         if (this.world.pickupEvents.length) {
@@ -271,7 +281,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
           });
         }
         this.jumpQueued = false;
-        this.biteQueued = false;
+        this.attackQueued = false;
         this.accumulator -= STEP;
       }
       if (this.world.won) this.zone.run(() => this.finish());
@@ -292,20 +302,33 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     this.renderer.draw(this.world);
     const player = this.world.player;
     const scale = this.renderer.scale;
-    const height = player.h === 32 ? 41 : 75;
-    const width = (height * 541) / 727;
+    const state = playerAnimation(this.world);
+    const height = state.motion === 'idle' ? 75 : 77;
+    const width = state.motion === 'idle' ? (height * 541) / 727 : height;
     const element = this.sprite.nativeElement;
     element.style.width = `${width * scale}px`;
     element.style.height = `${height * scale}px`;
     element.style.left = `${(player.x + player.w / 2 - this.renderer.camera - width / 2) * scale}px`;
-    element.style.top = `${(player.y + player.h - height * 0.97) * scale}px`;
+    element.style.top = `${(player.y + player.h - height * (state.motion === 'idle' ? 698 / 727 : 180 / 192)) * scale}px`;
     element.style.transform = `scaleX(${player.facing})`;
     element.style.opacity =
       this.world.invulnerable > 0 && Math.floor(this.world.invulnerable * 12) % 2 ? '0.4' : '1';
-    element.style.animationPlayState =
-      this.status() === 'playing' && this.world.grounded ? 'running' : 'paused';
-    element.classList.toggle('walking', Math.abs(player.vx) > 10);
-    this.stage.nativeElement.classList.toggle('kenny-feeding', this.world.biteTime > 0);
+    element.dataset['motion'] = state.motion;
+    element.dataset['frame'] = String(state.frame);
+    if (state.motion === 'idle') {
+      element.style.removeProperty('background-image');
+      element.style.removeProperty('background-position');
+      element.style.removeProperty('animation');
+      element.style.animationPlayState = this.status() === 'playing' ? 'running' : 'paused';
+    } else {
+      const skin = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin)
+        ? this.skin
+        : 'blue';
+      const animation = state.motion === 'walk' ? 'walk' : 'attack';
+      element.style.backgroundImage = `url("kenny/animations/${skin}-${animation}.png")`;
+      element.style.backgroundPosition = `${(state.frame * 100) / 3}% 0`;
+      element.style.animation = 'none';
+    }
   }
 
   private publishHud(): void {

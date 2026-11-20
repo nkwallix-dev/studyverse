@@ -41,7 +41,7 @@
     <canvas
       #canvas
       tabindex="0"
-      aria-label="Urzeitpfad. A und D bewegen, Leertaste springen, S ducken, J beißen, P pausieren, R zum Checkpoint."
+      aria-label="Urzeitpfad. A und D bewegen, Leertaste springen, W und S zielen, J Sprungangriff, P pausieren, R zum Checkpoint."
       [attr.inert]="status() !== 'playing' || !available ? '' : null"
     ></canvas>
     <div
@@ -87,18 +87,24 @@
               <div class="dialog-emblem" aria-hidden="true">✦</div>
               <h2 id="game-dialog-title">Kleine Arme.<br /><em>Großes Abenteuer.</em></h2>
               <p>
-                Spring über Schluchten, beiß Schalter frei und knacke das Runenrätsel. Das Portal
+                Spring über Schluchten, aktiviere Schalter und knacke das Runenrätsel. Das Portal
                 wartet am Ende des Pfads.
               </p>
               <div class="control-guide">
-                <span><kbd>A</kbd><kbd>D</kbd> Laufen</span
-                ><span><kbd>Space / W</kbd> Springen</span><span><kbd>S</kbd> Ducken</span
-                ><span><kbd>J</kbd> Beißen</span>
+                <span><kbd>A</kbd><kbd>D</kbd> Laufen</span><span><kbd>Space</kbd> Springen</span
+                ><span><kbd>W / S</kbd> Zielen</span><span><kbd>J</kbd> Sprungangriff</span>
               </div>
               <p class="touch-note">
-                Auf dem Handy: die Tasten unten halten. Laufen und Springen gehen gleichzeitig.
+                J springt fest nach vorn; A/D bleiben während des Angriffs gesperrt. Auf dem Handy:
+                die Tasten unten halten. Laufen und Springen gehen gleichzeitig.
               </p>
-              <button #dialogAction type="button" class="primary" (click)="start()">
+              <button
+                #dialogAction
+                type="button"
+                class="primary"
+                [disabled]="!assetsReady()"
+                (click)="start()"
+              >
                 Expedition starten
               </button>
             </ng-container>
@@ -130,14 +136,21 @@
                   >Rücksetzungen</span
                 >
               </div>
-              <button #dialogAction type="button" class="primary" (click)="start()">
+              <button
+                #dialogAction
+                type="button"
+                class="primary"
+                [disabled]="!assetsReady()"
+                (click)="start()"
+              >
                 Nochmal los
               </button>
             </ng-container>
             <ng-container *ngSwitchCase="'error'">
-              <h2 id="game-dialog-title">Die Spielfläche fehlt.</h2>
+              <h2 id="game-dialog-title">Das Spiel konnte nicht starten.</h2>
               <p>
-                Dein Browser konnte die 2D-Grafik nicht starten. Probiere einen aktuellen Browser.
+                Die Spielgrafiken konnten nicht geladen werden. Lade die Seite neu und versuche es
+                noch einmal.
               </p>
               <button #dialogAction type="button" class="primary" (click)="exitRequested.emit()">
                 Zu meinen Begleitern
@@ -182,8 +195,8 @@
   </div>
   <footer class="keyboard-guide">
     <span
-      ><kbd>A / D</kbd> Laufen <kbd>Space / W</kbd> Springen <kbd>S</kbd> Ducken
-      <kbd>J</kbd> Beißen</span
+      ><kbd>A / D</kbd> Laufen <kbd>Space</kbd> Springen <kbd>W / S</kbd> Zielen
+      <kbd>J</kbd> Sprungangriff</span
     ><span><kbd>R</kbd> Checkpoint <kbd>P / Esc</kbd> Pause</span>
   </footer>
 </section>

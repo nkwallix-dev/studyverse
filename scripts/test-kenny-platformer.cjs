@@ -5,7 +5,7 @@ const fs = require('node:fs'),
 require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename);
 const { KennyWorld, STEP } = require('../src/app/features/dinoverse/platformer/kenny-platformer.world.ts');
 const w = new KennyWorld();
-const idle = { axis: 0, crouch: false, jump: false, jumpHeld: false, bite: false };
+const idle = { axis: 0, aim: 0, jump: false, jumpHeld: false, attack: false };
 const trace = [];
 function step(input = {}, frames = 1) {
   for (let i = 0; i < frames; i++) {
@@ -20,8 +20,13 @@ function until(test, input, limit = 2000) {
   }
   if (i >= limit) throw Error('stuck ' + JSON.stringify(w.player) + ' ' + w.hint);
 }
-function goto(x, crouch = false) {
-  until(() => w.player.x >= x, { axis: 1, crouch });
+function goto(x) {
+  until(() => w.player.x >= x, { axis: 1 });
+}
+function attack() {
+  step({ attack: true });
+  until(() => w.attackTime === 0, {});
+  until(() => !!w.grounded, {});
 }
 function jumpTo(x) {
   step({});
@@ -45,9 +50,9 @@ jumpTo(700);
 goto(1030);
 log('gap');
 goto(1205);
-goto(1675, true);
+goto(1675);
 goto(1688);
-step({ axis: 1, bite: true });
+attack();
 goto(2000);
 log('gate ' + w.switchOpen);
 goto(2020);
@@ -92,14 +97,23 @@ for (const destination of route) {
     step({ axis: Math.abs(d) > 5 ? Math.sign(d) : 0, jumpHeld: true });
   }
   log('island ' + JSON.stringify(destination));
+  if (w.grounded !== targetPlatform && targetPlatform.origin === undefined) {
+    // An overlapping ferry can catch the player just above a fixed island.
+    // Hold position over the island until the ferry moves away underneath.
+    until(() => w.grounded === targetPlatform, () => {
+      const d = targetPlatform.x + 35 - w.player.x;
+      return { axis: Math.abs(d) > 5 ? Math.sign(d) : 0 };
+    }, 1200);
+  }
   if (w.grounded !== targetPlatform) throw Error('wrong landing ' + JSON.stringify(w.player));
 }
 goto(3690);
 log('ferries');
 goto(3950);
-step({ axis: 1, bite: true });
+attack();
 log('moon');
-goto(4020);
+until(() => w.player.x <= 4020, { axis: -1 });
+step({}, 20);
 jumpTo(4130);
 until(() => !!w.grounded, {});
 log('step');
@@ -107,13 +121,13 @@ goto(4180);
 jumpTo(4300);
 until(() => !!w.grounded, {});
 goto(4320);
-step({ axis: 1, bite: true });
+attack();
 log('fern');
 goto(4390);
 jumpTo(4620);
 until(() => !!w.grounded, {});
 goto(4620);
-step({ axis: 1, bite: true });
+attack();
 log('sun');
 goto(5120);
 log('won ' + w.won);
@@ -157,31 +171,63 @@ for (let i = 0; i < 20; i++) jumper.step(STEP, { ...idle, jumpHeld: true });
 const fallingVelocity = jumper.player.vy;
 jumper.step(STEP, { ...idle, jump: true, jumpHeld: true });
 assert(jumper.player.vy > fallingVelocity, 'A second airborne jump must not reset upward velocity');
-const crawl = new KennyWorld();
-crawl.player = { x: 1300, y: 418, w: 34, h: 32, vx: 0, vy: 0, facing: 1 };
-crawl.step(STEP, idle);
-assert.equal(crawl.player.h, 32, 'Kenny cannot stand inside the crawl tunnel');
-crawl.player.x = 1200;
-crawl.step(STEP, idle);
-assert.equal(crawl.player.h, 60, 'Kenny can stand once the ceiling clears');
+const aimer = new KennyWorld();
+for (let i = 0; i < 10; i++) aimer.step(STEP, idle);
+const height = aimer.player.h, y = aimer.player.y;
+for (const aim of [-1, 1]) {
+  aimer.step(STEP, { ...idle, aim });
+  assert.equal(aimer.player.h, height, 'Aiming cannot shrink Kenny');
+  assert.equal(aimer.player.y, y, 'Aiming cannot jump or move Kenny vertically');
+  assert.equal(aimer.aim, aim);
+}
+const { ATTACK_DISTANCE } = require('../src/app/features/dinoverse/platformer/kenny-platformer.world.ts');
+const lunge = new KennyWorld(); lunge.player.x = 40;
+for (let i = 0; i < 10; i++) lunge.step(STEP, idle);
+const origin = lunge.player.x;
+lunge.step(STEP, { ...idle, attack: true });
+let frames = 0;
+while (lunge.attackTime > 0 && frames++ < 100) {
+  lunge.step(STEP, { ...idle, axis: -1, aim: -1, jump: true, jumpHeld: true });
+  assert.equal(lunge.player.facing, 1, 'A/D cannot turn Kenny during a committed attack');
+  assert.equal(lunge.attackAim, 0, 'Aim is latched when the attack begins');
+}
+assert(frames < 100);
+assert(Math.abs(lunge.player.x - origin - ATTACK_DISTANCE) < 0.01, 'A lunge travels the same distance regardless of held A/D');
+lunge.step(STEP, { ...idle, axis: -1 });
+assert.equal(lunge.player.facing, -1, 'Normal controls return after attack recovery');
 const fighter = new KennyWorld();
-const armored = fighter.enemies[2];
-fighter.player.x = armored.x - 45;
-fighter.player.y = 390;
-fighter.step(STEP, { ...idle, bite: true });
-assert(armored.alive && armored.stun > 0, 'A frontal bite stuns the armored enemy');
-for (let i = 0; i < 60; i++) fighter.step(STEP, idle);
-armored.health = 1;
-fighter.player.x = armored.x + armored.w + 10;
-fighter.player.facing = -1;
-fighter.step(STEP, { ...idle, bite: true });
-assert.equal(armored.alive, false, 'A bite from behind defeats the armored enemy');
-const temple = new KennyWorld();
-temple.runeProgress = 1;
-temple.player.x = temple.runes[2].x - 50;
-temple.player.y = 295;
-temple.step(STEP, { ...idle, bite: true });
-assert.equal(temple.runeProgress, 0, 'Wrong rune order resets the puzzle');
-console.log(
-  'Kenny platformer: air-jump prevention, crawl clearance, armored bites and rune order passed.',
-);
+const target = fighter.enemies[1];
+fighter.player.x = target.x - 55;
+fighter.step(STEP, { ...idle, attack: true });
+for (let i = 0; i < 55; i++) fighter.step(STEP, idle);
+assert.equal(target.health, 3, 'Only one damage event per enemy per attack, not one each collision tick');
+const stego = new KennyWorld();
+const armored = stego.enemies[2];
+stego.player.x = armored.x + armored.w + 10;
+stego.step(STEP, idle);
+assert(armored.attackTime > 0, 'A nearby Stegosaurus prepares its tail attack');
+for (let i = 0; i < 65; i++) stego.step(STEP, idle);
+assert.equal(armored.direction, -armored.attackFacing, 'Stegosaurus turns away before its tail strikes');
+assert(armored.tailHit, 'The tail sweep has a collision window on the target side');
+assert.equal(stego.health, 2, 'A sweep damages Kenny once');
+const { playerAnimation, enemyAnimation } = require('../src/app/features/dinoverse/platformer/kenny-platformer.animation.ts');
+assert.equal(playerAnimation(aimer).motion, 'idle');
+aimer.player.vx = 280;
+assert.equal(playerAnimation(aimer).motion, 'walk');
+aimer.grounded = undefined;
+assert.equal(playerAnimation(aimer).motion, 'jump');
+aimer.attackTime = 0.3;
+assert.equal(playerAnimation(aimer).motion, 'attack');
+assert.equal(enemyAnimation(armored, 0).animation, 'attack');
+console.log('Kenny platformer: aim-only W/S, fixed lunge, movement lock, single-hit damage, tail sweep and animation states passed.');
+
+for (const aim of [-1, 1]) {
+ const directed = new KennyWorld();
+ directed.player.x = 100; directed.player.y = 200; directed.grounded = undefined;
+ const enemy = directed.enemies[0]; enemy.x = 110; enemy.y = aim < 0 ? 110 : 270;
+ enemy.min = 110; enemy.max = 111;
+ directed.step(STEP, { ...idle, aim, attack: true });
+ for (let i=0;i<30;i++) directed.step(STEP, idle);
+ assert.equal(enemy.health, 1, 'Aimed jump strikes reach targets ' + (aim < 0 ? 'above' : 'below'));
+}
+console.log('Kenny platformer: up/down aimed attack hitboxes reach their intended targets.');
