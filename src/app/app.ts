@@ -311,9 +311,11 @@ export class App implements OnInit,OnDestroy {
    this.profile['kennyTutorialSeen'] = true;
    this.save();
  }
- collectAmber(id: string): void {
+ collectAmber(ids: string[]): void {
    if (this.cloud.session && !this.cloudMaySave) return;
-   this.profile['companions'] = recordAmber(this.companionState, id);
+   let next = this.companionState;
+   for (const id of ids) next = recordAmber(next, id);
+   this.profile['companions'] = next;
    this.saveCompanionProgress();
  }
  equipCompanionItem(event: { item: ItemId | null; slot: ItemSlot }): void {
