@@ -45,6 +45,15 @@ assert.equal(bite.biteTime, BALANCE.bite.duration);
 const reach = { x: 0, y: 0, w: 34, h: 60 };
 assert(reaches(reach, { x: 34 + 3 * FIELD, y: 0, w: 80, h: 60 }, 3, 1));
 assert(!reaches(reach, { x: 35 + 3 * FIELD, y: 0, w: 80, h: 60 }, 3, 1));
+assert(
+  !reaches(
+    { x: 100, y: 295, w: 34, h: 60 },
+    { x: 130, y: 380, w: 140, h: 70 },
+    3,
+    1,
+  ),
+  'A horizontal tail sweep cannot hit Kenny standing safely on a platform above',
+);
 const pogo = new KennyWorld();
 const target = pogo.enemies[1];
 pogo.player.x = target.x;
