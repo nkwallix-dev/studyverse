@@ -249,8 +249,21 @@ async function initialize(context, retained = true, companions = undefined) {
       'P must pause the real expedition: ' + JSON.stringify(gameDialog),
     );
     await page.getByRole('button', { name: 'Weiterspielen' }).click();
-    await page.getByRole('button', { name: /Einstellungen/ }).click();
-    await page.getByRole('button', { name: 'Tutorial spielen' }).waitFor();
+    const settingsToggle = page.locator('.kenny-settings .settings-toggle');
+    await settingsToggle.click();
+    const settingsPanel = page.locator('.kenny-settings .settings-popover');
+    try {
+      await settingsPanel.waitFor({ state: 'visible', timeout: 5000 });
+    } catch (error) {
+      const state = await page.evaluate(() => ({
+        toggle: document.querySelector('.settings-toggle')?.outerHTML,
+        popover: document.querySelector('.settings-popover')?.outerHTML,
+        status: document.querySelector('.game-dialog')?.textContent?.slice(0, 150),
+        fullscreen: !!document.fullscreenElement,
+      }));
+      throw new Error('Kenny settings menu is not visible: ' + JSON.stringify(state), { cause: error });
+    }
+    await settingsPanel.getByRole('button', { name: 'Tutorial spielen' }).waitFor();
     assert.equal(
       await page.evaluate(() => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens),
       wallet,
