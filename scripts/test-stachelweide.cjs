@@ -151,6 +151,7 @@ function seconds(w, s, input = idle) {
   assert.equal(e.returning, true);
   w.player.x = 4000;
   seconds(w, 5);
+  console.log('PATROL DIAGNOSTIC', { x: e.x, min: e.min, max: e.max, origin: e.originX, returning: e.returning, direction: e.direction });
   assert.ok(e.x >= e.min && e.x <= e.max, 'returned to patrol');
 }
 // Triceratops visibly prepares for 2 sec, then runs 4 fields; body vs charge damage.
