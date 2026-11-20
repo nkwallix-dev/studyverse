@@ -1,0 +1,21 @@
+name: Temporary Kenny Prettier diagnostic
+on:
+  push:
+    branches:
+      - feat/stachelweide-random-hardcore-20261120
+permissions:
+  contents: read
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Show exact prettier diff
+        run: |
+          npx prettier --write src/app/features/dinoverse/platformer/kenny-platformer.world.ts src/app/features/dinoverse/platformer/kenny-platformer.component.html
+          git diff -- src/app/features/dinoverse/platformer/kenny-platformer.world.ts src/app/features/dinoverse/platformer/kenny-platformer.component.html
