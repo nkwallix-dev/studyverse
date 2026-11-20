@@ -731,7 +731,11 @@ export class KennyWorld {
     }
     this.health = Math.max(0, this.health - (amount - absorbed));
     this.invulnerable = BALANCE.enemy.invulnerability;
-    if (special) this.playerStun = BALANCE.specialStun;
+    if (special) {
+      this.playerStun = BALANCE.specialStun;
+      this.attackTime = 0;
+      this.player.vx = 0;
+    }
     this.damageTexts.push({
       id: ++this.damageId,
       x: this.player.x + this.player.w / 2,
