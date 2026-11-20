@@ -232,10 +232,14 @@ async function initialize(context, retained = true, companions = undefined) {
       await retry.click();
     } else {
       const restart = page.getByRole('button', { name: 'Neu starten' });
-      if (!(await restart.isVisible()))
+      if (!(await restart.isVisible())) {
         await page.getByRole('button', { name: 'Spiel pausieren' }).click();
+        // Clock is frozen in this test: flush Angular's scheduled signal render.
+        await page.clock.runFor(32);
+      }
       await restart.click();
     }
+    await page.clock.runFor(32);
     await page.evaluate(() => window.__kennyFrames(3));
     const originalX = await sprite.evaluate((element) => parseFloat(element.style.left));
     await page.keyboard.down('KeyD');
