@@ -227,8 +227,15 @@ async function initialize(context, retained = true, companions = undefined) {
     await page.evaluate(() => window.__kennyFrames(65));
     // Restart between attack and movement checks: the special's attack-lock
     // and randomized enemy stuns must not turn a keyboard test into a timing lottery.
-    await page.keyboard.press('KeyP');
-    await page.getByRole('button', { name: 'Neu starten' }).click();
+    const retry = page.getByRole('button', { name: 'Neuer Versuch' });
+    if (await retry.isVisible()) {
+      await retry.click();
+    } else {
+      const restart = page.getByRole('button', { name: 'Neu starten' });
+      if (!(await restart.isVisible()))
+        await page.getByRole('button', { name: 'Spiel pausieren' }).click();
+      await restart.click();
+    }
     await page.evaluate(() => window.__kennyFrames(3));
     const originalX = await sprite.evaluate((element) => parseFloat(element.style.left));
     await page.keyboard.down('KeyD');
