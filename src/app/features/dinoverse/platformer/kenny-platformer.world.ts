@@ -225,11 +225,7 @@ export class KennyWorld {
     });
     if (this.hardcore) {
       this.addExplorationRoutes();
-      this.enemies.splice(
-        0,
-        this.enemies.length,
-        ...this.rollExpeditionEnemies(this.random),
-      );
+      this.enemies.splice(0, this.enemies.length, ...this.rollExpeditionEnemies(this.random));
     }
     if (typeof startItem === 'string') this.equipRun(startItem);
     else if (startItem) {
