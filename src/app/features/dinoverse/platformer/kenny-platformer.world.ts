@@ -139,6 +139,7 @@ export class KennyWorld {
   dead = false;
   readonly runId = crypto.randomUUID();
   readonly loot: (Rect & { id: string; item: ItemId; collected: boolean })[] = [];
+  readonly enemyAmberDrops: (Rect & { id: string; collected: boolean })[] = [];
   readonly pickupEvents: { id: string; item: ItemId }[] = [];
   readonly amberEvents: string[] = [];
   readonly fusions = new Set<ItemId>();
@@ -162,6 +163,9 @@ export class KennyWorld {
   biteCooldown = 0;
   aim = 0;
   invulnerable = 0;
+  playerStun = 0;
+  private readonly random: () => number;
+  private readonly amberDay: string;
   offense: ItemId | null = null;
   defense: ItemId | null = null;
   shield = 0;
@@ -204,15 +208,27 @@ export class KennyWorld {
   private messageTime = 0;
   constructor(
     startItem: ItemId | Partial<EquipmentSlots> | null = null,
-    options: { expedition?: boolean; random?: () => number } = {},
+    options: {
+      expedition?: boolean;
+      random?: () => number;
+      amberDay?: string;
+      claimedAmber?: Record<string, true>;
+    } = {},
   ) {
     this.hardcore = options.expedition === true;
+    this.random = options.random || Math.random;
+    this.amberDay = options.amberDay || new Date().toISOString().slice(0, 10);
+    // Account-scoped receipts make each map crystal collectible once per UTC day,
+    // including after retry, reload, or logging in on another device.
+    this.amber.forEach((amber, i) => {
+      amber.collected = options.claimedAmber?.[this.mapAmberId(i)] === true;
+    });
     if (this.hardcore) {
       this.addExplorationRoutes();
       this.enemies.splice(
         0,
         this.enemies.length,
-        ...this.rollExpeditionEnemies(options.random || Math.random),
+        ...this.rollExpeditionEnemies(this.random),
       );
     }
     if (typeof startItem === 'string') this.equipRun(startItem);
@@ -344,6 +360,7 @@ export class KennyWorld {
     this.biteCooldown = Math.max(0, this.biteCooldown - dt);
     this.biteTime = Math.max(0, this.biteTime - dt);
     this.invulnerable = Math.max(0, this.invulnerable - dt);
+    this.playerStun = Math.max(0, this.playerStun - dt);
     for (const text of this.damageTexts) {
       text.life -= dt;
       text.y -= 28 * dt;
@@ -359,6 +376,10 @@ export class KennyWorld {
     this.movePlatforms();
     const player = this.player;
     this.aim = Math.max(-1, Math.min(1, input.aim || 0));
+    if (this.playerStun > 0) {
+      input = { ...input, axis: 0, jump: false, jumpHeld: false, attack: false, special: false };
+      player.vx = 0;
+    }
     if (input.special && this.attackTime <= 0 && this.specialCooldown === 0) {
       if (input.axis) player.facing = Math.sign(input.axis);
       this.attackKind = this.specialKind;
@@ -527,6 +548,9 @@ export class KennyWorld {
         continue;
       this.attackHits.add(enemy);
       this.hitEnemy(enemy, BALANCE[this.attackKind].damage);
+      enemy.stun = Math.max(enemy.stun, BALANCE.specialStun);
+      // Successful specials must not cause unavoidable contact damage while overlapping.
+      this.invulnerable = Math.max(this.invulnerable, BALANCE.specialStun);
       if (this.attackKind === 'tail' && enemy.alive) {
         enemy.poison = BALANCE.tail.dotSeconds;
         enemy.poisonTick = 1;
@@ -561,6 +585,18 @@ export class KennyWorld {
   private defeat(enemy: Enemy): void {
     if (!enemy.alive) return;
     enemy.alive = false;
+    const [minAmber, maxAmber] = BALANCE.amber[enemy.tier];
+    const amberCount = minAmber + Math.floor(this.random() * (maxAmber - minAmber + 1));
+    for (let i = 0; i < amberCount; i++) {
+      this.enemyAmberDrops.push({
+        id: `${this.runId}_enemy_${this.enemies.indexOf(enemy)}_amber_${i}`,
+        x: enemy.x + enemy.w / 2 + (i - (amberCount - 1) / 2) * 17 - 7,
+        y: enemy.y + enemy.h - 18,
+        w: 14,
+        h: 14,
+        collected: false,
+      });
+    }
     dropsFor(enemy.species, enemy.tier).forEach((item, drop) =>
       this.loot.push({
         id: `${this.runId}_${this.enemies.indexOf(enemy)}_${drop}`,
@@ -598,6 +634,11 @@ export class KennyWorld {
         enemy.returning = false;
       }
       let charging = false;
+      if (enemy.stun > 0) {
+        enemy.attackTime = 0;
+        enemy.tailHit = false;
+        continue;
+      }
       if (enemy.attackTime > 0) {
         const kind = enemy.species === 'stegosaurus' ? 'tail' : 'charge';
         const elapsed = specialDuration(kind) - enemy.attackTime;
@@ -615,7 +656,7 @@ export class KennyWorld {
               ((enemy.attackFacing * BALANCE.charge.travel * FIELD) / BALANCE.charge.active) * dt,
             );
           if (!enemy.tailHit && overlaps(this.player, enemy)) {
-            this.hurt(enemy, BALANCE.charge.damage);
+            this.hurt(enemy, BALANCE.charge.damage, true);
             enemy.tailHit = true;
           }
         }
@@ -626,7 +667,7 @@ export class KennyWorld {
           !enemy.tailHit &&
           reaches(enemy, this.player, BALANCE.tail.range, enemy.attackFacing)
         ) {
-          this.hurt(enemy, BALANCE.tail.damage);
+          this.hurt(enemy, BALANCE.tail.damage, true);
           enemy.tailHit = true;
         }
         enemy.attackTime = Math.max(0, enemy.attackTime - dt);
@@ -676,7 +717,7 @@ export class KennyWorld {
     enemy.x = next.x;
     return true;
   }
-  private hurt(enemy: Enemy, amount: number): void {
+  private hurt(enemy: Enemy, amount: number, special = false): void {
     if (this.invulnerable > 0) return;
     this.sinceDamage = 0;
     const absorbed = Math.min(this.shield, amount);
@@ -687,6 +728,7 @@ export class KennyWorld {
     }
     this.health = Math.max(0, this.health - (amount - absorbed));
     this.invulnerable = BALANCE.enemy.invulnerability;
+    if (special) this.playerStun = BALANCE.specialStun;
     this.damageTexts.push({
       id: ++this.damageId,
       x: this.player.x + this.player.w / 2,
@@ -749,6 +791,10 @@ export class KennyWorld {
     }
   }
 
+  private mapAmberId(index: number): string {
+    return `stachelweide_${this.amberDay}_map_${index}`;
+  }
+
   private collect(interact: boolean): void {
     const drop = this.nearbyDrop;
     if (interact && drop) {
@@ -763,9 +809,16 @@ export class KennyWorld {
       ) {
         amber.collected = true;
         this.amberCount++;
-        this.amberEvents.push(`${this.runId}_amber_${i}`);
+        this.amberEvents.push(this.mapAmberId(i));
       }
     });
+    for (const crystal of this.enemyAmberDrops) {
+      if (!crystal.collected && distanceInFields(this.player, crystal) <= BALANCE.pickup.range) {
+        crystal.collected = true;
+        this.amberCount++;
+        this.amberEvents.push(crystal.id);
+      }
+    }
     this.checkpoints.forEach((x, index) => {
       if (index > this.checkpoint && Math.abs(this.player.x - x) < 45 && this.grounded)
         this.checkpoint = index;
