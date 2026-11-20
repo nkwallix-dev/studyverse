@@ -27,6 +27,8 @@ export const BALANCE = {
   tail: { range: 3, damage: 3, cooldown: 2.5, duration: 0.8, dotDamage: 0.25, dotSeconds: 4 },
   charge: { range: 4, travel: 4, damage: 2, cooldown: 4, windup: 2, active: 0.4, recovery: 0.2 },
   shield: { frill: 2, plates: 1, regeneration: 8 },
+  specialStun: 1,
+  amber: { basic: [1, 2], medium: [2, 4], elite: [6, 6] } as const,
   enemy: {
     sight: 5,
     disengage: 20,

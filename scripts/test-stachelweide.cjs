@@ -45,6 +45,15 @@ assert.equal(bite.biteTime, BALANCE.bite.duration);
 const reach = { x: 0, y: 0, w: 34, h: 60 };
 assert(reaches(reach, { x: 34 + 3 * FIELD, y: 0, w: 80, h: 60 }, 3, 1));
 assert(!reaches(reach, { x: 35 + 3 * FIELD, y: 0, w: 80, h: 60 }, 3, 1));
+assert(
+  !reaches(
+    { x: 100, y: 295, w: 34, h: 60 },
+    { x: 130, y: 380, w: 140, h: 70 },
+    3,
+    1,
+  ),
+  'A horizontal tail sweep cannot hit Kenny standing safely on a platform above',
+);
 const pogo = new KennyWorld();
 const target = pogo.enemies[1];
 pogo.player.x = target.x;
@@ -282,3 +291,92 @@ console.log(
   assert(Math.abs(origin - peak - 2 * FIELD) < 3, 'Releasing Space cannot cut the pogo short');
 }
 console.log('Pogo PASS: full two-field bounce survives late hits and released jump input.');
+
+// Expedition mode is intentionally different from the legacy course replay:
+const randomExpedition = new KennyWorld(null, { expedition: true, random: () => 0.05 });
+assert.equal(randomExpedition.enemies.length, 20, 'Each new expedition has 20 enemy encounters');
+assert.equal(randomExpedition.enemies.filter((enemy) => enemy.tier === 'elite').length, 1);
+assert.equal(randomExpedition.enemies[0].species, 'stegosaurus');
+assert.equal(randomExpedition.enemies[0].health, 7);
+assert.equal(randomExpedition.enemies[1].tier, 'medium', 'No second elite can appear');
+assert(randomExpedition.platforms.length > w.platforms.length, 'Expedition adds vertical routes');
+const basicExpedition = new KennyWorld(null, { expedition: true, random: () => 0.99 });
+assert.equal(basicExpedition.enemies.filter((enemy) => enemy.tier === 'elite').length, 0);
+assert(basicExpedition.enemies.every((enemy) => enemy.species === 'triceratops'));
+assert(basicExpedition.enemies.every((enemy) => enemy.health === 2));
+basicExpedition.enemies.length = 0;
+basicExpedition.player.x = 535;
+basicExpedition.player.y = 470;
+basicExpedition.step(STEP, idle);
+assert.equal(basicExpedition.dead, true, 'Falling into a hazard ends the full expedition');
+assert.equal(basicExpedition.deaths, 1);
+const atDeath = basicExpedition.elapsed;
+basicExpedition.step(STEP, idle);
+assert.equal(basicExpedition.elapsed, atDeath, 'A dead run must not continue');
+const freshExpedition = new KennyWorld(null, { expedition: true, random: () => 0.99 });
+assert.equal(freshExpedition.dead, false);
+assert.equal(freshExpedition.health, 3);
+assert.equal(freshExpedition.checkpoint, 0);
+assert.equal(freshExpedition.amberCount, 0);
+assert.notEqual(freshExpedition.runId, basicExpedition.runId);
+console.log('Expedition PASS: 20 randomized enemies, independent species/tier, one elite max and full restart after death.');
+
+// Daily map amber receipts persist across fresh runs and are scoped to each calendar day.
+const day1 = new KennyWorld(null, { expedition: true, amberDay: '2026-11-20', random: () => 0.99 });
+day1.enemies.length = 0;
+day1.player.x = 300;
+day1.player.y = 265;
+day1.step(STEP, idle);
+assert(day1.amberEvents.includes('stachelweide_2026-11-20_map_0'));
+const receipt = { 'stachelweide_2026-11-20_map_0': true };
+const repeated = new KennyWorld(null, {
+  expedition: true, amberDay: '2026-11-20', claimedAmber: receipt, random: () => 0.99,
+});
+assert(repeated.amber[0].collected, 'A map crystal cannot respawn after a new run on the same day');
+const tomorrow = new KennyWorld(null, {
+  expedition: true, amberDay: '2026-11-21', claimedAmber: receipt, random: () => 0.99,
+});
+assert(!tomorrow.amber[0].collected, 'A new calendar day unlocks new map amber');
+
+// Enemy tiers determine amber volume, with physical crystals collectible near the kill site.
+for (const [tier, amount, rng] of [
+  ['basic', 1, 0],
+  ['basic', 2, 0.99],
+  ['medium', 2, 0],
+  ['medium', 4, 0.99],
+  ['elite', 6, 0.5],
+]) {
+  const run = new KennyWorld(null, { random: () => rng });
+  const enemy = run.enemies[0];
+  enemy.tier = tier;
+  enemy.health = 1;
+  run.hitEnemy(enemy, 1);
+  assert.equal(run.enemyAmberDrops.length, amount, tier + ' amber drop count');
+  assert(run.enemyAmberDrops.every(drop => !drop.collected));
+  run.enemies.length = 0;
+  run.player.x = run.enemyAmberDrops[0].x;
+  run.player.y = run.enemyAmberDrops[0].y - 10;
+  run.step(STEP, idle);
+  assert(run.amberEvents.some(id => id.includes('_enemy_')), 'Enemy amber can be collected');
+}
+
+// Every successful player special stuns its target for a full second, blocking
+// immediate body contact during a special attack overlap.
+const specialStun = new KennyWorld();
+const stunnedEnemy = specialStun.enemies[0];
+stunnedEnemy.health = 4;
+specialStun.player.x = stunnedEnemy.x - 50;
+specialStun.player.y = stunnedEnemy.y;
+specialStun.attackKind = 'tail';
+specialStun.attackFacing = 1;
+specialStun.attackOrigin = { ...specialStun.player };
+specialStun.specialStrike();
+assert.equal(stunnedEnemy.stun, BALANCE.specialStun);
+assert(specialStun.invulnerable >= BALANCE.specialStun);
+const stunExpiry = stunnedEnemy.stun;
+specialStun.step(STEP, idle);
+assert(stunnedEnemy.stun < stunExpiry);
+const enemySpecial = new KennyWorld();
+enemySpecial.hurt(enemySpecial.enemies[0], 2, true);
+assert.equal(enemySpecial.playerStun, BALANCE.specialStun);
+console.log('Amber/Stun PASS: daily map receipts, tier ranges, physical drops, 1s special stun.');

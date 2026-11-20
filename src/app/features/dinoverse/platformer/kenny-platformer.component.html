@@ -42,7 +42,7 @@
       >
       <span class="amber"
         >◆ <strong>{{ hud().amber }}</strong
-        ><small>/ 23 Bernstein</small></span
+        ><small>in diesem Run</small></span
       >
       <span class="checkpoint"
         >⚑ <strong>{{ hud().checkpoint }}</strong
@@ -54,7 +54,7 @@
     <canvas
       #canvas
       tabindex="0"
-      aria-label="Stachelweide. A und D bewegen, Leertaste springen, W und S zielen, J beißen, L Spezialangriff, E aufheben, P pausieren, R zum Checkpoint."
+      aria-label="Stachelweide. A und D bewegen, Leertaste springen, W und S zielen, J beißen, L Spezialangriff, E aufheben, P pausieren, Beim Tod beginnt die Expedition wieder von vorn."
       [attr.inert]="status() !== 'playing' || !available ? '' : null"
     ></canvas>
     <div
@@ -182,9 +182,21 @@
                 Weiterspielen
               </button>
               <div class="dialog-actions">
-                <button type="button" (click)="checkpoint()">Zum Checkpoint</button
-                ><button type="button" (click)="start()">Neu starten</button>
+                <button type="button" (click)="start()">Neu starten</button>
               </div>
+            </ng-container>
+            <ng-container *ngSwitchCase="'lost'">
+              <div class="dialog-emblem" aria-hidden="true">💀</div>
+              <h2 id="game-dialog-title">Kenny hat's erwischt.</h2>
+              <p>
+                Dein Run ist vorbei. Checkpoints sind Orientierungspunkte, keine Respawns. Der
+                nächste Versuch startet mit einer neuen Gegnerverteilung.
+              </p>
+              <p>Bereits gesammelte Achievements und Ausrüstung bleiben erhalten.</p>
+              <button #dialogAction type="button" class="primary" (click)="start()">
+                Neuer Versuch
+              </button>
+              <button type="button" (click)="close()">Kennyverse verlassen</button>
             </ng-container>
             <ng-container *ngSwitchCase="'won'">
               <div class="dialog-emblem" aria-hidden="true">⚑</div>
@@ -195,7 +207,8 @@
                   ><strong>{{ hud().time }}</strong
                   >Laufzeit</span
                 ><span
-                  ><strong>{{ hud().amber }} / 23</strong>Bernstein</span
+                  ><strong>{{ hud().amber }}</strong
+                  >Bernstein</span
                 ><span
                   ><strong>{{ hud().deaths }}</strong
                   >Rücksetzungen</span
@@ -227,7 +240,8 @@
             {{ best.amber }} Bernstein
           </p>
           <p class="economy-note">
-            Bernstein wird separat gesammelt. Jeder neue Lauf bietet 23 Bernstein.
+            Bernstein auf der Karte zählt einmal täglich pro Account. Besiegte Dinos lassen
+            zusätzliche Bernstein fallen: Basic 1–2, Mittel 2–4, Elite 6.
           </p>
         </ng-template>
       </section>
@@ -258,7 +272,7 @@
     <span
       ><kbd>A / D</kbd> Laufen <kbd>Space</kbd> Springen <kbd>W / S</kbd> Zielen <kbd>J</kbd> Beißen
       <kbd>L</kbd> Spezial <kbd>E</kbd> Aufheben</span
-    ><span><kbd>R</kbd> Checkpoint <kbd>P / Esc</kbd> Pause</span>
+    ><span><kbd>P / Esc</kbd> Pause</span>
   </footer>
   <div class="kenny-settings">
     <button

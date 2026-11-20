@@ -2,7 +2,7 @@
 
 One field is 50 immutable world coordinates. Physics steps at 120 Hz; canvas size,
 DPR, browser zoom and viewport only change rendering. Combat uses directional logical
-body bands, never PNG alpha. Ranges below measure empty space from body edges;
+body bands, never PNG alpha. Horizontal attacks have a narrow vertical band so a platform above a Stegosaurus remains safe. Ranges below measure empty space from body edges;
 vision and pickup distance measure centre to centre. Special ranges are capped at
 the attack's starting position, so running during a special cannot extend its range.
 Charge damage additionally requires reaching the target during the sprint (0.25-field
@@ -54,7 +54,9 @@ unchanged; final fusion artwork is a separate asset task.
 | Basic enemy drops | None |
 | Medium enemy drops | One species item, 50% offense / 50% defense |
 | Elite enemy drops | Both species items |
-| Bernstein | Automatic pickup, 23 per fresh run, separate persistent total in Kennyverse header |
+| Map Bernstein | 23 fixed locations, each collectible once per account and Vienna calendar day (deduplicated cloud receipts) |
+| Enemy Bernstein | Basic 1–2, Medium 2–4, Elite exactly 6; spawned as collectible crystals after defeating a dino, new receipt per run |
+| Special stun | All successful specials stun their target for 1 second; Kenny gets 1 second of collision protection after a successful special |
 | TastyTokens / XP | No rewards or conversion from this game |
 
 Run pickups do not overwrite the saved start loadout. A fresh run reloads both saved
@@ -85,6 +87,24 @@ texts are overlays. Their contents never participate in sizing the canvas/sprite
 The existing platform geometry, gates, runes, checkpoints and Bernstein positions
 are unchanged. The entire level is called Stachelweide.
 
+## Expedition generation (Stachelweide)
+
+The shipped expedition rolls 20 encounters across ground and optional elevated routes.
+Each encounter independently rolls Stegosaurus or Triceratops at 50/50.
+Tier probabilities before the first elite are 55% basic / 35% medium / 10% elite.
+After one elite appears, further encounters use renormalized probabilities
+(55/90 basic and 35/90 medium); **a second elite can never spawn**.
+No elite is guaranteed. Basic has 2 hearts, medium has 4, elite has 7;
+the species determines the attack and potential item drops, not its tier.
+
+Exploration routes contain wider fossil ledges and alternate vertical paths.
+Checkpoints are landmarks/progress indicators only in real expeditions.
+A fatal hit or pit ends the current run; retry creates a new world with new
+encounters, resets temporary fusion and local Bernstein, and starts at x=90.
+Account-wide collection receipts and unlocked equipment are preserved.
+The old fixed three-encounter course remains available only to the deterministic
+engine solver tests, not to actual players.
+
 ## Verification
 
 `test-stachelweide.cjs` tests controls, exact logical distances, pogo, dual slots,
@@ -96,3 +116,9 @@ The world solver completes the full unchanged course through ordinary controls.
 Browser CI replays that course through DOM keyboard events, checks bite vs special,
 movement locks and sprite baselines, verifies both slots and empty inventory, and
 checks desktop/mobile HUD/controls at 320, 390, 768, 844 and 1280 pixels.
+
+## Daily crystals and special-attack stun
+
+Map crystals have receipt ids `stachelweide_YYYY-MM-DD_map_INDEX`, where the calendar date is computed for Europe/Vienna. Loaded account receipts suppress already collected locations for that day, including new runs and refreshes. Defeated enemies instead spawn 1–2 (basic), 2–4 (medium), or 6 (elite) amber crystals that are collected by proximity. Their per-run IDs avoid accidental duplicates. Both types are persisted in the same owner-scoped cloud collection. **Current Firestore rules allow the profile JSON to be edited by its owner, so these receipts are not verified anti-cheat evidence**; the server-authoritative migration is tracked by issue #62.
+
+A successful Kenny special stuns each hit enemy for one second and grants temporary contact protection. An enemy special that damages Kenny stuns him for one second. Existing damage invulnerability remains active to avoid an immediate second contact hit.

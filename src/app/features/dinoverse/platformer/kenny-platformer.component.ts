@@ -12,7 +12,9 @@ import {
   Input,
   NgZone,
   OnDestroy,
+  OnChanges,
   Output,
+  SimpleChanges,
   ViewChild,
   inject,
   signal,
@@ -21,7 +23,7 @@ import { Controls, KennyWorld, STEP } from './kenny-platformer.world';
 import { KennyRenderer } from './kenny-platformer.renderer';
 
 type Action = 'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack' | 'special' | 'interact';
-type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error' | 'tutorialComplete';
+type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error' | 'tutorialComplete' | 'lost';
 interface RecordTime {
   seconds: number;
   amber: number;
@@ -49,13 +51,15 @@ const KEYS: Record<string, Action> = {
   styleUrl: './kenny-platformer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
+export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() skin = 'blue';
   @Input() startEquipment: EquipmentSlots = { offense: null, defense: null };
   @Input() amberBalance = 0;
+  @Input() claimedAmber: Record<string, true> = {};
   @Input() tutorialSeen = false;
+  @Input() autoTutorial = false;
   @Output() tutorialAcknowledged = new EventEmitter<void>();
-  @Output() amberCollected = new EventEmitter<string>();
+  @Output() amberCollected = new EventEmitter<string[]>();
   @Output() pickupCollected = new EventEmitter<{ id: string; item: ItemId }>();
   @Input() available = false;
   @Output() exitRequested = new EventEmitter<void>();
@@ -129,7 +133,11 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
       this.renderer = new KennyRenderer(this.canvas.nativeElement);
       void this.renderer.ready
         .then(() => {
-          if (!this.destroyed) this.zone.run(() => this.assetsReady.set(true));
+          if (!this.destroyed)
+            this.zone.run(() => {
+              this.assetsReady.set(true);
+              this.tryAutoTutorial();
+            });
         })
         .catch(() => {
           if (!this.destroyed) this.zone.run(() => this.status.set('error'));
@@ -151,6 +159,22 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     this.focusDialog();
   }
 
+  ngOnChanges(_changes: SimpleChanges): void {
+    this.tryAutoTutorial();
+  }
+
+  private tryAutoTutorial(): void {
+    if (
+      this.autoTutorial &&
+      this.available &&
+      this.assetsReady() &&
+      this.expedition &&
+      !this.tutorialPromptHandled &&
+      this.status() === 'ready'
+    )
+      this.startTutorial();
+  }
+
   ngOnDestroy(): void {
     this.destroyed = true;
     cancelAnimationFrame(this.frame);
@@ -160,11 +184,28 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
       void document.exitFullscreen().catch(() => {});
   }
 
+  private todayKey(): string {
+    const now = new Date();
+    // Use a stable Austrian local calendar day, irrespective of browser locale.
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/Vienna',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(now);
+    const part = (type: string) => parts.find((value) => value.type === type)?.value || '';
+    return `${part('year')}-${part('month')}-${part('day')}`;
+  }
+
   start(): void {
     if (!this.available || !this.renderer || !this.assetsReady()) return;
     this.tutorialActive = false;
     this.tutorialDropPending = false;
-    this.world = new KennyWorld(this.startEquipment);
+    this.world = new KennyWorld(this.startEquipment, {
+      expedition: true,
+      claimedAmber: this.claimedAmber,
+      amberDay: this.todayKey(),
+    });
     this.accumulator = 0;
     this.clearInput();
     this.publishHud();
@@ -246,12 +287,6 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  checkpoint(): void {
-    this.world.respawn();
-    this.publishHud();
-    this.resume();
-  }
-
   formatTime(seconds: number): string {
     return `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60)
       .toString()
@@ -284,11 +319,6 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
       return;
     }
     if (this.status() !== 'playing' || !this.available) return;
-    if (event.code === 'KeyR') {
-      event.preventDefault();
-      if (!event.repeat) this.checkpoint();
-      return;
-    }
     const action = KEYS[event.code];
     if (!action) return;
     event.preventDefault();
@@ -352,7 +382,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     if (!this.available && this.status() === 'playing') this.zone.run(() => this.pause());
     if (this.status() === 'playing') {
       this.accumulator += delta;
-      while (this.accumulator + 1e-9 >= STEP && !this.world.won) {
+      while (this.accumulator + 1e-9 >= STEP && !this.world.won && !this.world.dead) {
         const controls: Controls = {
           axis: Number(this.held('right')) - Number(this.held('left')),
           aim: Number(this.held('aimDown')) - Number(this.held('aimUp')),
@@ -397,7 +427,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
           const events = this.world.amberEvents.splice(0);
           this.zone.run(() => {
             if (!this.tutorialActive && this.status() !== 'tutorialComplete')
-              for (const id of events) this.amberCollected.emit(id);
+              this.amberCollected.emit(events);
           });
         }
         this.jumpQueued = false;
@@ -407,6 +437,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
         this.accumulator -= STEP;
       }
       if (this.world.won && !this.tutorialActive) this.zone.run(() => this.finish());
+      if (this.world.dead && !this.tutorialActive) this.zone.run(() => this.fail());
       this.hudTime += delta;
       if (this.hudTime >= 0.1) {
         this.hudTime = 0;
@@ -488,6 +519,14 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
         : '',
     });
     this.hint.set(this.world.hint);
+  }
+
+  private fail(): void {
+    if (this.status() === 'lost') return;
+    this.status.set('lost');
+    this.clearInput();
+    this.publishHud();
+    this.focusDialog();
   }
 
   private finish(): void {

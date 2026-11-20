@@ -447,3 +447,39 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
 }
 
 .kenny-amber{color:#f3ca7f;white-space:nowrap;font-variant-numeric:tabular-nums;margin-left:auto;font-size:15px}.kenny-amber small{font-size:11px}.top{gap:12px}.top .kenny-top-home{min-width:0}@media(max-width:610px){.kenny-amber{font-size:13px}.kenny-amber small{display:none}.top{flex-wrap:wrap}.top .return{font-size:10px}}
+
+/* Compact Kennyverse settings: match the existing sidebar navigation. */
+.kenny-settings-menu {
+  margin: 2px 0 10px;
+}
+.kenny-settings-menu > summary {
+  display: flex;
+  cursor: pointer;
+  list-style: none;
+}
+.kenny-settings-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.kenny-settings-menu[open] > summary {
+  border-color: var(--kenny-primary);
+}
+.kenny-settings-content {
+  margin: 5px 2px 0;
+  padding: 10px;
+  border: 1px solid var(--kenny-line);
+  border-radius: 12px;
+  background: var(--kenny-panel2);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.kenny-settings-content strong {
+  color: var(--kenny-primary);
+}
+.kenny-settings-content p {
+  margin: 6px 0 10px;
+}
+.kenny-settings-content a {
+  display: block;
+  text-align: center;
+  font-weight: 700;
+}

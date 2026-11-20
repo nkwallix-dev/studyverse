@@ -107,7 +107,8 @@ export class App implements OnInit,OnDestroy {
  readonly items=[...SHOP_ITEMS,...KENNY_ITEMS];
  view:View='dashboard'; selected:string|null=null; search=''; group='Alle'; shopGroup='Alle';
  shopDrop='global'; spotlightRewardId=''; shopTab:'catalog'|'inventory'|'kenny'|'designer'='catalog'; inventoryDrop='Alle'; inventoryGroup='Alle'; inventorySearch=''; previewed:ShopItem|null=null; avatarPickerOpen=false;
- kennyClock=Date.now();kennyBusy=false;kennyFeeding=false;kennyVisibleFeeds:number|null=null;kennyError='';kennyCustomizeOpen=false;kennyPoolOpen=false;
+ kennyAutoTutorial = false;
+  kennyClock=Date.now();kennyBusy=false;kennyFeeding=false;kennyVisibleFeeds:number|null=null;kennyError='';kennyCustomizeOpen=false;kennyPoolOpen=false;
  kennyReveals: KennyReveal[] = [];
  private kennyTimer:ReturnType<typeof setInterval>|null=null;
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
@@ -164,8 +165,12 @@ export class App implements OnInit,OnDestroy {
        this.profile['companionOwnerUid'] = uid;
        write(KEY, JSON.stringify(this.profile));
        this.cloudMaySave = true;
+       this.cloudStatus = '✓ Online geladen';
      }
-   } catch (error) { this.cloudMessage = cloudError(error); }
+   } catch (error) {
+     this.cloudStatus = '⚠ Cloud-Laden fehlgeschlagen';
+     this.cloudMessage = cloudError(error);
+   }
    finally {
      this.cloudReady = true;
      this.cloudConfigured = this.cloud.configured;
@@ -186,7 +191,8 @@ export class App implements OnInit,OnDestroy {
    this.nicknameEdit=this.profile.nickname;
    // Standalone Verses link to the shared player profile; resolve the hash
    // without changing the single-page app's existing navigation model.
-   if (window.location.hash === '#kenny-platformer') {
+   if (window.location.hash === '#kenny-platformer' || window.location.hash === '#kenny-platformer-tutorial') {
+     this.kennyAutoTutorial = window.location.hash === '#kenny-platformer-tutorial';
      this.view = 'platformer';
    }
    if(window.location.hash==='#profile'||window.location.hash==='#companions'){
@@ -305,9 +311,11 @@ export class App implements OnInit,OnDestroy {
    this.profile['kennyTutorialSeen'] = true;
    this.save();
  }
- collectAmber(id: string): void {
+ collectAmber(ids: string[]): void {
    if (this.cloud.session && !this.cloudMaySave) return;
-   this.profile['companions'] = recordAmber(this.companionState, id);
+   let next = this.companionState;
+   for (const id of ids) next = recordAmber(next, id);
+   this.profile['companions'] = next;
    this.saveCompanionProgress();
  }
  equipCompanionItem(event: { item: ItemId | null; slot: ItemSlot }): void {
@@ -651,6 +659,7 @@ export class App implements OnInit,OnDestroy {
        }
        this.cloudMaySave=true;
        this.cloudHydrating=false;
+       this.cloudStatus='✓ Online geladen';
        this.settleKennyIfExpired();
      }
    }catch(e){
