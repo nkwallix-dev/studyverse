@@ -248,8 +248,13 @@ async function initialize(context, retained = true, companions = undefined) {
     await page.screenshot({ path: path.join(screenshots, 'kenny-jump-attack.png') });
     await page.evaluate(() => window.__kennyFrames(65));
     const stageSize = await page.locator('canvas').boundingBox();
-    await page.locator('.game-hint').evaluate((el) => {
-      el.textContent = 'Ein sehr langer Pickup-Hinweis '.repeat(30);
+    // The permanent key hint was intentionally removed. Inject a simulated
+    // contextual overlay to verify long messages cannot resize the canvas.
+    await page.locator('.kenny-stage').evaluate((stage) => {
+      const overlay = document.createElement('div');
+      overlay.className = 'game-hint';
+      overlay.textContent = 'Ein sehr langer Pickup-Hinweis '.repeat(30);
+      stage.append(overlay);
     });
     assert.deepEqual(await page.locator('canvas').boundingBox(), stageSize);
     // Random encounters can legitimately end a run before the UI regression finishes.
