@@ -425,7 +425,7 @@ assert.equal(firstEnemy.alerted, false, 'Pursuit drops immediately after a level
 const falling = new KennyWorld(null, { expedition: true, random: () => 0.99 });
 falling.enemies.splice(1);
 const fallingDino = falling.enemies[0];
-fallingDino.x = 697;
+fallingDino.x = 667;
 fallingDino.y = 330;
 fallingDino.vy = 0;
 fallingDino.attackTime = 0;
@@ -434,7 +434,7 @@ fallingDino.direction = 1;
 fallingDino.alerted = false;
 fallingDino.min = 640;
 fallingDino.max = 760;
-fallingDino.originX = 697;
+fallingDino.originX = 667;
 seconds(falling, 0.7);
 assert.equal(fallingDino.alive, false, 'Enemies entering the lava gap must die');
 console.log('Pangaea PASS: expanded map, reachable crystals, level-aware pursuit, spread spawns and lava deaths.');
