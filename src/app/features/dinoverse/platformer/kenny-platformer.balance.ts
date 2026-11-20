@@ -28,6 +28,9 @@ export const BALANCE = {
   charge: { range: 4, travel: 4, damage: 2, cooldown: 4, windup: 2, active: 0.4, recovery: 0.2 },
   shield: { frill: 2, plates: 1, regeneration: 8 },
   specialStun: 1,
+  triceratopsStun: 3,
+  stegoBleed: { duration: 4, tick: 1, damage: 0.25 },
+  enemyPursuit: { levelTolerance: 0.8, separation: 0.4 },
   amber: { basic: [1, 2], medium: [2, 4], elite: [6, 6] } as const,
   enemy: {
     sight: 5,
