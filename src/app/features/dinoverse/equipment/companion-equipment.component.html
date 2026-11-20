@@ -21,8 +21,8 @@
     <div class="cards">
       <article *ngFor="let item of visibleItems" [class.unlocked]="count(item.id) >= 50">
         <img
-          [src]="'kenny/hornweide/' + item.asset + '.svg'"
-          [alt]="item.name + ' – Platzhalter'"
+          [src]="'kenny/hornweide/drops/' + item.id + '.png'"
+          [alt]="item.name + ' – Dino-Item'"
         />
         <small *ngIf="tab === 'inventory'">{{ slotName(item.id) }}</small>
         <small>{{ count(item.id) >= 50 ? 'FREIGESCHALTET' : 'GESPERRT' }}</small>
@@ -53,6 +53,7 @@
       <span>🏆 ACHIEVEMENT FREIGESCHALTET!</span>
       <h2 id="companion-reward-title">{{ item.achievement }}</h2>
       <p>{{ item.quip }}</p>
+      <img class="reward-art" [src]="'kenny/hornweide/drops/' + item.id + '.png'" [alt]="item.name" />
       <p>
         Neue Begleiter-Ausrüstung freigeschaltet: <strong>{{ item.name }}</strong>
       </p>
