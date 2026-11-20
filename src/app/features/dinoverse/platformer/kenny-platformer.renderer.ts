@@ -234,7 +234,12 @@ export class KennyRenderer {
       const x = drop.x + drop.w / 2;
       const y = drop.y + drop.h / 2;
       this.polygon(
-        [[x, y - 8], [x + 6, y], [x, y + 8], [x - 6, y]],
+        [
+          [x, y - 8],
+          [x + 6, y],
+          [x, y + 8],
+          [x - 6, y],
+        ],
         '#f6ba59',
       );
       this.circle(x - 1, y - 2, 2, '#fff1b1');
