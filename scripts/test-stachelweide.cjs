@@ -392,3 +392,50 @@ assert.equal(bleeding.health, 2);
 seconds(bleeding, 4.01);
 assert.equal(bleeding.health, 1, 'bleed does four 0.25-heart ticks');
 console.log('Amber/Stun PASS: daily map receipts, tier ranges, physical drops, 1s special stun.');
+
+const expanded = new KennyWorld(null, { expedition: true, random: () => 0.99 });
+assert(expanded.width >= 10000, 'The Pangaea expedition must actually be wider than legacy');
+assert(expanded.platforms.filter(platform => platform.oneWay).length >= 15);
+assert.equal(expanded.amber.length, 23, 'All daily map crystals are preserved');
+const available = expanded.platforms;
+for (const crystal of expanded.amber) {
+  const support = available.find(platform =>
+    crystal.x >= platform.x && crystal.x <= platform.x + platform.w &&
+    platform.y - crystal.y >= 20 && platform.y - crystal.y <= 75
+  );
+  assert(support, 'Every crystal must be positioned above a reachable platform: ' + JSON.stringify(crystal));
+}
+const nearby = [...expanded.enemies].sort((a,b)=>a.x-b.x);
+assert(nearby.every((enemy,i) => i===0 || enemy.x-nearby[i-1].x >= 150),
+  'Enemies must have real breathing room across the expanded map');
+const upperLane = new KennyWorld(null, { expedition: true, random: () => 0.99 });
+upperLane.enemies.splice(1);
+const firstEnemy = upperLane.enemies[0];
+firstEnemy.direction = 1;
+upperLane.player.x = firstEnemy.x + 125;
+upperLane.player.y = 225;
+seconds(upperLane, 0.5);
+assert.equal(firstEnemy.alerted, false, 'Dinos must not chase Kenny onto an unreachable higher ledge');
+upperLane.player.y = 390;
+seconds(upperLane, STEP);
+assert.equal(firstEnemy.alerted, true, 'Normal same-lane pursuit must still work');
+upperLane.player.y = 225;
+seconds(upperLane, STEP);
+assert.equal(firstEnemy.alerted, false, 'Pursuit drops immediately after a level change');
+const falling = new KennyWorld(null, { expedition: true, random: () => 0.99 });
+falling.enemies.splice(1);
+const fallingDino = falling.enemies[0];
+fallingDino.x = 697;
+fallingDino.y = 330;
+fallingDino.vy = 0;
+fallingDino.attackTime = 0;
+fallingDino.attackCooldown = 99;
+fallingDino.direction = 1;
+fallingDino.alerted = false;
+fallingDino.min = 640;
+fallingDino.max = 760;
+fallingDino.originX = 697;
+seconds(falling, 0.7);
+assert.equal(fallingDino.alive, false, 'Enemies entering the lava gap must die');
+console.log('Pangaea PASS: expanded map, reachable crystals, level-aware pursuit, spread spawns and lava deaths.');
+
