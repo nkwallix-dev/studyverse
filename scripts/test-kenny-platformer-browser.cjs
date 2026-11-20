@@ -236,8 +236,18 @@ async function initialize(context, retained = true, companions = undefined) {
       el.textContent = 'Ein sehr langer Pickup-Hinweis '.repeat(30);
     });
     assert.deepEqual(await page.locator('canvas').boundingBox(), stageSize);
+    // Random encounters can legitimately end a run before the UI regression finishes.
+    if (await page.getByRole('button', { name: 'Neuer Versuch' }).isVisible()) {
+      await page.getByRole('button', { name: 'Neuer Versuch' }).click();
+    }
     await page.keyboard.press('KeyP');
-    await page.getByRole('button', { name: 'Weiterspielen' }).waitFor();
+    await page.evaluate(() => window.__kennyFrames(3));
+    const gameDialog = await page.locator('.game-dialog').allInnerTexts();
+    console.log('KENNYVERSE PAUSE CHECK:', gameDialog);
+    assert(
+      await page.getByRole('button', { name: 'Weiterspielen' }).isVisible(),
+      'P must pause the real expedition: ' + JSON.stringify(gameDialog),
+    );
     await page.getByRole('button', { name: 'Weiterspielen' }).click();
     await page.getByRole('button', { name: /Einstellungen/ }).click();
     await page.getByRole('button', { name: 'Tutorial spielen' }).waitFor();
