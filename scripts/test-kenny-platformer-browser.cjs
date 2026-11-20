@@ -48,6 +48,7 @@ function binaryPath() {
 async function initialize(context, retained = true, companions = undefined) {
   await context.addInitScript(
     ({ retained, companions }) => {
+      if (window.parent !== window) return;
       localStorage.setItem('studyverse_import_prompt_seen_v1', '1');
       localStorage.setItem(
         'studyverse_profile_v1',
@@ -332,6 +333,55 @@ async function initialize(context, retained = true, companions = undefined) {
     await inventory.getByText('Aktive Fusionen (Grafik folgt): Triceratops-Hörner').waitFor();
     assert.equal(await inventory.evaluate(() => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens), 1745);
     await collection.close();
+
+    // Enter from the Kennyverse itself: both collection tabs retain its shell.
+    const tabs = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    await initialize(tabs, true, {
+      version: 1,
+      pickups: Object.fromEntries(Array.from({ length: 50 }, (_, i) => ['tab_fixture_' + i, 'triceratops-horns'])),
+      equipped: null, equippedAt: 0, seen: ['triceratops-horns'],
+    });
+    const kenny = await tabs.newPage();
+    const tabErrors = [];
+    kenny.on('pageerror', error => tabErrors.push(error.message));
+    await kenny.goto(base + 'kennyverse/index.html');
+    await kenny.locator('.side [data-kenny-nav="inventory"]').click();
+    const panel = kenny.frameLocator('#kennyCollection iframe');
+    await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
+    assert.equal(await panel.locator('.sidebar').count(), 0, 'Do not show the global Studyverse navigation inside Kennyverse');
+    assert.equal(await panel.locator('nav[aria-label="Begleiter-Sammlung"]').count(), 0);
+    await panel.locator('article').first().getByRole('button', { name: 'Ausrüsten', exact: true }).click();
+    await panel.getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
+    await kenny.locator('.side [data-kenny-nav="achievements"]').click();
+    await panel.getByRole('heading', { name: 'Begleiter-Achievements', exact: true }).waitFor();
+    await panel.getByRole('heading', { name: 'Plattenbau Deluxe', exact: true }).waitFor();
+    assert.equal(await panel.locator('article').count(), 4);
+    assert.equal(await panel.getByRole('button', { name: 'Ausrüsten', exact: true }).count(), 0);
+    assert.equal(await kenny.locator('#kennyCollection iframe').count(), 1, 'Tab switches reuse the collection and pending saves');
+    for (const width of [320, 390, 768, 1280]) {
+      await kenny.setViewportSize({ width, height: 900 });
+      const navigation = width <= 610 ? '.kenny-mobile-nav' : '.side';
+      await kenny.locator(navigation + ' [data-kenny-nav="inventory"]').click();
+      await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
+      await panel.getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
+      assert(await kenny.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
+      assert(await panel.locator('body').evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
+      const frameBox = await kenny.locator('#kennyCollection iframe').boundingBox();
+      assert(frameBox.height > 200 && frameBox.width > 100, 'Collection has usable space at ' + width);
+      await kenny.screenshot({ path: path.join(screenshots, `kenny-inventory-tab-${width}.png`) });
+      await kenny.locator(navigation + ' [data-kenny-nav="achievements"]').click();
+      await panel.getByRole('heading', { name: 'Begleiter-Achievements', exact: true }).waitFor();
+      await kenny.screenshot({ path: path.join(screenshots, `kenny-achievements-tab-${width}.png`) });
+    }
+    await kenny.locator('.side [data-kenny-nav="quiz"]').click();
+    const question = await kenny.locator('.question').innerText();
+    await kenny.locator('.side [data-kenny-nav="inventory"]').click();
+    await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
+    await kenny.locator('.side [data-kenny-nav="quiz"]').click();
+    assert.equal(await kenny.locator('.question').innerText(), question, 'Visiting the collection must retain quiz sessions');
+    assert.equal(await kenny.evaluate(() => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens), 1745);
+    assert.deepEqual(tabErrors, []);
+    await tabs.close();
 
     const locked = await browser.newContext();
     await initialize(locked, false);

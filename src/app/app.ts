@@ -134,7 +134,50 @@ export class App implements OnInit,OnDestroy {
   if(read(CLOUD_SESSION_KEY)&&(!this.cloudReady||this.cloudHydrating))return;
   this.syncChemverse();this.grantAchievementTokens();this.checkRewardUnlocks();this.queueCloudSave();
  };
+ kennyPanel: 'inventory' | 'achievements' | null = (() => {
+   const panel = new URLSearchParams(window.location.search).get('kenny-panel');
+   return panel === 'inventory' || panel === 'achievements' ? panel : null;
+ })();
+ private readonly onKennyTab = (event: MessageEvent) => {
+   if (event.origin !== window.location.origin || event.source !== window.parent ||
+       event.data?.type !== 'studyverse-kenny-tab') return;
+   if (event.data.tab !== 'inventory' && event.data.tab !== 'achievements') return;
+   this.kennyPanel = event.data.tab;
+   window.scrollTo(0, 0);
+   this.changeDetector.markForCheck();
+ };
+ openKennyCollectionTab(tab: 'inventory' | 'platformer'): void {
+   if (window.parent !== window) {
+     window.parent.postMessage({type: 'studyverse-kenny-navigate', tab}, window.location.origin);
+   } else window.location.assign(tab === 'platformer' ? '#kenny-platformer' : 'kennyverse/index.html?mode=inventory');
+ }
+ private async startKennyCollection(): Promise<void> {
+   try {
+     await this.cloud.initialize();
+     if (this.cloud.session) {
+       const uid = this.cloud.session.uid;
+       const remote = await this.cloud.load();
+       if (this.cloud.session?.uid !== uid) return;
+       this.profile = this.load();
+       const ownLocal = this.profile['companionOwnerUid'] === uid ? this.profile['companions'] : null;
+       this.profile['companions'] = mergeCompanions(ownLocal, remote?.profile['companions']);
+       this.profile['companionOwnerUid'] = uid;
+       write(KEY, JSON.stringify(this.profile));
+       this.cloudMaySave = true;
+     }
+   } catch (error) { this.cloudMessage = cloudError(error); }
+   finally {
+     this.cloudReady = true;
+     this.cloudConfigured = this.cloud.configured;
+     this.changeDetector.markForCheck();
+   }
+ }
  ngOnInit(){
+   if (this.kennyPanel) {
+     window.addEventListener('message', this.onKennyTab);
+     void this.startKennyCollection();
+     return;
+   }
    this.kennyTimer=setInterval(()=>{
      this.kennyClock=Date.now();this.settleKennyIfExpired();
      if(this.view==='shop'&&(this.shopTab==='kenny'||this.shopTab==='designer')&&!this.kennyPresent)this.view='companions';
@@ -161,7 +204,7 @@ export class App implements OnInit,OnDestroy {
    window.addEventListener('pageshow',this.onReturn);
    void this.startCloud();
  }
- ngOnDestroy(){window.removeEventListener('pageshow',this.onReturn);if(this.kennyTimer)clearInterval(this.kennyTimer);}
+ ngOnDestroy(){window.removeEventListener('message',this.onKennyTab);window.removeEventListener('pageshow',this.onReturn);if(this.kennyTimer)clearInterval(this.kennyTimer);}
  private load():Profile {
    const raw=parse(read(KEY));const fresh=initial();
    if(!isObj(raw))return fresh;
@@ -255,11 +298,13 @@ export class App implements OnInit,OnDestroy {
    this.saveCompanionProgress();
  }
  equipCompanionItem(item: ItemId | null): void {
+   if (this.kennyPanel) this.profile = this.load();
    if (this.cloud.session && !this.cloudMaySave) return;
    this.profile['companions'] = equipCompanion(this.companionState, item);
    this.saveCompanionProgress();
  }
  acknowledgeCompanion(item: ItemId): void {
+   if (this.kennyPanel) this.profile = this.load();
    if (this.cloud.session && !this.cloudMaySave) return;
    const state = this.companionState;
    this.profile['companions'] = { ...state, seen: [...new Set([...state.seen, item])] };
@@ -276,6 +321,7 @@ export class App implements OnInit,OnDestroy {
      if (this.cloud.session?.uid !== uid) return;
      await this.cloud.save(snapshot, true);
      if (this.cloud.session?.uid !== uid) return;
+     if (this.kennyPanel) this.profile = this.load();
      this.profile['companions'] = mergeCompanions(this.profile['companions'], snapshot.profile['companions']);
      write(KEY, JSON.stringify(this.profile));
      this.cloudStatus = '✓ Online gespeichert';
