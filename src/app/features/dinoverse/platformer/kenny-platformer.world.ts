@@ -5,7 +5,7 @@ import {
   itemSlot,
   dropsFor,
 } from '../equipment/companion-equipment.model';
-import { BALANCE, FIELD, SpecialKind, specialDuration } from './kenny-platformer.balance';
+import { BALANCE, FIELD, SpecialKind, specialDuration, playerSpecialDuration } from './kenny-platformer.balance';
 import { Rect, centre, distanceInFields, reaches } from './kenny-platformer.combat';
 export type { Rect } from './kenny-platformer.combat';
 export interface Controls {
@@ -16,6 +16,7 @@ export interface Controls {
   attack: boolean;
   special?: boolean;
   interact?: boolean;
+  drop?: boolean;
 }
 export interface Platform extends Rect {
   origin?: number;
@@ -47,6 +48,8 @@ export interface Enemy extends Rect {
   vy: number;
   originX: number;
   originY: number;
+  knockbackVelocity: number;
+  knockbackRemaining: number;
 }
 export interface DamageText {
   id: number;
@@ -157,7 +160,7 @@ export class KennyWorld {
   }
   dead = false;
   readonly runId = crypto.randomUUID();
-  readonly loot: (Rect & { id: string; item: ItemId; collected: boolean })[] = [];
+  readonly loot: (Rect & { id: string; item: ItemId; collected: boolean; receiptEligible?: boolean })[] = [];
   readonly enemyAmberDrops: (Rect & { id: string; collected: boolean })[] = [];
   readonly pickupEvents: { id: string; item: ItemId }[] = [];
   readonly amberEvents: string[] = [];
@@ -180,6 +183,10 @@ export class KennyWorld {
   specialCooldown = 0;
   biteTime = 0;
   biteCooldown = 0;
+  biteAim = 0;
+  private dropIgnore?: Platform;
+  private dropIgnoreTime = 0;
+  private swapSerial = 0;
   aim = 0;
   invulnerable = 0;
   playerStun = 0;
@@ -288,7 +295,8 @@ export class KennyWorld {
     this.platforms.splice(
       0,
       this.platforms.length,
-      floor(0, 640),
+      floor(0, 195),
+      floor(335, 305),
       floor(760, 1110),
       floor(1990, 1380),
       floor(3490, 1140),
@@ -296,7 +304,9 @@ export class KennyWorld {
       floor(6270, 1400),
       floor(7790, 1440),
       floor(9350, 950),
-      ledge(230, 365, 190, true),
+      ledge(335, 365, 190, true),
+      ledge(1100, 190, 150, true),
+      ledge(1260, 140, 155, true),
       ledge(370, 275, 170, true),
       ledge(510, 185, 185, true),
       ledge(690, 275, 180, true),
@@ -306,18 +316,21 @@ export class KennyWorld {
       ledge(1530, 360, 240, true),
       ledge(2350, 365, 200, true),
       ledge(2490, 290, 350, true),
+      ledge(2910, 215, 155, true),
       ledge(2770, 375, 230, true),
       ledge(3920, 365, 220, true),
       ledge(4040, 300, 380, true),
       ledge(4300, 375, 260, true),
       ledge(5170, 365, 200, true),
       ledge(5340, 285, 340, true),
+      ledge(5770, 190, 175, true),
       ledge(5650, 375, 210, true),
       ledge(6640, 365, 200, true),
       ledge(6740, 310, 410, true),
       ledge(7060, 380, 200, true),
       ledge(8150, 365, 200, true),
       ledge(8330, 275, 400, true),
+      ledge(8770, 195, 170, true),
       ledge(8680, 365, 200, true),
       ledge(9220, 365, 160, true),
       ledge(9350, 350, 270, true),
@@ -327,6 +340,7 @@ export class KennyWorld {
       0,
       this.hazards.length,
       ...[
+        [195, 140],
         [640, 120],
         [1870, 120],
         [3370, 120],
@@ -384,7 +398,7 @@ export class KennyWorld {
   /** Independent species and tier RNG; 20 encounters spaced across 10.3kpx. */
   private rollExpeditionEnemies(random: () => number): Enemy[] {
     const slots = [
-      [450, 450, 300, 590],
+      [450, 450, 340, 590],
       [1050, 450, 900, 1260],
       [1460, 270, 1300, 1590],
       [1750, 450, 1610, 1840],
@@ -465,6 +479,8 @@ export class KennyWorld {
     this.elapsed += dt;
     this.messageTime = Math.max(0, this.messageTime - dt);
     this.specialCooldown = Math.max(0, this.specialCooldown - dt);
+    this.dropIgnoreTime = Math.max(0, this.dropIgnoreTime - dt);
+    if (!this.dropIgnoreTime) this.dropIgnore = undefined;
     this.biteCooldown = Math.max(0, this.biteCooldown - dt);
     this.biteTime = Math.max(0, this.biteTime - dt);
     this.invulnerable = Math.max(0, this.invulnerable - dt);
@@ -502,13 +518,14 @@ export class KennyWorld {
         jumpHeld: false,
         attack: false,
         special: false,
+        drop: false,
       };
       player.vx = 0;
     }
     if (input.special && this.attackTime <= 0 && this.specialCooldown === 0) {
       if (input.axis) player.facing = Math.sign(input.axis);
       this.attackKind = this.specialKind;
-      this.attackTime = specialDuration(this.attackKind);
+      this.attackTime = playerSpecialDuration(this.attackKind);
       this.specialCooldown = BALANCE[this.attackKind].cooldown;
       this.attackFacing = player.facing;
       this.attackOrigin = { ...player };
@@ -530,11 +547,11 @@ export class KennyWorld {
     }
     if (this.attackTime > 0) {
       const kind = this.attackKind,
-        elapsed = specialDuration(kind) - this.attackTime;
+        elapsed = playerSpecialDuration(kind) - this.attackTime;
       const active =
         kind !== 'tail' &&
-        elapsed + 1e-9 >= BALANCE[kind].windup &&
-        elapsed < BALANCE[kind].windup + BALANCE[kind].active - 1e-9;
+        elapsed + 1e-9 >= (kind === 'charge' ? BALANCE.playerChargeWindup : BALANCE[kind].windup) &&
+        elapsed < (kind === 'charge' ? BALANCE.playerChargeWindup : BALANCE[kind].windup) + BALANCE[kind].active - 1e-9;
       player.facing =
         kind === 'tail' && elapsed >= BALANCE.tail.duration / 2
           ? -this.attackFacing
@@ -572,11 +589,21 @@ export class KennyWorld {
       if (!this.pogoRising && !input.jumpHeld && player.vy < -BALANCE.player.jumpCutoff * FIELD)
         player.vy = -BALANCE.player.jumpCutoff * FIELD;
     }
+    if (input.drop && this.grounded?.oneWay && this.attackTime === 0) {
+      this.dropIgnore = this.grounded;
+      this.dropIgnoreTime = 0.34;
+      player.y = this.grounded.y + 5;
+      player.vy = Math.max(120, player.vy);
+      this.grounded = undefined;
+      this.coyote = 0;
+      this.jumpBuffer = 0;
+    }
     if (player.vy >= 0) this.pogoRising = false;
     player.vy += BALANCE.gravity * dt;
     this.movePlayer(dt);
     if (input.attack && this.biteCooldown === 0 && this.attackTime === 0) {
       this.biteTime = BALANCE.bite.duration;
+      this.biteAim = this.aim;
       this.biteCooldown = BALANCE.bite.cooldown;
       this.activatedRunes.clear();
       this.interactWithRuins();
@@ -585,12 +612,12 @@ export class KennyWorld {
           this.hitEnemy(enemy, BALANCE.bite.damage);
     }
     if (this.attackTime > 0) {
-      const elapsed = specialDuration(this.attackKind) - this.attackTime;
+      const elapsed = playerSpecialDuration(this.attackKind) - this.attackTime;
       const active =
         this.attackKind === 'tail'
           ? elapsed >= 0.4 && elapsed < 0.68
-          : elapsed + 1e-9 >= BALANCE[this.attackKind].windup &&
-            elapsed < BALANCE[this.attackKind].windup + BALANCE[this.attackKind].active;
+          : elapsed + 1e-9 >= (this.attackKind === 'charge' ? BALANCE.playerChargeWindup : BALANCE[this.attackKind].windup) &&
+            elapsed < (this.attackKind === 'charge' ? BALANCE.playerChargeWindup : BALANCE[this.attackKind].windup) + BALANCE[this.attackKind].active;
       if (active) this.specialStrike();
       this.attackTime = Math.max(0, this.attackTime - dt);
     }
@@ -638,6 +665,8 @@ export class KennyWorld {
       vy: 0,
       originX: x,
       originY: armored ? 380 : 398,
+      knockbackVelocity: 0,
+      knockbackRemaining: 0,
     };
   }
   private say(message: string): void {
@@ -677,7 +706,17 @@ export class KennyWorld {
         continue;
       this.attackHits.add(enemy);
       this.hitEnemy(enemy, BALANCE[this.attackKind].damage);
-      enemy.stun = Math.max(enemy.stun, BALANCE.specialStun);
+      if (this.attackKind === 'charge' || this.attackKind === 'tail') {
+        const fields = this.attackKind === 'charge'
+          ? BALANCE.playerChargeKnockback : BALANCE.playerTailKnockback;
+        enemy.stun = Math.max(enemy.stun, this.attackKind === 'charge'
+          ? BALANCE.playerChargeStun : BALANCE.playerTailStun);
+        enemy.knockbackRemaining = BALANCE.knockbackSeconds;
+        enemy.knockbackVelocity =
+          this.attackFacing * (fields * FIELD / BALANCE.knockbackSeconds);
+      } else {
+        enemy.stun = Math.max(enemy.stun, BALANCE.specialStun);
+      }
       // Successful specials must not cause unavoidable contact damage while overlapping.
       this.invulnerable = Math.max(this.invulnerable, BALANCE.specialStun);
       if (this.attackKind === 'tail' && enemy.alive) {
@@ -793,6 +832,19 @@ export class KennyWorld {
         if (!enemy.alive) continue;
       }
       enemy.stun = Math.max(0, enemy.stun - dt);
+      if (enemy.knockbackRemaining > 0) {
+        const travel = Math.min(dt, enemy.knockbackRemaining);
+        if (!this.walkEnemy(enemy, enemy.knockbackVelocity * travel, true)) {
+          enemy.knockbackRemaining = 0;
+        } else {
+          enemy.knockbackRemaining = Math.max(0, enemy.knockbackRemaining - travel);
+        }
+        enemy.attackTime = 0;
+        enemy.alerted = false;
+        enemy.returning = true;
+        this.enemyGravity(enemy, dt);
+        continue;
+      }
       enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
       const dx = centre(this.player).x - centre(enemy).x;
       const distance = distanceInFields(this.player, enemy);
@@ -881,7 +933,10 @@ export class KennyWorld {
         }
       }
       // Only same-level body contact hurts Kenny; high platforms cannot be hit.
-      if (!charging && sameLevel && overlaps(this.player, enemy))
+      // Triceratops horns hurt only in front, not at the tail.
+      const hornFacingContact = enemy.species !== 'triceratops' ||
+        (centre(this.player).x - centre(enemy).x) * enemy.direction > 0;
+      if (!charging && sameLevel && hornFacingContact && overlaps(this.player, enemy))
         this.hurt(enemy, BALANCE.enemy.contactDamage);
       this.enemyGravity(enemy, dt);
     }
@@ -1041,7 +1096,7 @@ export class KennyWorld {
     this.grounded = undefined;
     for (const solid of solids) {
       if (!overlaps(player, solid)) continue;
-      if ((solid as Platform).oneWay && !(player.vy >= 0 && previousFeet <= solid.y + 4)) continue;
+      if ((solid as Platform).oneWay && (solid === this.dropIgnore || !(player.vy >= 0 && previousFeet <= solid.y + 4))) continue;
       if (player.vy >= 0 && previousFeet <= solid.y + 4) {
         player.y = solid.y - player.h;
         this.grounded = this.platforms.find((platform) => platform === solid);
@@ -1060,8 +1115,20 @@ export class KennyWorld {
     const drop = this.nearbyDrop;
     if (interact && drop) {
       drop.collected = true;
+      const previous = this[itemSlot(drop.item)];
       this.equipRun(drop.item);
-      this.pickupEvents.push({ id: drop.id, item: drop.item });
+      if (previous && previous !== drop.item) {
+        // Swapped gear stays on the ground; repeated swaps never farm achievements.
+        this.loot.push({
+          id: `${this.runId}_swap_${++this.swapSerial}`,
+          item: previous,
+          x: this.player.x + (this.player.facing > 0 ? 39 : -27),
+          y: this.player.y + this.player.h - 23,
+          w: 22, h: 22, collected: false, receiptEligible: false,
+        });
+      }
+      if (drop.receiptEligible !== false)
+        this.pickupEvents.push({ id: drop.id, item: drop.item });
     }
     this.amber.forEach((amber, i) => {
       if (
