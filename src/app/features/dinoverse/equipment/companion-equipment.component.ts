@@ -14,7 +14,9 @@ import {
   styleUrl: './companion-equipment.component.scss',
 })
 export class CompanionEquipmentComponent {
+  @Input() popupOnly = false;
   @Input() state: CompanionState = normalizeCompanions(null);
+  @Output() inventoryRequested = new EventEmitter<void>();
   @Output() playRequested = new EventEmitter<void>();
   @Output() equipRequested = new EventEmitter<ItemId | null>();
   @Output() seenRequested = new EventEmitter<ItemId>();
@@ -29,7 +31,10 @@ export class CompanionEquipmentComponent {
     );
   }
   accept(id: ItemId, inventory = false): void {
-    if (inventory) this.tab = 'inventory';
+    if (inventory) {
+      this.tab = 'inventory';
+      if (this.popupOnly) this.inventoryRequested.emit();
+    }
     this.seenRequested.emit(id);
   }
 }

@@ -6,6 +6,8 @@
   [available]="kennyPresent && (!cloud.session || cloudMaySave)"
   (exitRequested)="closeKennyPlatformer()"
 ></app-kenny-platformer>
+<app-companion-equipment *ngIf="view === 'platformer'" [popupOnly]="true" [state]="companionState"
+  (seenRequested)="acknowledgeCompanion($event)" (inventoryRequested)="closeKennyPlatformer()" />
 <div class="universe" [attr.inert]="view==='platformer'?'':null" [class.kenny-mode]="view==='shop' && (shopTab==='kenny'||shopTab==='designer')" [class.shop-mode]="view==='shop' && (shopTab==='catalog'||shopTab==='inventory')" [class.friends-mode]="view==='friends'" [class.designer-mode]="view==='shop' && shopTab==='designer'" [class.companions-mode]="view==='companions'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
   <div class="ambient a"></div><div class="ambient b"></div>
   <aside class="sidebar">

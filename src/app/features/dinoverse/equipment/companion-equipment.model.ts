@@ -74,7 +74,7 @@ export function normalizeCompanions(raw: unknown): CompanionState {
     equipped: isItem(data.equipped) ? data.equipped : null,
     equippedAt:
       Number.isSafeInteger(data.equippedAt) && data.equippedAt! > 0 ? data.equippedAt! : 0,
-    seen: Array.isArray(data.seen) ? [...new Set(data.seen.filter(isItem))] : [],
+    seen: Array.isArray(data.seen) ? [...new Set(data.seen.filter(isItem))].sort() : [],
   };
   if (state.equipped && countItem(state, state.equipped) < 50) state.equipped = null;
   return state;
@@ -84,7 +84,11 @@ export const countItem = (state: CompanionState, item: ItemId): number =>
 export function mergeCompanions(a: unknown, b: unknown): CompanionState {
   const left = normalizeCompanions(a),
     right = normalizeCompanions(b);
-  const chosen = left.equippedAt > right.equippedAt ? left : right;
+  const chosen =
+    left.equippedAt > right.equippedAt ||
+    (left.equippedAt === right.equippedAt && (left.equipped || '') > (right.equipped || ''))
+      ? left
+      : right;
   return normalizeCompanions({
     ...chosen,
     pickups: { ...left.pickups, ...right.pickups },
