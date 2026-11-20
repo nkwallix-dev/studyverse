@@ -71,6 +71,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
   readonly tutorialStep = signal(0);
   tutorialPromptHandled = false;
   tutorialActive = false;
+  private tutorialDropPending = false;
   readonly tutorialSteps = [
     'Bewege Kenny mit A oder D.',
     'Drücke Space zum Springen.',
@@ -162,6 +163,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
   start(): void {
     if (!this.available || !this.renderer || !this.assetsReady()) return;
     this.tutorialActive = false;
+    this.tutorialDropPending = false;
     this.world = new KennyWorld(this.startEquipment);
     this.accumulator = 0;
     this.clearInput();
@@ -185,6 +187,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     this.settingsOpen.set(false);
     this.tutorialPromptHandled = true;
     this.tutorialActive = true;
+    this.tutorialDropPending = false;
     this.tutorialStep.set(0);
     this.world = new KennyWorld();
     this.world.enemies.length = 0;
@@ -209,18 +212,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
       (step === 4 && input.special);
     if (!finished) return;
     this.zone.run(() => this.tutorialStep.set(step + 1));
-    if (step === 4) {
-      const player = this.world.player;
-      this.world.loot.push({
-        id: 'tutorial_sample',
-        item: 'stegosaurus-plates',
-        x: Math.min(470, Math.max(25, player.x + 42)),
-        y: Math.min(420, player.y + player.h - 22),
-        w: 22,
-        h: 22,
-        collected: false,
-      });
-    }
+    if (step === 4) this.tutorialDropPending = true;
   }
 
   private enterFullscreen(): void {
@@ -372,6 +364,20 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
         };
         this.world.step(STEP, controls);
         this.advanceTutorial(controls);
+        // Spawn the practice pickup only after the leap has finished, on the ground.
+        if (this.tutorialDropPending && this.world.attackTime <= 0) {
+          const player = this.world.player;
+          this.world.loot.push({
+            id: 'tutorial_sample',
+            item: 'stegosaurus-plates',
+            x: Math.max(25, player.x + 25),
+            y: 420,
+            w: 22,
+            h: 22,
+            collected: false,
+          });
+          this.tutorialDropPending = false;
+        }
         if (this.world.pickupEvents.length) {
           const events = this.world.pickupEvents.splice(0);
           this.zone.run(() => {
