@@ -218,7 +218,7 @@ console.log(
   charge.player.x = 40;
   charge.enemies.length = 0;
   charge.step(STEP, { ...idle, special: true });
-  seconds(charge, 1.99, { ...idle, axis: -1 });
+  seconds(charge, 0.99, { ...idle, axis: -1 });
   assert.equal(charge.player.x, 40);
   while (charge.attackTime > 0) charge.step(STEP, { ...idle, axis: -1 });
   assert(Math.abs(charge.player.x - 40 - 4 * FIELD) < 0.001);
