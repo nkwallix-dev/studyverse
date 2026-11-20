@@ -8,7 +8,8 @@
       <h1>Stachelweide<span class="prototype">Prototyp</span></h1>
     </div>
     <span class="wallet" aria-label="Gesammelter Bernstein"
-      >◆ {{ amberBalance }} <small>Bernstein</small></span
+      ><img src="kenny/hornweide/ui/bernstein.png" alt="" /> {{ amberBalance }}
+      <small>Bernstein</small></span
     >
     <button
       type="button"
@@ -29,9 +30,9 @@
     <div class="game-hud" aria-label="Spielstand">
       <strong class="hud-player-name">KENNY</strong>
       <span class="health" [attr.aria-label]="hud().health + ' von 3 Herzen'">
-        {{ hud().health }}/3
+        {{ hud().healthLabel }}/3
         <span aria-hidden="true"
-          >{{ '♥'.repeat(hud().health) }}<i>{{ '♡'.repeat(3 - hud().health) }}</i></span
+          >{{ hud().fullHearts }}<b *ngIf="hud().partialHeart">◐</b><i>{{ hud().emptyHearts }}</i></span
         >
       </span>
       <span class="shield" [attr.aria-label]="hud().shield + ' Schildherzen'"
@@ -49,6 +50,8 @@
         ><small>/ 3</small></span
       >
       <span class="timer" aria-label="Laufzeit">{{ hud().time }}</span>
+      <span class="bleed-status" *ngIf="hud().bleed > 0">🩸 Blutung {{ hud().bleed }}s</span>
+      <span class="stun-status" *ngIf="hud().stun > 0">💫 Stun {{ hud().stun }}s</span>
     </div>
 
     <canvas
@@ -65,12 +68,12 @@
     ></div>
     <div class="stage-caption" aria-hidden="true">
       <span>{{
-        hud().progress < 22
-          ? '01 · Die Schlucht'
-          : hud().progress < 48
-            ? '02 · Vergessene Ruinen'
-            : hud().progress < 73
-              ? '03 · Über dem Feuer'
+        hud().progress < 25
+          ? '01 · Farnwald'
+          : hud().progress < 50
+            ? '02 · Das offene Tal'
+            : hud().progress < 75
+              ? '03 · Sonnenpfade'
               : '04 · Der Runentempel'
       }}</span
       ><span *ngIf="hud().progress >= 73">{{ hud().runes }} / 3 Runen</span>
@@ -87,7 +90,7 @@
       >
     </div>
     <div class="pickup-prompt" *ngIf="hud().pickup"><kbd>E</kbd> {{ hud().pickup }} aufheben</div>
-    <div class="game-hint" role="status" aria-live="polite">{{ hint() }}</div>
+    <div class="game-hint" *ngIf="hint()" role="status" aria-live="polite">{{ hint() }}</div>
     <div class="tutorial-banner" *ngIf="tutorialActive" role="status" aria-live="polite">
       <strong>TUTORIAL · {{ tutorialStep() + 1 }}/{{ tutorialSteps.length }}</strong>
       <span>{{ tutorialSteps[tutorialStep()] }}</span>
@@ -268,12 +271,6 @@
       ><small>{{ control.label }}</small>
     </button>
   </div>
-  <footer class="keyboard-guide">
-    <span
-      ><kbd>A / D</kbd> Laufen <kbd>Space</kbd> Springen <kbd>W / S</kbd> Zielen <kbd>J</kbd> Beißen
-      <kbd>L</kbd> Spezial <kbd>E</kbd> Aufheben</span
-    ><span><kbd>P / Esc</kbd> Pause</span>
-  </footer>
   <div class="kenny-settings">
     <button
       type="button"
