@@ -165,8 +165,12 @@ export class App implements OnInit,OnDestroy {
        this.profile['companionOwnerUid'] = uid;
        write(KEY, JSON.stringify(this.profile));
        this.cloudMaySave = true;
+       this.cloudStatus = '✓ Online geladen';
      }
-   } catch (error) { this.cloudMessage = cloudError(error); }
+   } catch (error) {
+     this.cloudStatus = '⚠ Cloud-Laden fehlgeschlagen';
+     this.cloudMessage = cloudError(error);
+   }
    finally {
      this.cloudReady = true;
      this.cloudConfigured = this.cloud.configured;
@@ -653,6 +657,7 @@ export class App implements OnInit,OnDestroy {
        }
        this.cloudMaySave=true;
        this.cloudHydrating=false;
+       this.cloudStatus='✓ Online geladen';
        this.settleKennyIfExpired();
      }
    }catch(e){
