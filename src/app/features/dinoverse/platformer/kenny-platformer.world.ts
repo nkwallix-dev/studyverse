@@ -605,7 +605,7 @@ export class KennyWorld {
         id: `${this.runId}_${this.enemies.indexOf(enemy)}_${drop}`,
         item,
         x: enemy.x + drop * 28,
-        y: 420,
+        y: enemy.y + enemy.h - 22,
         w: 22,
         h: 22,
         collected: false,
