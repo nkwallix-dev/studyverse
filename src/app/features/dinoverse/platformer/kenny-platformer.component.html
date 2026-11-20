@@ -28,31 +28,25 @@
     [class.suspended]="status() !== 'playing' || !available"
   >
     <div class="game-hud" aria-label="Spielstand">
-      <strong class="hud-player-name">KENNY</strong>
-      <span class="health" [attr.aria-label]="hud().health + ' von 3 Herzen'">
-        {{ hud().healthLabel }}/3
-        <span aria-hidden="true"
-          >{{ hud().fullHearts }}<b *ngIf="hud().partialHeart">◐</b
-          ><i>{{ hud().emptyHearts }}</i></span
-        >
-      </span>
-      <span class="shield" [attr.aria-label]="hud().shield + ' Schildherzen'"
-        >🛡 {{ hud().shield }} / {{ hud().shieldMaximum }}</span
-      >
-      <span class="hud-special"
-        >L · {{ hud().cooldown > 0 ? hud().cooldown.toFixed(1) + ' s' : 'bereit' }}</span
-      >
-      <span class="amber"
-        >◆ <strong>{{ hud().amber }}</strong
-        ><small>in diesem Run</small></span
-      >
-      <span class="checkpoint"
-        >⚑ <strong>{{ hud().checkpoint }}</strong
-        ><small>/ 3</small></span
-      >
-      <span class="timer" aria-label="Laufzeit">{{ hud().time }}</span>
-      <span class="bleed-status" *ngIf="hud().bleed > 0">🩸 Blutung {{ hud().bleed }}s</span>
-      <span class="stun-status" *ngIf="hud().stun > 0">💫 Stun {{ hud().stun }}s</span>
+      <div class="player-status-card">
+        <div class="player-avatar">🦖</div>
+        <div class="player-vitals">
+          <strong class="hud-player-name">KENNY</strong>
+          <span class="health" [attr.aria-label]="hud().health + ' von 3 Herzen'">
+            <span aria-hidden="true">{{ hud().fullHearts }}<b *ngIf="hud().partialHeart">◐</b><i>{{ hud().emptyHearts }}</i></span>
+            <small>{{ hud().healthLabel }}/3</small>
+          </span>
+          <span class="shield" [class.shield-full]="hud().shieldGlow"
+            [attr.aria-label]="hud().shield + ' Schildherzen'">🛡 {{ hud().shield }}/{{ hud().shieldMaximum }}</span>
+          <span class="bleed-status" *ngIf="hud().bleed > 0">🩸 Blutung {{ hud().bleed }}s</span>
+          <span class="stun-status" *ngIf="hud().stun > 0">💫 Betäubt {{ hud().stun }}s</span>
+        </div>
+      </div>
+      <div class="expedition-status-card">
+        <span class="amber">◆ <strong>{{ hud().amber }}</strong> <small>Bernstein</small></span>
+        <span class="checkpoint">⚑ <strong>{{ hud().checkpoint }}</strong><small>/4</small></span>
+        <span class="timer" aria-label="Laufzeit">{{ hud().time }}</span>
+      </div>
     </div>
 
     <canvas
@@ -67,6 +61,20 @@
       [attr.data-skin]="skin"
       aria-hidden="true"
     ></div>
+    <div #fusionLayer class="kenny-fusion-layer" aria-hidden="true">
+      <img class="fuse-item fuse-horns"
+        [hidden]="hud().offense !== 'triceratops-horns'"
+        src="kenny/hornweide/drops/triceratops-horns.png" alt="" />
+      <img class="fuse-item fuse-spikes"
+        [hidden]="hud().offense !== 'stegosaurus-spikes'"
+        src="kenny/hornweide/drops/stegosaurus-spikes.png" alt="" />
+      <img class="fuse-item fuse-frill"
+        [hidden]="hud().defenseItem !== 'triceratops-frill'"
+        src="kenny/hornweide/drops/triceratops-frill.png" alt="" />
+      <img class="fuse-item fuse-plates"
+        [hidden]="hud().defenseItem !== 'stegosaurus-plates'"
+        src="kenny/hornweide/drops/stegosaurus-plates.png" alt="" />
+    </div>
     <div class="stage-caption" aria-hidden="true">
       <span>{{
         hud().progress < 25
@@ -81,14 +89,14 @@
     </div>
 
     <div class="ability-hud" aria-label="Aktive Ausrüstung">
-      <span
-        ><kbd>L</kbd> {{ hud().special }} ·
-        {{ hud().cooldown > 0 ? hud().cooldown.toFixed(1) + ' s' : 'bereit' }}</span
-      >
-      <span
-        >🛡 {{ hud().defense
-        }}<small *ngIf="hud().regeneration"> · {{ hud().regeneration }} s</small></span
-      >
+      <div class="equipped-ability"><span>⚔️ OFFENSIV · <kbd>L</kbd></span>
+        <strong>{{ hud().special }}</strong>
+        <small>{{ hud().cooldown > 0 ? hud().cooldown.toFixed(1) + ' s Cooldown' : 'Bereit' }}</small>
+      </div>
+      <div class="equipped-ability"><span>🛡️ DEFENSIV</span>
+        <strong>{{ hud().defense }}</strong>
+        <small *ngIf="hud().regeneration">✨ Regeneration in {{ hud().regeneration }} s</small>
+      </div>
     </div>
     <div class="pickup-prompt" *ngIf="hud().pickup"><kbd>E</kbd> {{ hud().pickup }} aufheben</div>
     <div class="game-hint" *ngIf="hint()" role="status" aria-live="polite">{{ hint() }}</div>
@@ -145,7 +153,7 @@
                 </p>
                 <div class="control-guide">
                   <span><kbd>A</kbd><kbd>D</kbd> Laufen</span><span><kbd>Space</kbd> Springen</span
-                  ><span><kbd>W / S</kbd> Zielen</span><span><kbd>J</kbd> Beißen</span
+                  ><span><kbd>W / S</kbd> Zielen</span><span><kbd>X</kbd> Droppen</span><span><kbd>J</kbd> Beißen</span
                   ><span><kbd>L</kbd> Spezialangriff</span><span><kbd>E</kbd> Aufheben</span>
                 </div>
                 <p class="touch-note">
@@ -158,7 +166,7 @@
                   type="button"
                   class="primary"
                   [disabled]="!assetsReady()"
-                  (click)="start()"
+                  (click)="openStarterPicker()"
                 >
                   Expedition starten
                 </button>
@@ -172,7 +180,7 @@
                 nach acht schadensfreien Sekunden regeneriert. In echten Runs zählen Pickups für
                 deine Achievements.
               </p>
-              <button #dialogAction type="button" class="primary" (click)="start()">
+              <button #dialogAction type="button" class="primary" (click)="openStarterPicker()">
                 Expedition starten
               </button>
               <button type="button" (click)="close()">Zurück zum Kennyverse</button>
@@ -250,6 +258,54 @@
         </ng-template>
       </section>
     </div>
+    <div class="starter-overlay" *ngIf="starterPickerOpen()" role="dialog" aria-modal="true"
+      aria-label="Wähle dein Starter-Kit">
+      <section class="starter-panel">
+        <header class="starter-panel-head">
+          <div><small>KENNYVERSE · VOR DEM RUN</small><h2>Wähle dein Starter-Kit</h2></div>
+          <button type="button" aria-label="Starter-Kit schließen" (click)="starterPickerOpen.set(false)">✕</button>
+        </header>
+        <p>Deine Achievements bestimmen, mit welchen Fusionen Kenny starten darf.</p>
+        <div class="starter-preview">
+          <img src="kenny/skins/kenny-blue-portrait.png" alt="Kenny" />
+          <div><strong>{{ selectedStarter().title }}</strong>
+            <small>{{ selectedStarter().needs.length ? 'Freigeschaltete Fusion' : 'Kenny ohne Ausrüstung' }}</small>
+            <div class="starter-art">
+              <img *ngFor="let item of selectedStarter().needs"
+                [src]="'kenny/hornweide/drops/' + item + '.png'" alt="Ausrüstungsitem" />
+            </div>
+          </div>
+        </div>
+        <div class="starter-actions">
+          <button type="button" class="kit-edit" (click)="starterCustomizeOpen.set(true)">
+            🖌 Anpassen
+          </button>
+          <button type="button" class="primary" (click)="launchSelectedStarter()">
+            Mit diesem Kit starten
+          </button>
+        </div>
+        <section class="starter-customize" *ngIf="starterCustomizeOpen()"
+          aria-label="Freigeschaltete Kenny-Fusionen">
+          <header><h3>🖌 Kenny anpassen</h3>
+            <button type="button" aria-label="Anpassung schließen"
+              (click)="starterCustomizeOpen.set(false)">✕</button>
+          </header>
+          <div class="kit-selection">
+            <button type="button" *ngFor="let node of skillNodes"
+              [disabled]="!isUnlocked(node)" [class.selected]="starterKitId() === node.id"
+              (click)="selectStarter(node)">
+              <img src="kenny/skins/kenny-blue-portrait.png" alt="" />
+              <strong>{{ node.title }}</strong>
+              <small>{{ isUnlocked(node) ? '✓ Freigeschaltet' : '🔒 50 Pickups je Item' }}</small>
+              <span *ngIf="node.needs.length">⚔ {{ node.needs.length }} Item(s)</span>
+            </button>
+          </div>
+          <button type="button" class="primary" (click)="starterCustomizeOpen.set(false)">
+            Auswahl übernehmen
+          </button>
+        </section>
+      </section>
+    </div>
   </div>
 
   <div
@@ -283,8 +339,16 @@
     </button>
     <section *ngIf="settingsOpen()" class="settings-popover" aria-label="Kennyverse Einstellungen">
       <h3>Steuerung</h3>
+      <fieldset class="drop-settings">
+        <legend>Was soll S machen?</legend>
+        <label><input type="radio" name="drop-mode" [checked]="!dropOnS()"
+          (change)="setDropOnS(false)" /> S = nach unten zielen</label>
+        <label><input type="radio" name="drop-mode" [checked]="dropOnS()"
+          (change)="setDropOnS(true)" /> S = durch Plattform droppen</label>
+        <small>X lässt Kenny immer durch eine begehbare Plattform fallen.</small>
+      </fieldset>
       <p>
-        A/D bewegen · Space springen · W/S zielen · J beißen · L Spezialangriff · E aufsammeln ·
+        A/D bewegen · Space springen · W/S zielen · X Plattform verlassen · J beißen · L Spezialangriff · E aufsammeln ·
         P/Esc Pause
       </p>
       <button type="button" [disabled]="!available || !assetsReady()" (click)="startTutorial()">
