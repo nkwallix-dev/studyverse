@@ -27,19 +27,24 @@ export class KennyRenderer {
     ];
     const sources = [
       ...names.map((name) => ({ name, path: `kenny/animations/${name}.png?v=2` })),
-      ...[
-        'triceratops-horns', 'triceratops-frill',
-        'stegosaurus-plates', 'stegosaurus-spikes',
-      ].map((name) => ({ name: `drop-${name}`, path: `kenny/hornweide/drops/${name}.png` })),
+      ...['triceratops-horns', 'triceratops-frill', 'stegosaurus-plates', 'stegosaurus-spikes'].map(
+        (name) => ({ name: `drop-${name}`, path: `kenny/hornweide/drops/${name}.png` }),
+      ),
       { name: 'amber-icon', path: 'kenny/hornweide/ui/bernstein.png' },
     ];
     this.ready = Promise.all(
-      sources.map(({ name, path }) => new Promise<void>((resolve, reject) => {
-        const image = new Image();
-        image.onload = () => { this.images.set(name, image); resolve(); };
-        image.onerror = () => reject(new Error(`Spielgrafik fehlt: ${path}`));
-        image.src = new URL(path, document.baseURI).href;
-      })),
+      sources.map(
+        ({ name, path }) =>
+          new Promise<void>((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => {
+              this.images.set(name, image);
+              resolve();
+            };
+            image.onerror = () => reject(new Error(`Spielgrafik fehlt: ${path}`));
+            image.src = new URL(path, document.baseURI).href;
+          }),
+      ),
     ).then(() => undefined);
   }
 
@@ -79,11 +84,19 @@ export class KennyRenderer {
     for (let i = -2; i < viewport / 250 + 3; i++) {
       const x = i * 250 - ((this.camera * 0.17) % 250);
       this.polygon(
-        [[x - 150, 440], [x + 105, 190 + ((i + 4) % 3) * 40], [x + 350, 440]],
+        [
+          [x - 150, 440],
+          [x + 105, 190 + ((i + 4) % 3) * 40],
+          [x + 350, 440],
+        ],
         '#a3be8b',
       );
       this.polygon(
-        [[x - 60, 455], [x + 175, 275 + ((i + 5) % 3) * 32], [x + 395, 455]],
+        [
+          [x - 60, 455],
+          [x + 175, 275 + ((i + 5) % 3) * 32],
+          [x + 395, 455],
+        ],
         '#7eac7b',
       );
     }
@@ -100,17 +113,33 @@ export class KennyRenderer {
       if (!this.visible(platform.x, platform.w, viewport)) continue;
       // Soil faces and lush grass tops replace neon-scifi rectangles.
       this.box(platform.x, platform.y, platform.w, platform.h, '#85654a', 5);
-      this.box(platform.x + 3, platform.y + 12, platform.w - 6,
-        Math.max(2, platform.h - 18), '#9f7952', 3);
-      this.box(platform.x, platform.y, platform.w, 10,
-        platform.origin === undefined ? '#72b85d' : '#82c774', 4);
+      this.box(
+        platform.x + 3,
+        platform.y + 12,
+        platform.w - 6,
+        Math.max(2, platform.h - 18),
+        '#9f7952',
+        3,
+      );
+      this.box(
+        platform.x,
+        platform.y,
+        platform.w,
+        10,
+        platform.origin === undefined ? '#72b85d' : '#82c774',
+        4,
+      );
       this.box(platform.x, platform.y + 10, platform.w, 3, '#477b45', 1);
       for (let x = platform.x + 24; x < platform.x + platform.w - 10; x += 64) {
         this.circle(x + 7, platform.y + 27, 4, '#b18c64');
         this.polygon(
-          [[x - 3, platform.y], [x - 8, platform.y - 8],
-            [x, platform.y - 4], [x + 5, platform.y - 11],
-            [x + 6, platform.y]],
+          [
+            [x - 3, platform.y],
+            [x - 8, platform.y - 8],
+            [x, platform.y - 4],
+            [x + 5, platform.y - 11],
+            [x + 6, platform.y],
+          ],
           '#3d874e',
         );
       }
@@ -122,13 +151,19 @@ export class KennyRenderer {
         this.box(hazard.x, hazard.y + 11, hazard.w, hazard.h - 11, '#865745', 0);
         for (let x = hazard.x; x < hazard.x + hazard.w; x += 17) {
           this.polygon(
-            [[x, hazard.y + hazard.h], [x + 8, hazard.y - 7],
-              [x + 17, hazard.y + hazard.h]],
+            [
+              [x, hazard.y + hazard.h],
+              [x + 8, hazard.y - 7],
+              [x + 17, hazard.y + hazard.h],
+            ],
             '#e0d3b0',
           );
           this.polygon(
-            [[x + 6, hazard.y + 8], [x + 8, hazard.y - 7],
-              [x + 11, hazard.y + 10]],
+            [
+              [x + 6, hazard.y + 8],
+              [x + 8, hazard.y - 7],
+              [x + 11, hazard.y + 10],
+            ],
             '#fff4d5',
           );
         }
@@ -285,13 +320,23 @@ export class KennyRenderer {
       const y = top + 26 + j * 24;
       const spread = 58 - j * 6;
       this.polygon(
-        [[x, y + 15], [x - spread, y - 3], [x - spread + 11, y - 16],
-          [x - 9, y - 5], [x, y + 1]],
+        [
+          [x, y + 15],
+          [x - spread, y - 3],
+          [x - spread + 11, y - 16],
+          [x - 9, y - 5],
+          [x, y + 1],
+        ],
         green,
       );
       this.polygon(
-        [[x, y + 15], [x + spread, y - 3], [x + spread - 11, y - 16],
-          [x + 9, y - 5], [x, y + 1]],
+        [
+          [x, y + 15],
+          [x + spread, y - 3],
+          [x + spread - 11, y - 16],
+          [x + 9, y - 5],
+          [x, y + 1],
+        ],
         green,
       );
     }
@@ -317,8 +362,8 @@ export class KennyRenderer {
       ctx.beginPath();
       ctx.moveTo(hazard.x - 20, y);
       for (let x = hazard.x - 20; x <= hazard.x + hazard.w + 20; x += 10) {
-        const wave = Math.sin(x * 0.044 + phase + band * 2) * 5 +
-          Math.sin(x * 0.09 - phase * 0.63) * 2;
+        const wave =
+          Math.sin(x * 0.044 + phase + band * 2) * 5 + Math.sin(x * 0.09 - phase * 0.63) * 2;
         ctx.lineTo(x, y + wave);
       }
       ctx.strokeStyle = band === 0 ? '#fff08a' : band === 1 ? '#ff9a29' : '#b72e21';
@@ -327,8 +372,8 @@ export class KennyRenderer {
       ctx.stroke();
     }
     for (let i = 0; i < Math.max(3, Math.floor(hazard.w / 46)); i++) {
-      const x = hazard.x + ((i * 47.7 + time * (13 + i % 3)) % hazard.w);
-      const float = (time * (0.7 + i % 3 * 0.18) + i * 0.29) % 1;
+      const x = hazard.x + ((i * 47.7 + time * (13 + (i % 3))) % hazard.w);
+      const float = (time * (0.7 + (i % 3) * 0.18) + i * 0.29) % 1;
       const radius = 3 + (i % 3) * 2;
       const y = hazard.y + hazard.h - float * (hazard.h + 12);
       ctx.globalAlpha = Math.min(1, (1 - float) * 1.9);
