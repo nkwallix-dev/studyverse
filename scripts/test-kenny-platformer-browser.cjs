@@ -140,6 +140,19 @@ async function initialize(context, retained = true, companions = undefined) {
     await page.clock.runFor(32);
     await page.evaluate(() => window.__kennyFrames(2));
 
+    // Settings are available from the expedition menu, before entering fullscreen.
+    // Check the actual accessible panel and tutorial shortcut, not merely DOM presence.
+    const settingsToggle = page.locator('.kenny-settings .settings-toggle');
+    await settingsToggle.click();
+    const settingsPanel = page.locator('.kenny-settings .settings-popover');
+    assert(await settingsPanel.isVisible(), 'Expedition settings must open from the menu');
+    assert(
+      await settingsPanel.getByRole('button', { name: 'Tutorial spielen' }).isVisible(),
+      'The repeatable tutorial shortcut must be visible inside settings',
+    );
+    await settingsToggle.click();
+    assert(!(await settingsPanel.isVisible()), 'Settings must close again');
+
     await page.getByRole('button', { name: 'Expedition starten' }).click();
 
     assert.equal(await page.locator('.platformer-player').getAttribute('data-skin'), 'green');
@@ -249,21 +262,6 @@ async function initialize(context, retained = true, companions = undefined) {
       'P must pause the real expedition: ' + JSON.stringify(gameDialog),
     );
     await page.getByRole('button', { name: 'Weiterspielen' }).click();
-    const settingsToggle = page.locator('.kenny-settings .settings-toggle');
-    await settingsToggle.click();
-    const settingsPanel = page.locator('.kenny-settings .settings-popover');
-    try {
-      await settingsPanel.waitFor({ state: 'visible', timeout: 5000 });
-    } catch (error) {
-      const state = await page.evaluate(() => ({
-        toggle: document.querySelector('.settings-toggle')?.outerHTML,
-        popover: document.querySelector('.settings-popover')?.outerHTML,
-        status: document.querySelector('.game-dialog')?.textContent?.slice(0, 150),
-        fullscreen: !!document.fullscreenElement,
-      }));
-      throw new Error('Kenny settings menu is not visible: ' + JSON.stringify(state), { cause: error });
-    }
-    await settingsPanel.getByRole('button', { name: 'Tutorial spielen' }).waitFor();
     assert.equal(
       await page.evaluate(() => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens),
       wallet,
