@@ -214,13 +214,24 @@ async function initialize(context, retained = true, companions = undefined) {
     // course trace cannot be replayed as a deterministic full-run browser test.
     // The old solver remains independently checked by test-kenny-platformer.cjs.
     const sprite = page.locator('.platformer-player');
+    // Check attacks before approaching a random dinosaur: a real special can
+    // correctly stun Kenny and make later keyboard-input assertions unreliable.
+    await page.keyboard.press('KeyJ');
+    await page.evaluate(() => window.__kennyFrames(8));
+    assert.equal(await sprite.getAttribute('data-motion'), 'attack', 'J uses bite artwork');
+    await page.evaluate(() => window.__kennyFrames(30));
+    await page.keyboard.press('KeyL');
+    await page.evaluate(() => window.__kennyFrames(18));
+    assert.equal(await sprite.getAttribute('data-motion'), 'attack', 'L uses special artwork');
+    await page.screenshot({ path: path.join(screenshots, 'kenny-jump-attack.png') });
+    await page.evaluate(() => window.__kennyFrames(65));
     const originalX = await sprite.evaluate((element) => parseFloat(element.style.left));
-    await page.keyboard.down('KeyD');
+    await page.keyboard.down('KeyA');
     await page.evaluate(() => window.__kennyFrames(55));
-    await page.keyboard.up('KeyD');
+    await page.keyboard.up('KeyA');
     assert(
-      (await sprite.evaluate((element) => parseFloat(element.style.left))) > originalX + 10,
-      'Real keyboard controls move Kenny in the randomized expedition',
+      (await sprite.evaluate((element) => parseFloat(element.style.left))) < originalX - 10,
+      'Real keyboard controls move Kenny away from random encounters',
     );
     await page.screenshot({ path: path.join(screenshots, 'kenny-platformer-desktop.png') });
     await page.evaluate(() => window.__kennyFrames(65));
@@ -238,15 +249,7 @@ async function initialize(context, retained = true, companions = undefined) {
         'Aiming must not resize or jump Kenny',
       );
     }
-    await page.keyboard.press('KeyJ');
-    await page.evaluate(() => window.__kennyFrames(8));
-    assert.equal(await sprite.getAttribute('data-motion'), 'attack', 'J uses bite artwork');
-    await page.evaluate(() => window.__kennyFrames(30));
-    await page.keyboard.press('KeyL');
-    await page.evaluate(() => window.__kennyFrames(18));
-    assert.equal(await sprite.getAttribute('data-motion'), 'attack');
-    await page.screenshot({ path: path.join(screenshots, 'kenny-jump-attack.png') });
-    await page.evaluate(() => window.__kennyFrames(65));
+    await page.evaluate(() => window.__kennyFrames(20));
     const stageSize = await page.locator('canvas').boundingBox();
     // The permanent key hint was intentionally removed. Inject a simulated
     // contextual overlay to verify long messages cannot resize the canvas.
