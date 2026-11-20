@@ -28,9 +28,10 @@
   >
     <div class="game-hud" aria-label="Spielstand">
       <strong class="hud-player-name">KENNY</strong>
-      <span class="health" [attr.aria-label]="hud().health + ' von 3 Herzen'
-        >{{ hud().health }}/3 <span aria-hidden="true">{{ '♥'.repeat(hud().health) }}<i>{{ '♡'.repeat(3 - hud().health) }}</i></span></span>
-      >
+      <span class="health" [attr.aria-label]="hud().health + ' von 3 Herzen'">
+        {{ hud().health }}/3
+        <span aria-hidden="true">{{ '♥'.repeat(hud().health) }}<i>{{ '♡'.repeat(3 - hud().health) }}</i></span>
+      </span>
       <span class="shield" [attr.aria-label]="hud().shield + ' Schildherzen'"
         >🛡 {{ hud().shield }} / {{ hud().shieldMaximum }}</span
       >
