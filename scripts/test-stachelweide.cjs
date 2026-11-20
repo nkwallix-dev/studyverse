@@ -364,6 +364,7 @@ for (const [tier, amount, rng] of [
 // immediate body contact during a special attack overlap.
 const specialStun = new KennyWorld();
 const stunnedEnemy = specialStun.enemies[0];
+stunnedEnemy.health = 4;
 specialStun.player.x = stunnedEnemy.x - 50;
 specialStun.player.y = stunnedEnemy.y;
 specialStun.attackKind = 'tail';
