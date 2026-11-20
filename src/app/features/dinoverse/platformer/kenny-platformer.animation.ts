@@ -1,12 +1,12 @@
 import { Enemy, KennyWorld, STEGO_ATTACK_DURATION } from './kenny-platformer.world';
-import { BALANCE, specialDuration } from './kenny-platformer.balance';
+import { BALANCE, playerSpecialDuration } from './kenny-platformer.balance';
 export type PlayerMotion = 'idle' | 'walk' | 'jump' | 'attack';
 export function playerAnimation(world: KennyWorld): { motion: PlayerMotion; frame: number } {
   if (world.attackTime > 0) {
-    const duration = specialDuration(world.attackKind),
+    const duration = playerSpecialDuration(world.attackKind),
       elapsed = duration - world.attackTime;
     if (world.attackKind === 'charge')
-      return elapsed < BALANCE.charge.windup
+      return elapsed < BALANCE.playerChargeWindup
         ? { motion: 'attack', frame: 1 }
         : { motion: 'walk', frame: Math.floor(elapsed * 18) % 4 };
     const progress = elapsed / duration;
