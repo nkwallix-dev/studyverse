@@ -3,7 +3,7 @@
   min-width: 0;
 }
 .equipment {
-  color: #ede9fa;
+  color: #f3f1df;
   margin-top: 2rem;
 }
 nav {
@@ -43,14 +43,14 @@ p {
   gap: 1rem;
 }
 article {
-  background: #191523;
-  border: 1px solid #42334f;
+  background: linear-gradient(160deg, #203b34, #263329);
+  border: 1px solid #5f8b66;
   border-radius: 1.2rem;
   padding: 1.2rem;
   min-width: 0;
 }
 article.unlocked {
-  border-color: #b774d9;
+  border-color: #e2d387;
 }
 img {
   display: block;
@@ -58,6 +58,7 @@ img {
   height: 110px;
   object-fit: contain;
   margin-bottom: 1rem;
+  image-rendering: auto;
 }
 small {
   color: #e8a0d9;
@@ -88,8 +89,8 @@ progress {
   padding: 1rem;
 }
 .reward {
-  background: #20172e;
-  border: 1px solid #cb87e7;
+  background: linear-gradient(145deg, #274638, #19352c);
+  border: 1px solid #d0bd7c;
   border-radius: 1.5rem;
   max-width: 500px;
   max-height: 90dvh;
@@ -114,4 +115,11 @@ progress {
 
 .equipment.embedded {
   margin-top: 0;
+}
+
+.reward-art {
+  width: min(200px, 65%);
+  height: 118px;
+  object-fit: contain;
+  margin: 12px auto;
 }

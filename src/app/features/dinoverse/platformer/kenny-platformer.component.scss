@@ -3,8 +3,8 @@
   inset: 0;
   z-index: 2000;
   display: block;
-  color: #e6f0ed;
-  background: #0f1923;
+  color: #f2f4dd;
+  background: #355c46;
   font-family: Inter, system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.45;
@@ -34,9 +34,9 @@ a:focus-visible {
 button,
 .back {
   color: inherit;
-  border: 1px solid #93b3af40;
+  border: 1px solid #a7c89465;
   border-radius: 12px;
-  background: #263b47;
+  background: #446c4d;
   padding: 10px 16px;
   text-decoration: none;
 }
@@ -63,14 +63,14 @@ button,
 }
 .game-title > span,
 .eyebrow {
-  color: #98c8b3;
+  color: #dce8ac;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 2px;
 }
 h1 {
   margin: 2px 0 0;
-  color: #eef5ed;
+  color: #fff5d8;
   font-size: 23px;
   line-height: 1.2;
 }
@@ -128,7 +128,7 @@ h1 {
   width: 100%;
   border: 1px solid #7d9c994a;
   border-radius: 18px;
-  background: #182637;
+  background: #a9dfbe;
   overflow: hidden;
   aspect-ratio: auto;
   box-shadow: 0 12px 60px #0003;
@@ -162,12 +162,12 @@ canvas {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  color: #cce1d1;
+  color: #275340;
   text-transform: uppercase;
   font-size: 10px;
   letter-spacing: 1.4px;
   pointer-events: none;
-  text-shadow: 0 1px 6px #000;
+  text-shadow: 0 1px 5px #fff8d6;
 }
 .game-hint {
   display: flex;
@@ -500,7 +500,7 @@ p {
 .expedition:fullscreen {
   max-width: none;
   width: 100%;
-  background: #0d1722;
+  background: #355c46;
 }
 
 .hud-player-name {
@@ -528,7 +528,7 @@ p {
   padding: 12px 16px;
   border: 1px solid #e5bb7d;
   border-radius: 12px;
-  background: #182638f2;
+  background: #3f5d46ed;
   color: #fff5de;
   font-size: 13px;
   text-align: center;
@@ -567,7 +567,7 @@ p {
   padding: 16px;
   border: 1px solid #648b8599;
   border-radius: 14px;
-  background: #172637;
+  background: #294b3c;
   box-shadow: 0 12px 40px #0009;
   text-align: left;
 }
@@ -592,6 +592,22 @@ p {
 .wallet small {
   font-size: 10px;
 }
+.wallet {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.wallet img {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+.health b {
+  font-style: normal;
+  color: #ffd9a2;
+}
 .game-hud {
   position: absolute;
   z-index: 4;
@@ -601,7 +617,7 @@ p {
   padding: 0;
   gap: 16px;
   pointer-events: none;
-  text-shadow: 0 1px 5px #000;
+  text-shadow: 0 1px 6px #173b29;
 }
 .shield {
   color: #a3dcec;
@@ -626,7 +642,7 @@ p {
 .ability-hud span {
   padding: 4px 8px;
   border-radius: 7px;
-  background: #101e30df;
+  background: #33513ccf;
 }
 .game-hint {
   position: absolute;
@@ -655,7 +671,7 @@ p {
   padding: 7px 12px;
   border: 1px solid #dcb97b80;
   border-radius: 8px;
-  background: #182637e8;
+  background: #355842e8;
   color: #ffe0a5;
   font-size: 11px;
   text-align: center;
@@ -728,5 +744,38 @@ p {
   }
   .keyboard-guide {
     display: none;
+  }
+}
+
+.bleed-status,
+.stun-status {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  width: max-content;
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: #742c2cde;
+  color: #fff4e7;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-shadow: none;
+}
+.stun-status {
+  left: 156px;
+  background: #64457be8;
+}
+@media (max-width: 760px) {
+  .bleed-status,
+  .stun-status {
+    top: 26px;
+    font-size: 9px;
+  }
+  .stun-status {
+    left: 113px;
+  }
+  .wallet img {
+    width: 21px;
+    height: 21px;
   }
 }

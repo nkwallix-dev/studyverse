@@ -22,6 +22,7 @@ export interface Platform extends Rect {
   travel?: number;
   period?: number;
   previousX?: number;
+  oneWay?: boolean;
 }
 export interface Enemy extends Rect {
   min: number;
@@ -42,6 +43,10 @@ export interface Enemy extends Rect {
   attackLaunched: boolean;
   alerted: boolean;
   returning: boolean;
+  vx: number;
+  vy: number;
+  originX: number;
+  originY: number;
 }
 export interface DamageText {
   id: number;
@@ -52,6 +57,7 @@ export interface DamageText {
   life: number;
 }
 export const WORLD_WIDTH = 5300,
+  EXPEDITION_WIDTH = 10300,
   WORLD_HEIGHT = 540,
   STEP = 1 / 120;
 export const ATTACK_DURATION = specialDuration('leap'),
@@ -62,7 +68,13 @@ export const STEGO_ATTACK_DURATION = BALANCE.tail.duration;
 export const overlaps = (a: Rect, b: Rect): boolean =>
   a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 const floor = (x: number, w: number): Platform => ({ x, y: 450, w, h: 90 });
-const ledge = (x: number, y: number, w: number): Platform => ({ x, y, w, h: 22 });
+const ledge = (x: number, y: number, w: number, oneWay = false): Platform => ({
+  x,
+  y,
+  w,
+  h: 22,
+  oneWay,
+});
 const ferry = (x: number, y: number, travel: number, period: number): Platform => ({
   ...ledge(x, y, 112),
   origin: x,
@@ -136,6 +148,13 @@ export class KennyWorld {
   ];
   /** Only real expeditions use procedural encounters; the legacy solver keeps its fixed fixtures. */
   readonly hardcore: boolean;
+  readonly width: number;
+  get switchX(): number {
+    return this.hardcore ? 4440 : 1734;
+  }
+  get exitX(): number {
+    return this.hardcore ? 10115 : 5142;
+  }
   dead = false;
   readonly runId = crypto.randomUUID();
   readonly loot: (Rect & { id: string; item: ItemId; collected: boolean })[] = [];
@@ -164,6 +183,8 @@ export class KennyWorld {
   aim = 0;
   invulnerable = 0;
   playerStun = 0;
+  bleedRemaining = 0;
+  private bleedTick = 0;
   private readonly random: () => number;
   private readonly amberDay: string;
   offense: ItemId | null = null;
@@ -216,17 +237,18 @@ export class KennyWorld {
     } = {},
   ) {
     this.hardcore = options.expedition === true;
+    this.width = this.hardcore ? EXPEDITION_WIDTH : WORLD_WIDTH;
     this.random = options.random || Math.random;
     this.amberDay = options.amberDay || new Date().toISOString().slice(0, 10);
     // Account-scoped receipts make each map crystal collectible once per calendar day,
     // including after retry, reload, or logging in on another device.
-    this.amber.forEach((amber, i) => {
-      amber.collected = options.claimedAmber?.[this.mapAmberId(i)] === true;
-    });
     if (this.hardcore) {
       this.addExplorationRoutes();
       this.enemies.splice(0, this.enemies.length, ...this.rollExpeditionEnemies(this.random));
     }
+    this.amber.forEach((amber, i) => {
+      amber.collected = options.claimedAmber?.[this.mapAmberId(i)] === true;
+    });
     if (typeof startItem === 'string') this.equipRun(startItem);
     else if (startItem) {
       if (startItem.offense) this.equipRun(startItem.offense);
@@ -235,15 +257,13 @@ export class KennyWorld {
     this.grounded = this.platforms[0];
   }
   get progress(): number {
-    return Math.min(100, Math.round((this.player.x / 5120) * 100));
+    return Math.min(100, Math.round((this.player.x / (this.exitX - 22)) * 100));
   }
   get hint(): string {
     if (this.messageTime > 0) return this.message;
-    if (this.player.x >= 3700 && this.runeProgress < 3)
+    if (this.player.x >= this.runes[0].x - 300 && this.runeProgress < 3)
       return `Runen: MOND → FARN → SONNE. Nächste: ${this.runes[this.runeProgress].label} mit J.`;
-    return this.runeProgress === 3
-      ? 'Das Tor ist offen. Erreiche das Portal!'
-      : 'A/D laufen · Space springen · W/S zielen · J beißen · L Spezial · E aufheben';
+    return this.runeProgress === 3 ? 'Das Tor ist offen. Erreiche das Portal!' : '';
   }
   get specialKind(): SpecialKind {
     return this.offense === 'triceratops-horns'
@@ -260,43 +280,130 @@ export class KennyWorld {
     this.say('Kenny ist gefallen. Beim nächsten Versuch beginnt Stachelweide wieder von vorn.');
   }
 
+  /** Daytime expedition: eight broad regions with jumpable 120px gullies.
+   * Every elevated branch has stepping stones <= 95px apart vertically.
+   * Semisolid ledges permit Kenny to jump through from below.
+   */
   private addExplorationRoutes(): void {
-    this.platforms.push(
-      ledge(730, 290, 310),
-      ledge(1120, 215, 320),
-      ledge(1540, 285, 330),
-      ledge(1930, 280, 320),
-      ledge(3580, 365, 180),
-      ledge(3650, 295, 340),
-      ledge(4060, 250, 300),
-      ledge(4500, 260, 310),
-      ledge(4850, 300, 330),
+    this.platforms.splice(
+      0,
+      this.platforms.length,
+      floor(0, 640),
+      floor(760, 1110),
+      floor(1990, 1380),
+      floor(3490, 1140),
+      floor(4760, 1380),
+      floor(6270, 1400),
+      floor(7790, 1440),
+      floor(9350, 950),
+      ledge(230, 365, 190, true),
+      ledge(370, 275, 170, true),
+      ledge(510, 185, 185, true),
+      ledge(690, 275, 180, true),
+      ledge(825, 365, 170, true),
+      ledge(1140, 365, 220, true),
+      ledge(1280, 270, 330, true),
+      ledge(1530, 360, 240, true),
+      ledge(2350, 365, 200, true),
+      ledge(2490, 290, 350, true),
+      ledge(2770, 375, 230, true),
+      ledge(3920, 365, 220, true),
+      ledge(4040, 300, 380, true),
+      ledge(4300, 375, 260, true),
+      ledge(5170, 365, 200, true),
+      ledge(5340, 285, 340, true),
+      ledge(5650, 375, 210, true),
+      ledge(6640, 365, 200, true),
+      ledge(6740, 310, 410, true),
+      ledge(7060, 380, 200, true),
+      ledge(8150, 365, 200, true),
+      ledge(8330, 275, 400, true),
+      ledge(8680, 365, 200, true),
+      ledge(9220, 365, 160, true),
+      ledge(9350, 350, 270, true),
+      ledge(9710, 360, 220, true),
+    );
+    this.hazards.splice(
+      0,
+      this.hazards.length,
+      ...[
+        [640, 120],
+        [1870, 120],
+        [3370, 120],
+        [4630, 130],
+        [6140, 130],
+        [7670, 120],
+        [9230, 120],
+      ].map(([x, w]) => ({ x, y: 470, w, h: 70 })),
+      // Short, telegraphed spike patches with clear approach/landing space.
+      { x: 3025, y: 432, w: 75, h: 18 },
+      { x: 7260, y: 432, w: 74, h: 18 },
+    );
+    this.gates[0] = { x: 4580, y: 140, w: 30, h: 310 };
+    this.gates[1] = { x: 9930, y: 80, w: 30, h: 370 };
+    this.checkpoints.splice(0, this.checkpoints.length, 90, 2140, 4030, 6460, 8240);
+    this.runes.splice(
+      0,
+      this.runes.length,
+      { x: 9000, y: 410, label: 'MOND' },
+      { x: 9480, y: 316, label: 'FARN' },
+      { x: 9780, y: 411, label: 'SONNE' },
+    );
+    // Exactly 23 once-daily crystals at reachable floor/stepping-stone heights.
+    this.amber.splice(
+      0,
+      this.amber.length,
+      ...[
+        [320, 325],
+        [450, 235],
+        [580, 145],
+        [850, 325],
+        [1210, 325],
+        [1420, 230],
+        [1670, 410],
+        [2200, 410],
+        [2540, 250],
+        [2720, 250],
+        [3160, 410],
+        [3610, 410],
+        [4110, 265],
+        [4320, 265],
+        [4890, 410],
+        [5460, 245],
+        [5820, 410],
+        [6460, 410],
+        [6890, 270],
+        [7350, 410],
+        [8040, 410],
+        [8490, 235],
+        [9460, 310],
+      ].map(([x, y]) => ({ x, y, collected: false })),
     );
   }
 
-  /** Each encounter rolls species and tier independently; 10% elite until the single elite appears. */
+  /** Independent species and tier RNG; 20 encounters spaced across 10.3kpx. */
   private rollExpeditionEnemies(random: () => number): Enemy[] {
     const slots = [
-      [720, 450, 650, 970],
-      [1030, 450, 1010, 1240],
-      [1270, 450, 1240, 1490],
-      [1500, 450, 1490, 1690],
-      [1740, 450, 1690, 1870],
-      [2000, 450, 1930, 2190],
-      [2270, 450, 2190, 2500],
-      [3640, 450, 3540, 3810],
-      [3890, 450, 3810, 4070],
-      [4200, 450, 4130, 4380],
-      [4530, 450, 4460, 4680],
-      [4910, 450, 4810, 5240],
-      [790, 290, 730, 1040],
-      [1170, 215, 1120, 1440],
-      [1600, 285, 1540, 1870],
-      [1990, 280, 1930, 2250],
-      [3690, 295, 3650, 3990],
-      [4120, 250, 4060, 4360],
-      [4550, 260, 4500, 4810],
-      [4920, 300, 4850, 5180],
+      [450, 450, 300, 590],
+      [1050, 450, 900, 1260],
+      [1460, 270, 1300, 1590],
+      [1750, 450, 1610, 1840],
+      [2240, 450, 2100, 2490],
+      [2640, 290, 2500, 2820],
+      [3190, 450, 3100, 3350],
+      [3780, 450, 3610, 3940],
+      [4220, 300, 4060, 4400],
+      [4500, 450, 4380, 4580],
+      [5010, 450, 4870, 5200],
+      [5490, 285, 5360, 5660],
+      [5850, 450, 5700, 6080],
+      [6480, 450, 6350, 6690],
+      [6920, 310, 6770, 7120],
+      [7400, 450, 7330, 7630],
+      [8000, 450, 7870, 8250],
+      [8480, 275, 8360, 8710],
+      [8960, 450, 8800, 9200],
+      [9740, 450, 9590, 9910],
     ] as const;
     let hasElite = false;
     return slots.map(([baseX, feet, left, right]) => {
@@ -321,6 +428,8 @@ export class KennyWorld {
       enemy.min = left + 6;
       enemy.max = Math.max(enemy.min, right - enemy.w - 6);
       enemy.x = Math.max(enemy.min, Math.min(enemy.max, baseX + Math.floor((random() - 0.5) * 24)));
+      enemy.originX = enemy.x;
+      enemy.originY = enemy.y;
       enemy.direction = random() < 0.5 ? -1 : 1;
       return enemy;
     });
@@ -344,6 +453,9 @@ export class KennyWorld {
     this.pogoRising = false;
     this.biteTime = 0;
     this.invulnerable = BALANCE.player.respawnInvulnerability;
+    this.playerStun = 0;
+    this.bleedRemaining = 0;
+    this.bleedTick = 0;
     this.deaths++;
     this.say('Checkpoint erreicht. Bereits gezählte Pickups bleiben erhalten.');
   }
@@ -357,6 +469,16 @@ export class KennyWorld {
     this.biteTime = Math.max(0, this.biteTime - dt);
     this.invulnerable = Math.max(0, this.invulnerable - dt);
     this.playerStun = Math.max(0, this.playerStun - dt);
+    // Bleeding applies four separate quarter-heart ticks, even during hit i-frames.
+    // This preserves a meaningful escape window and never causes instant bonus damage.
+    if (this.bleedRemaining > 0 && !this.dead) {
+      this.bleedRemaining = Math.max(0, this.bleedRemaining - dt);
+      this.bleedTick -= dt;
+      if (this.bleedTick <= 1e-9) {
+        this.applyBleedTick();
+        this.bleedTick += BALANCE.stegoBleed.tick;
+      }
+    }
     for (const text of this.damageTexts) {
       text.life -= dt;
       text.y -= 28 * dt;
@@ -482,7 +604,7 @@ export class KennyWorld {
     }
     this.collect(input.interact === true);
     if (!this.hardcore && inHazard) this.respawn();
-    if (this.runeProgress === 3 && this.player.x > 5110) {
+    if (this.runeProgress === 3 && this.player.x > this.exitX - 32) {
       this.won = true;
       this.say('Stachelweide gemeistert!');
     }
@@ -512,6 +634,10 @@ export class KennyWorld {
       attackLaunched: false,
       alerted: false,
       returning: false,
+      vx: 0,
+      vy: 0,
+      originX: x,
+      originY: armored ? 380 : 398,
     };
   }
   private say(message: string): void {
@@ -525,7 +651,7 @@ export class KennyWorld {
       w: 55,
       h: this.player.h - 6,
     };
-    if (!this.switchOpen && overlaps(mouth, { x: 1722, y: 396, w: 24, h: 43 }))
+    if (!this.switchOpen && overlaps(mouth, { x: this.switchX - 12, y: 396, w: 24, h: 43 }))
       this.switchOpen = true;
     this.runes.forEach((rune, index) => {
       if (
@@ -574,7 +700,7 @@ export class KennyWorld {
   private hitEnemy(enemy: Enemy, amount: number): void {
     if (!enemy.alive) return;
     enemy.health = Math.max(0, enemy.health - amount);
-    enemy.stun = 0.25;
+    enemy.stun = Math.max(enemy.stun, 0.25);
     this.damageTexts.push({
       id: ++this.damageId,
       x: enemy.x + enemy.w / 2,
@@ -612,6 +738,48 @@ export class KennyWorld {
       }),
     );
   }
+  private sameHuntingLevel(enemy: Enemy): boolean {
+    const feetGap = Math.abs(this.player.y + this.player.h - enemy.y - enemy.h);
+    return (
+      feetGap <= BALANCE.enemyPursuit.levelTolerance * FIELD &&
+      !this.solids().some(
+        (solid) =>
+          // Ignore enemy's own floor and semisolid ledges that merely overhang the lane.
+          !('oneWay' in solid && (solid as Platform).oneWay) &&
+          solid.y < Math.max(this.player.y + this.player.h, enemy.y + enemy.h) - 8 &&
+          solid.y + solid.h > Math.min(this.player.y, enemy.y) + 8 &&
+          solid.x < Math.max(centre(enemy).x, centre(this.player).x) &&
+          solid.x + solid.w > Math.min(centre(enemy).x, centre(this.player).x) &&
+          !overlaps(solid, enemy),
+      )
+    );
+  }
+
+  private enemyGravity(enemy: Enemy, dt: number): void {
+    if (!this.hardcore || !enemy.alive) return;
+    const previousFeet = enemy.y + enemy.h;
+    const nextFeet = previousFeet + Math.max(0, enemy.vy) * dt + BALANCE.gravity * dt * dt;
+    const support = this.platforms.find(
+      (platform) =>
+        enemy.x + enemy.w > platform.x + 5 &&
+        enemy.x < platform.x + platform.w - 5 &&
+        previousFeet <= platform.y + 5 &&
+        nextFeet >= platform.y,
+    );
+    if (support && enemy.vy >= 0) {
+      enemy.y = support.y - enemy.h;
+      enemy.vy = 0;
+    } else {
+      enemy.vy += BALANCE.gravity * dt;
+      enemy.y += enemy.vy * dt;
+    }
+    if (enemy.y > WORLD_HEIGHT + 70 || this.hazards.some((hazard) => overlaps(enemy, hazard))) {
+      // No farmable drops when an enemy falls into molten rock.
+      enemy.alive = false;
+      enemy.alerted = false;
+    }
+  }
+
   private moveEnemies(dt: number): void {
     for (const enemy of this.enemies) {
       if (!enemy.alive) continue;
@@ -628,11 +796,17 @@ export class KennyWorld {
       enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
       const dx = centre(this.player).x - centre(enemy).x;
       const distance = distanceInFields(this.player, enemy);
-      if (enemy.alerted && distance > BALANCE.enemy.disengage) {
+      const sameLevel = this.sameHuntingLevel(enemy);
+      if (enemy.alerted && (distance > BALANCE.enemy.disengage || !sameLevel)) {
         enemy.alerted = false;
         enemy.returning = true;
       }
-      if (!enemy.alerted && distance <= BALANCE.enemy.sight && dx * enemy.direction >= 0) {
+      if (
+        !enemy.alerted &&
+        sameLevel &&
+        distance <= BALANCE.enemy.sight &&
+        dx * enemy.direction >= 0
+      ) {
         enemy.alerted = true;
         enemy.returning = false;
       }
@@ -640,6 +814,7 @@ export class KennyWorld {
       if (enemy.stun > 0) {
         enemy.attackTime = 0;
         enemy.tailHit = false;
+        this.enemyGravity(enemy, dt);
         continue;
       }
       if (enemy.attackTime > 0) {
@@ -653,13 +828,13 @@ export class KennyWorld {
           elapsed < BALANCE.charge.windup + BALANCE.charge.active - 1e-9
         ) {
           charging = true;
-          if (!enemy.stun)
-            this.walkEnemy(
-              enemy,
-              ((enemy.attackFacing * BALANCE.charge.travel * FIELD) / BALANCE.charge.active) * dt,
-            );
+          this.walkEnemy(
+            enemy,
+            ((enemy.attackFacing * BALANCE.charge.travel * FIELD) / BALANCE.charge.active) * dt,
+            true,
+          );
           if (!enemy.tailHit && overlaps(this.player, enemy)) {
-            this.hurt(enemy, BALANCE.charge.damage, true);
+            this.hurt(enemy, BALANCE.charge.damage, 'charge');
             enemy.tailHit = true;
           }
         }
@@ -670,21 +845,24 @@ export class KennyWorld {
           !enemy.tailHit &&
           reaches(enemy, this.player, BALANCE.tail.range, enemy.attackFacing)
         ) {
-          this.hurt(enemy, BALANCE.tail.damage, true);
+          if (this.hurt(enemy, 1, 'tail')) {
+            this.bleedRemaining = BALANCE.stegoBleed.duration;
+            this.bleedTick = BALANCE.stegoBleed.tick;
+          }
           enemy.tailHit = true;
         }
         enemy.attackTime = Math.max(0, enemy.attackTime - dt);
-      } else if (!enemy.stun) {
+      } else {
         if (enemy.alerted) enemy.direction = dx >= 0 ? 1 : -1;
         else if (enemy.returning) {
-          const target = Math.max(enemy.min, Math.min(enemy.max, enemy.x));
-          if (Math.abs(target - enemy.x) < 2) enemy.returning = false;
-          else enemy.direction = Math.sign(target - enemy.x);
+          if (Math.abs(enemy.originX - enemy.x) < 3) enemy.returning = false;
+          else enemy.direction = Math.sign(enemy.originX - enemy.x);
         } else if (enemy.x <= enemy.min || enemy.x >= enemy.max)
           enemy.direction = enemy.x <= enemy.min ? 1 : -1;
         const kind = enemy.species === 'stegosaurus' ? 'tail' : 'charge';
         if (
           enemy.alerted &&
+          sameLevel &&
           !enemy.attackCooldown &&
           reaches(enemy, this.player, BALANCE[kind].range, enemy.direction)
         ) {
@@ -702,26 +880,92 @@ export class KennyWorld {
           if (!this.walkEnemy(enemy, movement) && !enemy.alerted) enemy.direction *= -1;
         }
       }
-      if (!charging && overlaps(this.player, enemy) && !enemy.stun)
+      // Only same-level body contact hurts Kenny; high platforms cannot be hit.
+      if (!charging && sameLevel && overlaps(this.player, enemy))
         this.hurt(enemy, BALANCE.enemy.contactDamage);
+      this.enemyGravity(enemy, dt);
     }
   }
-  private walkEnemy(enemy: Enemy, movement: number): boolean {
+
+  private walkEnemy(enemy: Enemy, movement: number, allowFall = false): boolean {
     const next = { ...enemy, x: enemy.x + movement };
-    const footX = movement > 0 ? next.x + next.w : next.x;
-    const supported = this.platforms.some(
-      (platform) =>
-        Math.abs(platform.y - (enemy.y + enemy.h)) < 4 &&
-        footX >= platform.x &&
-        footX <= platform.x + platform.w,
+    if (next.x < 0 || next.x + next.w > this.width) return false;
+    // A charge may overshoot its patrol zone; allow movement BACK into the zone.
+    if (
+      !allowFall &&
+      ((enemy.x >= enemy.min && next.x < enemy.min) ||
+        (enemy.x <= enemy.max && next.x > enemy.max) ||
+        (enemy.x < enemy.min && next.x < enemy.x) ||
+        (enemy.x > enemy.max && next.x > enemy.x))
+    )
+      return false;
+    // Keep a small natural gap between dinosaurs of the same ground lane.
+    if (
+      this.hardcore &&
+      this.enemies.some(
+        (other) =>
+          other !== enemy &&
+          other.alive &&
+          Math.abs(other.y + other.h - enemy.y - enemy.h) < 15 &&
+          next.x < other.x + other.w + BALANCE.enemyPursuit.separation * FIELD &&
+          next.x + next.w > other.x - BALANCE.enemyPursuit.separation * FIELD,
+      )
+    )
+      return false;
+    const blocked = this.solids().some(
+      (solid) =>
+        !(solid as Platform).oneWay &&
+        overlaps(next, solid) &&
+        // Standing on a floor is not a wall; crossing a gate or cliff is.
+        enemy.y + enemy.h > solid.y + 5,
     );
-    const blocked = this.solids().some((solid) => overlaps(next, solid));
-    if (!supported || blocked || next.x < 0 || next.x + next.w > WORLD_WIDTH) return false;
+    if (blocked) return false;
+    if (!allowFall) {
+      const footX = movement > 0 ? next.x + next.w : next.x;
+      const supported = this.platforms.some(
+        (platform) =>
+          Math.abs(platform.y - (enemy.y + enemy.h)) < 4 &&
+          footX >= platform.x &&
+          footX <= platform.x + platform.w,
+      );
+      if (!supported) return false;
+    }
     enemy.x = next.x;
     return true;
   }
-  private hurt(enemy: Enemy, amount: number, special = false): void {
-    if (this.invulnerable > 0) return;
+
+  private applyBleedTick(): void {
+    if (this.dead) return;
+    const amount = BALANCE.stegoBleed.damage;
+    this.sinceDamage = 0;
+    const absorbed = Math.min(this.shield, amount);
+    this.shield -= absorbed;
+    this.health = Math.max(0, Math.round((this.health - (amount - absorbed)) * 100) / 100);
+    if (this.defense === 'triceratops-frill' && this.shield <= 0) {
+      this.fusions.delete('triceratops-frill');
+      this.defense = null;
+    }
+    this.damageTexts.push({
+      id: ++this.damageId,
+      x: this.player.x + this.player.w / 2,
+      y: this.player.y - 8,
+      amount,
+      shield: absorbed > 0,
+      life: 0.85,
+    });
+    if (this.health <= 0) {
+      this.bleedRemaining = 0;
+      if (this.hardcore) this.die();
+      else this.respawn();
+    }
+  }
+
+  private hurt(
+    enemy: Enemy,
+    amount: number,
+    special: boolean | 'tail' | 'charge' = false,
+  ): boolean {
+    if (this.invulnerable > 0) return false;
     this.sinceDamage = 0;
     const absorbed = Math.min(this.shield, amount);
     this.shield -= absorbed;
@@ -730,10 +974,16 @@ export class KennyWorld {
       this.defense = null;
     }
     this.health = Math.max(0, this.health - (amount - absorbed));
-    this.invulnerable = BALANCE.enemy.invulnerability;
-    if (special) {
-      this.playerStun = BALANCE.specialStun;
-      this.say('Kenny ist für 1 Sekunde betäubt!');
+    const stunnedFor =
+      special === 'charge' ? BALANCE.triceratopsStun : special ? BALANCE.specialStun : 0;
+    this.invulnerable = Math.max(BALANCE.enemy.invulnerability, stunnedFor + 0.25);
+    if (stunnedFor) {
+      this.playerStun = stunnedFor;
+      this.say(
+        stunnedFor === 3
+          ? 'Triceratops-Charge! Kenny ist 3 Sekunden betäubt.'
+          : 'Stegosaurus-Treffer! Kenny ist 1 Sekunde betäubt und blutet.',
+      );
       this.attackTime = 0;
       this.player.vx = 0;
     }
@@ -745,7 +995,7 @@ export class KennyWorld {
       shield: absorbed > 0,
       life: 0.85,
     });
-    if (!this.attackTime) {
+    if (!stunnedFor && !this.attackTime) {
       this.player.vx = this.player.x < enemy.x ? -270 : 270;
       this.player.vy = -290;
     }
@@ -753,7 +1003,9 @@ export class KennyWorld {
       if (this.hardcore) this.die();
       else this.respawn();
     }
+    return true;
   }
+
   private solids(): Rect[] {
     return [
       ...this.platforms,
@@ -778,17 +1030,18 @@ export class KennyWorld {
     const solids = this.solids();
     player.x += player.vx * dt;
     for (const solid of solids) {
-      if (!overlaps(player, solid)) continue;
+      if ((solid as Platform).oneWay || !overlaps(player, solid)) continue;
       if (player.vx > 0) player.x = solid.x - player.w;
       else if (player.vx < 0) player.x = solid.x + solid.w;
       player.vx = 0;
     }
-    player.x = Math.max(0, Math.min(WORLD_WIDTH - player.w, player.x));
+    player.x = Math.max(0, Math.min(this.width - player.w, player.x));
     const previousFeet = player.y + player.h;
     player.y += player.vy * dt;
     this.grounded = undefined;
     for (const solid of solids) {
       if (!overlaps(player, solid)) continue;
+      if ((solid as Platform).oneWay && !(player.vy >= 0 && previousFeet <= solid.y + 4)) continue;
       if (player.vy >= 0 && previousFeet <= solid.y + 4) {
         player.y = solid.y - player.h;
         this.grounded = this.platforms.find((platform) => platform === solid);

@@ -237,7 +237,8 @@ assert.equal(
   'Stegosaurus turns away before its tail strikes',
 );
 assert(armored.tailHit, 'The tail sweep has a collision window on the target side');
-assert.equal(stego.health, 2, 'A sweep damages Kenny once');
+assert.equal(stego.health, 3, 'A tail hit first removes a shield heart');
+assert.equal(stego.shield, 1, 'The remaining shield heart survives the sweep');
 const {
   playerAnimation,
   enemyAnimation,

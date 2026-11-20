@@ -214,13 +214,40 @@ async function initialize(context, retained = true, companions = undefined) {
     // course trace cannot be replayed as a deterministic full-run browser test.
     // The old solver remains independently checked by test-kenny-platformer.cjs.
     const sprite = page.locator('.platformer-player');
+    // Check attacks before approaching a random dinosaur: a real special can
+    // correctly stun Kenny and make later keyboard-input assertions unreliable.
+    await page.keyboard.press('KeyJ');
+    await page.evaluate(() => window.__kennyFrames(8));
+    assert.equal(await sprite.getAttribute('data-motion'), 'attack', 'J uses bite artwork');
+    await page.evaluate(() => window.__kennyFrames(30));
+    await page.keyboard.press('KeyL');
+    await page.evaluate(() => window.__kennyFrames(18));
+    assert.equal(await sprite.getAttribute('data-motion'), 'attack', 'L uses special artwork');
+    await page.screenshot({ path: path.join(screenshots, 'kenny-jump-attack.png') });
+    await page.evaluate(() => window.__kennyFrames(65));
+    // Restart between attack and movement checks: the special's attack-lock
+    // and randomized enemy stuns must not turn a keyboard test into a timing lottery.
+    const retry = page.getByRole('button', { name: 'Neuer Versuch' });
+    if (await retry.isVisible()) {
+      await retry.click();
+    } else {
+      const restart = page.getByRole('button', { name: 'Neu starten' });
+      if (!(await restart.isVisible())) {
+        await page.getByRole('button', { name: 'Spiel pausieren' }).click();
+        // Clock is frozen in this test: flush Angular's scheduled signal render.
+        await page.clock.runFor(32);
+      }
+      await restart.click();
+    }
+    await page.clock.runFor(32);
+    await page.evaluate(() => window.__kennyFrames(3));
     const originalX = await sprite.evaluate((element) => parseFloat(element.style.left));
     await page.keyboard.down('KeyD');
-    await page.evaluate(() => window.__kennyFrames(55));
+    await page.evaluate(() => window.__kennyFrames(38));
     await page.keyboard.up('KeyD');
     assert(
       (await sprite.evaluate((element) => parseFloat(element.style.left))) > originalX + 10,
-      'Real keyboard controls move Kenny in the randomized expedition',
+      'Real keyboard controls move Kenny in a fresh expedition',
     );
     await page.screenshot({ path: path.join(screenshots, 'kenny-platformer-desktop.png') });
     await page.evaluate(() => window.__kennyFrames(65));
@@ -238,18 +265,15 @@ async function initialize(context, retained = true, companions = undefined) {
         'Aiming must not resize or jump Kenny',
       );
     }
-    await page.keyboard.press('KeyJ');
-    await page.evaluate(() => window.__kennyFrames(8));
-    assert.equal(await sprite.getAttribute('data-motion'), 'attack', 'J uses bite artwork');
-    await page.evaluate(() => window.__kennyFrames(30));
-    await page.keyboard.press('KeyL');
-    await page.evaluate(() => window.__kennyFrames(18));
-    assert.equal(await sprite.getAttribute('data-motion'), 'attack');
-    await page.screenshot({ path: path.join(screenshots, 'kenny-jump-attack.png') });
-    await page.evaluate(() => window.__kennyFrames(65));
+    await page.evaluate(() => window.__kennyFrames(20));
     const stageSize = await page.locator('canvas').boundingBox();
-    await page.locator('.game-hint').evaluate((el) => {
-      el.textContent = 'Ein sehr langer Pickup-Hinweis '.repeat(30);
+    // The permanent key hint was intentionally removed. Inject a simulated
+    // contextual overlay to verify long messages cannot resize the canvas.
+    await page.locator('.kenny-stage').evaluate((stage) => {
+      const overlay = document.createElement('div');
+      overlay.className = 'game-hint';
+      overlay.textContent = 'Ein sehr langer Pickup-Hinweis '.repeat(30);
+      stage.append(overlay);
     });
     assert.deepEqual(await page.locator('canvas').boundingBox(), stageSize);
     // Random encounters can legitimately end a run before the UI regression finishes.
