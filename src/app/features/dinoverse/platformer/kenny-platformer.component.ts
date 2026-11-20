@@ -59,7 +59,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   @Input() tutorialSeen = false;
   @Input() autoTutorial = false;
   @Output() tutorialAcknowledged = new EventEmitter<void>();
-  @Output() amberCollected = new EventEmitter<string>();
+  @Output() amberCollected = new EventEmitter<string[]>();
   @Output() pickupCollected = new EventEmitter<{ id: string; item: ItemId }>();
   @Input() available = false;
   @Output() exitRequested = new EventEmitter<void>();
@@ -427,7 +427,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
           const events = this.world.amberEvents.splice(0);
           this.zone.run(() => {
             if (!this.tutorialActive && this.status() !== 'tutorialComplete')
-              for (const id of events) this.amberCollected.emit(id);
+              this.amberCollected.emit(events);
           });
         }
         this.jumpQueued = false;
