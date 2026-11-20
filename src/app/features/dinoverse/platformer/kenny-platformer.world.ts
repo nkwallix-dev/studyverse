@@ -218,7 +218,7 @@ export class KennyWorld {
     this.hardcore = options.expedition === true;
     this.random = options.random || Math.random;
     this.amberDay = options.amberDay || new Date().toISOString().slice(0, 10);
-    // Account-scoped receipts make each map crystal collectible once per UTC day,
+    // Account-scoped receipts make each map crystal collectible once per calendar day,
     // including after retry, reload, or logging in on another device.
     this.amber.forEach((amber, i) => {
       amber.collected = options.claimedAmber?.[this.mapAmberId(i)] === true;
@@ -377,7 +377,14 @@ export class KennyWorld {
     const player = this.player;
     this.aim = Math.max(-1, Math.min(1, input.aim || 0));
     if (this.playerStun > 0) {
-      input = { ...input, axis: 0, jump: false, jumpHeld: false, attack: false, special: false };
+      input = {
+        ...input,
+        axis: 0,
+        jump: false,
+        jumpHeld: false,
+        attack: false,
+        special: false,
+      };
       player.vx = 0;
     }
     if (input.special && this.attackTime <= 0 && this.specialCooldown === 0) {
