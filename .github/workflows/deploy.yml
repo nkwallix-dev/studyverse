@@ -54,6 +54,7 @@ jobs:
       - name: Test Kenny platformer course and checkpoint mechanics
         run: |
           node scripts/test-companion-equipment.cjs
+          node scripts/test-stachelweide.cjs
           node scripts/test-kenny-platformer.cjs
 
       - name: Test Kenny season economy, level gates and finale

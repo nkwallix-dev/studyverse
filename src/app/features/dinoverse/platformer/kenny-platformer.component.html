@@ -5,8 +5,11 @@
     >
     <div class="game-title">
       <span>EXPEDITION 01</span>
-      <h1>Hornweide<span class="prototype">Prototyp</span></h1>
+      <h1>Stachelweide<span class="prototype">Prototyp</span></h1>
     </div>
+    <span class="wallet" aria-label="Gesammelter Bernstein"
+      >◆ {{ amberBalance }} <small>Bernstein</small></span
+    >
     <button
       type="button"
       class="pause"
@@ -18,30 +21,33 @@
     </button>
   </header>
 
-  <div class="game-hud" aria-label="Spielstand">
-    <span class="health" [attr.aria-label]="hud().health + ' von 3 Herzen'"
-      >{{ '♥'.repeat(hud().health) }}<i>{{ '♡'.repeat(3 - hud().health) }}</i></span
-    >
-    <span class="amber"
-      >◆ <strong>{{ hud().amber }}</strong
-      ><small>/ 23 Bernstein</small></span
-    >
-    <span class="checkpoint"
-      >⚑ <strong>{{ hud().checkpoint }}</strong
-      ><small>/ 3</small></span
-    >
-    <span class="timer" aria-label="Laufzeit">{{ hud().time }}</span>
-  </div>
-
   <div
     #stage
     class="platformer-stage kenny-stage"
     [class.suspended]="status() !== 'playing' || !available"
   >
+    <div class="game-hud" aria-label="Spielstand">
+      <span class="health" [attr.aria-label]="hud().health + ' von 3 Herzen'"
+        >{{ '♥'.repeat(hud().health) }}<i>{{ '♡'.repeat(3 - hud().health) }}</i></span
+      >
+      <span class="shield" [attr.aria-label]="hud().shield + ' Schildherzen'"
+        >🛡 {{ hud().shield }} / {{ hud().shieldMaximum }}</span
+      >
+      <span class="amber"
+        >◆ <strong>{{ hud().amber }}</strong
+        ><small>/ 23 Bernstein</small></span
+      >
+      <span class="checkpoint"
+        >⚑ <strong>{{ hud().checkpoint }}</strong
+        ><small>/ 3</small></span
+      >
+      <span class="timer" aria-label="Laufzeit">{{ hud().time }}</span>
+    </div>
+
     <canvas
       #canvas
       tabindex="0"
-      aria-label="Urzeitpfad. A und D bewegen, Leertaste springen, W und S zielen, J Sprungangriff, P pausieren, R zum Checkpoint."
+      aria-label="Stachelweide. A und D bewegen, Leertaste springen, W und S zielen, J beißen, L Spezialangriff, E aufheben, P pausieren, R zum Checkpoint."
       [attr.inert]="status() !== 'playing' || !available ? '' : null"
     ></canvas>
     <div
@@ -63,6 +69,18 @@
       ><span *ngIf="hud().progress >= 73">{{ hud().runes }} / 3 Runen</span>
     </div>
 
+    <div class="ability-hud" aria-label="Aktive Ausrüstung">
+      <span
+        ><kbd>L</kbd> {{ hud().special }} ·
+        {{ hud().cooldown > 0 ? hud().cooldown.toFixed(1) + ' s' : 'bereit' }}</span
+      >
+      <span
+        >🛡 {{ hud().defense
+        }}<small *ngIf="hud().regeneration"> · {{ hud().regeneration }} s</small></span
+      >
+    </div>
+    <div class="pickup-prompt" *ngIf="hud().pickup"><kbd>E</kbd> {{ hud().pickup }} aufheben</div>
+    <div class="game-hint" role="status" aria-live="polite">{{ hint() }}</div>
     <div class="dialog-veil" *ngIf="status() !== 'playing' || !available">
       <section
         class="game-dialog"
@@ -74,7 +92,7 @@
         <ng-container *ngIf="!available; else gameState">
           <h2 id="game-dialog-title">Kenny ist weitergezogen.</h2>
           <p>
-            Während seiner Season ist der Urzeitpfad spielbar. Ab Level 5 bleibt Kenny bei dir – und
+            Während seiner Season ist Stachelweide spielbar. Ab Level 5 bleibt Kenny bei dir – und
             der Zugang auch nach Saisonende offen.
           </p>
           <button #dialogAction type="button" class="primary" (click)="exitRequested.emit()">
@@ -92,11 +110,13 @@
               </p>
               <div class="control-guide">
                 <span><kbd>A</kbd><kbd>D</kbd> Laufen</span><span><kbd>Space</kbd> Springen</span
-                ><span><kbd>W / S</kbd> Zielen</span><span><kbd>J</kbd> Sprungangriff</span>
+                ><span><kbd>W / S</kbd> Zielen</span><span><kbd>J</kbd> Beißen</span
+                ><span><kbd>L</kbd> Spezialangriff</span><span><kbd>E</kbd> Aufheben</span>
               </div>
               <p class="touch-note">
-                J springt fest nach vorn; A/D bleiben während des Angriffs gesperrt. Auf dem Handy:
-                die Tasten unten halten. Laufen und Springen gehen gleichzeitig.
+                L aktiviert deinen Spezialangriff; A/D bleiben währenddessen gesperrt. J beißt und E
+                hebt Items auf. Auf dem Handy: die Tasten unten halten. Laufen und Springen gehen
+                gleichzeitig.
               </p>
               <button
                 #dialogAction
@@ -162,17 +182,13 @@
             {{ best.amber }} Bernstein
           </p>
           <p class="economy-note">
-            Bernstein ist dein Laufpunktestand. Im Prototyp gibt es dafür keine TastyTokens.
+            Bernstein wird separat gesammelt. Jeder neue Lauf bietet 23 Bernstein.
           </p>
         </ng-template>
       </section>
     </div>
   </div>
 
-  <p *ngIf="fusionNames().length" class="game-hint">
-    Aktive Fusionen (Grafik folgt): {{ fusionNames().join(' · ') }}
-  </p>
-  <div class="game-hint" role="status" aria-live="polite">{{ hint() }}</div>
   <div
     class="touch-controls"
     aria-label="Touch-Steuerung"
@@ -195,8 +211,8 @@
   </div>
   <footer class="keyboard-guide">
     <span
-      ><kbd>A / D</kbd> Laufen <kbd>Space</kbd> Springen <kbd>W / S</kbd> Zielen
-      <kbd>J</kbd> Sprungangriff</span
+      ><kbd>A / D</kbd> Laufen <kbd>Space</kbd> Springen <kbd>W / S</kbd> Zielen <kbd>J</kbd> Beißen
+      <kbd>L</kbd> Spezial <kbd>E</kbd> Aufheben</span
     ><span><kbd>R</kbd> Checkpoint <kbd>P / Esc</kbd> Pause</span>
   </footer>
 </section>

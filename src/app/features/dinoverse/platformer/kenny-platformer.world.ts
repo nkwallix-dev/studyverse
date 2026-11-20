@@ -1,27 +1,28 @@
-import { ItemId, DinoSpecies, dropsFor } from '../equipment/companion-equipment.model';
-/** World coordinates stay independent of viewport size and rendering. */
-export interface Rect {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
-
+import {
+  ItemId,
+  DinoSpecies,
+  EquipmentSlots,
+  itemSlot,
+  dropsFor,
+} from '../equipment/companion-equipment.model';
+import { BALANCE, FIELD, SpecialKind, specialDuration } from './kenny-platformer.balance';
+import { Rect, centre, distanceInFields, reaches } from './kenny-platformer.combat';
+export type { Rect } from './kenny-platformer.combat';
 export interface Controls {
   axis: number;
   aim: number;
   jump: boolean;
   jumpHeld: boolean;
   attack: boolean;
+  special?: boolean;
+  interact?: boolean;
 }
-
 export interface Platform extends Rect {
   origin?: number;
   travel?: number;
   period?: number;
   previousX?: number;
 }
-
 export interface Enemy extends Rect {
   min: number;
   max: number;
@@ -33,23 +34,33 @@ export interface Enemy extends Rect {
   tier: 'basic' | 'medium' | 'elite';
   health: number;
   poison: number;
+  poisonTick: number;
   attackTime: number;
   attackCooldown: number;
   attackFacing: number;
   tailHit: boolean;
+  attackLaunched: boolean;
+  alerted: boolean;
+  returning: boolean;
 }
-
-export const WORLD_WIDTH = 5300;
-export const WORLD_HEIGHT = 540;
-export const STEP = 1 / 120;
-export const ATTACK_DURATION = 0.5;
-export const ATTACK_WINDUP = 0.08;
-export const ATTACK_TRAVEL_TIME = 0.3;
-export const ATTACK_DISTANCE = 150;
-export const STEGO_ATTACK_DURATION = 0.8;
+export interface DamageText {
+  id: number;
+  x: number;
+  y: number;
+  amount: number;
+  shield: boolean;
+  life: number;
+}
+export const WORLD_WIDTH = 5300,
+  WORLD_HEIGHT = 540,
+  STEP = 1 / 120;
+export const ATTACK_DURATION = specialDuration('leap'),
+  ATTACK_WINDUP = BALANCE.leap.windup;
+export const ATTACK_TRAVEL_TIME = BALANCE.leap.active,
+  ATTACK_DISTANCE = BALANCE.leap.travel * FIELD;
+export const STEGO_ATTACK_DURATION = BALANCE.tail.duration;
 export const overlaps = (a: Rect, b: Rect): boolean =>
   a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-
 const floor = (x: number, w: number): Platform => ({ x, y: 450, w, h: 90 });
 const ledge = (x: number, y: number, w: number): Platform => ({ x, y, w, h: 22 });
 const ferry = (x: number, y: number, travel: number, period: number): Platform => ({
@@ -59,8 +70,6 @@ const ferry = (x: number, y: number, travel: number, period: number): Platform =
   travel,
   period,
 });
-
-/** One compact course: ravine, full-height ruins, strike gate, ferries, rune temple. */
 export class KennyWorld {
   readonly platforms: Platform[] = [
     floor(0, 520),
@@ -128,57 +137,94 @@ export class KennyWorld {
   readonly runId = crypto.randomUUID();
   readonly loot: (Rect & { id: string; item: ItemId; collected: boolean })[] = [];
   readonly pickupEvents: { id: string; item: ItemId }[] = [];
+  readonly amberEvents: string[] = [];
   readonly fusions = new Set<ItemId>();
-  constructor(startItem: ItemId | null = null) {
-    if (startItem) this.fusions.add(startItem);
-    this.grounded = this.platforms[0];
-  }
+  readonly damageTexts: DamageText[] = [];
   player = { x: 90, y: 390, w: 34, h: 60, vx: 0, vy: 0, facing: 1 };
   grounded: Platform | undefined;
   elapsed = 0;
   checkpoint = 0;
-  health = 3;
+  health: number = BALANCE.health;
   deaths = 0;
   amberCount = 0;
   switchOpen = false;
   runeProgress = 0;
   won = false;
   attackTime = 0;
-  aim = 0;
+  attackKind: SpecialKind = 'leap';
   attackAim = 0;
   attackFacing = 1;
+  specialCooldown = 0;
+  biteTime = 0;
+  biteCooldown = 0;
+  aim = 0;
+  invulnerable = 0;
+  offense: ItemId | null = null;
+  defense: ItemId | null = null;
+  shield = 0;
+  sinceDamage = 0;
+  get shieldMaximum(): number {
+    return this.defense === 'triceratops-frill'
+      ? BALANCE.shield.frill
+      : this.defense === 'stegosaurus-plates'
+        ? BALANCE.shield.plates
+        : 0;
+  }
+  get nearbyDrop() {
+    return this.loot
+      .filter(
+        (drop) => !drop.collected && distanceInFields(this.player, drop) <= BALANCE.pickup.range,
+      )
+      .sort((a, b) => distanceInFields(this.player, a) - distanceInFields(this.player, b))[0];
+  }
+  equipRun(item: ItemId): void {
+    const slot = itemSlot(item),
+      previous = this[slot];
+    if (previous) this.fusions.delete(previous);
+    this[slot] = item;
+    this.fusions.add(item);
+    if (slot === 'defense') {
+      this.shield = this.shieldMaximum;
+      this.sinceDamage = 0;
+    }
+  }
+  private attackOrigin: Rect = { x: 90, y: 390, w: 34, h: 60 };
   private attackLaunched = false;
+  private pogoUsed = false;
+  private pogoRising = false;
   private attackHits = new Set<Enemy>();
   private activatedRunes = new Set<number>();
-  invulnerable = 0;
-  message = 'Los geht’s! Über die Schlucht: laufen, dann springen.';
-  private messageTime = 0;
   private jumpBuffer = 0;
   private coyote = 0;
-  private attackCooldown = 0;
-  private lastZone = -1;
-
+  private damageId = 0;
+  message = 'A/D laufen · Space springen · J beißen · L Spezialangriff · E aufheben';
+  private messageTime = 0;
+  constructor(startItem: ItemId | Partial<EquipmentSlots> | null = null) {
+    if (typeof startItem === 'string') this.equipRun(startItem);
+    else if (startItem) {
+      if (startItem.offense) this.equipRun(startItem.offense);
+      if (startItem.defense) this.equipRun(startItem.defense);
+    }
+    this.grounded = this.platforms[0];
+  }
   get progress(): number {
     return Math.min(100, Math.round((this.player.x / 5120) * 100));
   }
-
   get hint(): string {
     if (this.messageTime > 0) return this.message;
-    const x = this.player.x;
-    if (x < 1100) return 'A / D bewegen · Leertaste springen · W / S zielen · J Sprungangriff';
-    if (x < 1660) return 'Durch die Ruinen: W zielt nach oben, S nach unten. Space springt.';
-    if (x < 1900 && !this.switchOpen)
-      return 'Stell dich vor den goldenen Schalter und aktiviere ihn mit J.';
-    if (x < 2500)
-      return 'Über die Stacheln springen. Die Fahne dahinter speichert deinen Checkpoint.';
-    if (x < 3700)
-      return 'Die Steinplatten bewegen sich. Mitfahren, auf die nächste Insel springen.';
-    if (this.runeProgress < 3) {
-      return `Tempelrätsel: MOND → FARN → SONNE. Als Nächstes: ${this.runes[this.runeProgress].label} mit einem J-Angriff aktivieren.`;
-    }
-    return 'Das Tempeltor ist offen! Erreiche das leuchtende Portal rechts.';
+    if (this.player.x >= 3700 && this.runeProgress < 3)
+      return `Runen: MOND → FARN → SONNE. Nächste: ${this.runes[this.runeProgress].label} mit J.`;
+    return this.runeProgress === 3
+      ? 'Das Tor ist offen. Erreiche das Portal!'
+      : 'A/D laufen · Space springen · W/S zielen · J beißen · L Spezial · E aufheben';
   }
-
+  get specialKind(): SpecialKind {
+    return this.offense === 'triceratops-horns'
+      ? 'charge'
+      : this.offense === 'stegosaurus-spikes'
+        ? 'tail'
+        : 'leap';
+  }
   respawn(): void {
     this.player = {
       x: this.checkpoints[this.checkpoint],
@@ -189,93 +235,146 @@ export class KennyWorld {
       vy: 0,
       facing: 1,
     };
-    this.health = 3;
+    this.health = BALANCE.health;
     this.grounded = undefined;
     this.jumpBuffer = 0;
     this.coyote = 0;
     this.attackTime = 0;
-    this.attackCooldown = 0;
-    this.invulnerable = 1.5;
+    this.pogoRising = false;
+    this.biteTime = 0;
+    this.invulnerable = BALANCE.player.respawnInvulnerability;
     this.deaths++;
-    this.say('Zurück am Checkpoint. Bernstein und gelöste Schalter bleiben erhalten.');
+    this.say('Checkpoint erreicht. Bereits gezählte Pickups bleiben erhalten.');
   }
-
   step(dt: number, input: Controls): void {
     if (this.won) return;
-    // Bound catch-up work: a suspended tab must never teleport the player.
     dt = Math.min(STEP, Math.max(0, dt));
     this.elapsed += dt;
     this.messageTime = Math.max(0, this.messageTime - dt);
-    this.attackCooldown = Math.max(0, this.attackCooldown - dt);
+    this.specialCooldown = Math.max(0, this.specialCooldown - dt);
+    this.biteCooldown = Math.max(0, this.biteCooldown - dt);
+    this.biteTime = Math.max(0, this.biteTime - dt);
     this.invulnerable = Math.max(0, this.invulnerable - dt);
+    for (const text of this.damageTexts) {
+      text.life -= dt;
+      text.y -= 28 * dt;
+    }
+    for (let i = this.damageTexts.length - 1; i >= 0; i--)
+      if (this.damageTexts[i].life <= 0) this.damageTexts.splice(i, 1);
+    this.sinceDamage += dt;
+    if (
+      this.defense === 'stegosaurus-plates' &&
+      this.sinceDamage + 1e-9 >= BALANCE.shield.regeneration
+    )
+      this.shield = BALANCE.shield.plates;
     this.movePlatforms();
     const player = this.player;
-    this.aim = Math.max(-1, Math.min(1, input.aim));
-    if (input.attack && this.attackTime <= 0 && this.attackCooldown === 0) {
+    this.aim = Math.max(-1, Math.min(1, input.aim || 0));
+    if (input.special && this.attackTime <= 0 && this.specialCooldown === 0) {
       if (input.axis) player.facing = Math.sign(input.axis);
-      this.attackTime = ATTACK_DURATION;
-      this.attackCooldown = 0.78;
+      this.attackKind = this.specialKind;
+      this.attackTime = specialDuration(this.attackKind);
+      this.specialCooldown = BALANCE[this.attackKind].cooldown;
       this.attackFacing = player.facing;
-      this.attackAim = this.aim;
+      this.attackOrigin = { ...player };
+      this.attackAim =
+        this.aim ||
+        (this.attackKind === 'leap' &&
+        this.enemies.some(
+          (enemy) =>
+            enemy.alive &&
+            centre(player).y < enemy.y &&
+            Math.abs(centre(player).x - centre(enemy).x) <= FIELD,
+        )
+          ? 1
+          : 0);
       this.attackLaunched = false;
+      this.pogoUsed = false;
       this.attackHits.clear();
       this.activatedRunes.clear();
     }
     if (this.attackTime > 0) {
-      const elapsed = ATTACK_DURATION - this.attackTime;
-      player.facing = this.attackFacing;
+      const kind = this.attackKind,
+        elapsed = specialDuration(kind) - this.attackTime;
       const active =
-        elapsed + 1e-9 >= ATTACK_WINDUP && elapsed < ATTACK_WINDUP + ATTACK_TRAVEL_TIME - 1e-9;
-      player.vx = active ? (this.attackFacing * ATTACK_DISTANCE) / ATTACK_TRAVEL_TIME : 0;
+        kind !== 'tail' &&
+        elapsed + 1e-9 >= BALANCE[kind].windup &&
+        elapsed < BALANCE[kind].windup + BALANCE[kind].active - 1e-9;
+      player.facing =
+        kind === 'tail' && elapsed >= BALANCE.tail.duration / 2
+          ? -this.attackFacing
+          : this.attackFacing;
+      player.vx = active
+        ? (this.attackFacing * BALANCE[kind as 'leap' | 'charge'].travel * FIELD) /
+          BALANCE[kind as 'leap' | 'charge'].active
+        : 0;
       if (active && !this.attackLaunched) {
-        player.vy =
-          this.attackAim < 0 ? -520 : this.attackAim > 0 ? (this.grounded ? -200 : 250) : -340;
+        if (kind === 'leap') {
+          player.vy =
+            this.attackAim < 0 ? -520 : this.attackAim > 0 ? (this.grounded ? -200 : 250) : -340;
+          this.grounded = undefined;
+        }
         this.attackLaunched = true;
-        this.grounded = undefined;
         this.jumpBuffer = 0;
         this.coyote = 0;
       }
     } else {
-      this.jumpBuffer = input.jump ? 0.12 : Math.max(0, this.jumpBuffer - dt);
-      this.coyote = this.grounded ? 0.1 : Math.max(0, this.coyote - dt);
-      const target = Math.max(-1, Math.min(1, input.axis)) * 280;
-      const acceleration = (this.grounded ? 2400 : 1600) * dt;
+      this.jumpBuffer = input.jump ? BALANCE.player.jumpBuffer : Math.max(0, this.jumpBuffer - dt);
+      this.coyote = this.grounded ? BALANCE.player.coyote : Math.max(0, this.coyote - dt);
+      const target = Math.max(-1, Math.min(1, input.axis)) * BALANCE.player.speed * FIELD;
+      const acceleration =
+        (this.grounded ? BALANCE.player.groundAcceleration : BALANCE.player.airAcceleration) *
+        FIELD *
+        dt;
       player.vx += Math.max(-acceleration, Math.min(acceleration, target - player.vx));
       if (input.axis) player.facing = Math.sign(input.axis);
       if (this.jumpBuffer > 0 && this.coyote > 0) {
-        player.vy = -650;
+        player.vy = -BALANCE.player.jumpVelocity * FIELD;
         this.grounded = undefined;
         this.coyote = 0;
         this.jumpBuffer = 0;
       }
-      if (!input.jumpHeld && player.vy < -260) player.vy = -260;
+      if (!this.pogoRising && !input.jumpHeld && player.vy < -BALANCE.player.jumpCutoff * FIELD)
+        player.vy = -BALANCE.player.jumpCutoff * FIELD;
     }
-    player.vy += 1700 * dt;
+    if (player.vy >= 0) this.pogoRising = false;
+    player.vy += BALANCE.gravity * dt;
     this.movePlayer(dt);
+    if (input.attack && this.biteCooldown === 0 && this.attackTime === 0) {
+      this.biteTime = BALANCE.bite.duration;
+      this.biteCooldown = BALANCE.bite.cooldown;
+      this.activatedRunes.clear();
+      this.interactWithRuins();
+      for (const enemy of this.enemies)
+        if (enemy.alive && reaches(player, enemy, BALANCE.bite.range, player.facing, this.aim))
+          this.hitEnemy(enemy, BALANCE.bite.damage);
+    }
     if (this.attackTime > 0) {
-      const elapsed = ATTACK_DURATION - this.attackTime;
-      if (elapsed + 1e-9 >= ATTACK_WINDUP && elapsed < ATTACK_WINDUP + ATTACK_TRAVEL_TIME)
-        this.strike();
+      const elapsed = specialDuration(this.attackKind) - this.attackTime;
+      const active =
+        this.attackKind === 'tail'
+          ? elapsed >= 0.4 && elapsed < 0.68
+          : elapsed + 1e-9 >= BALANCE[this.attackKind].windup &&
+            elapsed < BALANCE[this.attackKind].windup + BALANCE[this.attackKind].active;
+      if (active) this.specialStrike();
       this.attackTime = Math.max(0, this.attackTime - dt);
     }
     this.moveEnemies(dt);
-    this.collect();
-    if (this.hazards.some((hazard) => overlaps(player, hazard)) || player.y > WORLD_HEIGHT + 60) {
+    this.collect(input.interact === true);
+    if (this.hazards.some((h) => overlaps(player, h)) || player.y > WORLD_HEIGHT + 60)
       this.respawn();
-    }
     if (this.runeProgress === 3 && this.player.x > 5110) {
       this.won = true;
-      this.say('Geschafft! Kenny hat den Urzeitpfad gemeistert.');
+      this.say('Stachelweide gemeistert!');
     }
   }
-
   private enemy(x: number, min: number, max: number, armored: boolean): Enemy {
     const tier = armored ? 'elite' : x > 1000 ? 'medium' : 'basic';
     return {
       x,
-      y: 398,
-      w: 84,
-      h: 52,
+      y: armored ? 380 : 398,
+      w: armored ? 112 : 84,
+      h: armored ? 70 : 52,
       min,
       max,
       direction: -1,
@@ -284,20 +383,229 @@ export class KennyWorld {
       stun: 0,
       species: armored ? 'stegosaurus' : 'triceratops',
       tier,
-      health: tier === 'elite' ? 7 : tier === 'medium' ? 4 : 2,
+      health: BALANCE.enemy.health[tier],
       poison: 0,
+      poisonTick: 0,
       attackTime: 0,
       attackCooldown: 0,
       attackFacing: -1,
       tailHit: false,
+      attackLaunched: false,
+      alerted: false,
+      returning: false,
     };
   }
-
   private say(message: string): void {
     this.message = message;
     this.messageTime = 3;
   }
-
+  private interactWithRuins(): void {
+    const mouth: Rect = {
+      x: this.player.facing > 0 ? this.player.x + this.player.w - 4 : this.player.x - 51,
+      y: this.player.y + 6,
+      w: 55,
+      h: this.player.h - 6,
+    };
+    if (!this.switchOpen && overlaps(mouth, { x: 1722, y: 396, w: 24, h: 43 }))
+      this.switchOpen = true;
+    this.runes.forEach((rune, index) => {
+      if (
+        this.runeProgress === 3 ||
+        this.activatedRunes.has(index) ||
+        !overlaps(mouth, { x: rune.x - 13, y: rune.y - 17, w: 26, h: 34 })
+      )
+        return;
+      this.activatedRunes.add(index);
+      this.runeProgress = index === this.runeProgress ? this.runeProgress + 1 : index === 0 ? 1 : 0;
+    });
+  }
+  private specialStrike(): void {
+    const player = this.player;
+    for (const enemy of this.enemies) {
+      if (!enemy.alive || this.attackHits.has(enemy)) continue;
+      const aim = this.attackKind === 'leap' ? this.attackAim : 0;
+      if (
+        !reaches(this.attackOrigin, enemy, BALANCE[this.attackKind].range, this.attackFacing, aim)
+      )
+        continue;
+      if (this.attackKind === 'charge' && !reaches(player, enemy, 0.25, this.attackFacing))
+        continue;
+      this.attackHits.add(enemy);
+      this.hitEnemy(enemy, BALANCE[this.attackKind].damage);
+      if (this.attackKind === 'tail' && enemy.alive) {
+        enemy.poison = BALANCE.tail.dotSeconds;
+        enemy.poisonTick = 1;
+      }
+      if (
+        this.attackKind === 'leap' &&
+        this.attackAim > 0 &&
+        centre(player).y < centre(enemy).y &&
+        !this.pogoUsed
+      ) {
+        player.vy = -Math.sqrt(2 * BALANCE.gravity * BALANCE.leap.pogo * FIELD);
+        this.grounded = undefined;
+        this.pogoUsed = true;
+        this.pogoRising = true;
+      }
+    }
+  }
+  private hitEnemy(enemy: Enemy, amount: number): void {
+    if (!enemy.alive) return;
+    enemy.health = Math.max(0, enemy.health - amount);
+    enemy.stun = 0.25;
+    this.damageTexts.push({
+      id: ++this.damageId,
+      x: enemy.x + enemy.w / 2,
+      y: enemy.y,
+      amount,
+      shield: false,
+      life: 0.85,
+    });
+    if (enemy.health <= 0) this.defeat(enemy);
+  }
+  private defeat(enemy: Enemy): void {
+    if (!enemy.alive) return;
+    enemy.alive = false;
+    dropsFor(enemy.species, enemy.tier).forEach((item, drop) =>
+      this.loot.push({
+        id: `${this.runId}_${this.enemies.indexOf(enemy)}_${drop}`,
+        item,
+        x: enemy.x + drop * 28,
+        y: 420,
+        w: 22,
+        h: 22,
+        collected: false,
+      }),
+    );
+  }
+  private moveEnemies(dt: number): void {
+    for (const enemy of this.enemies) {
+      if (!enemy.alive) continue;
+      if (enemy.poison > 0) {
+        enemy.poisonTick -= dt;
+        enemy.poison = Math.max(0, enemy.poison - dt);
+        if (enemy.poisonTick <= 1e-9) {
+          this.hitEnemy(enemy, BALANCE.tail.dotDamage);
+          enemy.poisonTick += 1;
+        }
+        if (!enemy.alive) continue;
+      }
+      enemy.stun = Math.max(0, enemy.stun - dt);
+      enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
+      const dx = centre(this.player).x - centre(enemy).x;
+      const distance = distanceInFields(this.player, enemy);
+      if (enemy.alerted && distance > BALANCE.enemy.disengage) {
+        enemy.alerted = false;
+        enemy.returning = true;
+      }
+      if (!enemy.alerted && distance <= BALANCE.enemy.sight && dx * enemy.direction >= 0) {
+        enemy.alerted = true;
+        enemy.returning = false;
+      }
+      let charging = false;
+      if (enemy.attackTime > 0) {
+        const kind = enemy.species === 'stegosaurus' ? 'tail' : 'charge';
+        const elapsed = specialDuration(kind) - enemy.attackTime;
+        enemy.direction =
+          kind === 'tail' && elapsed >= 0.4 ? -enemy.attackFacing : enemy.attackFacing;
+        if (
+          kind === 'charge' &&
+          elapsed + 1e-9 >= BALANCE.charge.windup &&
+          elapsed < BALANCE.charge.windup + BALANCE.charge.active - 1e-9
+        ) {
+          charging = true;
+          if (!enemy.stun)
+            this.walkEnemy(
+              enemy,
+              ((enemy.attackFacing * BALANCE.charge.travel * FIELD) / BALANCE.charge.active) * dt,
+            );
+          if (!enemy.tailHit && overlaps(this.player, enemy)) {
+            this.hurt(enemy, BALANCE.charge.damage);
+            enemy.tailHit = true;
+          }
+        }
+        if (
+          kind === 'tail' &&
+          elapsed >= 0.4 &&
+          elapsed < 0.68 &&
+          !enemy.tailHit &&
+          reaches(enemy, this.player, BALANCE.tail.range, enemy.attackFacing)
+        ) {
+          this.hurt(enemy, BALANCE.tail.damage);
+          enemy.tailHit = true;
+        }
+        enemy.attackTime = Math.max(0, enemy.attackTime - dt);
+      } else if (!enemy.stun) {
+        if (enemy.alerted) enemy.direction = dx >= 0 ? 1 : -1;
+        else if (enemy.returning) {
+          const target = Math.max(enemy.min, Math.min(enemy.max, enemy.x));
+          if (Math.abs(target - enemy.x) < 2) enemy.returning = false;
+          else enemy.direction = Math.sign(target - enemy.x);
+        } else if (enemy.x <= enemy.min || enemy.x >= enemy.max)
+          enemy.direction = enemy.x <= enemy.min ? 1 : -1;
+        const kind = enemy.species === 'stegosaurus' ? 'tail' : 'charge';
+        if (
+          enemy.alerted &&
+          !enemy.attackCooldown &&
+          reaches(enemy, this.player, BALANCE[kind].range, enemy.direction)
+        ) {
+          enemy.attackTime = specialDuration(kind);
+          enemy.attackFacing = enemy.direction;
+          enemy.tailHit = false;
+          enemy.attackCooldown =
+            kind === 'tail' ? BALANCE.enemy.stegoCooldown : BALANCE.enemy.triceratopsCooldown;
+        } else {
+          const movement =
+            enemy.direction *
+            (enemy.alerted ? BALANCE.enemy.chaseSpeed : BALANCE.enemy.patrolSpeed) *
+            FIELD *
+            dt;
+          if (!this.walkEnemy(enemy, movement) && !enemy.alerted) enemy.direction *= -1;
+        }
+      }
+      if (!charging && overlaps(this.player, enemy) && !enemy.stun)
+        this.hurt(enemy, BALANCE.enemy.contactDamage);
+    }
+  }
+  private walkEnemy(enemy: Enemy, movement: number): boolean {
+    const next = { ...enemy, x: enemy.x + movement };
+    const footX = movement > 0 ? next.x + next.w : next.x;
+    const supported = this.platforms.some(
+      (platform) =>
+        Math.abs(platform.y - (enemy.y + enemy.h)) < 4 &&
+        footX >= platform.x &&
+        footX <= platform.x + platform.w,
+    );
+    const blocked = this.solids().some((solid) => overlaps(next, solid));
+    if (!supported || blocked || next.x < 0 || next.x + next.w > WORLD_WIDTH) return false;
+    enemy.x = next.x;
+    return true;
+  }
+  private hurt(enemy: Enemy, amount: number): void {
+    if (this.invulnerable > 0) return;
+    this.sinceDamage = 0;
+    const absorbed = Math.min(this.shield, amount);
+    this.shield -= absorbed;
+    if (this.defense === 'triceratops-frill' && this.shield === 0) {
+      this.fusions.delete(this.defense);
+      this.defense = null;
+    }
+    this.health = Math.max(0, this.health - (amount - absorbed));
+    this.invulnerable = BALANCE.enemy.invulnerability;
+    this.damageTexts.push({
+      id: ++this.damageId,
+      x: this.player.x + this.player.w / 2,
+      y: this.player.y,
+      amount,
+      shield: absorbed > 0,
+      life: 0.85,
+    });
+    if (!this.attackTime) {
+      this.player.vx = this.player.x < enemy.x ? -270 : 270;
+      this.player.vy = -290;
+    }
+    if (!this.health) this.respawn();
+  }
   private solids(): Rect[] {
     return [
       ...this.platforms,
@@ -343,202 +651,26 @@ export class KennyWorld {
     }
   }
 
-  private strike(): void {
-    const player = this.player;
-    const mouth: Rect = {
-      x: player.facing > 0 ? player.x + player.w - 4 : player.x - 51,
-      y: player.y + 6,
-      w: 55,
-      h: player.h - 6,
-    };
-    const hitbox: Rect =
-      this.attackAim === 0
-        ? mouth
-        : {
-            x: player.x - 10,
-            y: this.attackAim < 0 ? player.y - 48 : player.y + player.h - 8,
-            w: player.w + 20,
-            h: 56,
-          };
-    if (overlaps(mouth, { x: 1722, y: 396, w: 24, h: 43 }) && !this.switchOpen) {
-      this.switchOpen = true;
-      this.say('Knack! Das Steintor ist offen.');
-    }
-    this.runes.forEach((rune, index) => {
-      if (
-        this.runeProgress === 3 ||
-        this.activatedRunes.has(index) ||
-        !overlaps(mouth, { x: rune.x - 13, y: rune.y - 17, w: 26, h: 34 })
-      )
-        return;
-      this.activatedRunes.add(index);
-      if (index === this.runeProgress) {
-        this.runeProgress++;
-        this.say(
-          this.runeProgress === 3
-            ? 'Alle drei Runen leuchten. Das Tempeltor ist offen!'
-            : `${rune.label} aktiviert. Weiter zur nächsten Rune!`,
-        );
-      } else {
-        this.runeProgress = index === 0 ? 1 : 0;
-        this.say('Falsche Reihenfolge. Der Hinweis lautet: MOND → FARN → SONNE.');
-      }
-    });
-    for (const enemy of this.enemies) {
-      const tail: Rect = {
-        x: player.facing > 0 ? player.x - 55 : player.x + player.w,
-        y: player.y + 12,
-        w: 55,
-        h: player.h - 12,
-      };
-      const tailHit = this.fusions.has('stegosaurus-spikes') && overlaps(tail, enemy);
-      if (!enemy.alive || this.attackHits.has(enemy) || (!overlaps(hitbox, enemy) && !tailHit))
-        continue;
-      this.attackHits.add(enemy);
-      if (enemy.armored && player.facing !== enemy.direction) {
-        enemy.stun = 0.9;
-        this.say('Vorne gepanzert! Spring über ihn und greif von hinten an.');
-      } else {
-        enemy.health -= this.fusions.has('triceratops-horns') ? 2 : 1;
-        if (this.fusions.has('stegosaurus-spikes')) enemy.poison = 4;
-        if (enemy.health <= 0) this.defeat(enemy);
-        else {
-          enemy.stun = 0.45;
-          this.say(`Treffer! Noch ${Math.ceil(enemy.health)} Herzen.`);
-        }
-      }
-    }
-  }
-
-  private defeat(enemy: Enemy): void {
-    if (!enemy.alive) return;
-    enemy.alive = false;
-    const index = this.enemies.indexOf(enemy);
-    dropsFor(enemy.species, enemy.tier).forEach((item, drop) => {
-      this.loot.push({
-        id: `${this.runId}_${index}_${drop}`,
-        item,
-        x: enemy.x + drop * 28,
-        y: enemy.y + 10,
-        w: 22,
-        h: 22,
-        collected: false,
-      });
-    });
-    this.say('Besiegt! Heb die Beute auf, um mit ihr zu fusionieren.');
-  }
-
-  private moveEnemies(dt: number): void {
-    for (const enemy of this.enemies) {
-      if (!enemy.alive) continue;
-      if (enemy.poison > 0) {
-        enemy.health -= Math.min(dt, enemy.poison) * 0.25;
-        enemy.poison = Math.max(0, enemy.poison - dt);
-        if (enemy.health <= 0) {
-          this.defeat(enemy);
-          continue;
-        }
-      }
-      enemy.stun = Math.max(0, enemy.stun - dt);
-      enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
-      if (
-        enemy.species === 'stegosaurus' &&
-        !enemy.stun &&
-        enemy.attackTime <= 0 &&
-        enemy.attackCooldown === 0 &&
-        Math.abs(this.player.x - enemy.x) < 155 &&
-        Math.abs(this.player.y + this.player.h - (enemy.y + enemy.h)) < 65
-      ) {
-        enemy.attackTime = STEGO_ATTACK_DURATION;
-        enemy.attackCooldown = 1.9;
-        enemy.attackFacing = this.player.x < enemy.x ? -1 : 1;
-        enemy.direction = enemy.attackFacing;
-        enemy.tailHit = false;
-      }
-      if (enemy.attackTime > 0) {
-        const progress = 1 - enemy.attackTime / STEGO_ATTACK_DURATION;
-        if (progress >= 0.5) {
-          enemy.direction = -enemy.attackFacing;
-          // The 128px atlas has its tail tip ~56 units from the body centre.
-          // A small 14-unit tolerance keeps hits readable without invisible reach.
-          const centre = enemy.x + enemy.w / 2;
-          const reach = 70;
-          const tail: Rect = {
-            x: enemy.attackFacing > 0 ? centre : centre - reach,
-            y: enemy.y - 5,
-            w: reach,
-            h: enemy.h + 5,
-          };
-          if (progress < 0.85 && !enemy.tailHit && overlaps(this.player, tail)) {
-            enemy.tailHit = true;
-            this.hurt(enemy);
-          }
-        }
-        enemy.attackTime = Math.max(0, enemy.attackTime - dt);
-      } else if (!enemy.stun) enemy.x += enemy.direction * (enemy.armored ? 45 : 65) * dt;
-      if (enemy.x < enemy.min || enemy.x > enemy.max) {
-        enemy.x = Math.max(enemy.min, Math.min(enemy.max, enemy.x));
-        enemy.direction *= -1;
-      }
-      if (enemy.species !== 'stegosaurus' && overlaps(this.player, enemy) && enemy.stun === 0)
-        this.hurt(enemy);
-    }
-  }
-
-  private hurt(enemy: Enemy): void {
-    if (this.invulnerable > 0) return;
-    const inFront = (enemy.x - this.player.x) * this.player.facing >= 0;
-    if (
-      (inFront && this.fusions.has('triceratops-frill')) ||
-      (!inFront && this.fusions.has('stegosaurus-plates'))
-    ) {
-      enemy.stun = 0.7;
-      return;
-    }
-    this.health--;
-    this.invulnerable = 1.3;
-    this.player.vx = this.player.x < enemy.x ? -270 : 270;
-    this.player.vy = -290;
-    if (this.health <= 0) this.respawn();
-    else this.say('Autsch! Space weicht aus, J startet deinen Sprungangriff.');
-  }
-
-  private collect(): void {
-    for (const drop of this.loot) {
-      if (drop.collected || !overlaps(this.player, drop)) continue;
+  private collect(interact: boolean): void {
+    const drop = this.nearbyDrop;
+    if (interact && drop) {
       drop.collected = true;
-      this.fusions.add(drop.item);
+      this.equipRun(drop.item);
       this.pickupEvents.push({ id: drop.id, item: drop.item });
-      this.say('Fusion aktiviert! Neue Fähigkeit für diesen Run.');
     }
-    for (const amber of this.amber) {
+    this.amber.forEach((amber, i) => {
       if (
         !amber.collected &&
         overlaps(this.player, { x: amber.x - 10, y: amber.y - 10, w: 20, h: 20 })
       ) {
         amber.collected = true;
         this.amberCount++;
-      }
-    }
-    this.checkpoints.forEach((x, index) => {
-      if (index > this.checkpoint && Math.abs(this.player.x - x) < 45 && this.grounded) {
-        this.checkpoint = index;
-        this.say(`Checkpoint ${index} erreicht. Dein Rückweg ist gesichert.`);
+        this.amberEvents.push(`${this.runId}_amber_${i}`);
       }
     });
-    const zone =
-      this.player.x < 1100
-        ? 0
-        : this.player.x < 1900
-          ? 1
-          : this.player.x < 2500
-            ? 2
-            : this.player.x < 3700
-              ? 3
-              : 4;
-    if (zone !== this.lastZone) {
-      this.lastZone = zone;
-      if (zone > 0) this.messageTime = 0;
-    }
+    this.checkpoints.forEach((x, index) => {
+      if (index > this.checkpoint && Math.abs(this.player.x - x) < 45 && this.grounded)
+        this.checkpoint = index;
+    });
   }
 }

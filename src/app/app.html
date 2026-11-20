@@ -13,7 +13,9 @@
 <app-kenny-platformer
   *ngIf="view === 'platformer'"
   [skin]="kennySkin"
-  [startItem]="companionState.equipped"
+  [startEquipment]="companionState.equippedSlots"
+  [amberBalance]="amberBalance"
+  (amberCollected)="collectAmber($event)"
   (pickupCollected)="collectCompanion($event)"
   [available]="kennyPresent && (!cloud.session || cloudMaySave)"
   (exitRequested)="closeKennyPlatformer()"

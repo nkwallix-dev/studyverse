@@ -152,29 +152,57 @@ async function initialize(context, retained = true, companions = undefined) {
     const spriteUrl = /url\("?([^"\)]+)/.exec(image)[1];
     assert((await page.request.get(spriteUrl)).ok(), 'The sprite image must load');
     const baselines = await page.evaluate(async () => {
-      const names = ['blue-walk', 'red-walk', 'pink-walk', 'green-walk', 'zebra-walk', 'triceratops-walk', 'stegosaurus-walk'];
+      const names = [
+        'blue-walk',
+        'red-walk',
+        'pink-walk',
+        'green-walk',
+        'zebra-walk',
+        'triceratops-walk',
+        'stegosaurus-walk',
+      ];
       const result = [];
       for (const name of names) {
         const image = new Image();
-        await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; image.src = new URL(`kenny/animations/${name}.png?v=2`, document.baseURI).href; });
-        const canvas = document.createElement('canvas'); canvas.width = 768; canvas.height = 192;
-        const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
+        await new Promise((resolve, reject) => {
+          image.onload = resolve;
+          image.onerror = reject;
+          image.src = new URL(`kenny/animations/${name}.png?v=2`, document.baseURI).href;
+        });
+        const canvas = document.createElement('canvas');
+        canvas.width = 768;
+        canvas.height = 192;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0);
         const data = ctx.getImageData(0, 0, 768, 192).data;
         for (let frame = 0; frame < 4; frame++) {
           let bottom = 0;
-          for (let y = 0; y < 192; y++) for (let x = frame * 192; x < (frame + 1) * 192; x++) {
-            if (data[(y * 768 + x) * 4 + 3] > 32) bottom = y + 1;
-          }
+          for (let y = 0; y < 192; y++)
+            for (let x = frame * 192; x < (frame + 1) * 192; x++) {
+              if (data[(y * 768 + x) * 4 + 3] > 32) bottom = y + 1;
+            }
           result.push({ name, frame, bottom });
         }
       }
       return result;
     });
-    assert(baselines.every(frame => frame.bottom >= 178 && frame.bottom <= 181), 'Visible feet must sit at the common baseline: ' + JSON.stringify(baselines));
+    assert(
+      baselines.every((frame) => frame.bottom >= 178 && frame.bottom <= 181),
+      'Visible feet must sit at the common baseline: ' + JSON.stringify(baselines),
+    );
     const wallet = await page.evaluate(
       () => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens,
     );
-    const codes = { left: 'KeyA', right: 'KeyD', aimDown: 'KeyS', aimUp: 'KeyW', jump: 'Space', attack: 'KeyJ' };
+    const codes = {
+      left: 'KeyA',
+      right: 'KeyD',
+      aimDown: 'KeyS',
+      aimUp: 'KeyW',
+      jump: 'Space',
+      attack: 'KeyJ',
+      special: 'KeyL',
+      interact: 'KeyE',
+    };
     let keys = new Set();
     // The engine solver records normal controls. Replay them through real DOM keyboard events.
     for (let start = 0; start < trace.length;) {
@@ -189,6 +217,8 @@ async function initialize(context, retained = true, companions = undefined) {
       if (input.aim < 0) next.add(codes.aimUp);
       if (input.jumpHeld || input.jump) next.add(codes.jump);
       if (input.attack) next.add(codes.attack);
+      if (input.special) next.add(codes.special);
+      if (input.interact) next.add(codes.interact);
       for (const key of keys) if (!next.has(key)) await page.keyboard.up(key);
       for (const key of next) if (!keys.has(key)) await page.keyboard.down(key);
       await page.evaluate((count) => window.__kennyFrames(count), end - start);
@@ -220,6 +250,14 @@ async function initialize(context, retained = true, companions = undefined) {
         () => JSON.parse(localStorage.getItem('studyverse_kenny_platformer_v1')).seconds > 0,
       ),
     );
+    const amber = await page.evaluate(
+      () =>
+        Object.keys(
+          JSON.parse(localStorage.getItem('studyverse_profile_v1')).companions.amberPickups,
+        ).length,
+    );
+    assert(amber > 0, 'Collected amber must persist separately');
+    assert((await page.locator('.wallet').innerText()).includes(String(amber)));
     await page.screenshot({ path: path.join(screenshots, 'kenny-platformer-finish.png') });
     await page.getByRole('button', { name: 'Nochmal los' }).click();
     await page.keyboard.down('KeyD');
@@ -251,43 +289,91 @@ async function initialize(context, retained = true, companions = undefined) {
     await page.keyboard.press('KeyR');
     await page.evaluate(() => window.__kennyFrames(12));
     const sprite = page.locator('.platformer-player');
-    const beforeAim = await sprite.evaluate(el => ({ height: el.style.height, top: el.style.top }));
+    const beforeAim = await sprite.evaluate((el) => ({
+      height: el.style.height,
+      top: el.style.top,
+    }));
     for (const key of ['KeyW', 'KeyS']) {
       await page.keyboard.down(key);
       await page.evaluate(() => window.__kennyFrames(12));
       await page.keyboard.up(key);
-      assert.deepEqual(await sprite.evaluate(el => ({ height: el.style.height, top: el.style.top })), beforeAim);
+      assert.deepEqual(
+        await sprite.evaluate((el) => ({ height: el.style.height, top: el.style.top })),
+        beforeAim,
+      );
       assert.equal(await sprite.getAttribute('data-motion'), 'idle');
     }
     await page.keyboard.down('KeyD');
     await page.evaluate(() => window.__kennyFrames(18));
     assert.equal(await sprite.getAttribute('data-motion'), 'walk');
-    assert((await sprite.evaluate(el => el.style.backgroundImage)).includes('green-walk.png'));
+    assert((await sprite.evaluate((el) => el.style.backgroundImage)).includes('green-walk.png'));
     const walkFrame = await sprite.getAttribute('data-frame');
     await page.evaluate(() => window.__kennyFrames(12));
-    assert.notEqual(await sprite.getAttribute('data-frame'), walkFrame, 'Walking must advance leg frames');
+    assert.notEqual(
+      await sprite.getAttribute('data-frame'),
+      walkFrame,
+      'Walking must advance leg frames',
+    );
     await page.screenshot({ path: path.join(screenshots, 'kenny-walking.png') });
     await page.keyboard.up('KeyD');
     await page.keyboard.press('KeyR');
     await page.evaluate(() => window.__kennyFrames(12));
-    const startCenter = await sprite.evaluate(el => parseFloat(el.style.left) + parseFloat(el.style.width) / 2);
+    const startCenter = await sprite.evaluate(
+      (el) => parseFloat(el.style.left) + parseFloat(el.style.width) / 2,
+    );
     await page.keyboard.press('KeyJ');
+    await page.evaluate(() => window.__kennyFrames(8));
+    assert.equal(await sprite.getAttribute('data-motion'), 'attack', 'J uses the bite animation');
+    await page.evaluate(() => window.__kennyFrames(30));
+    assert(
+      Math.abs(
+        (await sprite.evaluate(
+          (el) => parseFloat(el.style.left) + parseFloat(el.style.width) / 2,
+        )) - startCenter,
+      ) < 1,
+      'J does not lunge',
+    );
+    await page.keyboard.press('KeyL');
     await page.evaluate(() => window.__kennyFrames(18));
     assert.equal(await sprite.getAttribute('data-motion'), 'attack');
-    assert((await sprite.evaluate(el => el.style.backgroundImage)).includes('green-attack.png'));
+    assert((await sprite.evaluate((el) => el.style.backgroundImage)).includes('green-attack.png'));
     await page.screenshot({ path: path.join(screenshots, 'kenny-jump-attack.png') });
     await page.keyboard.down('KeyA');
     await page.keyboard.down('KeyW');
     await page.evaluate(() => window.__kennyFrames(18));
-    assert.equal(await sprite.evaluate(el => el.style.transform), 'scaleX(1)', 'A/D cannot turn an active lunge');
+    assert.equal(
+      await sprite.evaluate((el) => el.style.transform),
+      'scaleX(1)',
+      'A/D cannot turn an active lunge',
+    );
     await page.keyboard.up('KeyA');
     await page.keyboard.up('KeyW');
     await page.evaluate(() => window.__kennyFrames(30));
-    const endCenter = await sprite.evaluate(el => parseFloat(el.style.left) + parseFloat(el.style.width) / 2);
-    const scale = await page.locator('canvas').evaluate(el => el.getBoundingClientRect().height / 540);
-    assert(Math.abs((endCenter - startCenter) / scale - 150) < 1, 'The committed leap has fixed horizontal travel');
+    const endCenter = await sprite.evaluate(
+      (el) => parseFloat(el.style.left) + parseFloat(el.style.width) / 2,
+    );
+    const scale = await page
+      .locator('canvas')
+      .evaluate((el) => el.getBoundingClientRect().height / 540);
+    assert(
+      Math.abs((endCenter - startCenter) / scale - 150) < 1,
+      'The committed leap has fixed horizontal travel',
+    );
     assert.equal(await sprite.getAttribute('data-motion'), 'idle');
-    assert((await sprite.evaluate(el => getComputedStyle(el).backgroundImage)).includes('kenny-green-idle-strip'));
+    assert(
+      (await sprite.evaluate((el) => getComputedStyle(el).backgroundImage)).includes(
+        'kenny-green-idle-strip',
+      ),
+    );
+    // HUD variations are explicitly detached from layout, including multi-line messages.
+    const stageSize = await page.locator('canvas').boundingBox();
+    await page.locator('.game-hint').evaluate((el) => {
+      el.textContent = 'Ein sehr langer Pickup-Hinweis '.repeat(30);
+    });
+    await page.locator('.ability-hud').evaluate((el) => {
+      el.textContent = 'Triceratops-Nackenschild · Stegosaurus-Schwanzstacheln';
+    });
+    assert.deepEqual(await page.locator('canvas').boundingBox(), stageSize);
     assert.deepEqual(errors, []);
     await context.close();
 
@@ -374,8 +460,14 @@ async function initialize(context, retained = true, companions = undefined) {
     const collection = await browser.newContext();
     await initialize(collection, true, {
       version: 1,
-      pickups: Object.fromEntries(Array.from({ length: 50 }, (_, i) => ['fixture_' + i, 'triceratops-horns'])),
-      equipped: null, equippedAt: 0, seen: [],
+      pickups: Object.fromEntries(
+        ['triceratops-horns', 'stegosaurus-plates'].flatMap((item) =>
+          Array.from({ length: 50 }, (_, i) => [item + '_fixture_' + i, item]),
+        ),
+      ),
+      equipped: null,
+      equippedAt: 0,
+      seen: ['stegosaurus-plates'],
     });
     const inventory = await collection.newPage();
     await inventory.goto(base + '#companions');
@@ -385,41 +477,90 @@ async function initialize(context, retained = true, companions = undefined) {
     const cards = inventory.locator('app-companion-equipment article');
     await cards.first().getByRole('button', { name: 'Ausrüsten', exact: true }).click();
     await cards.first().getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
+    assert.equal(await cards.count(), 2, 'Inventory hides unowned items');
+    await cards.nth(1).getByRole('button', { name: 'Ausrüsten', exact: true }).click();
+    await cards.nth(1).getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
+    const equipped = await inventory.evaluate(
+      () => JSON.parse(localStorage.getItem('studyverse_profile_v1')).companions.equippedSlots,
+    );
+    assert.deepEqual(equipped, { offense: 'triceratops-horns', defense: 'stegosaurus-plates' });
     for (const width of [320, 390, 768, 1280]) {
       await inventory.setViewportSize({ width, height: 900 });
-      assert(await inventory.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
-      await inventory.screenshot({ path: path.join(screenshots, `companion-equipment-${width}.png`), fullPage: true });
+      assert(
+        await inventory.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2),
+      );
+      await inventory.screenshot({
+        path: path.join(screenshots, `companion-equipment-${width}.png`),
+        fullPage: true,
+      });
     }
     await inventory.getByRole('button', { name: 'Spielen', exact: true }).click();
     await inventory.getByRole('button', { name: 'Expedition starten' }).click();
-    await inventory.getByText('Aktive Fusionen (Grafik folgt): Triceratops-Hörner').waitFor();
-    assert.equal(await inventory.evaluate(() => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens), 1745);
+    await inventory
+      .locator('.ability-hud')
+      .getByText(/Triceratops-Charge/)
+      .waitFor();
+    await inventory
+      .locator('.ability-hud')
+      .getByText(/Stegosaurus-Rückenplatten/)
+      .waitFor();
+    assert((await inventory.locator('.shield').innerText()).includes('1 / 1'));
+    const stageBefore = await inventory.locator('canvas').boundingBox();
+    await inventory.keyboard.press('KeyL');
+    await inventory.waitForTimeout(300);
+    assert.equal(
+      await inventory.locator('.platformer-player').getAttribute('data-special'),
+      'charge',
+    );
+    assert.deepEqual(await inventory.locator('canvas').boundingBox(), stageBefore);
+    assert.equal(
+      await inventory.evaluate(
+        () => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens,
+      ),
+      1745,
+    );
     await collection.close();
 
     // Enter from the Kennyverse itself: both collection tabs retain its shell.
     const tabs = await browser.newContext({ viewport: { width: 1280, height: 900 } });
     await initialize(tabs, true, {
       version: 1,
-      pickups: Object.fromEntries(Array.from({ length: 50 }, (_, i) => ['tab_fixture_' + i, 'triceratops-horns'])),
-      equipped: null, equippedAt: 0, seen: ['triceratops-horns'],
+      pickups: Object.fromEntries(
+        Array.from({ length: 50 }, (_, i) => ['tab_fixture_' + i, 'triceratops-horns']),
+      ),
+      equipped: null,
+      equippedAt: 0,
+      seen: ['triceratops-horns'],
     });
     const kenny = await tabs.newPage();
     const tabErrors = [];
-    kenny.on('pageerror', error => tabErrors.push(error.message));
+    kenny.on('pageerror', (error) => tabErrors.push(error.message));
     await kenny.goto(base + 'kennyverse/index.html');
     await kenny.locator('.side [data-kenny-nav="inventory"]').click();
     const panel = kenny.frameLocator('#kennyCollection iframe');
     await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
-    assert.equal(await panel.locator('.sidebar').count(), 0, 'Do not show the global Studyverse navigation inside Kennyverse');
+    assert.equal(
+      await panel.locator('.sidebar').count(),
+      0,
+      'Do not show the global Studyverse navigation inside Kennyverse',
+    );
     assert.equal(await panel.locator('nav[aria-label="Begleiter-Sammlung"]').count(), 0);
-    await panel.locator('article').first().getByRole('button', { name: 'Ausrüsten', exact: true }).click();
+    await panel
+      .locator('article')
+      .first()
+      .getByRole('button', { name: 'Ausrüsten', exact: true })
+      .click();
     await panel.getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
     await kenny.locator('.side [data-kenny-nav="achievements"]').click();
     await panel.getByRole('heading', { name: 'Begleiter-Achievements', exact: true }).waitFor();
     await panel.getByRole('heading', { name: 'Plattenbau Deluxe', exact: true }).waitFor();
     assert.equal(await panel.locator('article').count(), 4);
     assert.equal(await panel.getByRole('button', { name: 'Ausrüsten', exact: true }).count(), 0);
-    assert.equal(await kenny.locator('#kennyCollection iframe').count(), 1, 'Tab switches reuse the collection and pending saves');
+    assert.equal(
+      await kenny.locator('#kennyCollection iframe').count(),
+      1,
+      'Tab switches reuse the collection and pending saves',
+    );
     for (const width of [320, 390, 768, 1280]) {
       await kenny.setViewportSize({ width, height: 900 });
       const navigation = width <= 610 ? '.kenny-mobile-nav' : '.side';
@@ -427,23 +568,57 @@ async function initialize(context, retained = true, companions = undefined) {
       await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
       await panel.getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
       assert(await kenny.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
-      assert(await panel.locator('body').evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
+      assert(
+        await panel
+          .locator('body')
+          .evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2),
+      );
       const frameBox = await kenny.locator('#kennyCollection iframe').boundingBox();
-      assert(frameBox.height > 200 && frameBox.width > 100, 'Collection has usable space at ' + width);
+      assert(
+        frameBox.height > 200 && frameBox.width > 100,
+        'Collection has usable space at ' + width,
+      );
       await kenny.screenshot({ path: path.join(screenshots, `kenny-inventory-tab-${width}.png`) });
       await kenny.locator(navigation + ' [data-kenny-nav="achievements"]').click();
       await panel.getByRole('heading', { name: 'Begleiter-Achievements', exact: true }).waitFor();
-      await kenny.screenshot({ path: path.join(screenshots, `kenny-achievements-tab-${width}.png`) });
+      await kenny.screenshot({
+        path: path.join(screenshots, `kenny-achievements-tab-${width}.png`),
+      });
     }
     await kenny.locator('.side [data-kenny-nav="quiz"]').click();
     const question = await kenny.locator('.question').innerText();
     await kenny.locator('.side [data-kenny-nav="inventory"]').click();
     await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
     await kenny.locator('.side [data-kenny-nav="quiz"]').click();
-    assert.equal(await kenny.locator('.question').innerText(), question, 'Visiting the collection must retain quiz sessions');
-    assert.equal(await kenny.evaluate(() => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens), 1745);
+    assert.equal(
+      await kenny.locator('.question').innerText(),
+      question,
+      'Visiting the collection must retain quiz sessions',
+    );
+    assert.equal(
+      await kenny.evaluate(() => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens),
+      1745,
+    );
     assert.deepEqual(tabErrors, []);
     await tabs.close();
+
+    const emptyContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    await initialize(emptyContext, true, { version: 1, amberPickups: { test_amber: true } });
+    const empty = await emptyContext.newPage();
+    await empty.goto(base + 'kennyverse/index.html?mode=inventory');
+    const emptyPanel = empty.frameLocator('#kennyCollection iframe');
+    await emptyPanel.getByText(/Dein Inventar ist leer/).waitFor();
+    assert.equal(await emptyPanel.locator('article').count(), 0);
+    assert.equal(await empty.locator('#kennyAmber strong').innerText(), '1');
+    await empty.evaluate(() => {
+      const p = JSON.parse(localStorage.getItem('studyverse_profile_v1'));
+      p.companions.amberPickups.second = true;
+      localStorage.setItem('studyverse_profile_v1', JSON.stringify(p));
+      window.dispatchEvent(new StorageEvent('storage', { key: 'studyverse_profile_v1' }));
+    });
+    assert.equal(await empty.locator('#kennyAmber strong').innerText(), '2');
+    await empty.screenshot({ path: path.join(screenshots, 'kenny-empty-inventory.png') });
+    await emptyContext.close();
 
     const locked = await browser.newContext();
     await initialize(locked, false);

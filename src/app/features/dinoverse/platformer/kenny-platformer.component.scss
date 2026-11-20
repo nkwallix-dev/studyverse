@@ -382,17 +382,17 @@ p {
   }
   .touch-controls {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    flex: 0 0 80px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    flex: 0 0 116px;
     align-items: flex-start;
-    gap: 8px;
+    gap: 6px;
     touch-action: none;
     user-select: none;
   }
   .touch-controls button {
     width: 100%;
     min-width: 0;
-    height: 62px;
+    height: 48px;
     padding: 5px 0;
     touch-action: none;
     user-select: none;
@@ -493,5 +493,153 @@ p {
   }
   .game-dialog .economy-note {
     font-size: 9px;
+  }
+}
+
+/* Game messages are overlays: pickups, shields and text never resize the world. */
+.wallet {
+  color: #f2ce89;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.wallet small {
+  font-size: 10px;
+}
+.game-hud {
+  position: absolute;
+  z-index: 4;
+  top: 12px;
+  left: 16px;
+  right: 16px;
+  padding: 0;
+  gap: 16px;
+  pointer-events: none;
+  text-shadow: 0 1px 5px #000;
+}
+.shield {
+  color: #a3dcec;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.stage-caption {
+  top: 48px;
+}
+.ability-hud {
+  position: absolute;
+  z-index: 4;
+  bottom: 42px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 11px;
+  pointer-events: none;
+}
+.ability-hud span {
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: #101e30df;
+}
+.game-hint {
+  position: absolute;
+  z-index: 4;
+  bottom: 4px;
+  left: 16px;
+  right: 16px;
+  display: block;
+  min-height: 0;
+  height: 28px;
+  padding: 4px 0;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  text-shadow: 0 1px 4px #000;
+}
+.pickup-prompt {
+  position: absolute;
+  z-index: 4;
+  top: 78px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 24px);
+  padding: 7px 12px;
+  border: 1px solid #dcb97b80;
+  border-radius: 8px;
+  background: #182637e8;
+  color: #ffe0a5;
+  font-size: 11px;
+  text-align: center;
+  pointer-events: none;
+}
+.keyboard-guide {
+  flex: 0 0 36px;
+  align-items: center;
+  padding-bottom: 0;
+  font-size: 9px;
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .game-header {
+    gap: 8px;
+  }
+  .wallet {
+    font-size: 12px;
+  }
+  .wallet small {
+    display: none;
+  }
+  .prototype {
+    display: none;
+  }
+  .game-hud {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    gap: 9px;
+    font-size: 11px;
+  }
+  .game-hud .checkpoint {
+    display: none;
+  }
+  .game-hud small {
+    display: none;
+  }
+  .ability-hud {
+    bottom: 40px;
+    font-size: 9px;
+    gap: 3px;
+  }
+  .game-hint {
+    left: 12px;
+    right: 12px;
+    font-size: 9px;
+  }
+  .touch-controls {
+    padding-top: 6px;
+  }
+  .touch-controls strong {
+    font-size: 18px;
+  }
+  .stage-caption {
+    top: 42px;
+  }
+}
+@media (max-height: 500px) and (pointer: coarse) {
+  .touch-controls {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    bottom: 5px;
+    height: 58px;
+  }
+  .ability-hud {
+    bottom: 76px;
+  }
+  .game-hint {
+    bottom: 57px;
+    padding: 0;
+  }
+  .keyboard-guide {
+    display: none;
   }
 }
