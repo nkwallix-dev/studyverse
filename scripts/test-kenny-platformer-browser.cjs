@@ -225,13 +225,18 @@ async function initialize(context, retained = true, companions = undefined) {
     assert.equal(await sprite.getAttribute('data-motion'), 'attack', 'L uses special artwork');
     await page.screenshot({ path: path.join(screenshots, 'kenny-jump-attack.png') });
     await page.evaluate(() => window.__kennyFrames(65));
+    // Restart between attack and movement checks: the special's attack-lock
+    // and randomized enemy stuns must not turn a keyboard test into a timing lottery.
+    await page.keyboard.press('KeyP');
+    await page.getByRole('button', { name: 'Neu starten' }).click();
+    await page.evaluate(() => window.__kennyFrames(3));
     const originalX = await sprite.evaluate((element) => parseFloat(element.style.left));
-    await page.keyboard.down('KeyA');
-    await page.evaluate(() => window.__kennyFrames(55));
-    await page.keyboard.up('KeyA');
+    await page.keyboard.down('KeyD');
+    await page.evaluate(() => window.__kennyFrames(38));
+    await page.keyboard.up('KeyD');
     assert(
-      (await sprite.evaluate((element) => parseFloat(element.style.left))) < originalX - 10,
-      'Real keyboard controls move Kenny away from random encounters',
+      (await sprite.evaluate((element) => parseFloat(element.style.left))) > originalX + 10,
+      'Real keyboard controls move Kenny in a fresh expedition',
     );
     await page.screenshot({ path: path.join(screenshots, 'kenny-platformer-desktop.png') });
     await page.evaluate(() => window.__kennyFrames(65));
