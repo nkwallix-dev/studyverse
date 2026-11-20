@@ -71,6 +71,7 @@ async function initialize(context, retained = true, companions = undefined) {
           claimedLevels: {},
           activity: [],
           shopDropMigrationV1: true,
+          kennyTutorialSeen: true,
           dinoSeasons: {
             'kenny-2026': {
               feeds: retained ? 25 : 0,
