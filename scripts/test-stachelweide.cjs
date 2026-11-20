@@ -259,3 +259,25 @@ console.log(
 console.log(
   'Integration PASS: player charge/tail, origin range cap, regen timer reset and dual-slot migration.',
 );
+// A late pogo must keep its full two-field height after the attack animation ends.
+{
+  const w = new KennyWorld();
+  const enemy = w.enemies[1];
+  enemy.x = 1000;
+  w.player.x = 1000;
+  w.player.y = 260;
+  w.grounded = undefined;
+  w.step(STEP, { ...idle, special: true, aim: 1 });
+  w.attackTime = 0.15;
+  w.attackLaunched = true;
+  w.step(STEP, idle);
+  assert(w.player.vy < -500);
+  const origin = w.player.y;
+  let peak = origin;
+  for (let i = 0; i < 60; i++) {
+    w.step(STEP, idle);
+    peak = Math.min(peak, w.player.y);
+  }
+  assert(Math.abs(origin - peak - 2 * FIELD) < 3, 'Releasing Space cannot cut the pogo short');
+}
+console.log('Pogo PASS: full two-field bounce survives late hits and released jump input.');

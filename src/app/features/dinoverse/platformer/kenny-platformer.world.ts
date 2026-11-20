@@ -191,6 +191,7 @@ export class KennyWorld {
   private attackOrigin: Rect = { x: 90, y: 390, w: 34, h: 60 };
   private attackLaunched = false;
   private pogoUsed = false;
+  private pogoRising = false;
   private attackHits = new Set<Enemy>();
   private activatedRunes = new Set<number>();
   private jumpBuffer = 0;
@@ -239,6 +240,7 @@ export class KennyWorld {
     this.jumpBuffer = 0;
     this.coyote = 0;
     this.attackTime = 0;
+    this.pogoRising = false;
     this.biteTime = 0;
     this.invulnerable = BALANCE.player.respawnInvulnerability;
     this.deaths++;
@@ -332,9 +334,10 @@ export class KennyWorld {
         this.coyote = 0;
         this.jumpBuffer = 0;
       }
-      if (!input.jumpHeld && player.vy < -BALANCE.player.jumpCutoff * FIELD)
+      if (!this.pogoRising && !input.jumpHeld && player.vy < -BALANCE.player.jumpCutoff * FIELD)
         player.vy = -BALANCE.player.jumpCutoff * FIELD;
     }
+    if (player.vy >= 0) this.pogoRising = false;
     player.vy += BALANCE.gravity * dt;
     this.movePlayer(dt);
     if (input.attack && this.biteCooldown === 0 && this.attackTime === 0) {
@@ -442,6 +445,7 @@ export class KennyWorld {
         player.vy = -Math.sqrt(2 * BALANCE.gravity * BALANCE.leap.pogo * FIELD);
         this.grounded = undefined;
         this.pogoUsed = true;
+        this.pogoRising = true;
       }
     }
   }

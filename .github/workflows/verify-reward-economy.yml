@@ -65,3 +65,11 @@ jobs:
         run: |
           node scripts/test-mobile-layout.cjs
           node scripts/test-kenny-platformer-browser.cjs
+      - name: Save desktop and mobile gameplay previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-layout-previews
+          path: mobile-screenshots/
+          if-no-files-found: ignore
+          retention-days: 7
