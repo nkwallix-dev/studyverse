@@ -165,6 +165,11 @@ export class KennyRenderer {
       );
       this.circle(amber.x - 1, y - 3, 2, '#fff0bb');
     });
+    world.loot.forEach((drop) => {
+      if (drop.collected) return;
+      this.box(drop.x, drop.y, drop.w, drop.h, '#d79aee', 5);
+      this.label('✦', drop.x + 11, drop.y + 17, '#241329', 16);
+    });
     world.enemies.forEach((enemy) => {
       if (!enemy.alive) return;
       ctx.save();
@@ -196,6 +201,13 @@ export class KennyRenderer {
         );
         this.circle(-11, -20, 3, '#9affc9');
       }
+      this.label(
+        `${enemy.species === 'stegosaurus' ? 'STEG' : 'TRIC'} · ${Math.ceil(enemy.health)} ♥`,
+        0,
+        -60,
+        '#f5e5d1',
+        11,
+      );
       if (enemy.stun > 0) this.label('✦', 0, -48, '#ffe8ad', 17);
       ctx.restore();
     });

@@ -1,3 +1,4 @@
+import { ItemId, DinoSpecies, dropsFor } from '../equipment/companion-equipment.model';
 /** World coordinates stay independent of viewport size and rendering. */
 export interface Rect {
   x: number;
@@ -28,6 +29,10 @@ export interface Enemy extends Rect {
   armored: boolean;
   alive: boolean;
   stun: number;
+  species: DinoSpecies;
+  tier: 'basic' | 'medium' | 'elite';
+  health: number;
+  poison: number;
 }
 
 export const WORLD_WIDTH = 5300;
@@ -111,6 +116,13 @@ export class KennyWorld {
     this.enemy(1990, 1930, 2045, false),
     this.enemy(4480, 4450, 4540, true),
   ];
+  readonly runId = crypto.randomUUID();
+  readonly loot: (Rect & { id: string; item: ItemId; collected: boolean })[] = [];
+  readonly pickupEvents: { id: string; item: ItemId }[] = [];
+  readonly fusions = new Set<ItemId>();
+  constructor(startItem: ItemId | null = null) {
+    if (startItem) this.fusions.add(startItem);
+  }
   player = { x: 90, y: 390, w: 34, h: 60, vx: 0, vy: 0, facing: 1 };
   grounded: Platform | undefined;
   elapsed = 0;
@@ -216,7 +228,23 @@ export class KennyWorld {
   }
 
   private enemy(x: number, min: number, max: number, armored: boolean): Enemy {
-    return { x, y: 414, w: 40, h: 36, min, max, direction: -1, armored, alive: true, stun: 0 };
+    const tier = armored ? 'elite' : x > 1000 ? 'medium' : 'basic';
+    return {
+      x,
+      y: 414,
+      w: 40,
+      h: 36,
+      min,
+      max,
+      direction: -1,
+      armored,
+      alive: true,
+      stun: 0,
+      species: armored ? 'stegosaurus' : 'triceratops',
+      tier,
+      health: tier === 'elite' ? 7 : tier === 'medium' ? 4 : 2,
+      poison: 0,
+    };
   }
 
   private say(message: string): void {
@@ -314,20 +342,58 @@ export class KennyWorld {
       }
     });
     for (const enemy of this.enemies) {
-      if (!enemy.alive || !overlaps(mouth, enemy)) continue;
+      const tail: Rect = {
+        x: player.facing > 0 ? player.x - 55 : player.x + player.w,
+        y: player.y + 12,
+        w: 55,
+        h: player.h - 12,
+      };
+      const tailHit = this.fusions.has('stegosaurus-spikes') && overlaps(tail, enemy);
+      if (!enemy.alive || (!overlaps(mouth, enemy) && !tailHit)) continue;
       if (enemy.armored && player.facing !== enemy.direction) {
         enemy.stun = 0.9;
         this.say('Vorne gepanzert! Spring über ihn und beiß von hinten.');
       } else {
-        enemy.alive = false;
-        this.say('Haps! Der Weg ist frei.');
+        enemy.health -= this.fusions.has('triceratops-horns') ? 2 : 1;
+        if (this.fusions.has('stegosaurus-spikes')) enemy.poison = 4;
+        if (enemy.health <= 0) this.defeat(enemy);
+        else {
+          enemy.stun = 0.45;
+          this.say(`Treffer! Noch ${Math.ceil(enemy.health)} Herzen.`);
+        }
       }
     }
+  }
+
+  private defeat(enemy: Enemy): void {
+    if (!enemy.alive) return;
+    enemy.alive = false;
+    const index = this.enemies.indexOf(enemy);
+    dropsFor(enemy.species, enemy.tier).forEach((item, drop) => {
+      this.loot.push({
+        id: `${this.runId}_${index}_${drop}`,
+        item,
+        x: enemy.x + drop * 28,
+        y: enemy.y + 10,
+        w: 22,
+        h: 22,
+        collected: false,
+      });
+    });
+    this.say('Haps! Heb die Beute auf, um mit ihr zu fusionieren.');
   }
 
   private moveEnemies(dt: number): void {
     for (const enemy of this.enemies) {
       if (!enemy.alive) continue;
+      if (enemy.poison > 0) {
+        enemy.health -= Math.min(dt, enemy.poison) * 0.25;
+        enemy.poison = Math.max(0, enemy.poison - dt);
+        if (enemy.health <= 0) {
+          this.defeat(enemy);
+          continue;
+        }
+      }
       enemy.stun = Math.max(0, enemy.stun - dt);
       if (!enemy.stun) enemy.x += enemy.direction * (enemy.armored ? 45 : 65) * dt;
       if (enemy.x < enemy.min || enemy.x > enemy.max) {
@@ -335,6 +401,14 @@ export class KennyWorld {
         enemy.direction *= -1;
       }
       if (!overlaps(this.player, enemy) || this.invulnerable > 0 || enemy.stun > 0) continue;
+      const inFront = (enemy.x - this.player.x) * this.player.facing >= 0;
+      if (
+        (inFront && this.fusions.has('triceratops-frill')) ||
+        (!inFront && this.fusions.has('stegosaurus-plates'))
+      ) {
+        enemy.stun = 0.7;
+        continue;
+      }
       this.health--;
       this.invulnerable = 1.3;
       this.player.vx = this.player.x < enemy.x ? -270 : 270;
@@ -348,6 +422,13 @@ export class KennyWorld {
   }
 
   private collect(): void {
+    for (const drop of this.loot) {
+      if (drop.collected || !overlaps(this.player, drop)) continue;
+      drop.collected = true;
+      this.fusions.add(drop.item);
+      this.pickupEvents.push({ id: drop.id, item: drop.item });
+      this.say('Fusion aktiviert! Neue Fähigkeit für diesen Run.');
+    }
     for (const amber of this.amber) {
       if (
         !amber.collected &&

@@ -1,5 +1,7 @@
+import { CompanionEquipmentComponent } from './features/dinoverse/equipment/companion-equipment.component';
+import { CompanionState, ItemId, normalizeCompanions, mergeCompanions, countItem, recordPickup, equipCompanion } from './features/dinoverse/equipment/companion-equipment.model';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DinoDesignerComponent } from './features/dinoverse/dino-designer/dino-designer.component';
 import { KennyPlatformerComponent } from './features/dinoverse/platformer/kenny-platformer.component';
@@ -27,6 +29,7 @@ type View =
   | 'achievements'
   | 'friends'
   | 'companions'
+  | 'companion-equipment'
   | 'platformer';
 type KennyReveal =
   | { kind: 'drop'; drop: DinoDrop; line: string }
@@ -92,11 +95,13 @@ export const SUBJECTS:Subject[]=[
     KennyRewardOverviewComponent,
     KennyPoolDialogComponent,
     InventoryComponent,
+    CompanionEquipmentComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App implements OnInit,OnDestroy {
+ @ViewChild(KennyPlatformerComponent) private platformer?: KennyPlatformerComponent;
  private readonly changeDetector=inject(ChangeDetectorRef);
  readonly subjects=SUBJECTS;
  readonly items=[...SHOP_ITEMS,...KENNY_ITEMS];
@@ -240,6 +245,46 @@ export class App implements OnInit,OnDestroy {
      if(isObj(local))write(trainer.saveKey,JSON.stringify(removePurchases(local)));
    }
    write(KEY,JSON.stringify(profile));
+ }
+ get companionState(): CompanionState { return normalizeCompanions(this.profile['companions']); }
+ collectCompanion(event: { id: string; item: ItemId }): void {
+   if (this.cloud.session && !this.cloudMaySave) return;
+   const before = countItem(this.companionState, event.item);
+   this.profile['companions'] = recordPickup(this.companionState, event.id, event.item);
+   if (before < 50 && countItem(this.companionState, event.item) >= 50) this.platformer?.pause();
+   this.saveCompanionProgress();
+ }
+ equipCompanionItem(item: ItemId | null): void {
+   if (this.cloud.session && !this.cloudMaySave) return;
+   this.profile['companions'] = equipCompanion(this.companionState, item);
+   this.saveCompanionProgress();
+ }
+ acknowledgeCompanion(item: ItemId): void {
+   if (this.cloud.session && !this.cloudMaySave) return;
+   const state = this.companionState;
+   this.profile['companions'] = { ...state, seen: [...new Set([...state.seen, item])] };
+   this.saveCompanionProgress();
+ }
+ private saveCompanionProgress(): void {
+   this.profile['companionOwnerUid'] = this.cloud.session?.uid || null;
+   write(KEY, JSON.stringify(this.profile));
+   if (!this.cloud.session || !this.cloudMaySave || this.cloudHydrating) return;
+   const uid = this.cloud.session.uid;
+   const snapshot = this.cloudSnapshot();
+   this.cloudStatus = 'Ungespeicherte Änderungen';
+   this.cloudWrites = this.cloudWrites.catch(() => {}).then(async () => {
+     if (this.cloud.session?.uid !== uid) return;
+     await this.cloud.save(snapshot, true);
+     if (this.cloud.session?.uid !== uid) return;
+     this.profile['companions'] = mergeCompanions(this.profile['companions'], snapshot.profile['companions']);
+     write(KEY, JSON.stringify(this.profile));
+     this.cloudStatus = '✓ Online gespeichert';
+     this.changeDetector.markForCheck();
+   }).catch(error => {
+     this.cloudStatus = '⚠ Speichern fehlgeschlagen';
+     this.cloudMessage = cloudError(error);
+     this.changeDetector.markForCheck();
+   });
  }
  private save(){write(KEY,JSON.stringify(this.profile));this.queueCloudSave();void this.publishFriendCard();}
  private alert(message:string){this.info=message;}
@@ -452,7 +497,7 @@ export class App implements OnInit,OnDestroy {
      const local=parse(read(trainer.saveKey));
      if(isObj(local))trainers[trainer.id]=local;
    }
-   const snapshot:CloudSnapshot={version:1,profile:{...this.profile,trainerSaves:trainers},trainers};
+   const snapshot:CloudSnapshot={version:1,profile:{...this.profile,companions:this.companionState,trainerSaves:trainers},trainers};
    const daily=parse(read(CLOUD_DAILY_KEY));
    if(daily!==null)snapshot.daily=daily;
    const bridge=parse(read(BRIDGE));
@@ -460,6 +505,10 @@ export class App implements OnInit,OnDestroy {
    return snapshot;
  }
  private useCloudSnapshot(snapshot:CloudSnapshot){
+   if (this.cloud.session?.uid && this.profile['companionOwnerUid'] === this.cloud.session.uid) {
+     snapshot.profile['companions'] = mergeCompanions(snapshot.profile['companions'], this.profile['companions']);
+   }
+   snapshot.profile['companionOwnerUid'] = this.cloud.session?.uid || null;
    if(!validStudyverse(snapshot.profile))throw Error('Ungültiger Cloud-Spielstand. Der lokale Stand bleibt erhalten.');
    const previous=this.currentBackupSnapshot();
    // A Verse writes its completed lessons locally before returning here.
@@ -514,6 +563,10 @@ export class App implements OnInit,OnDestroy {
    this.cloudWrites=this.cloudWrites.catch(()=>{}).then(async()=>{
      if(this.cloud.session?.uid!==uid)return;
      await this.cloud.save(snapshot);
+     if (this.cloud.session?.uid === uid) {
+       this.profile['companions'] = mergeCompanions(this.profile['companions'], snapshot.profile['companions']);
+       write(KEY, JSON.stringify(this.profile));
+     }
      this.cloudStatus='✓ Online gespeichert';
      this.changeDetector.markForCheck();
    }).catch(error=>{

@@ -1,0 +1,113 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.equipment {
+  color: #ede9fa;
+  margin-top: 2rem;
+}
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+button,
+a {
+  font: inherit;
+  color: #ede9fa;
+  background: #292038;
+  border: 1px solid #685074;
+  border-radius: 0.8rem;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+button.active,
+.unlocked button {
+  background: #6b3592;
+}
+h2 {
+  font-size: 1.5rem;
+}
+p {
+  color: #c5b9d3;
+  line-height: 1.6;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 1rem;
+}
+article {
+  background: #191523;
+  border: 1px solid #42334f;
+  border-radius: 1.2rem;
+  padding: 1.2rem;
+  min-width: 0;
+}
+article.unlocked {
+  border-color: #b774d9;
+}
+img {
+  display: block;
+  width: 100%;
+  height: 110px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+small {
+  color: #e8a0d9;
+  font-size: 0.875rem;
+}
+h3 {
+  font-size: 1.125rem;
+  overflow-wrap: anywhere;
+}
+label {
+  display: block;
+  font-size: 1rem;
+}
+progress {
+  display: block;
+  width: 100%;
+  height: 0.7rem;
+  margin: 0.8rem 0 1.2rem;
+  accent-color: #bd7be3;
+}
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: #080711dd;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+.reward {
+  background: #20172e;
+  border: 1px solid #cb87e7;
+  border-radius: 1.5rem;
+  max-width: 500px;
+  max-height: 90dvh;
+  overflow: auto;
+  padding: 1.5rem;
+  animation: reveal 0.25s ease-out;
+}
+.reward button {
+  margin: 0.3rem;
+}
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reward {
+    animation: none;
+  }
+}

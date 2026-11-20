@@ -1,3 +1,4 @@
+import { mergeCompanions } from './features/dinoverse/equipment/companion-equipment.model';
 /**
  * Studyverse cloud accounts (Firebase Authentication + Firestore REST).
  * No user PINs, private keys, or passwords are stored in this repository or in Firestore.
@@ -85,7 +86,7 @@ export interface AccountNotice {id:string;kind:'fairplay-warning'}
 interface CloudConfig{apiKey:string;projectId:string}
 export interface CloudSession{uid:string;username:string;idToken:string;refreshToken:string;expiresAt:number}
 interface AuthResult{localId:string;idToken:string;refreshToken:string;expiresIn:string}
-interface FirestoreDocument{fields?:{profile?:{stringValue?:string}}}
+interface FirestoreDocument{updateTime?:string;fields?:{profile?:{stringValue?:string}}}
 async function fetchCloud(url:string,init:RequestInit={},timeoutMs=16000):Promise<Response>{
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),timeoutMs);
@@ -234,18 +235,38 @@ export class StudyverseCloud{
       throw Error('Der gespeicherte Cloud-Spielstand ist ungültig.');
     return snapshot;
   }
-  async save(snapshot:CloudSnapshot):Promise<void>{
-    const text=JSON.stringify(snapshot);
-    if(text.length>700000)throw Error('Cloud-Spielstand zu groß. Exportiere zuerst ein JSON-Backup.');
-    const url=this.endpoint()+'?updateMask.fieldPaths=profile&updateMask.fieldPaths=updatedAt';
-    const response=await fetchCloud(url,{
-      method:'PATCH',headers:{'Content-Type':'application/json',Authorization:'Bearer '+await this.token()},
-      body:JSON.stringify({fields:{profile:{stringValue:text},updatedAt:{timestampValue:new Date().toISOString()}}})
-    });
-    if(!response.ok){
-      const result=await response.json() as {error?:{message?:string}};
-      throw Error(result.error?.message||'Cloud konnte nicht speichern ('+response.status+').');
+  async save(snapshot:CloudSnapshot, companionOnly = false):Promise<void>{
+    // Read/merge/conditional write prevents concurrent devices losing companion pickups.
+    // The existing profile envelope and owner-only rules remain unchanged.
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const token = await this.token();
+      const current = await fetchCloud(this.endpoint(), { headers: { Authorization: 'Bearer ' + token } });
+      if (!current.ok && current.status !== 404) throw Error('Cloud-Abgleich fehlgeschlagen (' + current.status + ').');
+      const document = current.ok ? await current.json() as FirestoreDocument : null;
+      const remote = parseJson<CloudSnapshot>(document?.fields?.profile?.stringValue || null);
+      const companions = mergeCompanions(remote?.profile?.['companions'], snapshot.profile['companions']);
+      const base = companionOnly && remote ? remote : snapshot;
+      const outgoing = { ...base, profile: { ...base.profile, companions } };
+      const text = JSON.stringify(outgoing);
+      if (text.length > 700000) throw Error('Cloud-Spielstand zu groß. Exportiere zuerst ein JSON-Backup.');
+      const precondition = document?.updateTime
+        ? '&currentDocument.updateTime=' + encodeURIComponent(document.updateTime)
+        : '&currentDocument.exists=false';
+      const url = this.endpoint() + '?updateMask.fieldPaths=profile&updateMask.fieldPaths=updatedAt' + precondition;
+      const response = await fetchCloud(url, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ fields: { profile: { stringValue: text }, updatedAt: { timestampValue: new Date().toISOString() } } })
+      });
+      if (response.status === 409 || response.status === 412) continue;
+      if (!response.ok) {
+        const failure = await response.json() as { error?: { status?: string } };
+        if (failure.error?.status === 'FAILED_PRECONDITION' || failure.error?.status === 'ABORTED') continue;
+        throw Error('Cloud konnte nicht speichern (' + response.status + ').');
+      }
+      snapshot.profile['companions'] = companions;
+      return;
     }
+    throw Error('Gleichzeitige Cloud-Änderung. Bitte erneut synchronisieren.');
   }
   /** Read ONLY this authenticated user's moderator-assigned notice.
    * The string contents of the notice are deliberately fixed in the UI.

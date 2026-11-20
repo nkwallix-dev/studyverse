@@ -45,13 +45,14 @@ function binaryPath() {
   throw Error('Chromium must be installed to test the platformer');
 }
 
-async function initialize(context, retained = true) {
+async function initialize(context, retained = true, companions = undefined) {
   await context.addInitScript(
-    ({ retained }) => {
+    ({ retained, companions }) => {
       localStorage.setItem('studyverse_import_prompt_seen_v1', '1');
       localStorage.setItem(
         'studyverse_profile_v1',
         JSON.stringify({
+          companions,
           xp: 1000,
           tokens: 1745,
           nickname: 'Expeditionstest',
@@ -80,7 +81,7 @@ async function initialize(context, retained = true) {
         }),
       );
     },
-    { retained },
+    { retained, companions },
   );
 }
 
@@ -306,6 +307,31 @@ async function initialize(context, retained = true) {
     await phone.getByRole('button', { name: 'Spiel pausieren' }).click();
     await phone.getByRole('button', { name: 'Weiterspielen' }).waitFor();
     await mobile.close();
+
+    const collection = await browser.newContext();
+    await initialize(collection, true, {
+      version: 1,
+      pickups: Object.fromEntries(Array.from({ length: 50 }, (_, i) => ['fixture_' + i, 'triceratops-horns'])),
+      equipped: null, equippedAt: 0, seen: [],
+    });
+    const inventory = await collection.newPage();
+    await inventory.goto(base + '#companions');
+    await inventory.getByRole('button', { name: 'Inventar & Erfolge', exact: true }).click();
+    await inventory.getByRole('heading', { name: 'Mit dem Kopf durch die Wand' }).waitFor();
+    await inventory.getByRole('button', { name: 'Annehmen', exact: true }).click();
+    const cards = inventory.locator('app-companion-equipment article');
+    await cards.first().getByRole('button', { name: 'Ausrüsten', exact: true }).click();
+    await cards.first().getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
+    for (const width of [320, 390, 768, 1280]) {
+      await inventory.setViewportSize({ width, height: 900 });
+      assert(await inventory.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
+      await inventory.screenshot({ path: path.join(screenshots, `companion-equipment-${width}.png`), fullPage: true });
+    }
+    await inventory.getByRole('button', { name: 'Spielen', exact: true }).click();
+    await inventory.getByRole('button', { name: 'Expedition starten' }).click();
+    await inventory.getByText('Aktive Fusionen (Grafik folgt): Triceratops-Hörner').waitFor();
+    assert.equal(await inventory.evaluate(() => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens), 1745);
+    await collection.close();
 
     const locked = await browser.newContext();
     await initialize(locked, false);

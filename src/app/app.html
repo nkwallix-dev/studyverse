@@ -1,9 +1,13 @@
 <app-kenny-platformer
   *ngIf="view === 'platformer'"
   [skin]="kennySkin"
-  [available]="kennyPresent"
+  [startItem]="companionState.equipped"
+  (pickupCollected)="collectCompanion($event)"
+  [available]="kennyPresent && (!cloud.session || cloudMaySave)"
   (exitRequested)="closeKennyPlatformer()"
 ></app-kenny-platformer>
+<app-companion-equipment *ngIf="view === 'platformer'" [popupOnly]="true" [state]="companionState"
+  (seenRequested)="acknowledgeCompanion($event)" (inventoryRequested)="go('companion-equipment')" />
 <div class="universe" [attr.inert]="view==='platformer'?'':null" [class.kenny-mode]="view==='shop' && (shopTab==='kenny'||shopTab==='designer')" [class.shop-mode]="view==='shop' && (shopTab==='catalog'||shopTab==='inventory')" [class.friends-mode]="view==='friends'" [class.designer-mode]="view==='shop' && shopTab==='designer'" [class.companions-mode]="view==='companions'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
   <div class="ambient a"></div><div class="ambient b"></div>
   <aside class="sidebar">
@@ -28,7 +32,7 @@
       <button [class.active]="view==='shop'&&shopTab==='catalog'" (click)="go('shop')" aria-label="Item-Shop"><span>◇</span> Item-Shop <small class="mobile-nav-label">Shop</small><em>{{items.length}}</em></button>
       <button class="sidebar-inventory-link" [class.active]="view==='shop'&&shopTab==='inventory'" (click)="openInventory()" aria-label="Inventar"><span>🎒</span> Inventar <small class="mobile-nav-label">Inventar</small><em>{{ownedCatalogItems.length}}</em></button>
       <button class="sidebar-dino-link" [class.active]="view==='shop'&&shopTab==='kenny'" (click)="openDinoVerse()" aria-label="Dino-Verse"><span>🌋</span> Dino-Verse <small class="mobile-nav-label">Dino</small><b>↗</b></button>
-      <button [class.active]="view==='companions'||(view==='shop'&&shopTab==='designer')" (click)="openCompanions()" aria-label="Begleiter"><span>🦖</span> Begleiter <small class="mobile-nav-label">Begleiter</small><b>↗</b></button>
+      <button [class.active]="view==='companions'||view==='companion-equipment'||(view==='shop'&&shopTab==='designer')" (click)="openCompanions()" aria-label="Begleiter"><span>🦖</span> Begleiter <small class="mobile-nav-label">Begleiter</small><b>↗</b></button>
     </nav>
 
   </aside>
@@ -37,7 +41,7 @@
     <header class="topbar">
       <div class="topbar-left">
         <div class="breadcrumbs"><span>✧</span><span class="top-brand-name">STUDYVERSE</span><span class="slash">/</span>
-          <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='kenny'?'Kenny':shopTab==='designer'?'Dino-Designer':'Item-Shop'):view==='achievements'?'Achievements':view==='companions'?'Begleiter':view==='friends'?'Freunde':'Mein Profil'}}</strong>
+          <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='kenny'?'Kenny':shopTab==='designer'?'Dino-Designer':'Item-Shop'):view==='achievements'?'Achievements':view==='companions'?'Begleiter':view==='companion-equipment'?'Begleiter-Sammlung':view==='friends'?'Freunde':'Mein Profil'}}</strong>
         </div>
       </div>
       <div class="top-pills">
@@ -125,6 +129,10 @@
         </ng-container>
 
 
+        <ng-container *ngSwitchCase="'companion-equipment'">
+          <button type="button" class="rail-button" (click)="openCompanions()">Meine Begleiter</button>
+          <app-companion-equipment (playRequested)="go('platformer')" [state]="companionState" (equipRequested)="equipCompanionItem($event)" (seenRequested)="acknowledgeCompanion($event)" />
+        </ng-container>
         <ng-container *ngSwitchCase="'companions'">
           <section class="companions-page" [class.has-kenny]="kennyPresent">
             <div class="eyebrow">✦ DINO-VERSE · DEINE BEGLEITER</div>
@@ -158,6 +166,7 @@
                   </div>
                   <button type="button" class="companion-enter" (click)="openKennyVerse()">⚡ Kennyverse betreten ↗</button>
                   <div class="companion-actions">
+                    <button type="button" (click)="go('companion-equipment')">Inventar &amp; Erfolge</button>
                     <button type="button" (click)="openDinoVerse()">{{kennyActive?'🥩 Kenny füttern':'🦖 Kenny ansehen'}}</button>
 
                   </div>

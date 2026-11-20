@@ -5,7 +5,7 @@
     >
     <div class="game-title">
       <span>EXPEDITION 01</span>
-      <h1>Der Urzeitpfad<span class="prototype">Prototyp</span></h1>
+      <h1>Hornweide<span class="prototype">Prototyp</span></h1>
     </div>
     <button
       type="button"
@@ -99,7 +99,7 @@
                 Auf dem Handy: die Tasten unten halten. Laufen und Springen gehen gleichzeitig.
               </p>
               <button #dialogAction type="button" class="primary" (click)="start()">
-                Expedition starten →
+                Expedition starten
               </button>
             </ng-container>
             <ng-container *ngSwitchCase="'paused'">
@@ -108,7 +108,7 @@
                 Dein Lauf wartet hier auf dich. <kbd>P</kbd> oder <kbd>Esc</kbd> setzt ihn fort.
               </p>
               <button #dialogAction type="button" class="primary" (click)="resume()">
-                Weiterspielen →
+                Weiterspielen
               </button>
               <div class="dialog-actions">
                 <button type="button" (click)="checkpoint()">Zum Checkpoint</button
@@ -131,7 +131,7 @@
                 >
               </div>
               <button #dialogAction type="button" class="primary" (click)="start()">
-                Nochmal los →
+                Nochmal los
               </button>
             </ng-container>
             <ng-container *ngSwitchCase="'error'">
@@ -156,6 +156,9 @@
     </div>
   </div>
 
+  <p *ngIf="fusionNames().length" class="game-hint">
+    Aktive Fusionen (Grafik folgt): {{ fusionNames().join(' · ') }}
+  </p>
   <div class="game-hint" role="status" aria-live="polite">{{ hint() }}</div>
   <div
     class="touch-controls"
