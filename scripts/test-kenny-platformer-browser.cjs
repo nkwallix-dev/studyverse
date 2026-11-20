@@ -144,6 +144,8 @@ async function initialize(context, retained = true, companions = undefined) {
     // Check the actual accessible panel and tutorial shortcut, not merely DOM presence.
     const settingsToggle = page.locator('.kenny-settings .settings-toggle');
     await settingsToggle.click();
+    // This test pauses the browser clock; let Angular flush its signal-driven view.
+    await page.clock.runFor(32);
     const settingsPanel = page.locator('.kenny-settings .settings-popover');
     assert(await settingsPanel.isVisible(), 'Expedition settings must open from the menu');
     assert(
@@ -151,6 +153,7 @@ async function initialize(context, retained = true, companions = undefined) {
       'The repeatable tutorial shortcut must be visible inside settings',
     );
     await settingsToggle.click();
+    await page.clock.runFor(32);
     assert(!(await settingsPanel.isVisible()), 'Settings must close again');
 
     await page.getByRole('button', { name: 'Expedition starten' }).click();
