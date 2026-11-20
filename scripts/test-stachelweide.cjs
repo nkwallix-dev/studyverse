@@ -320,3 +320,62 @@ assert.equal(freshExpedition.checkpoint, 0);
 assert.equal(freshExpedition.amberCount, 0);
 assert.notEqual(freshExpedition.runId, basicExpedition.runId);
 console.log('Expedition PASS: 20 randomized enemies, independent species/tier, one elite max and full restart after death.');
+
+// Daily map amber receipts persist across fresh runs and are scoped to each calendar day.
+const day1 = new KennyWorld(null, { expedition: true, amberDay: '2026-11-20', random: () => 0.99 });
+day1.enemies.length = 0;
+day1.player.x = 300;
+day1.player.y = 265;
+day1.step(STEP, idle);
+assert(day1.amberEvents.includes('stachelweide_2026-11-20_map_0'));
+const receipt = { 'stachelweide_2026-11-20_map_0': true };
+const repeated = new KennyWorld(null, {
+  expedition: true, amberDay: '2026-11-20', claimedAmber: receipt, random: () => 0.99,
+});
+assert(repeated.amber[0].collected, 'A map crystal cannot respawn after a new run on the same day');
+const tomorrow = new KennyWorld(null, {
+  expedition: true, amberDay: '2026-11-21', claimedAmber: receipt, random: () => 0.99,
+});
+assert(!tomorrow.amber[0].collected, 'A new calendar day unlocks new map amber');
+
+// Enemy tiers determine amber volume, with physical crystals collectible near the kill site.
+for (const [tier, amount, rng] of [
+  ['basic', 1, 0],
+  ['basic', 2, 0.99],
+  ['medium', 2, 0],
+  ['medium', 4, 0.99],
+  ['elite', 6, 0.5],
+]) {
+  const run = new KennyWorld(null, { random: () => rng });
+  const enemy = run.enemies[0];
+  enemy.tier = tier;
+  enemy.health = 1;
+  run.hitEnemy(enemy, 1);
+  assert.equal(run.enemyAmberDrops.length, amount, tier + ' amber drop count');
+  assert(run.enemyAmberDrops.every(drop => !drop.collected));
+  run.enemies.length = 0;
+  run.player.x = run.enemyAmberDrops[0].x;
+  run.player.y = run.enemyAmberDrops[0].y - 10;
+  run.step(STEP, idle);
+  assert(run.amberEvents.some(id => id.includes('_enemy_')), 'Enemy amber can be collected');
+}
+
+// Every successful player special stuns its target for a full second, blocking
+// immediate body contact during a special attack overlap.
+const specialStun = new KennyWorld();
+const stunnedEnemy = specialStun.enemies[0];
+specialStun.player.x = stunnedEnemy.x - 50;
+specialStun.player.y = stunnedEnemy.y;
+specialStun.attackKind = 'tail';
+specialStun.attackFacing = 1;
+specialStun.attackOrigin = { ...specialStun.player };
+specialStun.specialStrike();
+assert.equal(stunnedEnemy.stun, BALANCE.specialStun);
+assert(specialStun.invulnerable >= BALANCE.specialStun);
+const stunExpiry = stunnedEnemy.stun;
+specialStun.step(STEP, idle);
+assert(stunnedEnemy.stun < stunExpiry);
+const enemySpecial = new KennyWorld();
+enemySpecial.hurt(enemySpecial.enemies[0], 2, true);
+assert.equal(enemySpecial.playerStun, BALANCE.specialStun);
+console.log('Amber/Stun PASS: daily map receipts, tier ranges, physical drops, 1s special stun.');
