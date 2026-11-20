@@ -1,6 +1,10 @@
 export type DinoSpecies = 'triceratops' | 'stegosaurus';
 export type ItemId =
   'triceratops-horns' | 'triceratops-frill' | 'stegosaurus-plates' | 'stegosaurus-spikes';
+export type ItemSlot = 'offense' | 'defense';
+export type EquipmentSlots = Record<ItemSlot, ItemId | null>;
+export const itemSlot = (id: ItemId): ItemSlot =>
+  id === 'triceratops-horns' || id === 'stegosaurus-spikes' ? 'offense' : 'defense';
 export interface CompanionItem {
   id: ItemId;
   species: DinoSpecies;
@@ -16,7 +20,7 @@ export const COMPANION_ITEMS: readonly CompanionItem[] = [
     id: 'triceratops-horns',
     species: 'triceratops',
     name: 'Triceratops-Hörner',
-    description: 'Hornstoß: stärkerer Angriff.',
+    description: 'L: 2 Sekunden aufladen, dann 4 Felder vorstürmen. 2 Schaden.',
     achievement: 'Mit dem Kopf durch die Wand',
     quip: '50 Hörner. Türen sind jetzt eher eine Empfehlung.',
     icon: '♜',
@@ -26,7 +30,7 @@ export const COMPANION_ITEMS: readonly CompanionItem[] = [
     id: 'triceratops-frill',
     species: 'triceratops',
     name: 'Triceratops-Nackenschild',
-    description: 'Frontschutz gegen anlaufende Gegner.',
+    description: '2 einmalige Schildherzen. Verbraucht sich bei vollständigem Schildverlust.',
     achievement: 'Kragenweite XXL',
     quip: '50 Nackenschilde. Der nächste Rollkragen wird teuer.',
     icon: '◈',
@@ -36,7 +40,7 @@ export const COMPANION_ITEMS: readonly CompanionItem[] = [
     id: 'stegosaurus-plates',
     species: 'stegosaurus',
     name: 'Stegosaurus-Rückenplatten',
-    description: 'Rückenschutz gegen Gegnerkontakt.',
+    description: '1 Schildherz. Regeneriert nach 8 schadensfreien Sekunden.',
     achievement: 'Plattenbau Deluxe',
     quip: '50 Rückenplatten. Kenny hat jetzt eine Dachterrasse.',
     icon: '▴',
@@ -46,7 +50,8 @@ export const COMPANION_ITEMS: readonly CompanionItem[] = [
     id: 'stegosaurus-spikes',
     species: 'stegosaurus',
     name: 'Stegosaurus-Schwanzstacheln',
-    description: 'Schwanzangriff: 0,25 Schaden pro Sekunde für 4 Sekunden.',
+    description:
+      'L: Schwanzschlag mit Reichweite 3 und 1 Schaden; danach 0,25 Schaden/s für 4 Sekunden.',
     achievement: 'Ganz schön stachelig!',
     quip: '50-mal Stacheln eingesammelt. Kenny besser nicht von hinten überraschen.',
     icon: '✧',
@@ -58,52 +63,117 @@ export const isItem = (value: unknown): value is ItemId =>
 export interface CompanionState {
   version: 1;
   pickups: Record<string, ItemId>;
+  amberPickups: Record<string, true>;
+  equippedSlots: EquipmentSlots;
+  slotUpdatedAt: Record<ItemSlot, number>;
+  /** Compatibility mirror for saves from the former single-slot inventory. */
   equipped: ItemId | null;
   equippedAt: number;
   seen: ItemId[];
 }
-export function normalizeCompanions(raw: unknown): CompanionState {
-  const data = (raw && typeof raw === 'object' ? raw : {}) as Partial<CompanionState>;
-  const pickups: Record<string, ItemId> = {};
-  for (const [id, item] of Object.entries(data.pickups || {})) {
-    if (/^[a-zA-Z0-9_-]{1,100}$/.test(id) && isItem(item)) pickups[id] = item;
-  }
-  const state: CompanionState = {
-    version: 1,
-    pickups,
-    equipped: isItem(data.equipped) ? data.equipped : null,
-    equippedAt:
-      Number.isSafeInteger(data.equippedAt) && data.equippedAt! > 0 ? data.equippedAt! : 0,
-    seen: Array.isArray(data.seen) ? [...new Set(data.seen.filter(isItem))].sort() : [],
-  };
-  if (state.equipped && countItem(state, state.equipped) < 50) state.equipped = null;
-  return state;
-}
+const validReceipt = (id: string): boolean => /^[a-zA-Z0-9_-]{1,100}$/.test(id);
+const stamp = (value: unknown): number =>
+  Number.isSafeInteger(value) && Number(value) > 0 ? Number(value) : 0;
 export const countItem = (state: CompanionState, item: ItemId): number =>
   Object.values(state.pickups).filter((value) => value === item).length;
+export const amberTotal = (state: CompanionState): number => Object.keys(state.amberPickups).length;
+export function normalizeCompanions(raw: unknown): CompanionState {
+  const data = (raw && typeof raw === 'object' ? raw : {}) as Partial<CompanionState>;
+  const pickups: Record<string, ItemId> = {},
+    amberPickups: Record<string, true> = {};
+  for (const [id, item] of Object.entries(data.pickups || {}))
+    if (validReceipt(id) && isItem(item)) pickups[id] = item;
+  for (const [id, value] of Object.entries(data.amberPickups || {}))
+    if (validReceipt(id) && value === true) amberPickups[id] = true;
+  const slots: EquipmentSlots = { offense: null, defense: null };
+  const times = { offense: 0, defense: 0 };
+  const legacy = isItem(data.equipped) ? data.equipped : null;
+  const hasSlots = !!data.equippedSlots && typeof data.equippedSlots === 'object';
+  for (const slot of ['offense', 'defense'] as const) {
+    const value = hasSlots
+      ? data.equippedSlots?.[slot]
+      : legacy && itemSlot(legacy) === slot
+        ? legacy
+        : null;
+    if (
+      isItem(value) &&
+      itemSlot(value) === slot &&
+      Object.values(pickups).filter((id) => id === value).length >= 50
+    )
+      slots[slot] = value;
+    times[slot] = hasSlots
+      ? stamp(data.slotUpdatedAt?.[slot])
+      : legacy && itemSlot(legacy) === slot
+        ? stamp(data.equippedAt)
+        : 0;
+  }
+  const recent = times.offense >= times.defense ? 'offense' : 'defense';
+  return {
+    version: 1,
+    pickups,
+    amberPickups,
+    equippedSlots: slots,
+    slotUpdatedAt: times,
+    equipped: slots[recent] || slots[recent === 'offense' ? 'defense' : 'offense'],
+    equippedAt: Math.max(times.offense, times.defense),
+    seen: Array.isArray(data.seen) ? [...new Set(data.seen.filter(isItem))].sort() : [],
+  };
+}
 export function mergeCompanions(a: unknown, b: unknown): CompanionState {
   const left = normalizeCompanions(a),
     right = normalizeCompanions(b);
-  const chosen =
-    left.equippedAt > right.equippedAt ||
-    (left.equippedAt === right.equippedAt && (left.equipped || '') > (right.equipped || ''))
-      ? left
-      : right;
+  const slots: EquipmentSlots = { offense: null, defense: null },
+    times = { offense: 0, defense: 0 };
+  for (const slot of ['offense', 'defense'] as const) {
+    const chosen =
+      left.slotUpdatedAt[slot] > right.slotUpdatedAt[slot] ||
+      (left.slotUpdatedAt[slot] === right.slotUpdatedAt[slot] &&
+        (left.equippedSlots[slot] || '') > (right.equippedSlots[slot] || ''))
+        ? left
+        : right;
+    slots[slot] = chosen.equippedSlots[slot];
+    times[slot] = chosen.slotUpdatedAt[slot];
+  }
   return normalizeCompanions({
-    ...chosen,
+    equippedSlots: slots,
+    slotUpdatedAt: times,
     pickups: { ...left.pickups, ...right.pickups },
+    amberPickups: { ...left.amberPickups, ...right.amberPickups },
     seen: [...left.seen, ...right.seen],
   });
 }
 export function recordPickup(raw: unknown, id: string, item: ItemId): CompanionState {
   const state = normalizeCompanions(raw);
-  if (!/^[a-zA-Z0-9_-]{1,100}$/.test(id) || !isItem(item) || state.pickups[id]) return state;
+  if (!validReceipt(id) || !isItem(item) || state.pickups[id]) return state;
   return { ...state, pickups: { ...state.pickups, [id]: item } };
 }
-export function equipCompanion(raw: unknown, item: ItemId | null): CompanionState {
+export function recordAmber(raw: unknown, id: string): CompanionState {
+  const state = normalizeCompanions(raw);
+  if (!validReceipt(id) || state.amberPickups[id]) return state;
+  return { ...state, amberPickups: { ...state.amberPickups, [id]: true } };
+}
+export function equipCompanion(
+  raw: unknown,
+  item: ItemId | null,
+  requestedSlot?: ItemSlot,
+): CompanionState {
   const state = normalizeCompanions(raw);
   if (item !== null && (!isItem(item) || countItem(state, item) < 50)) return state;
-  return { ...state, equipped: item, equippedAt: Math.max(Date.now(), state.equippedAt + 1) };
+  const slots = item
+    ? [itemSlot(item)]
+    : requestedSlot
+      ? [requestedSlot]
+      : (['offense', 'defense'] as const);
+  const next = {
+    ...state,
+    equippedSlots: { ...state.equippedSlots },
+    slotUpdatedAt: { ...state.slotUpdatedAt },
+  };
+  for (const slot of slots) {
+    next.equippedSlots[slot] = item;
+    next.slotUpdatedAt[slot] = Math.max(Date.now(), state.equippedAt + 1);
+  }
+  return normalizeCompanions(next);
 }
 export function dropsFor(
   species: DinoSpecies,

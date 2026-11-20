@@ -1,5 +1,6 @@
+import { BALANCE, specialDuration } from './kenny-platformer.balance';
 import { playerAnimation } from './kenny-platformer.animation';
-import { ItemId, COMPANION_ITEMS } from '../equipment/companion-equipment.model';
+import { ItemId, EquipmentSlots, COMPANION_ITEMS } from '../equipment/companion-equipment.model';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -19,7 +20,7 @@ import {
 import { Controls, KennyWorld, STEP } from './kenny-platformer.world';
 import { KennyRenderer } from './kenny-platformer.renderer';
 
-type Action = 'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack';
+type Action = 'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack' | 'special' | 'interact';
 type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error';
 interface RecordTime {
   seconds: number;
@@ -37,6 +38,8 @@ const KEYS: Record<string, Action> = {
   ArrowUp: 'aimUp',
   Space: 'jump',
   KeyJ: 'attack',
+  KeyL: 'special',
+  KeyE: 'interact',
 };
 
 @Component({
@@ -48,9 +51,10 @@ const KEYS: Record<string, Action> = {
 })
 export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
   @Input() skin = 'blue';
-  @Input() startItem: ItemId | null = null;
+  @Input() startEquipment: EquipmentSlots = { offense: null, defense: null };
+  @Input() amberBalance = 0;
+  @Output() amberCollected = new EventEmitter<string>();
   @Output() pickupCollected = new EventEmitter<{ id: string; item: ItemId }>();
-  readonly fusionNames = signal<string[]>([]);
   @Input() available = false;
   @Output() exitRequested = new EventEmitter<void>();
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
@@ -68,6 +72,13 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     progress: 0,
     runes: 0,
     deaths: 0,
+    shield: 0,
+    shieldMaximum: 0,
+    regeneration: 0,
+    special: 'Sprungangriff',
+    cooldown: 0,
+    defense: 'Kein Schild',
+    pickup: '',
   });
   readonly hint = signal('');
   readonly record = signal<RecordTime | undefined>(this.readRecord());
@@ -76,7 +87,9 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     { action: 'right', label: 'Nach rechts', symbol: '→' },
     { action: 'aimUp', label: 'Oben zielen', symbol: 'W' },
     { action: 'aimDown', label: 'Unten zielen', symbol: 'S' },
-    { action: 'attack', label: 'Sprungangriff', symbol: 'J' },
+    { action: 'attack', label: 'Beißen', symbol: 'J' },
+    { action: 'special', label: 'Spezial', symbol: 'L' },
+    { action: 'interact', label: 'Aufheben', symbol: 'E' },
     { action: 'jump', label: 'Springen', symbol: '⤒' },
   ];
   private readonly zone = inject(NgZone);
@@ -91,6 +104,8 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
   private pointers = new Map<number, Action>();
   private jumpQueued = false;
   private attackQueued = false;
+  private specialQueued = false;
+  private interactQueued = false;
   private destroyed = false;
 
   ngAfterViewInit(): void {
@@ -129,10 +144,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
 
   start(): void {
     if (!this.available || !this.renderer || !this.assetsReady()) return;
-    this.world = new KennyWorld(this.startItem);
-    this.fusionNames.set(
-      [...this.world.fusions].map((id) => COMPANION_ITEMS.find((item) => item.id === id)!.name),
-    );
+    this.world = new KennyWorld(this.startEquipment);
     this.accumulator = 0;
     this.clearInput();
     this.publishHud();
@@ -242,6 +254,8 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
   private queue(action: Action): void {
     if (action === 'jump') this.jumpQueued = true;
     if (action === 'attack') this.attackQueued = true;
+    if (action === 'special') this.specialQueued = true;
+    if (action === 'interact') this.interactQueued = true;
   }
 
   private clearInput(): void {
@@ -249,6 +263,8 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     this.pointers.clear();
     this.jumpQueued = false;
     this.attackQueued = false;
+    this.specialQueued = false;
+    this.interactQueued = false;
   }
 
   private tick(time: number): void {
@@ -267,21 +283,26 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
           jump: this.jumpQueued,
           jumpHeld: this.held('jump'),
           attack: this.attackQueued,
+          special: this.specialQueued,
+          interact: this.interactQueued,
         };
         this.world.step(STEP, controls);
         if (this.world.pickupEvents.length) {
           const events = this.world.pickupEvents.splice(0);
           this.zone.run(() => {
-            this.fusionNames.set(
-              [...this.world.fusions].map(
-                (id) => COMPANION_ITEMS.find((item) => item.id === id)!.name,
-              ),
-            );
             for (const event of events) this.pickupCollected.emit(event);
+          });
+        }
+        if (this.world.amberEvents.length) {
+          const events = this.world.amberEvents.splice(0);
+          this.zone.run(() => {
+            for (const id of events) this.amberCollected.emit(id);
           });
         }
         this.jumpQueued = false;
         this.attackQueued = false;
+        this.specialQueued = false;
+        this.interactQueued = false;
         this.accumulator -= STEP;
       }
       if (this.world.won) this.zone.run(() => this.finish());
@@ -310,7 +331,12 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     element.style.height = `${height * scale}px`;
     element.style.left = `${(player.x + player.w / 2 - this.renderer.camera - width / 2) * scale}px`;
     element.style.top = `${(player.y + player.h - height * (state.motion === 'idle' ? 698 / 727 : 180 / 192)) * scale}px`;
-    element.style.transform = `scaleX(${player.facing})`;
+    const chargeWindup =
+      this.world.attackTime > 0 &&
+      this.world.attackKind === 'charge' &&
+      specialDuration('charge') - this.world.attackTime < BALANCE.charge.windup;
+    element.style.transform = `scaleX(${player.facing})${chargeWindup ? ' rotate(10deg)' : ''}`;
+    element.dataset['special'] = this.world.attackTime > 0 ? this.world.attackKind : '';
     element.style.opacity =
       this.world.invulnerable > 0 && Math.floor(this.world.invulnerable * 12) % 2 ? '0.4' : '1';
     element.dataset['motion'] = state.motion;
@@ -340,6 +366,25 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
       progress: this.world.progress,
       runes: this.world.runeProgress,
       deaths: this.world.deaths,
+      shield: this.world.shield,
+      shieldMaximum: this.world.shieldMaximum,
+      regeneration:
+        this.world.defense === 'stegosaurus-plates' && !this.world.shield
+          ? Math.max(0, Math.ceil(BALANCE.shield.regeneration - this.world.sinceDamage))
+          : 0,
+      special:
+        this.world.specialKind === 'leap'
+          ? 'Sprungangriff'
+          : this.world.specialKind === 'tail'
+            ? 'Schwanzschlag'
+            : 'Triceratops-Charge',
+      cooldown: Math.ceil(this.world.specialCooldown * 10) / 10,
+      defense: this.world.defense
+        ? COMPANION_ITEMS.find((item) => item.id === this.world.defense)!.name
+        : 'Kein Schild',
+      pickup: this.world.nearbyDrop
+        ? COMPANION_ITEMS.find((item) => item.id === this.world.nearbyDrop!.item)!.name
+        : '',
     });
     this.hint.set(this.world.hint);
   }

@@ -10,13 +10,21 @@
       <button type="button" (click)="playRequested.emit()">Spielen</button>
     </nav>
     <h2>{{ tab === 'inventory' ? 'Kleine Arme. Große Auswahl.' : 'Urzeitlich gut drauf.' }}</h2>
-    <p>Hornweide · 50 Pickups pro Item schalten es dauerhaft frei. Ein Start-Ausrüstungsslot.</p>
+    <p>
+      Stachelweide · 50 Pickups pro Item schalten es dauerhaft frei. Ein offensiver und ein
+      defensiver Startslot.
+    </p>
+    <p class="empty" *ngIf="tab === 'inventory' && !visibleItems.length">
+      Dein Inventar ist leer. Sammle in Stachelweide Dino-Items mit E. Nach 50 Pickups pro Item
+      gehört es dir dauerhaft.
+    </p>
     <div class="cards">
-      <article *ngFor="let item of items" [class.unlocked]="count(item.id) >= 50">
+      <article *ngFor="let item of visibleItems" [class.unlocked]="count(item.id) >= 50">
         <img
           [src]="'kenny/hornweide/' + item.asset + '.svg'"
           [alt]="item.name + ' – Platzhalter'"
         />
+        <small *ngIf="tab === 'inventory'">{{ slotName(item.id) }}</small>
         <small>{{ count(item.id) >= 50 ? 'FREIGESCHALTET' : 'GESPERRT' }}</small>
         <h3>{{ tab === 'inventory' ? item.name : item.achievement }}</h3>
         <p>{{ tab === 'inventory' ? item.description : item.quip }}</p>
@@ -28,9 +36,9 @@
           *ngIf="tab === 'inventory'"
           type="button"
           [disabled]="count(item.id) < 50"
-          (click)="equipRequested.emit(state.equipped === item.id ? null : item.id)"
+          (click)="equip(item.id)"
         >
-          {{ state.equipped === item.id ? 'Ablegen' : 'Ausrüsten' }}
+          {{ isEquipped(item.id) ? 'Ablegen' : 'Ausrüsten' }}
         </button>
       </article>
     </div>

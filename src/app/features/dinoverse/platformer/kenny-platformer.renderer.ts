@@ -1,3 +1,4 @@
+import { BALANCE, specialDuration } from './kenny-platformer.balance';
 import { enemyAnimation } from './kenny-platformer.animation';
 import { KennyWorld, WORLD_HEIGHT, WORLD_WIDTH } from './kenny-platformer.world';
 
@@ -194,18 +195,34 @@ export class KennyRenderer {
     world.loot.forEach((drop) => {
       if (drop.collected) return;
       this.box(drop.x, drop.y, drop.w, drop.h, '#d79aee', 5);
-      this.label('✦', drop.x + 11, drop.y + 17, '#241329', 16);
+      this.label(
+        drop.item.includes('horns') ? '▲' : drop.item.includes('spikes') ? '✦' : '⬟',
+        drop.x + 11,
+        drop.y + 17,
+        '#241329',
+        16,
+      );
+      if (world.nearbyDrop === drop) this.label('E', drop.x + 11, drop.y - 10, '#ffe0a5', 17);
     });
     world.enemies.forEach((enemy) => {
       if (!enemy.alive) return;
       const state = enemyAnimation(enemy, world.elapsed);
       const image = this.images.get(`${enemy.species}-${state.animation}`);
       if (!image) return;
-      const size = enemy.species === 'stegosaurus' ? 128 : 104;
+      const size = enemy.species === 'stegosaurus' ? 172 : 104;
       const feet = enemy.y + enemy.h;
       ctx.save();
       ctx.translate(enemy.x + enemy.w / 2, feet);
       ctx.scale(state.facing, 1);
+      const chargeElapsed = specialDuration('charge') - enemy.attackTime;
+      const preparing =
+        enemy.species === 'triceratops' &&
+        enemy.attackTime > 0 &&
+        chargeElapsed < BALANCE.charge.windup;
+      if (preparing) {
+        ctx.translate(Math.sin(world.elapsed * 38) * 1.4, 3);
+        ctx.rotate(0.12);
+      }
       ctx.drawImage(
         image,
         state.frame * 192,
@@ -225,7 +242,28 @@ export class KennyRenderer {
         '#f5e5d1',
         11,
       );
-      if (enemy.attackTime > 0.4) this.label('!', enemy.x + enemy.w / 2, feet - 70, '#ffd492', 23);
+      if (preparing) {
+        this.label('! CHARGE', enemy.x + enemy.w / 2, feet - size - 28, '#ffba89', 14);
+        this.box(enemy.x, feet - size - 20, enemy.w, 5, '#493b39', 2);
+        this.box(
+          enemy.x,
+          feet - size - 20,
+          enemy.w * Math.min(1, chargeElapsed / BALANCE.charge.windup),
+          5,
+          '#ffc08a',
+          2,
+        );
+        for (let i = 0; i < 3; i++)
+          this.circle(
+            enemy.x + enemy.w / 2 - enemy.attackFacing * (12 + i * 12),
+            feet - 3 - Math.abs(Math.sin(world.elapsed * 14 + i)) * 10,
+            2 + i,
+            '#d9b58f',
+          );
+      } else if (enemy.attackTime > 0.4 && enemy.species === 'stegosaurus')
+        this.label('!', enemy.x + enemy.w / 2, feet - size, '#ffd492', 23);
+      else if (enemy.alerted)
+        this.label('•', enemy.x + enemy.w / 2, feet - size - 22, '#eeab99', 12);
     });
     this.box(5110, 320, 64, 130, '#96e9c91a', 32);
     ctx.strokeStyle = world.runeProgress === 3 ? '#a0f0cc' : '#647b7b';
@@ -234,6 +272,20 @@ export class KennyRenderer {
     ctx.ellipse(5142, 385, 27, 60, 0, 0, Math.PI * 2);
     ctx.stroke();
     this.label('ZIEL', 5142, 300, '#c6e9d3', 14);
+    for (const damage of world.damageTexts) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, damage.life * 3);
+      ctx.shadowColor = '#10192b';
+      ctx.shadowBlur = 5;
+      this.label(
+        `−${Number(damage.amount.toFixed(2))} ❤️${damage.shield ? ' 🛡' : ''}`,
+        damage.x,
+        damage.y - 12,
+        damage.shield ? '#b4efff' : '#ffc0b5',
+        18,
+      );
+      ctx.restore();
+    }
     const player = world.player;
     const aim = world.attackTime > 0 ? world.attackAim : world.aim;
     const facing = world.attackTime > 0 ? world.attackFacing : player.facing;

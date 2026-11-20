@@ -5,6 +5,8 @@ on:
     paths:
       - 'src/app/**'
       - 'public/maths/**'
+      - 'scripts/test-stachelweide.cjs'
+      - 'scripts/test-companion-equipment.cjs'
       - 'scripts/test-kenny-platformer.cjs'
       - 'scripts/test-kenny-platformer-browser.cjs'
       - 'scripts/test-dino-season.cjs'
@@ -52,6 +54,7 @@ jobs:
       - name: Test Kenny platformer course and checkpoint mechanics
         run: |
           node scripts/test-companion-equipment.cjs
+          node scripts/test-stachelweide.cjs
           node scripts/test-kenny-platformer.cjs
 
       - name: Angular production build for GitHub Pages

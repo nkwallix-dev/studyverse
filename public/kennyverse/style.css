@@ -445,3 +445,5 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
   .kenny-mobile-nav { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .kenny-mobile-nav button, .kenny-mobile-nav .kenny-platformer-link { font-size: 10px; }
 }
+
+.kenny-amber{color:#f3ca7f;white-space:nowrap;font-variant-numeric:tabular-nums;margin-left:auto;font-size:15px}.kenny-amber small{font-size:11px}.top{gap:12px}.top .kenny-top-home{min-width:0}@media(max-width:610px){.kenny-amber{font-size:13px}.kenny-amber small{display:none}.top{flex-wrap:wrap}.top .return{font-size:10px}}

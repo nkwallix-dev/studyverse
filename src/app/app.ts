@@ -1,5 +1,5 @@
 import { CompanionEquipmentComponent } from './features/dinoverse/equipment/companion-equipment.component';
-import { CompanionState, ItemId, normalizeCompanions, mergeCompanions, countItem, recordPickup, equipCompanion } from './features/dinoverse/equipment/companion-equipment.model';
+import { CompanionState, ItemId, ItemSlot, amberTotal, recordAmber, normalizeCompanions, mergeCompanions, countItem, recordPickup, equipCompanion } from './features/dinoverse/equipment/companion-equipment.model';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -297,10 +297,16 @@ export class App implements OnInit,OnDestroy {
    if (before < 50 && countItem(this.companionState, event.item) >= 50) this.platformer?.pause();
    this.saveCompanionProgress();
  }
- equipCompanionItem(item: ItemId | null): void {
+ get amberBalance(): number { return amberTotal(this.companionState); }
+ collectAmber(id: string): void {
+   if (this.cloud.session && !this.cloudMaySave) return;
+   this.profile['companions'] = recordAmber(this.companionState, id);
+   this.saveCompanionProgress();
+ }
+ equipCompanionItem(event: { item: ItemId | null; slot: ItemSlot }): void {
    if (this.kennyPanel) this.profile = this.load();
    if (this.cloud.session && !this.cloudMaySave) return;
-   this.profile['companions'] = equipCompanion(this.companionState, item);
+   this.profile['companions'] = equipCompanion(this.companionState, event.item, event.slot);
    this.saveCompanionProgress();
  }
  acknowledgeCompanion(item: ItemId): void {

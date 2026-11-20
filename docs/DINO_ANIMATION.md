@@ -12,7 +12,7 @@ not its changing facing. The PNGs can be reused independently of this course.
 
 The existing four-frame idle strips and the companion feeding animation are
 unchanged. A grounded, stationary Kenny uses the original idle strip. Moving uses
-the new walk strip; airborne Kenny uses takeoff/landing poses; J plays its own
+the new walk strip; airborne Kenny uses takeoff/landing poses; L plays its own
 anticipation, leap, impact and recovery sequence. World simulation time drives
 frames so pausing also pauses the action. All animation PNGs preload before Start.
 
@@ -20,20 +20,12 @@ frames so pausing also pauses the action. All animation PNGs preload before Star
 
 A/D move and face Kenny. Space jumps. W/S (or up/down) aim without changing Kenny's
 collision dimensions. Touch provides separate aim, movement, jump and attack keys.
-J latches facing/aim for 0.5 seconds: 0.08 seconds anticipation, 0.30 seconds travel,
-then recovery. A clear horizontal attack travels 150 world units. Walls stop it;
-A/D and Space cannot steer, turn or replace the active attack. Cooldown is 0.78 s.
-Up aim gives an upward leap, down aim dives when airborne or makes a low hop from
-the ground. The reticle shows the selected target direction.
-
-Each enemy can receive damage once per committed strike. Equipped horns increase
-that damage; tail-spike fusion still applies its damage-over-time effect. Enemy
-kills retain the existing drop/pickup interface. No wallet or achievement changes.
-The previous shrinking tunnel now has enough headroom for Kenny's full height.
-
-Stegosaurus telegraphs an attack nearby, turns, and performs one tail sweep. Its
-0.8-second sequence only damages in the visible strike window and only once.
-It then returns to patrol, with a 1.9-second cooldown measured from windup start.
+J uses the existing attack strip for a short bite. L uses the leap or equipped Dino
+special timeline. Charge lowers the head and reuses walking frames for the sprint;
+the Stegosaurus turn/sweep timeline is shared by the enemy and Kenny's tail ability.
+See [STACHELWEIDE_BALANCE.md](STACHELWEIDE_BALANCE.md) for current ranges, timings,
+shields, two independent slots and directional enemy pursuit. Enemies retain their
+PNG walk/attack art and use canvas overlays for telegraphs and damage numbers.
 
 ## Asset prompts and provenance
 
@@ -51,7 +43,7 @@ invent motion, paint body parts or recolour generated artwork.
 
 ## Checks
 
-The world solver completes Hornweide through public controls. Tests cover constant
+The world solver completes Stachelweide through public controls. Tests cover constant
 lunge distance despite opposite held movement, aim latching, full-size W/S aiming,
 air jump prevention, one hit per attack, aimed target collision, Stegosaurus turn
 and tail damage, idle/walk/air/attack animation selection, checkpoints and pickups.

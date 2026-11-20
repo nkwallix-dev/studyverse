@@ -14,6 +14,14 @@ if(!ACCESS.available()){
 const bySubject={chem:DATA.filter(q=>q.subject==="chem"),dsai:DATA.filter(q=>q.subject==="dsai")};
 const safe=x=>String(x).replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[s]));
 function read(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch{return null}}
+function renderAmber(){
+ const badge=document.querySelector('#kennyAmber strong'); if(!badge)return;
+ const receipts=read(PROFILE)?.companions?.amberPickups;
+ badge.textContent=String(receipts&&typeof receipts==='object'?Object.entries(receipts).filter(([id,value])=>/^[a-zA-Z0-9_-]{1,100}$/.test(id)&&value===true).length:0);
+}
+renderAmber();
+window.addEventListener('storage',event=>{if(event.key===PROFILE||event.key===null)renderAmber()});
+window.addEventListener('pageshow',renderAmber);
 function write(k,v){localStorage.setItem(k,JSON.stringify(v));window.studyverseCloudTouch?.()}
 function shuffle(list){const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function selectPool(examOnly=false){
