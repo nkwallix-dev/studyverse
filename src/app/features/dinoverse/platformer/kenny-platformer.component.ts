@@ -21,7 +21,7 @@ import { Controls, KennyWorld, STEP } from './kenny-platformer.world';
 import { KennyRenderer } from './kenny-platformer.renderer';
 
 type Action = 'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack' | 'special' | 'interact';
-type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error';
+type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error' | 'tutorialComplete';
 interface RecordTime {
   seconds: number;
   amber: number;
@@ -53,17 +53,33 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
   @Input() skin = 'blue';
   @Input() startEquipment: EquipmentSlots = { offense: null, defense: null };
   @Input() amberBalance = 0;
+  @Input() tutorialSeen = false;
+  @Output() tutorialAcknowledged = new EventEmitter<void>();
   @Output() amberCollected = new EventEmitter<string>();
   @Output() pickupCollected = new EventEmitter<{ id: string; item: ItemId }>();
   @Input() available = false;
   @Output() exitRequested = new EventEmitter<void>();
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('expedition', { static: true }) expedition!: ElementRef<HTMLElement>;
   @ViewChild('sprite', { static: true }) sprite!: ElementRef<HTMLDivElement>;
   @ViewChild('stage', { static: true }) stage!: ElementRef<HTMLDivElement>;
   @ViewChild('dialogAction') dialogAction?: ElementRef<HTMLButtonElement>;
 
   readonly status = signal<Status>('ready');
   readonly assetsReady = signal(false);
+  readonly settingsOpen = signal(false);
+  readonly tutorialStep = signal(0);
+  tutorialPromptHandled = false;
+  tutorialActive = false;
+  private tutorialDropPending = false;
+  readonly tutorialSteps = [
+    'Bewege Kenny mit A oder D.',
+    'Drücke Space zum Springen.',
+    'Mit W oder S richtest du den Angriff nach oben oder unten.',
+    'Mit J beißt Kenny.',
+    'Mit L benutzt Kenny seinen Spezialangriff. Danach gilt ein Cooldown.',
+    'Vor dir liegt ein Item. Geh hin und drücke E zum Aufheben.',
+  ] as const;
   readonly hud = signal({
     amber: 0,
     time: '0:00',
@@ -140,18 +156,78 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     cancelAnimationFrame(this.frame);
     this.observer?.disconnect();
     this.clearInput();
+    if (document.fullscreenElement === this.expedition?.nativeElement)
+      void document.exitFullscreen().catch(() => {});
   }
 
   start(): void {
     if (!this.available || !this.renderer || !this.assetsReady()) return;
+    this.tutorialActive = false;
+    this.tutorialDropPending = false;
     this.world = new KennyWorld(this.startEquipment);
     this.accumulator = 0;
     this.clearInput();
     this.publishHud();
     this.status.set('playing');
+    this.enterFullscreen();
     requestAnimationFrame(() => {
       if (!this.destroyed) this.canvas.nativeElement.focus();
     });
+  }
+
+  chooseTutorial(play: boolean): void {
+    this.tutorialPromptHandled = true;
+    this.tutorialAcknowledged.emit();
+    if (play) this.startTutorial();
+    else this.start();
+  }
+
+  startTutorial(): void {
+    if (!this.available || !this.renderer || !this.assetsReady()) return;
+    this.settingsOpen.set(false);
+    this.tutorialPromptHandled = true;
+    this.tutorialActive = true;
+    this.tutorialDropPending = false;
+    this.tutorialStep.set(0);
+    this.world = new KennyWorld();
+    this.world.enemies.length = 0;
+    // Tutorial pickups and amber never affect the real account.
+    for (const amber of this.world.amber) amber.collected = true;
+    this.accumulator = 0;
+    this.clearInput();
+    this.publishHud();
+    this.status.set('playing');
+    this.enterFullscreen();
+    requestAnimationFrame(() => this.canvas.nativeElement.focus());
+  }
+
+  private advanceTutorial(input: Controls): void {
+    if (!this.tutorialActive) return;
+    const step = this.tutorialStep();
+    const finished =
+      (step === 0 && input.axis !== 0) ||
+      (step === 1 && input.jump) ||
+      (step === 2 && input.aim !== 0) ||
+      (step === 3 && input.attack) ||
+      (step === 4 && input.special);
+    if (!finished) return;
+    this.zone.run(() => this.tutorialStep.set(step + 1));
+    if (step === 4) this.tutorialDropPending = true;
+  }
+
+  private enterFullscreen(): void {
+    const root = this.expedition.nativeElement;
+    if (typeof root.requestFullscreen === 'function' && !document.fullscreenElement) {
+      void root.requestFullscreen().catch(() => {
+        // The viewport-filling in-app view stays usable if native fullscreen is blocked.
+      });
+    }
+  }
+
+  close(): void {
+    if (document.fullscreenElement === this.expedition.nativeElement)
+      void document.exitFullscreen().catch(() => {});
+    this.exitRequested.emit();
   }
 
   pause(): void {
@@ -287,16 +363,41 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
           interact: this.interactQueued,
         };
         this.world.step(STEP, controls);
+        this.advanceTutorial(controls);
+        // Spawn the practice pickup only after the leap has finished, on the ground.
+        if (this.tutorialDropPending && this.world.attackTime <= 0) {
+          const player = this.world.player;
+          this.world.loot.push({
+            id: 'tutorial_sample',
+            item: 'stegosaurus-plates',
+            x: Math.max(25, player.x + 25),
+            y: 420,
+            w: 22,
+            h: 22,
+            collected: false,
+          });
+          this.tutorialDropPending = false;
+        }
         if (this.world.pickupEvents.length) {
           const events = this.world.pickupEvents.splice(0);
           this.zone.run(() => {
-            for (const event of events) this.pickupCollected.emit(event);
+            if (this.tutorialActive) {
+              if (events.some((event) => event.id === 'tutorial_sample')) {
+                this.tutorialActive = false;
+                this.tutorialStep.set(this.tutorialSteps.length);
+                this.status.set('tutorialComplete');
+                this.clearInput();
+              }
+            } else {
+              for (const event of events) this.pickupCollected.emit(event);
+            }
           });
         }
         if (this.world.amberEvents.length) {
           const events = this.world.amberEvents.splice(0);
           this.zone.run(() => {
-            for (const id of events) this.amberCollected.emit(id);
+            if (!this.tutorialActive && this.status() !== 'tutorialComplete')
+              for (const id of events) this.amberCollected.emit(id);
           });
         }
         this.jumpQueued = false;
@@ -305,7 +406,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
         this.interactQueued = false;
         this.accumulator -= STEP;
       }
-      if (this.world.won) this.zone.run(() => this.finish());
+      if (this.world.won && !this.tutorialActive) this.zone.run(() => this.finish());
       this.hudTime += delta;
       if (this.hudTime >= 0.1) {
         this.hudTime = 0;

@@ -1,4 +1,4 @@
-<section class="expedition" aria-label="Kennyverse Jump & Run">
+<section #expedition class="expedition" aria-label="Kennyverse Jump & Run">
   <header class="game-header">
     <a href="kennyverse/index.html" class="back" aria-label="Zurück zum Kennyverse"
       >← <span>Kennyverse</span></a
@@ -27,11 +27,18 @@
     [class.suspended]="status() !== 'playing' || !available"
   >
     <div class="game-hud" aria-label="Spielstand">
-      <span class="health" [attr.aria-label]="hud().health + ' von 3 Herzen'"
-        >{{ '♥'.repeat(hud().health) }}<i>{{ '♡'.repeat(3 - hud().health) }}</i></span
-      >
+      <strong class="hud-player-name">KENNY</strong>
+      <span class="health" [attr.aria-label]="hud().health + ' von 3 Herzen'">
+        {{ hud().health }}/3
+        <span aria-hidden="true"
+          >{{ '♥'.repeat(hud().health) }}<i>{{ '♡'.repeat(3 - hud().health) }}</i></span
+        >
+      </span>
       <span class="shield" [attr.aria-label]="hud().shield + ' Schildherzen'"
         >🛡 {{ hud().shield }} / {{ hud().shieldMaximum }}</span
+      >
+      <span class="hud-special"
+        >L · {{ hud().cooldown > 0 ? hud().cooldown.toFixed(1) + ' s' : 'bereit' }}</span
       >
       <span class="amber"
         >◆ <strong>{{ hud().amber }}</strong
@@ -81,6 +88,10 @@
     </div>
     <div class="pickup-prompt" *ngIf="hud().pickup"><kbd>E</kbd> {{ hud().pickup }} aufheben</div>
     <div class="game-hint" role="status" aria-live="polite">{{ hint() }}</div>
+    <div class="tutorial-banner" *ngIf="tutorialActive" role="status" aria-live="polite">
+      <strong>TUTORIAL · {{ tutorialStep() + 1 }}/{{ tutorialSteps.length }}</strong>
+      <span>{{ tutorialSteps[tutorialStep()] }}</span>
+    </div>
     <div class="dialog-veil" *ngIf="status() !== 'playing' || !available">
       <section
         class="game-dialog"
@@ -95,38 +106,72 @@
             Während seiner Season ist Stachelweide spielbar. Ab Level 5 bleibt Kenny bei dir – und
             der Zugang auch nach Saisonende offen.
           </p>
-          <button #dialogAction type="button" class="primary" (click)="exitRequested.emit()">
+          <button #dialogAction type="button" class="primary" (click)="close()">
             Zu meinen Begleitern
           </button>
         </ng-container>
         <ng-template #gameState>
           <ng-container [ngSwitch]="status()">
             <ng-container *ngSwitchCase="'ready'">
+              <ng-container *ngIf="!tutorialSeen && !tutorialPromptHandled; else regularStart">
+                <div class="dialog-emblem" aria-hidden="true">🦖</div>
+                <h2 id="game-dialog-title">Willkommen in Stachelweide!</h2>
+                <p>Möchtest du zuerst das kurze Tutorial ausprobieren?</p>
+                <div class="dialog-actions tutorial-choices">
+                  <button
+                    #dialogAction
+                    type="button"
+                    class="primary"
+                    [disabled]="!assetsReady()"
+                    (click)="chooseTutorial(true)"
+                  >
+                    Tutorial spielen
+                  </button>
+                  <button type="button" [disabled]="!assetsReady()" (click)="chooseTutorial(false)">
+                    Direkt loslegen
+                  </button>
+                </div>
+              </ng-container>
+              <ng-template #regularStart>
+                <div class="dialog-emblem" aria-hidden="true">✦</div>
+                <h2 id="game-dialog-title">Kleine Arme.<br /><em>Großes Abenteuer.</em></h2>
+                <p>
+                  Spring über Schluchten, aktiviere Schalter und knacke das Runenrätsel. Das Portal
+                  wartet am Ende des Pfads.
+                </p>
+                <div class="control-guide">
+                  <span><kbd>A</kbd><kbd>D</kbd> Laufen</span><span><kbd>Space</kbd> Springen</span
+                  ><span><kbd>W / S</kbd> Zielen</span><span><kbd>J</kbd> Beißen</span
+                  ><span><kbd>L</kbd> Spezialangriff</span><span><kbd>E</kbd> Aufheben</span>
+                </div>
+                <p class="touch-note">
+                  L aktiviert deinen Spezialangriff; A/D bleiben währenddessen gesperrt. J beißt und
+                  E hebt Items auf. Auf dem Handy: die Tasten unten halten. Laufen und Springen
+                  gehen gleichzeitig.
+                </p>
+                <button
+                  #dialogAction
+                  type="button"
+                  class="primary"
+                  [disabled]="!assetsReady()"
+                  (click)="start()"
+                >
+                  Expedition starten
+                </button>
+              </ng-template>
+            </ng-container>
+            <ng-container *ngSwitchCase="'tutorialComplete'">
               <div class="dialog-emblem" aria-hidden="true">✦</div>
-              <h2 id="game-dialog-title">Kleine Arme.<br /><em>Großes Abenteuer.</em></h2>
+              <h2 id="game-dialog-title">Tutorial geschafft!</h2>
               <p>
-                Spring über Schluchten, aktiviere Schalter und knacke das Runenrätsel. Das Portal
-                wartet am Ende des Pfads.
+                Du hast die Stegosaurus-Platten mit E aufgehoben. Sie geben ein Schildherz, das sich
+                nach acht schadensfreien Sekunden regeneriert. In echten Runs zählen Pickups für
+                deine Achievements.
               </p>
-              <div class="control-guide">
-                <span><kbd>A</kbd><kbd>D</kbd> Laufen</span><span><kbd>Space</kbd> Springen</span
-                ><span><kbd>W / S</kbd> Zielen</span><span><kbd>J</kbd> Beißen</span
-                ><span><kbd>L</kbd> Spezialangriff</span><span><kbd>E</kbd> Aufheben</span>
-              </div>
-              <p class="touch-note">
-                L aktiviert deinen Spezialangriff; A/D bleiben währenddessen gesperrt. J beißt und E
-                hebt Items auf. Auf dem Handy: die Tasten unten halten. Laufen und Springen gehen
-                gleichzeitig.
-              </p>
-              <button
-                #dialogAction
-                type="button"
-                class="primary"
-                [disabled]="!assetsReady()"
-                (click)="start()"
-              >
+              <button #dialogAction type="button" class="primary" (click)="start()">
                 Expedition starten
               </button>
+              <button type="button" (click)="close()">Zurück zum Kennyverse</button>
             </ng-container>
             <ng-container *ngSwitchCase="'paused'">
               <h2 id="game-dialog-title">Kurze Verschnaufpause.</h2>
@@ -215,4 +260,24 @@
       <kbd>L</kbd> Spezial <kbd>E</kbd> Aufheben</span
     ><span><kbd>R</kbd> Checkpoint <kbd>P / Esc</kbd> Pause</span>
   </footer>
+  <div class="kenny-settings">
+    <button
+      type="button"
+      class="settings-toggle"
+      [attr.aria-expanded]="settingsOpen()"
+      (click)="settingsOpen.set(!settingsOpen())"
+    >
+      ⚙ Einstellungen
+    </button>
+    <section *ngIf="settingsOpen()" class="settings-popover" aria-label="Kennyverse Einstellungen">
+      <h3>Steuerung</h3>
+      <p>
+        A/D bewegen · Space springen · W/S zielen · J beißen · L Spezialangriff · E aufsammeln ·
+        P/Esc Pause
+      </p>
+      <button type="button" [disabled]="!available || !assetsReady()" (click)="startTutorial()">
+        Tutorial spielen
+      </button>
+    </section>
+  </div>
 </section>
