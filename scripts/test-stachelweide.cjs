@@ -306,8 +306,8 @@ assert.equal(basicExpedition.enemies.filter((enemy) => enemy.tier === 'elite').l
 assert(basicExpedition.enemies.every((enemy) => enemy.species === 'triceratops'));
 assert(basicExpedition.enemies.every((enemy) => enemy.health === 2));
 basicExpedition.enemies.length = 0;
-basicExpedition.player.x = 535;
-basicExpedition.player.y = 470;
+basicExpedition.player.x = 685;
+basicExpedition.player.y = 480;
 basicExpedition.step(STEP, idle);
 assert.equal(basicExpedition.dead, true, 'Falling into a hazard ends the full expedition');
 assert.equal(basicExpedition.deaths, 1);
