@@ -28,6 +28,12 @@ export const BALANCE = {
   charge: { range: 4, travel: 4, damage: 2, cooldown: 4, windup: 2, active: 0.4, recovery: 0.2 },
   shield: { frill: 2, plates: 1, regeneration: 8 },
   specialStun: 1,
+  playerChargeWindup: 1,
+  playerChargeStun: 3,
+  playerChargeKnockback: 2,
+  playerTailStun: 1,
+  playerTailKnockback: 3,
+  knockbackSeconds: 0.42,
   triceratopsStun: 3,
   stegoBleed: { duration: 4, tick: 1, damage: 0.25 },
   enemyPursuit: { levelTolerance: 0.8, separation: 0.4 },
@@ -41,7 +47,7 @@ export const BALANCE = {
     contactDamage: 1,
     invulnerability: 1.3,
     stegoCooldown: 1.9,
-    triceratopsCooldown: 4,
+    triceratopsCooldown: 3,
   },
   pickup: { range: 1.25 },
 } as const;
@@ -50,3 +56,9 @@ export const specialDuration = (kind: SpecialKind): number =>
   kind === 'tail'
     ? BALANCE.tail.duration
     : BALANCE[kind].windup + BALANCE[kind].active + BALANCE[kind].recovery;
+
+/** Player horns charge faster than enemy horns; never alter enemy telegraph duration. */
+export const playerSpecialDuration = (kind: SpecialKind): number =>
+  kind === 'charge'
+    ? BALANCE.playerChargeWindup + BALANCE.charge.active + BALANCE.charge.recovery
+    : specialDuration(kind);
