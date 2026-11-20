@@ -46,3 +46,38 @@ assert.equal(w.pickupEvents.length,1,'Collision cannot duplicate a pickup');
 assert.equal(new KennyWorld().fusions.size,0,'Run fusion must not leak into next run');
 assert.equal(w.enemies[0].health,2);assert.equal(w.enemies[2].health,7);
 console.log('Companion equipment: thresholds, deduplication, merge, persistence, equipment and real pickups passed.');
+
+// Mock the Firestore REST boundary: retries merge into the latest remote profile.
+(async () => {
+ const { StudyverseCloud } = require('../src/app/cloud.ts');
+ const cloud = new StudyverseCloud();
+ cloud.config = { apiKey: 'test-only-api-key', projectId: 'test-project' };
+ cloud.session = { uid: 'test-user', username: 'test', idToken: 'fixture', refreshToken: 'fixture', expiresAt: Date.now()+3600000 };
+ let remote = {version:1,profile:{tokens:987,xp:456,inventory:['existing'],companions:m.recordPickup(null,'remote_one',item)},trainers:{existing:{done:true}}};
+ let revision = 1, writes = 0;
+ const originalFetch = global.fetch;
+ global.fetch = async (url, init={}) => {
+  assert(String(url).startsWith('https://firestore.googleapis.com/'));
+  if(!init.method) return {ok:true,status:200,json:async()=>({updateTime:'rev'+revision,fields:{profile:{stringValue:JSON.stringify(remote)}}})};
+  assert.equal(init.method,'PATCH');
+  assert(String(url).includes('currentDocument.updateTime=rev'+revision));
+  if(writes++===0) {
+   remote.profile.companions=m.recordPickup(remote.profile.companions,'remote_two',item);
+   remote.profile.tokens=999; revision++;
+   return {ok:false,status:412};
+  }
+  remote=JSON.parse(JSON.parse(init.body).fields.profile.stringValue);revision++;
+  return {ok:true,status:200};
+ };
+ try {
+  const snapshot={version:1,profile:{tokens:1,xp:1,companions:m.recordPickup(null,'local_one',item)},trainers:{}};
+  await cloud.save(snapshot,true);
+  assert.equal(remote.profile.tokens,999,'Companion writes preserve the latest wallet');
+  assert.equal(remote.profile.xp,456);
+  assert.deepEqual(remote.profile.inventory,['existing']);
+  assert.deepEqual(remote.trainers,{existing:{done:true}});
+  assert.equal(m.countItem(remote.profile.companions,item),3);
+  assert.equal(writes,2,'Precondition conflict retries against latest remote state');
+  console.log('Companion cloud: conflict retry, merged pickups and unchanged remote wallet/trainers passed.');
+ } finally {global.fetch=originalFetch;}
+})().catch(error=>{console.error(error);process.exitCode=1;});
