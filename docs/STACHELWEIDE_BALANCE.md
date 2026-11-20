@@ -14,7 +14,7 @@ contact tolerance). Walls/platform edges can shorten committed travel.
 | --- | --- | --- | --- | --- | --- |
 | J – bite, always available | 1 | 1 | 0 | 0.5 s | 0.22 s animation, immediate single hit |
 | L – leap, no offensive item | 2 | 3 | 3 forward | 3 s | 0.08 s anticipation + 0.30 s movement + 0.12 s recovery |
-| L – Stegosaurus spikes | 1 + 0.25/s × 4 s = 2 total | 3 | 0 | 2.5 s | 0.8 s animation; hits during 0.40–0.68 s; DOT refreshes, never stacks |
+| L – Stegosaurus spikes | 3 + 0.25/s × 4 s = 4 total | 3 | 0 | 2.5 s | 0.8 s animation; hits during 0.40–0.68 s; DOT refreshes, never stacks |
 | L – Triceratops horns | 2 | 4 | 4 forward | 4 s | 2 s preparation + 0.4 s sprint + 0.2 s recovery |
 | Space – ordinary jump | 0 | — | Up to 2.49 vertically | — | Variable height when released early |
 | Downward leap on enemy | Leap damage above | 3 | 2 upward after hit | Same leap cooldown | Once per leap; explicit S or automatically when directly above an enemy |
@@ -71,14 +71,14 @@ or anti-cheat mechanism is introduced.
 | Triceratops body contact | Logical body contact | 1 | 1.3 s player immunity |
 | Triceratops charge | 4-field sprint | 2 on contact during sprint | 4 s from start; 2 s announced preparation, 0.4 s sprint, 0.2 s recovery |
 | Stegosaurus body contact | Logical body contact | 1 | 1.3 s player immunity |
-| Stegosaurus tail | 3 fields | 1 | 1.9 s from start; 0.8 s animation, hit window 0.40–0.68 s |
+| Stegosaurus tail | 3 fields | 3 | 1.9 s from start; 0.8 s animation, hit window 0.40–0.68 s |
 | Initial vision | 5 fields, front half-plane | — | Acquires only in facing direction |
 | Pursuit retention | Up to 20 fields | — | Continues behind its current facing; returns to patrol above 20 |
 | Patrol speed | 1.3 fields/s | — | Own existing route |
 | Chase speed | 2.5 fields/s | — | Stops at pits, solid walls and closed gates |
 | Kenny running speed | 5.6 fields/s | — | Acceleration 48 grounded / 32 airborne fields/s² |
 | Gravity / ordinary jump speed | 34 fields/s² / 13 fields/s upward | — | 0.12 s input buffer, 0.1 s coyote time |
-| Stegosaurus visual size | 172 world coordinates vs Kenny's 75–77 | — | Fixed world size on all screens |
+| Stegosaurus visual size | 190 high × 224 wide vs Kenny's 75–77 high | — | Fixed world size on all screens |
 
 All game messages, HUD, shield/ability labels, E prompts and floating “−1 ❤️”
 texts are overlays. Their contents never participate in sizing the canvas/sprite.
