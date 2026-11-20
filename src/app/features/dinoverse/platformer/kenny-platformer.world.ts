@@ -700,7 +700,7 @@ export class KennyWorld {
   private hitEnemy(enemy: Enemy, amount: number): void {
     if (!enemy.alive) return;
     enemy.health = Math.max(0, enemy.health - amount);
-    enemy.stun = 0.25;
+    enemy.stun = Math.max(enemy.stun, 0.25);
     this.damageTexts.push({
       id: ++this.damageId,
       x: enemy.x + enemy.w / 2,
