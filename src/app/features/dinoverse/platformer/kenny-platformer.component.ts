@@ -21,7 +21,7 @@ import { Controls, KennyWorld, STEP } from './kenny-platformer.world';
 import { KennyRenderer } from './kenny-platformer.renderer';
 
 type Action = 'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack' | 'special' | 'interact';
-type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error' | 'tutorialComplete';
+type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error' | 'tutorialComplete' | 'lost';
 interface RecordTime {
   seconds: number;
   amber: number;
@@ -164,7 +164,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     if (!this.available || !this.renderer || !this.assetsReady()) return;
     this.tutorialActive = false;
     this.tutorialDropPending = false;
-    this.world = new KennyWorld(this.startEquipment);
+    this.world = new KennyWorld(this.startEquipment, { expedition: true });
     this.accumulator = 0;
     this.clearInput();
     this.publishHud();
@@ -246,12 +246,6 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  checkpoint(): void {
-    this.world.respawn();
-    this.publishHud();
-    this.resume();
-  }
-
   formatTime(seconds: number): string {
     return `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60)
       .toString()
@@ -284,11 +278,6 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
       return;
     }
     if (this.status() !== 'playing' || !this.available) return;
-    if (event.code === 'KeyR') {
-      event.preventDefault();
-      if (!event.repeat) this.checkpoint();
-      return;
-    }
     const action = KEYS[event.code];
     if (!action) return;
     event.preventDefault();
@@ -352,7 +341,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
     if (!this.available && this.status() === 'playing') this.zone.run(() => this.pause());
     if (this.status() === 'playing') {
       this.accumulator += delta;
-      while (this.accumulator + 1e-9 >= STEP && !this.world.won) {
+      while (this.accumulator + 1e-9 >= STEP && !this.world.won && !this.world.dead) {
         const controls: Controls = {
           axis: Number(this.held('right')) - Number(this.held('left')),
           aim: Number(this.held('aimDown')) - Number(this.held('aimUp')),
@@ -407,6 +396,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
         this.accumulator -= STEP;
       }
       if (this.world.won && !this.tutorialActive) this.zone.run(() => this.finish());
+      if (this.world.dead && !this.tutorialActive) this.zone.run(() => this.fail());
       this.hudTime += delta;
       if (this.hudTime >= 0.1) {
         this.hudTime = 0;
@@ -488,6 +478,14 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy {
         : '',
     });
     this.hint.set(this.world.hint);
+  }
+
+  private fail(): void {
+    if (this.status() === 'lost') return;
+    this.status.set('lost');
+    this.clearInput();
+    this.publishHud();
+    this.focusDialog();
   }
 
   private finish(): void {

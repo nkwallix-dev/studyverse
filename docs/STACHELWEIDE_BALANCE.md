@@ -85,6 +85,24 @@ texts are overlays. Their contents never participate in sizing the canvas/sprite
 The existing platform geometry, gates, runes, checkpoints and Bernstein positions
 are unchanged. The entire level is called Stachelweide.
 
+## Expedition generation (Stachelweide)
+
+The shipped expedition rolls 20 encounters across ground and optional elevated routes.
+Each encounter independently rolls Stegosaurus or Triceratops at 50/50.
+Tier probabilities before the first elite are 55% basic / 35% medium / 10% elite.
+After one elite appears, further encounters use renormalized probabilities
+(55/90 basic and 35/90 medium); **a second elite can never spawn**.
+No elite is guaranteed. Basic has 2 hearts, medium has 4, elite has 7;
+the species determines the attack and potential item drops, not its tier.
+
+Exploration routes contain wider fossil ledges and alternate vertical paths.
+Checkpoints are landmarks/progress indicators only in real expeditions.
+A fatal hit or pit ends the current run; retry creates a new world with new
+encounters, resets temporary fusion and local Bernstein, and starts at x=90.
+Account-wide collection receipts and unlocked equipment are preserved.
+The old fixed three-encounter course remains available only to the deterministic
+engine solver tests, not to actual players.
+
 ## Verification
 
 `test-stachelweide.cjs` tests controls, exact logical distances, pogo, dual slots,

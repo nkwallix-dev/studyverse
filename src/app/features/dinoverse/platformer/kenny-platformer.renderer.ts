@@ -90,6 +90,41 @@ export class KennyRenderer {
         '#536275',
       );
     }
+    // Fern forest silhouettes move more slowly than the walkable world.
+    const foliageOffset = (this.camera * 0.38) % 215;
+    for (let i = -1; i < viewport / 215 + 2; i++) {
+      const x = i * 215 - foliageOffset + 70;
+      const height = 88 + ((i + 6) % 3) * 23;
+      const stemTop = 454 - height;
+      ctx.strokeStyle = '#1d433c';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(x, 454);
+      ctx.quadraticCurveTo(x - 16, stemTop + 35, x + 8, stemTop);
+      ctx.stroke();
+      for (let leaf = 0; leaf < 5; leaf++) {
+        const y = 433 - leaf * (height / 6);
+        const half = 45 - leaf * 6;
+        this.polygon(
+          [
+            [x, y],
+            [x - half, y - 11],
+            [x - half - 14, y - 28],
+            [x - 9, y - 8],
+          ],
+          '#254c42',
+        );
+        this.polygon(
+          [
+            [x, y],
+            [x + half, y - 13],
+            [x + half + 9, y - 31],
+            [x + 7, y - 8],
+          ],
+          '#2b5547',
+        );
+      }
+    }
     ctx.save();
     ctx.translate(-this.camera, 0);
     for (const platform of world.platforms) {

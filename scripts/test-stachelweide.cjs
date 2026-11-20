@@ -282,3 +282,32 @@ console.log(
   assert(Math.abs(origin - peak - 2 * FIELD) < 3, 'Releasing Space cannot cut the pogo short');
 }
 console.log('Pogo PASS: full two-field bounce survives late hits and released jump input.');
+
+// Expedition mode is intentionally different from the legacy course replay:
+const randomExpedition = new KennyWorld(null, { expedition: true, random: () => 0.05 });
+assert.equal(randomExpedition.enemies.length, 20, 'Each new expedition has 20 enemy encounters');
+assert.equal(randomExpedition.enemies.filter((enemy) => enemy.tier === 'elite').length, 1);
+assert.equal(randomExpedition.enemies[0].species, 'stegosaurus');
+assert.equal(randomExpedition.enemies[0].health, 7);
+assert.equal(randomExpedition.enemies[1].tier, 'medium', 'No second elite can appear');
+assert(randomExpedition.platforms.length > w.platforms.length, 'Expedition adds vertical routes');
+const basicExpedition = new KennyWorld(null, { expedition: true, random: () => 0.99 });
+assert.equal(basicExpedition.enemies.filter((enemy) => enemy.tier === 'elite').length, 0);
+assert(basicExpedition.enemies.every((enemy) => enemy.species === 'triceratops'));
+assert(basicExpedition.enemies.every((enemy) => enemy.health === 2));
+basicExpedition.enemies.length = 0;
+basicExpedition.player.x = 535;
+basicExpedition.player.y = 470;
+basicExpedition.step(STEP, idle);
+assert.equal(basicExpedition.dead, true, 'Falling into a hazard ends the full expedition');
+assert.equal(basicExpedition.deaths, 1);
+const atDeath = basicExpedition.elapsed;
+basicExpedition.step(STEP, idle);
+assert.equal(basicExpedition.elapsed, atDeath, 'A dead run must not continue');
+const freshExpedition = new KennyWorld(null, { expedition: true, random: () => 0.99 });
+assert.equal(freshExpedition.dead, false);
+assert.equal(freshExpedition.health, 3);
+assert.equal(freshExpedition.checkpoint, 0);
+assert.equal(freshExpedition.amberCount, 0);
+assert.notEqual(freshExpedition.runId, basicExpedition.runId);
+console.log('Expedition PASS: 20 randomized enemies, independent species/tier, one elite max and full restart after death.');
