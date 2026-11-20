@@ -1,4 +1,9 @@
-import { COMPANION_SKILL_TREE, CompanionSkillNode, skillUnlocked, matchingSkill } from './companion-skill-tree';
+import {
+  COMPANION_SKILL_TREE,
+  CompanionSkillNode,
+  skillUnlocked,
+  matchingSkill,
+} from './companion-skill-tree';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
@@ -32,7 +37,9 @@ export class CompanionEquipmentComponent {
   get trikeNodes(): readonly CompanionSkillNode[] {
     return this.nodes.filter((node) => node.family === 'triceratops');
   }
-  isUnlocked(node: CompanionSkillNode): boolean { return skillUnlocked(this.state, node); }
+  isUnlocked(node: CompanionSkillNode): boolean {
+    return skillUnlocked(this.state, node);
+  }
   isSelected(node: CompanionSkillNode): boolean {
     return matchingSkill(this.state.equippedSlots).id === node.id;
   }
@@ -43,7 +50,8 @@ export class CompanionEquipmentComponent {
     this.equipRequested.emit({ item: node.slots.defense, slot: 'defense' });
   }
   kitArt(node: CompanionSkillNode): string {
-    return node.needs.length ? 'kenny/hornweide/drops/' + node.needs[0] + '.png'
+    return node.needs.length
+      ? 'kenny/hornweide/drops/' + node.needs[0] + '.png'
       : 'kenny/skins/kenny-blue-portrait.png';
   }
   get visibleItems() {
