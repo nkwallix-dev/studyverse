@@ -1,0 +1,186 @@
+<section class="expedition" aria-label="Kennyverse Jump & Run">
+  <header class="game-header">
+    <a href="kennyverse/index.html" class="back" aria-label="Zurück zum Kennyverse"
+      >← <span>Kennyverse</span></a
+    >
+    <div class="game-title">
+      <span>EXPEDITION 01</span>
+      <h1>Der Urzeitpfad<span class="prototype">Prototyp</span></h1>
+    </div>
+    <button
+      type="button"
+      class="pause"
+      (click)="pause()"
+      [disabled]="status() !== 'playing' || !available"
+      aria-label="Spiel pausieren"
+    >
+      Ⅱ <span>Pause</span>
+    </button>
+  </header>
+
+  <div class="game-hud" aria-label="Spielstand">
+    <span class="health" [attr.aria-label]="hud().health + ' von 3 Herzen'"
+      >{{ '♥'.repeat(hud().health) }}<i>{{ '♡'.repeat(3 - hud().health) }}</i></span
+    >
+    <span class="amber"
+      >◆ <strong>{{ hud().amber }}</strong
+      ><small>/ 23 Bernstein</small></span
+    >
+    <span class="checkpoint"
+      >⚑ <strong>{{ hud().checkpoint }}</strong
+      ><small>/ 3</small></span
+    >
+    <span class="timer" aria-label="Laufzeit">{{ hud().time }}</span>
+  </div>
+
+  <div
+    #stage
+    class="platformer-stage kenny-stage"
+    [class.suspended]="status() !== 'playing' || !available"
+  >
+    <canvas
+      #canvas
+      tabindex="0"
+      aria-label="Urzeitpfad. A und D bewegen, Leertaste springen, S ducken, J beißen, P pausieren, R zum Checkpoint."
+      [attr.inert]="status() !== 'playing' || !available ? '' : null"
+    ></canvas>
+    <div
+      #sprite
+      class="platformer-player kenny-sprite"
+      [attr.data-skin]="skin"
+      aria-hidden="true"
+    ></div>
+    <div class="stage-caption" aria-hidden="true">
+      <span>{{
+        hud().progress < 22
+          ? '01 · Die Schlucht'
+          : hud().progress < 48
+            ? '02 · Vergessene Ruinen'
+            : hud().progress < 73
+              ? '03 · Über dem Feuer'
+              : '04 · Der Runentempel'
+      }}</span
+      ><span *ngIf="hud().progress >= 73">{{ hud().runes }} / 3 Runen</span>
+    </div>
+
+    <div class="dialog-veil" *ngIf="status() !== 'playing' || !available">
+      <section
+        class="game-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="game-dialog-title"
+      >
+        <span class="eyebrow">KENNYVERSE · JUMP & RUN</span>
+        <ng-container *ngIf="!available; else gameState">
+          <h2 id="game-dialog-title">Kenny ist weitergezogen.</h2>
+          <p>
+            Während seiner Season ist der Urzeitpfad spielbar. Ab Level 5 bleibt Kenny bei dir – und
+            der Zugang auch nach Saisonende offen.
+          </p>
+          <button #dialogAction type="button" class="primary" (click)="exitRequested.emit()">
+            Zu meinen Begleitern
+          </button>
+        </ng-container>
+        <ng-template #gameState>
+          <ng-container [ngSwitch]="status()">
+            <ng-container *ngSwitchCase="'ready'">
+              <div class="dialog-emblem" aria-hidden="true">✦</div>
+              <h2 id="game-dialog-title">Kleine Arme.<br /><em>Großes Abenteuer.</em></h2>
+              <p>
+                Spring über Schluchten, beiß Schalter frei und knacke das Runenrätsel. Das Portal
+                wartet am Ende des Pfads.
+              </p>
+              <div class="control-guide">
+                <span><kbd>A</kbd><kbd>D</kbd> Laufen</span
+                ><span><kbd>Space / W</kbd> Springen</span><span><kbd>S</kbd> Ducken</span
+                ><span><kbd>J</kbd> Beißen</span>
+              </div>
+              <p class="touch-note">
+                Auf dem Handy: die Tasten unten halten. Laufen und Springen gehen gleichzeitig.
+              </p>
+              <button #dialogAction type="button" class="primary" (click)="start()">
+                Expedition starten →
+              </button>
+            </ng-container>
+            <ng-container *ngSwitchCase="'paused'">
+              <h2 id="game-dialog-title">Kurze Verschnaufpause.</h2>
+              <p>
+                Dein Lauf wartet hier auf dich. <kbd>P</kbd> oder <kbd>Esc</kbd> setzt ihn fort.
+              </p>
+              <button #dialogAction type="button" class="primary" (click)="resume()">
+                Weiterspielen →
+              </button>
+              <div class="dialog-actions">
+                <button type="button" (click)="checkpoint()">Zum Checkpoint</button
+                ><button type="button" (click)="start()">Neu starten</button>
+              </div>
+            </ng-container>
+            <ng-container *ngSwitchCase="'won'">
+              <div class="dialog-emblem" aria-hidden="true">⚑</div>
+              <h2 id="game-dialog-title">Pfad gemeistert.<br /><em>Kenny auch.</em></h2>
+              <p>Schluchten, Schalter, Runen – geschafft!</p>
+              <div class="result-stats">
+                <span
+                  ><strong>{{ hud().time }}</strong
+                  >Laufzeit</span
+                ><span
+                  ><strong>{{ hud().amber }} / 23</strong>Bernstein</span
+                ><span
+                  ><strong>{{ hud().deaths }}</strong
+                  >Rücksetzungen</span
+                >
+              </div>
+              <button #dialogAction type="button" class="primary" (click)="start()">
+                Nochmal los →
+              </button>
+            </ng-container>
+            <ng-container *ngSwitchCase="'error'">
+              <h2 id="game-dialog-title">Die Spielfläche fehlt.</h2>
+              <p>
+                Dein Browser konnte die 2D-Grafik nicht starten. Probiere einen aktuellen Browser.
+              </p>
+              <button #dialogAction type="button" class="primary" (click)="exitRequested.emit()">
+                Zu meinen Begleitern
+              </button>
+            </ng-container>
+          </ng-container>
+          <p class="record" *ngIf="record() as best">
+            Deine Bestzeit auf diesem Gerät: {{ formatTime(best.seconds) }} ·
+            {{ best.amber }} Bernstein
+          </p>
+          <p class="economy-note">
+            Bernstein ist dein Laufpunktestand. Im Prototyp gibt es dafür keine TastyTokens.
+          </p>
+        </ng-template>
+      </section>
+    </div>
+  </div>
+
+  <div class="game-hint" role="status" aria-live="polite">{{ hint() }}</div>
+  <div
+    class="touch-controls"
+    aria-label="Touch-Steuerung"
+    [attr.inert]="status() !== 'playing' || !available ? '' : null"
+  >
+    <button
+      *ngFor="let control of touchControls"
+      type="button"
+      [attr.data-action]="control.action"
+      [attr.aria-label]="control.label"
+      (pointerdown)="pointerDown($event, control.action)"
+      (pointerup)="pointerUp($event)"
+      (pointercancel)="pointerUp($event)"
+      (lostpointercapture)="pointerUp($event)"
+      tabindex="-1"
+    >
+      <strong>{{ control.symbol }}</strong
+      ><small>{{ control.label }}</small>
+    </button>
+  </div>
+  <footer class="keyboard-guide">
+    <span
+      ><kbd>A / D</kbd> Laufen <kbd>Space / W</kbd> Springen <kbd>S</kbd> Ducken
+      <kbd>J</kbd> Beißen</span
+    ><span><kbd>R</kbd> Checkpoint <kbd>P / Esc</kbd> Pause</span>
+  </footer>
+</section>

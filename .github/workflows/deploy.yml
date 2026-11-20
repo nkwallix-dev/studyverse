@@ -51,6 +51,9 @@ jobs:
       - name: Test live cosmetics preview and locked learning worlds
         run: node scripts/test-shop-preview.cjs
 
+      - name: Test Kenny platformer course and checkpoint mechanics
+        run: node scripts/test-kenny-platformer.cjs
+
       - name: Test Kenny season economy, level gates and finale
         run: node scripts/test-dino-season.cjs
 
@@ -85,7 +88,9 @@ jobs:
         run: npm install --no-save --package-lock=false playwright
 
       - name: Test real mobile browser layouts (320–768 px)
-        run: node scripts/test-mobile-layout.cjs
+        run: |
+          node scripts/test-mobile-layout.cjs
+          node scripts/test-kenny-platformer-browser.cjs
 
       - name: Save mobile preview screenshots
         if: always()

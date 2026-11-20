@@ -75,7 +75,7 @@ function startScreen(){
  '<div class="hero"><div><div class="eyebrow">🦖 KENNYVERSE · DEINE TÄGLICHE EXPEDITION</div>'+
  '<h1>Mit Kenny<br><span>Wissen entdecken.</span></h1>'+
  '<p>Entdecke mit Kenny Chemie und Data Science, beantworte 20 Fragen und besiege den Expeditionsboss. Verdiene täglich bis zu 300 TastyTokens.</p>'+
- '<div class="actions"><button class="btn" data-action="quiz">⚡ Forschungsquiz</button><button class="btn secondary" data-action="boss">👾 Expeditionsboss</button></div></div>'+
+ '<div class="actions"><button class="btn" data-action="quiz">⚡ Forschungsquiz</button><button class="btn secondary" data-action="boss">👾 Expeditionsboss</button><a class="btn secondary" href="../#kenny-platformer">✦ Jump &amp; Run</a></div></div>'+
  '<div class="hero-icon">'+KENNY_PORTRAIT+'</div>'+URZEIT_BANNER+'</div>'+
  stats()+
  '<div class="kenny-home-footnote">🌋 Kennys Urzeit-Expedition · 20 vergütete Quizfragen · einmaliger Bossbonus ab 70 % · gemeinsames Tageslimit von 300 TT</div>'+
