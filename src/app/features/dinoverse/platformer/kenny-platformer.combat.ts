@@ -20,6 +20,6 @@ export function reaches(a: Rect, b: Rect, range: number, facing: number, aim = 0
   const horizontal = Math.max(0, Math.abs(dx) - (a.w + b.w) / 2);
   const vertical = Math.max(0, Math.abs(dy) - (a.h + b.h) / 2);
   return aim === 0
-    ? dx * facing >= -FIELD * 0.25 && horizontal <= range * FIELD && vertical <= FIELD * 0.6
+    ? dx * facing >= -FIELD * 0.25 && horizontal <= range * FIELD && vertical <= FIELD * 0.18
     : dy * aim >= -FIELD * 0.25 && vertical <= range * FIELD && horizontal <= FIELD * 0.6;
 }
