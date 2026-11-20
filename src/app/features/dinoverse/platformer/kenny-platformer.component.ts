@@ -1,10 +1,17 @@
 import { BALANCE, playerSpecialDuration } from './kenny-platformer.balance';
 import { playerAnimation } from './kenny-platformer.animation';
 import {
-  ItemId, EquipmentSlots, COMPANION_ITEMS, CompanionState, normalizeCompanions,
+  ItemId,
+  EquipmentSlots,
+  COMPANION_ITEMS,
+  CompanionState,
+  normalizeCompanions,
 } from '../equipment/companion-equipment.model';
 import {
-  COMPANION_SKILL_TREE, CompanionSkillNode, skillUnlocked, matchingSkill,
+  COMPANION_SKILL_TREE,
+  CompanionSkillNode,
+  skillUnlocked,
+  matchingSkill,
 } from '../equipment/companion-skill-tree';
 import { CommonModule } from '@angular/common';
 import {
@@ -27,7 +34,8 @@ import {
 import { Controls, KennyWorld, STEP } from './kenny-platformer.world';
 import { KennyRenderer } from './kenny-platformer.renderer';
 
-type Action = 'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack' | 'special' | 'interact' | 'drop';
+type Action =
+  'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack' | 'special' | 'interact' | 'drop';
 type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error' | 'tutorialComplete' | 'lost';
 interface RecordTime {
   seconds: number;
@@ -86,15 +94,24 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   readonly starterKitId = signal('base');
   readonly skillNodes = COMPANION_SKILL_TREE;
   private chosenSlots: EquipmentSlots | null = null;
-  isUnlocked(node: CompanionSkillNode): boolean { return skillUnlocked(this.companionState, node); }
+  isUnlocked(node: CompanionSkillNode): boolean {
+    return skillUnlocked(this.companionState, node);
+  }
   private readDropPreference(): boolean {
-    try { return localStorage.getItem('kenny-drop-on-s-v1') === 'true'; }
-    catch { return false; }
+    try {
+      return localStorage.getItem('kenny-drop-on-s-v1') === 'true';
+    } catch {
+      return false;
+    }
   }
   setDropOnS(value: boolean): void {
     this.dropOnS.set(value);
     this.clearInput();
-    try { localStorage.setItem('kenny-drop-on-s-v1', String(value)); } catch { /* optional */ }
+    try {
+      localStorage.setItem('kenny-drop-on-s-v1', String(value));
+    } catch {
+      /* optional */
+    }
   }
   openStarterPicker(): void {
     if (!this.available || !this.assetsReady()) return;
@@ -104,7 +121,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     this.starterPickerOpen.set(true);
   }
   selectedStarter(): CompanionSkillNode {
-    return this.skillNodes.find(node => node.id === this.starterKitId()) || this.skillNodes[0];
+    return this.skillNodes.find((node) => node.id === this.starterKitId()) || this.skillNodes[0];
   }
   selectStarter(node: CompanionSkillNode): void {
     if (this.isUnlocked(node)) this.starterKitId.set(node.id);
@@ -375,7 +392,9 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     if (this.starterPickerOpen()) {
       if (event.code === 'Escape') {
         event.preventDefault();
-        this.starterCustomizeOpen() ? this.starterCustomizeOpen.set(false) : this.starterPickerOpen.set(false);
+        this.starterCustomizeOpen()
+          ? this.starterCustomizeOpen.set(false)
+          : this.starterPickerOpen.set(false);
       }
       return;
     }
@@ -559,12 +578,18 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
       element.style.backgroundPosition = `${(state.frame * 100) / 3}% 0`;
       element.style.animation = 'none';
     }
-    element.dataset['bite'] = this.world.biteTime > 0
-      ? this.world.biteAim < 0 ? 'up' : this.world.biteAim > 0 ? 'down' : 'front'
-      : 'off';
-    element.classList.toggle('plates-regenerating',
-      this.world.defense === 'stegosaurus-plates' &&
-      this.world.shield < this.world.shieldMaximum);
+    element.dataset['bite'] =
+      this.world.biteTime > 0
+        ? this.world.biteAim < 0
+          ? 'up'
+          : this.world.biteAim > 0
+            ? 'down'
+            : 'front'
+        : 'off';
+    element.classList.toggle(
+      'plates-regenerating',
+      this.world.defense === 'stegosaurus-plates' && this.world.shield < this.world.shieldMaximum,
+    );
     const fusion = this.fusionLayer.nativeElement;
     fusion.style.left = element.style.left;
     fusion.style.top = element.style.top;
@@ -574,7 +599,10 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     fusion.dataset['offense'] = this.world.offense || '';
     fusion.dataset['defense'] = this.world.defense || '';
     fusion.dataset['bite'] = element.dataset['bite'];
-    fusion.classList.toggle('plates-regenerating', element.classList.contains('plates-regenerating'));
+    fusion.classList.toggle(
+      'plates-regenerating',
+      element.classList.contains('plates-regenerating'),
+    );
   }
 
   private publishHud(): void {
@@ -610,7 +638,8 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
         : 'Kein Schild',
       offense: this.world.offense,
       defenseItem: this.world.defense,
-      shieldGlow: this.world.defense === 'stegosaurus-plates' &&
+      shieldGlow:
+        this.world.defense === 'stegosaurus-plates' &&
         (this.world.shield < this.world.shieldMaximum ||
           this.world.sinceDamage < BALANCE.shield.regeneration),
       pickup: this.world.nearbyDrop
