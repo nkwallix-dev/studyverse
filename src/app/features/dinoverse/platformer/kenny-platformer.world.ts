@@ -449,14 +449,15 @@ export class KennyWorld {
       this.attackTime = Math.max(0, this.attackTime - dt);
     }
     this.moveEnemies(dt);
-    this.collect(input.interact === true);
-    if (
-      !this.dead &&
-      (this.hazards.some((h) => overlaps(player, h)) || player.y > WORLD_HEIGHT + 60)
-    ) {
-      if (this.hardcore) this.die();
-      else this.respawn();
+    if (this.dead) return;
+    const inHazard =
+      this.hazards.some((hazard) => overlaps(player, hazard)) || player.y > WORLD_HEIGHT + 60;
+    if (this.hardcore && inHazard) {
+      this.die();
+      return;
     }
+    this.collect(input.interact === true);
+    if (!this.hardcore && inHazard) this.respawn();
     if (this.runeProgress === 3 && this.player.x > 5110) {
       this.won = true;
       this.say('Stachelweide gemeistert!');
