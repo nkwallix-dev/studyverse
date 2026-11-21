@@ -1,6 +1,6 @@
 <ng-container *ngIf="kennyPanel; else fullStudyverse">
   <main class="kenny-collection-panel">
-    <h1>{{ kennyPanel === 'inventory' ? 'Begleiter-Inventar' : 'Begleiter-Achievements' }}</h1>
+    <h1>{{ kennyPanel === 'inventory' ? 'Begleiter-Skillbaum' : 'Begleiter-Achievements' }}</h1>
     <p *ngIf="!cloudReady" role="status">Deine Sammlung wird geladen …</p>
     <p *ngIf="cloudMessage" role="alert">{{ cloudMessage }}</p>
     <app-companion-equipment *ngIf="cloudReady" [showNavigation]="false" [tab]="kennyPanel" [state]="companionState"
@@ -14,6 +14,7 @@
   *ngIf="view === 'platformer'"
   [skin]="kennySkin"
   [startEquipment]="companionState.equippedSlots"
+  [companionState]="companionState"
   [amberBalance]="amberBalance"
   [claimedAmber]="companionState.amberPickups"
   [tutorialSeen]="kennyTutorialSeen"
@@ -59,7 +60,7 @@
     <header class="topbar">
       <div class="topbar-left">
         <div class="breadcrumbs"><span>✧</span><span class="top-brand-name">STUDYVERSE</span><span class="slash">/</span>
-          <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='kenny'?'Kenny':shopTab==='designer'?'Dino-Designer':'Item-Shop'):view==='achievements'?'Achievements':view==='companions'?'Begleiter':view==='companion-equipment'?'Begleiter-Sammlung':view==='friends'?'Freunde':'Mein Profil'}}</strong>
+          <strong>{{view==='dashboard'?'Dashboard':view==='subjects'?'Lernwelten':view==='shop'?(shopTab==='inventory'?'Inventar':shopTab==='kenny'?'Kenny':shopTab==='designer'?'Dino-Designer':'Item-Shop'):view==='achievements'?'Achievements':view==='companions'?'Begleiter':view==='companion-equipment'?'Begleiter-Skillbaum':view==='friends'?'Freunde':'Mein Profil'}}</strong>
         </div>
       </div>
       <div class="top-pills">
@@ -184,7 +185,7 @@
                   </div>
                   <button type="button" class="companion-enter" (click)="openKennyVerse()">⚡ Kennyverse betreten ↗</button>
                   <div class="companion-actions">
-                    <button type="button" (click)="go('companion-equipment')">Inventar &amp; Erfolge</button>
+                    <button type="button" (click)="go('companion-equipment')">Skillbaum &amp; Erfolge</button>
                     <button type="button" (click)="openDinoVerse()">{{kennyActive?'🥩 Kenny füttern':'🦖 Kenny ansehen'}}</button>
 
                   </div>

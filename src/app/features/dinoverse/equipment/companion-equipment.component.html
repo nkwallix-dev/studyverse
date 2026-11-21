@@ -1,45 +1,145 @@
 <section class="equipment" [class.embedded]="!showNavigation" aria-label="Begleiter-Ausrüstung">
   <ng-container *ngIf="!popupOnly">
-    <nav *ngIf="showNavigation" aria-label="Begleiter-Sammlung">
+    <nav *ngIf="showNavigation" aria-label="Begleiter-Skillbaum">
       <button type="button" [class.active]="tab === 'inventory'" (click)="tab = 'inventory'">
-        Begleiter-Inventar
+        🌿 Skillbaum
       </button>
       <button type="button" [class.active]="tab === 'achievements'" (click)="tab = 'achievements'">
-        Begleiter-Achievements
+        🏆 Achievements
       </button>
-      <button type="button" (click)="playRequested.emit()">Spielen</button>
+      <button type="button" (click)="playRequested.emit()">🦖 Expedition</button>
     </nav>
-    <h2>{{ tab === 'inventory' ? 'Kleine Arme. Große Auswahl.' : 'Urzeitlich gut drauf.' }}</h2>
+    <h2>{{ tab === 'inventory' ? 'Kennys Fusions-Skillbaum' : 'Dino-Achievements' }}</h2>
     <p>
-      Stachelweide · 50 Pickups pro Item schalten es dauerhaft frei. Ein offensiver und ein
-      defensiver Startslot.
+      50 originale Pickups pro Ausrüstung schalten den jeweiligen Skill dauerhaft frei. Eine
+      offensive und eine defensive Fusion können kombiniert werden.
     </p>
-    <p class="empty" *ngIf="tab === 'inventory' && !visibleItems.length">
-      Dein Inventar ist leer. Sammle in Stachelweide Dino-Items mit E. Nach 50 Pickups pro Item
-      gehört es dir dauerhaft.
-    </p>
-    <div class="cards">
-      <article *ngFor="let item of visibleItems" [class.unlocked]="count(item.id) >= 50">
-        <img
-          [src]="'kenny/hornweide/drops/' + item.id + '.png'"
-          [alt]="item.name + ' – Dino-Item'"
-        />
-        <small *ngIf="tab === 'inventory'">{{ slotName(item.id) }}</small>
-        <small>{{ count(item.id) >= 50 ? 'FREIGESCHALTET' : 'GESPERRT' }}</small>
-        <h3>{{ tab === 'inventory' ? item.name : item.achievement }}</h3>
-        <p>{{ tab === 'inventory' ? item.description : item.quip }}</p>
+    <div
+      class="skill-tree-viewport"
+      *ngIf="tab === 'inventory'"
+      tabindex="0"
+      aria-label="Begleiter-Skillbaum – innerhalb dieses Bereichs scrollen"
+    >
+      <div class="skill-root">
+        <img src="kenny/skins/kenny-blue-portrait.png" alt="Kenny (Basis)" />
+        <strong>🦖 Kenny</strong><small>Ursprung aller Fusionen</small>
+        <button type="button" [class.active]="isSelected(nodes[0])" (click)="chooseKit(nodes[0])">
+          {{ isSelected(nodes[0]) ? '✓ Gewählt' : 'Basis wählen' }}
+        </button>
+      </div>
+      <div class="skill-branches">
+        <section class="skill-branch stego" aria-label="Stegosaurus-Fusionen">
+          <h3>🛡️ Stegosaurus-Pfad</h3>
+          <article
+            *ngFor="let node of stegoNodes"
+            class="skill-node"
+            [class.locked]="!isUnlocked(node)"
+            [class.active]="isSelected(node)"
+          >
+            <div class="skill-art">
+              <img src="kenny/skins/kenny-blue-portrait.png" alt="" class="skill-dino" />
+              <img [src]="kitArt(node)" alt="" class="skill-gear" />
+              <img
+                *ngIf="node.needs.length > 1"
+                [src]="'kenny/hornweide/drops/' + node.needs[1] + '.png'"
+                alt=""
+                class="skill-gear secondary"
+              />
+            </div>
+            <div class="skill-node-body">
+              <small
+                >STUFE {{ node.tier }} ·
+                {{ isUnlocked(node) ? 'FREIGESCHALTET' : 'GESPERRT' }}</small
+              >
+              <h4>{{ node.title }}</h4>
+              <p>{{ node.subtitle }}</p>
+              <label *ngFor="let item of node.needs">
+                {{ count(item) }} / 50 ·
+                {{
+                  item === 'stegosaurus-plates'
+                    ? 'Platten'
+                    : item === 'stegosaurus-spikes'
+                      ? 'Stacheln'
+                      : item === 'triceratops-horns'
+                        ? 'Hörner'
+                        : 'Nackenschild'
+                }}
+                <progress [value]="count(item)" max="50"></progress>
+              </label>
+              <button type="button" [disabled]="!isUnlocked(node)" (click)="chooseKit(node)">
+                {{
+                  isSelected(node)
+                    ? '✓ Ausgerüstet'
+                    : isUnlocked(node)
+                      ? 'Als Starter wählen'
+                      : '🔒 Achievement nötig'
+                }}
+              </button>
+            </div>
+          </article>
+        </section>
+        <section class="skill-branch trike" aria-label="Triceratops-Fusionen">
+          <h3>🦏 Triceratops-Pfad</h3>
+          <article
+            *ngFor="let node of trikeNodes"
+            class="skill-node"
+            [class.locked]="!isUnlocked(node)"
+            [class.active]="isSelected(node)"
+          >
+            <div class="skill-art">
+              <img src="kenny/skins/kenny-blue-portrait.png" alt="" class="skill-dino" />
+              <img [src]="kitArt(node)" alt="" class="skill-gear" />
+              <img
+                *ngIf="node.needs.length > 1"
+                [src]="'kenny/hornweide/drops/' + node.needs[1] + '.png'"
+                alt=""
+                class="skill-gear secondary"
+              />
+            </div>
+            <div class="skill-node-body">
+              <small
+                >STUFE {{ node.tier }} ·
+                {{ isUnlocked(node) ? 'FREIGESCHALTET' : 'GESPERRT' }}</small
+              >
+              <h4>{{ node.title }}</h4>
+              <p>{{ node.subtitle }}</p>
+              <label *ngFor="let item of node.needs">
+                {{ count(item) }} / 50 ·
+                {{
+                  item === 'triceratops-horns'
+                    ? 'Hörner'
+                    : item === 'triceratops-frill'
+                      ? 'Nackenschild'
+                      : item === 'stegosaurus-plates'
+                        ? 'Platten'
+                        : 'Stacheln'
+                }}
+                <progress [value]="count(item)" max="50"></progress>
+              </label>
+              <button type="button" [disabled]="!isUnlocked(node)" (click)="chooseKit(node)">
+                {{
+                  isSelected(node)
+                    ? '✓ Ausgerüstet'
+                    : isUnlocked(node)
+                      ? 'Als Starter wählen'
+                      : '🔒 Achievement nötig'
+                }}
+              </button>
+            </div>
+          </article>
+        </section>
+      </div>
+    </div>
+    <div class="achievement-cards" *ngIf="tab === 'achievements'">
+      <article *ngFor="let item of items" [class.unlocked]="count(item.id) >= 50">
+        <img [src]="'kenny/hornweide/drops/' + item.id + '.png'" [alt]="item.name" />
+        <small>{{ count(item.id) >= 50 ? '✓ FREIGESCHALTET' : '🔒 GESPERRT' }}</small>
+        <h3>{{ item.achievement }}</h3>
+        <p>{{ item.quip }}</p>
         <label
           >{{ count(item.id) }} / 50 gesammelt
-          <progress [value]="count(item.id)" max="50"></progress
-        ></label>
-        <button
-          *ngIf="tab === 'inventory'"
-          type="button"
-          [disabled]="count(item.id) < 50"
-          (click)="equip(item.id)"
-        >
-          {{ isEquipped(item.id) ? 'Ablegen' : 'Ausrüsten' }}
-        </button>
+          <progress [value]="count(item.id)" max="50"></progress>
+        </label>
       </article>
     </div>
   </ng-container>
@@ -62,7 +162,7 @@
         Neue Begleiter-Ausrüstung freigeschaltet: <strong>{{ item.name }}</strong>
       </p>
       <button type="button" (click)="accept(item.id)">Annehmen</button>
-      <button type="button" (click)="accept(item.id, true)">Zum Begleiter-Inventar</button>
+      <button type="button" (click)="accept(item.id, true)">Zum Begleiter-Skillbaum</button>
     </section>
   </div>
 </section>

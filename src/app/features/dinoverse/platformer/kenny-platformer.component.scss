@@ -779,3 +779,507 @@ p {
     height: 21px;
   }
 }
+
+/* Clear, high-contrast game cards over both daylight and lava backgrounds. */
+.game-hud {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  max-width: calc(100% - 20px);
+  color: #fff9e8;
+  text-shadow: 0 1px 3px #081717;
+}
+.player-status-card,
+.expedition-status-card {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d4e5c044;
+  background: linear-gradient(145deg, #15232ce8, #283443ed);
+  box-shadow:
+    0 5px 24px #0007,
+    inset 0 1px 0 #ffffff26;
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  min-height: 62px;
+  padding: 9px 12px;
+}
+.player-status-card {
+  gap: 12px;
+  flex: 0 1 auto;
+}
+.player-avatar {
+  width: 45px;
+  height: 45px;
+  font-size: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #add4b588;
+  background: #345451;
+  border-radius: 12px;
+}
+.player-vitals {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+.game-hud .hud-player-name {
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: #fff6cf;
+}
+.game-hud .health {
+  font-size: 22px;
+  color: #ff7f80;
+  font-weight: 900;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+.game-hud .health small {
+  margin-left: 8px;
+  color: #fff2e1;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+.game-hud .shield {
+  color: #94eaff;
+  font-size: 13px;
+  text-shadow: 0 0 8px #3db7ffaa;
+}
+.game-hud .shield-full {
+  color: #d8faff;
+}
+.game-hud .bleed-status,
+.game-hud .stun-status {
+  position: static;
+  font-size: 11px;
+  padding: 2px 7px;
+  background: #8f303a;
+  border-radius: 7px;
+}
+.game-hud .stun-status {
+  background: #6851a1;
+}
+.expedition-status-card {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.expedition-status-card .amber {
+  color: #ffde82;
+  font-size: 14px;
+}
+.expedition-status-card .checkpoint {
+  color: #9fe3b9;
+  font-size: 13px;
+}
+.expedition-status-card .timer {
+  margin-left: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #e6eef9;
+}
+.game-hud small {
+  color: #d8e3e3;
+}
+.ability-hud {
+  left: 14px;
+  right: auto;
+  bottom: 34px;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 9px;
+}
+.ability-hud .equipped-ability {
+  min-width: 155px;
+  max-width: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 12px;
+  border: 1px solid #9faebc75;
+  border-radius: 12px;
+  color: #fff9e9;
+  background: linear-gradient(150deg, #1d2839ed, #2b3943e9);
+  box-shadow: 0 4px 18px #0008;
+  backdrop-filter: blur(7px);
+}
+.ability-hud .equipped-ability span {
+  background: transparent;
+  padding: 0;
+  color: #c9e3d1;
+  font-size: 10px;
+  font-weight: 800;
+}
+.ability-hud .equipped-ability strong {
+  font-size: 13px;
+}
+.ability-hud .equipped-ability small {
+  color: #ffe1a2;
+  font-size: 11px;
+}
+.kenny-fusion-layer {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  transform-origin: center;
+  filter: drop-shadow(0 2px 2px #151e1b80);
+}
+.kenny-fusion-layer .fuse-item {
+  position: absolute;
+  display: block;
+  object-fit: contain;
+}
+.kenny-fusion-layer .fuse-item[hidden] {
+  display: none !important;
+}
+.kenny-fusion-layer .fuse-horns {
+  width: 47%;
+  height: 35%;
+  top: -7%;
+  left: 58%;
+  transform: rotate(8deg);
+}
+.kenny-fusion-layer .fuse-frill {
+  width: 54%;
+  height: 48%;
+  top: 12%;
+  left: 35%;
+  transform: rotate(-7deg);
+}
+.kenny-fusion-layer .fuse-plates {
+  width: 54%;
+  height: 42%;
+  top: -14%;
+  left: 15%;
+}
+.kenny-fusion-layer .fuse-spikes {
+  width: 46%;
+  height: 48%;
+  top: 33%;
+  left: -17%;
+  transform: rotate(-28deg);
+}
+.kenny-fusion-layer.plates-regenerating .fuse-plates {
+  animation: plates-heal-glow 1.2s ease-in-out infinite alternate;
+}
+@keyframes plates-heal-glow {
+  from {
+    filter: drop-shadow(0 0 2px #70ffae);
+    opacity: 0.75;
+  }
+  to {
+    filter: drop-shadow(0 0 12px #80ffb4) drop-shadow(0 0 7px #fff2a6);
+    opacity: 1;
+  }
+}
+/* Real jaw artwork follows aim direction; the walk sprite replaces the old arms-out bite. */
+.kenny-fusion-layer .kenny-bite-graphic {
+  position: absolute;
+  display: none;
+  left: 47%;
+  top: -12%;
+  width: 76%;
+  height: 65%;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  transform-origin: 20% 80%;
+  animation: kenny-jaw-snap 0.22s ease-out both;
+}
+.kenny-fusion-layer[data-bite='up'] .kenny-bite-up {
+  top: -47%;
+  left: 38%;
+}
+.kenny-fusion-layer[data-bite='down'] .kenny-bite-down {
+  top: 12%;
+  left: 46%;
+}
+@keyframes kenny-jaw-snap {
+  0% {
+    transform: scale(0.7) translateX(-12%);
+    opacity: 0.2;
+  }
+  34% {
+    transform: scale(1.15) translateX(6%);
+    opacity: 1;
+  }
+  72% {
+    transform: scale(1.1) translateX(3%);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.87);
+    opacity: 0.85;
+  }
+}
+.starter-overlay {
+  position: absolute;
+  z-index: 18;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 15px;
+  background: #081725db;
+  backdrop-filter: blur(9px);
+  overflow: auto;
+}
+.starter-panel {
+  width: min(570px, 100%);
+  max-height: 96%;
+  overflow-y: auto;
+  border-radius: 22px;
+  border: 1px solid #c2d7b2a8;
+  padding: 20px;
+  color: #f9f3db;
+  background: linear-gradient(140deg, #254638, #132a37);
+  box-shadow: 0 18px 70px #000b;
+  text-align: left;
+}
+.starter-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+.starter-panel-head h2 {
+  margin: 4px 0;
+  font-size: 22px;
+}
+.starter-panel-head small {
+  color: #d6c992;
+  font-weight: 800;
+}
+.starter-panel button {
+  font-size: 13px;
+}
+.starter-panel p {
+  font-size: 12px;
+  color: #deeadb;
+}
+.starter-preview {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  padding: 13px;
+  margin: 15px 0;
+  border: 1px solid #87ab9980;
+  border-radius: 15px;
+  background: #192f30;
+}
+.starter-preview > img {
+  width: 110px;
+  height: 105px;
+  object-fit: contain;
+}
+.starter-preview strong {
+  display: block;
+  font-size: 17px;
+}
+.starter-preview small {
+  color: #d5e5d4;
+}
+.starter-art {
+  display: flex;
+  gap: 5px;
+}
+.starter-art img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+.starter-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.starter-panel .primary {
+  background: #529263;
+  border-color: #c0e1a9;
+  font-weight: 800;
+}
+.starter-customize {
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid #dbeabb4d;
+}
+.starter-customize header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.kit-selection {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-height: 260px;
+  overflow-y: auto;
+  gap: 8px;
+  overscroll-behavior: contain;
+  margin: 10px 0;
+}
+.kit-selection button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 9px;
+  min-width: 0;
+  border: 1px solid #7da391;
+  background: #233a37;
+}
+.kit-selection button.selected {
+  border: 2px solid #f5d888;
+  box-shadow: 0 0 15px #f3d17b4f;
+}
+.kit-selection img {
+  width: 66px;
+  height: 65px;
+  object-fit: contain;
+}
+.kit-selection strong {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.kit-selection small,
+.kit-selection span {
+  font-size: 9px;
+}
+.drop-settings {
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  border: 1px solid #8bc8b367;
+  border-radius: 10px;
+  padding: 11px;
+}
+.drop-settings legend {
+  font-weight: 800;
+}
+.drop-settings label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.drop-settings input {
+  accent-color: #7bce98;
+}
+.drop-settings small {
+  color: #d2e6d5;
+}
+@media (max-width: 760px) {
+  .player-status-card {
+    padding: 5px 7px;
+    min-height: 55px;
+    gap: 5px;
+  }
+  .player-avatar {
+    width: 29px;
+    height: 29px;
+    font-size: 20px;
+  }
+  .game-hud .hud-player-name {
+    font-size: 12px;
+  }
+  .game-hud .health {
+    font-size: 17px;
+  }
+  .game-hud .health small {
+    display: inline;
+    font-size: 10px;
+  }
+  .game-hud .shield {
+    font-size: 10px;
+  }
+  .expedition-status-card {
+    padding: 7px;
+    gap: 5px;
+    min-height: 47px;
+    max-width: 37%;
+  }
+  .expedition-status-card .checkpoint {
+    display: none;
+  }
+  .expedition-status-card .amber,
+  .expedition-status-card .timer {
+    font-size: 11px;
+  }
+  .ability-hud {
+    gap: 5px;
+    max-width: calc(100% - 22px);
+  }
+  .ability-hud .equipped-ability {
+    min-width: 0;
+    max-width: 48%;
+    padding: 5px 7px;
+  }
+  .ability-hud .equipped-ability strong {
+    font-size: 10px;
+  }
+  .ability-hud .equipped-ability small {
+    font-size: 9px;
+  }
+  .starter-panel {
+    padding: 12px;
+  }
+  .kit-selection {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .touch-controls {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    flex-basis: 114px;
+  }
+}
+@media (max-height: 500px) and (pointer: coarse) {
+  .game-hud {
+    top: 49px;
+    left: 10px;
+    right: 10px;
+  }
+  .player-avatar {
+    display: none;
+  }
+  .player-status-card {
+    min-height: 41px;
+  }
+  .player-vitals {
+    gap: 0;
+  }
+  .game-hud .health {
+    font-size: 14px;
+  }
+  .ability-hud {
+    left: 7px;
+    bottom: 63px;
+  }
+  .ability-hud .equipped-ability {
+    padding: 3px 6px;
+  }
+  .touch-controls {
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+  }
+  .starter-panel {
+    padding: 10px;
+  }
+  .starter-preview {
+    padding: 5px;
+    margin: 7px 0;
+  }
+  .starter-preview > img {
+    width: 64px;
+    height: 62px;
+  }
+  .kit-selection {
+    max-height: 130px;
+  }
+}
+
+.kenny-fusion-layer[data-bite='front'] .kenny-bite-front,
+.kenny-fusion-layer[data-bite='up'] .kenny-bite-up,
+.kenny-fusion-layer[data-bite='down'] .kenny-bite-down {
+  display: block;
+}

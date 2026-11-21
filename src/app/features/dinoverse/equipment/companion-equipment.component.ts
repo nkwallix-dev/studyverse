@@ -1,3 +1,9 @@
+import {
+  COMPANION_SKILL_TREE,
+  CompanionSkillNode,
+  skillUnlocked,
+  matchingSkill,
+} from './companion-skill-tree';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
@@ -24,6 +30,30 @@ export class CompanionEquipmentComponent {
   @Output() equipRequested = new EventEmitter<{ item: ItemId | null; slot: ItemSlot }>();
   @Output() seenRequested = new EventEmitter<ItemId>();
   readonly items = COMPANION_ITEMS;
+  readonly nodes = COMPANION_SKILL_TREE;
+  get stegoNodes(): readonly CompanionSkillNode[] {
+    return this.nodes.filter((node) => node.family === 'stegosaurus');
+  }
+  get trikeNodes(): readonly CompanionSkillNode[] {
+    return this.nodes.filter((node) => node.family === 'triceratops');
+  }
+  isUnlocked(node: CompanionSkillNode): boolean {
+    return skillUnlocked(this.state, node);
+  }
+  isSelected(node: CompanionSkillNode): boolean {
+    return matchingSkill(this.state.equippedSlots).id === node.id;
+  }
+  chooseKit(node: CompanionSkillNode): void {
+    if (!this.isUnlocked(node)) return;
+    // Persist each slot independently with the same existing cloud/achievement system.
+    this.equipRequested.emit({ item: node.slots.offense, slot: 'offense' });
+    this.equipRequested.emit({ item: node.slots.defense, slot: 'defense' });
+  }
+  kitArt(node: CompanionSkillNode): string {
+    return node.needs.length
+      ? 'kenny/hornweide/drops/' + node.needs[0] + '.png'
+      : 'kenny/skins/kenny-blue-portrait.png';
+  }
   get visibleItems() {
     return this.tab === 'inventory'
       ? this.items.filter((item) => this.count(item.id) >= 50)

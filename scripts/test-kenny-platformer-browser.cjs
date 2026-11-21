@@ -157,6 +157,10 @@ async function initialize(context, retained = true, companions = undefined) {
     assert(!(await settingsPanel.isVisible()), 'Settings must close again');
 
     await page.getByRole('button', { name: 'Expedition starten' }).click();
+    await page.clock.runFor(32);
+    await page.getByRole('heading', { name: 'Wähle dein Starter-Kit' }).waitFor();
+    await page.getByRole('button', { name: 'Mit diesem Kit starten' }).click();
+    await page.clock.runFor(32);
 
     assert.equal(await page.locator('.platformer-player').getAttribute('data-skin'), 'green');
     const image = await page
@@ -306,6 +310,7 @@ async function initialize(context, retained = true, companions = undefined) {
     const phone = await mobile.newPage();
     await phone.goto(base + '#kenny-platformer');
     await phone.getByRole('button', { name: 'Expedition starten' }).click();
+    await phone.getByRole('button', { name: 'Mit diesem Kit starten' }).click();
     await phone.locator('.touch-controls button').first().waitFor({ state: 'visible' });
     for (const [width, height] of [
       [320, 740],
@@ -391,15 +396,16 @@ async function initialize(context, retained = true, companions = undefined) {
     });
     const inventory = await collection.newPage();
     await inventory.goto(base + '#companions');
-    await inventory.getByRole('button', { name: 'Inventar & Erfolge', exact: true }).click();
+    await inventory.getByRole('button', { name: 'Skillbaum & Erfolge', exact: true }).click();
     await inventory.getByRole('heading', { name: 'Mit dem Kopf durch die Wand' }).waitFor();
     await inventory.getByRole('button', { name: 'Annehmen', exact: true }).click();
-    const cards = inventory.locator('app-companion-equipment article');
-    await cards.first().getByRole('button', { name: 'Ausrüsten', exact: true }).click();
-    await cards.first().getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
-    assert.equal(await cards.count(), 2, 'Inventory hides unowned items');
-    await cards.nth(1).getByRole('button', { name: 'Ausrüsten', exact: true }).click();
-    await cards.nth(1).getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
+    const tree = inventory.locator('.skill-tree-viewport');
+    await tree.waitFor();
+    assert.equal(await tree.locator('.skill-node').count(), 8, 'Four tiers on each fusion branch');
+    const fusion = tree.locator('.skill-node').filter({ hasText: 'Hörner + Rückenplatten' });
+    await fusion.getByRole('button', { name: 'Als Starter wählen' }).click();
+    await fusion.getByRole('button', { name: /Ausgerüstet/ }).waitFor();
+    assert.equal(await tree.evaluate((el) => getComputedStyle(el).overflowY), 'auto');
     const equipped = await inventory.evaluate(
       () => JSON.parse(localStorage.getItem('studyverse_profile_v1')).companions.equippedSlots,
     );
@@ -414,8 +420,10 @@ async function initialize(context, retained = true, companions = undefined) {
         fullPage: true,
       });
     }
-    await inventory.getByRole('button', { name: 'Spielen', exact: true }).click();
+    await inventory.getByRole('button', { name: /Expedition/ }).click();
     await inventory.getByRole('button', { name: 'Expedition starten' }).click();
+    await inventory.getByRole('heading', { name: 'Wähle dein Starter-Kit' }).waitFor();
+    await inventory.getByRole('button', { name: 'Mit diesem Kit starten' }).click();
     await inventory
       .locator('.ability-hud')
       .getByText(/Triceratops-Charge/)
@@ -424,7 +432,7 @@ async function initialize(context, retained = true, companions = undefined) {
       .locator('.ability-hud')
       .getByText(/Stegosaurus-Rückenplatten/)
       .waitFor();
-    assert((await inventory.locator('.shield').innerText()).includes('1 / 1'));
+    assert((await inventory.locator('.shield').innerText()).includes('1/1'));
     const stageBefore = await inventory.locator('canvas').boundingBox();
     await inventory.keyboard.press('KeyL');
     await inventory.waitForTimeout(300);
@@ -458,19 +466,16 @@ async function initialize(context, retained = true, companions = undefined) {
     await kenny.goto(base + 'kennyverse/index.html');
     await kenny.locator('.side [data-kenny-nav="inventory"]').click();
     const panel = kenny.frameLocator('#kennyCollection iframe');
-    await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
+    await panel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
     assert.equal(
       await panel.locator('.sidebar').count(),
       0,
       'Do not show the global Studyverse navigation inside Kennyverse',
     );
     assert.equal(await panel.locator('nav[aria-label="Begleiter-Sammlung"]').count(), 0);
-    await panel
-      .locator('article')
-      .first()
-      .getByRole('button', { name: 'Ausrüsten', exact: true })
-      .click();
-    await panel.getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
+    const unlockedHorn = panel.locator('.skill-node').filter({ hasText: 'Kenny · Hörner' });
+    await unlockedHorn.getByRole('button', { name: 'Als Starter wählen' }).click();
+    await unlockedHorn.getByRole('button', { name: /Ausgerüstet/ }).waitFor();
     await kenny.locator('.side [data-kenny-nav="achievements"]').click();
     await panel.getByRole('heading', { name: 'Begleiter-Achievements', exact: true }).waitFor();
     await panel.getByRole('heading', { name: 'Plattenbau Deluxe', exact: true }).waitFor();
@@ -485,8 +490,8 @@ async function initialize(context, retained = true, companions = undefined) {
       await kenny.setViewportSize({ width, height: 900 });
       const navigation = width <= 610 ? '.kenny-mobile-nav' : '.side';
       await kenny.locator(navigation + ' [data-kenny-nav="inventory"]').click();
-      await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
-      await panel.getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
+      await panel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
+      await unlockedHorn.getByRole('button', { name: /Ausgerüstet/ }).waitFor();
       assert(await kenny.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
       assert(
         await panel
@@ -508,7 +513,7 @@ async function initialize(context, retained = true, companions = undefined) {
     await kenny.locator('.side [data-kenny-nav="quiz"]').click();
     const question = await kenny.locator('.question').innerText();
     await kenny.locator('.side [data-kenny-nav="inventory"]').click();
-    await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
+    await panel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
     await kenny.locator('.side [data-kenny-nav="quiz"]').click();
     assert.equal(
       await kenny.locator('.question').innerText(),
@@ -527,8 +532,9 @@ async function initialize(context, retained = true, companions = undefined) {
     const empty = await emptyContext.newPage();
     await empty.goto(base + 'kennyverse/index.html?mode=inventory');
     const emptyPanel = empty.frameLocator('#kennyCollection iframe');
-    await emptyPanel.getByText(/Dein Inventar ist leer/).waitFor();
-    assert.equal(await emptyPanel.locator('article').count(), 0);
+    await emptyPanel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
+    assert.equal(await emptyPanel.locator('.skill-node.locked').count(), 8, 'New accounts start with every fusion locked');
+    assert.equal(await emptyPanel.locator('.skill-root').count(), 1, 'Base Kenny remains playable without pickups');
     assert.equal(await empty.locator('#kennyAmber strong').innerText(), '1');
     await empty.evaluate(() => {
       const p = JSON.parse(localStorage.getItem('studyverse_profile_v1'));
