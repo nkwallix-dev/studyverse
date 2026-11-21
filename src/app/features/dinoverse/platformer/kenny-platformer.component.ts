@@ -37,7 +37,7 @@ import { KennyRenderer } from './kenny-platformer.renderer';
 import { KennyFusionPreviewComponent } from '../equipment/kenny-fusion-preview.component';
 
 type Action =
-  'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack' | 'special' | 'interact' | 'drop';
+  'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack' | 'special' | 'interact' | 'drop' | 'discard';
 type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error' | 'tutorialComplete' | 'lost';
 interface RecordTime {
   seconds: number;
@@ -51,6 +51,7 @@ const KEYS: Record<string, Action> = {
   ArrowRight: 'right',
   KeyS: 'aimDown',
   KeyX: 'drop',
+  KeyQ: 'discard',
   ArrowDown: 'aimDown',
   KeyW: 'aimUp',
   ArrowUp: 'aimUp',
@@ -200,6 +201,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     { action: 'special', label: 'Spezial', symbol: 'L' },
     { action: 'interact', label: 'Aufheben', symbol: 'E' },
     { action: 'drop', label: 'Plattform verlassen', symbol: 'X' },
+    { action: 'discard', label: 'Item ablegen', symbol: 'Q' },
     { action: 'jump', label: 'Springen', symbol: '⤒' },
   ];
   private readonly zone = inject(NgZone);
@@ -217,6 +219,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   private specialQueued = false;
   private interactQueued = false;
   private dropQueued = false;
+  private discardQueued = false;
   private destroyed = false;
 
   ngAfterViewInit(): void {
@@ -478,6 +481,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     if (action === 'special') this.specialQueued = true;
     if (action === 'interact') this.interactQueued = true;
     if (action === 'drop') this.dropQueued = true;
+    if (action === 'discard') this.discardQueued = true;
   }
 
   private clearInput(): void {
@@ -488,6 +492,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     this.specialQueued = false;
     this.interactQueued = false;
     this.dropQueued = false;
+    this.discardQueued = false;
   }
 
   private tick(time: number): void {
@@ -509,6 +514,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
           special: this.specialQueued,
           interact: this.interactQueued,
           drop: this.dropQueued,
+          discard: this.discardQueued,
         };
         this.world.step(STEP, controls);
         this.advanceTutorial(controls);
@@ -553,6 +559,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
         this.specialQueued = false;
         this.interactQueued = false;
         this.dropQueued = false;
+    this.discardQueued = false;
         this.accumulator -= STEP;
       }
       if (this.world.won && !this.tutorialActive) this.zone.run(() => this.finish());
