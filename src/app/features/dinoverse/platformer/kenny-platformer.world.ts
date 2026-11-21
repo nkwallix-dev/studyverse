@@ -5,7 +5,13 @@ import {
   itemSlot,
   dropsFor,
 } from '../equipment/companion-equipment.model';
-import { BALANCE, FIELD, SpecialKind, specialDuration, playerSpecialDuration } from './kenny-platformer.balance';
+import {
+  BALANCE,
+  FIELD,
+  SpecialKind,
+  specialDuration,
+  playerSpecialDuration,
+} from './kenny-platformer.balance';
 import { Rect, centre, distanceInFields, reaches } from './kenny-platformer.combat';
 export type { Rect } from './kenny-platformer.combat';
 export interface Controls {
@@ -160,7 +166,12 @@ export class KennyWorld {
   }
   dead = false;
   readonly runId = crypto.randomUUID();
-  readonly loot: (Rect & { id: string; item: ItemId; collected: boolean; receiptEligible?: boolean })[] = [];
+  readonly loot: (Rect & {
+    id: string;
+    item: ItemId;
+    collected: boolean;
+    receiptEligible?: boolean;
+  })[] = [];
   readonly enemyAmberDrops: (Rect & { id: string; collected: boolean })[] = [];
   readonly pickupEvents: { id: string; item: ItemId }[] = [];
   readonly amberEvents: string[] = [];
@@ -551,7 +562,10 @@ export class KennyWorld {
       const active =
         kind !== 'tail' &&
         elapsed + 1e-9 >= (kind === 'charge' ? BALANCE.playerChargeWindup : BALANCE[kind].windup) &&
-        elapsed < (kind === 'charge' ? BALANCE.playerChargeWindup : BALANCE[kind].windup) + BALANCE[kind].active - 1e-9;
+        elapsed <
+          (kind === 'charge' ? BALANCE.playerChargeWindup : BALANCE[kind].windup) +
+            BALANCE[kind].active -
+            1e-9;
       player.facing =
         kind === 'tail' && elapsed >= BALANCE.tail.duration / 2
           ? -this.attackFacing
@@ -616,8 +630,15 @@ export class KennyWorld {
       const active =
         this.attackKind === 'tail'
           ? elapsed >= 0.4 && elapsed < 0.68
-          : elapsed + 1e-9 >= (this.attackKind === 'charge' ? BALANCE.playerChargeWindup : BALANCE[this.attackKind].windup) &&
-            elapsed < (this.attackKind === 'charge' ? BALANCE.playerChargeWindup : BALANCE[this.attackKind].windup) + BALANCE[this.attackKind].active;
+          : elapsed + 1e-9 >=
+              (this.attackKind === 'charge'
+                ? BALANCE.playerChargeWindup
+                : BALANCE[this.attackKind].windup) &&
+            elapsed <
+              (this.attackKind === 'charge'
+                ? BALANCE.playerChargeWindup
+                : BALANCE[this.attackKind].windup) +
+                BALANCE[this.attackKind].active;
       if (active) this.specialStrike();
       this.attackTime = Math.max(0, this.attackTime - dt);
     }
@@ -707,13 +728,16 @@ export class KennyWorld {
       this.attackHits.add(enemy);
       this.hitEnemy(enemy, BALANCE[this.attackKind].damage);
       if (this.attackKind === 'charge' || this.attackKind === 'tail') {
-        const fields = this.attackKind === 'charge'
-          ? BALANCE.playerChargeKnockback : BALANCE.playerTailKnockback;
-        enemy.stun = Math.max(enemy.stun, this.attackKind === 'charge'
-          ? BALANCE.playerChargeStun : BALANCE.playerTailStun);
+        const fields =
+          this.attackKind === 'charge'
+            ? BALANCE.playerChargeKnockback
+            : BALANCE.playerTailKnockback;
+        enemy.stun = Math.max(
+          enemy.stun,
+          this.attackKind === 'charge' ? BALANCE.playerChargeStun : BALANCE.playerTailStun,
+        );
         enemy.knockbackRemaining = BALANCE.knockbackSeconds;
-        enemy.knockbackVelocity =
-          this.attackFacing * (fields * FIELD / BALANCE.knockbackSeconds);
+        enemy.knockbackVelocity = this.attackFacing * ((fields * FIELD) / BALANCE.knockbackSeconds);
       } else {
         enemy.stun = Math.max(enemy.stun, BALANCE.specialStun);
       }
@@ -934,7 +958,8 @@ export class KennyWorld {
       }
       // Only same-level body contact hurts Kenny; high platforms cannot be hit.
       // Triceratops horns hurt only in front, not at the tail.
-      const hornFacingContact = enemy.species !== 'triceratops' ||
+      const hornFacingContact =
+        enemy.species !== 'triceratops' ||
         (centre(this.player).x - centre(enemy).x) * enemy.direction > 0;
       if (!charging && sameLevel && hornFacingContact && overlaps(this.player, enemy))
         this.hurt(enemy, BALANCE.enemy.contactDamage);
@@ -1096,7 +1121,11 @@ export class KennyWorld {
     this.grounded = undefined;
     for (const solid of solids) {
       if (!overlaps(player, solid)) continue;
-      if ((solid as Platform).oneWay && (solid === this.dropIgnore || !(player.vy >= 0 && previousFeet <= solid.y + 4))) continue;
+      if (
+        (solid as Platform).oneWay &&
+        (solid === this.dropIgnore || !(player.vy >= 0 && previousFeet <= solid.y + 4))
+      )
+        continue;
       if (player.vy >= 0 && previousFeet <= solid.y + 4) {
         player.y = solid.y - player.h;
         this.grounded = this.platforms.find((platform) => platform === solid);
@@ -1124,11 +1153,13 @@ export class KennyWorld {
           item: previous,
           x: this.player.x + (this.player.facing > 0 ? 39 : -27),
           y: this.player.y + this.player.h - 23,
-          w: 22, h: 22, collected: false, receiptEligible: false,
+          w: 22,
+          h: 22,
+          collected: false,
+          receiptEligible: false,
         });
       }
-      if (drop.receiptEligible !== false)
-        this.pickupEvents.push({ id: drop.id, item: drop.item });
+      if (drop.receiptEligible !== false) this.pickupEvents.push({ id: drop.id, item: drop.item });
     }
     this.amber.forEach((amber, i) => {
       if (
