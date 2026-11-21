@@ -21,7 +21,7 @@
       aria-label="Begleiter-Skillbaum – innerhalb dieses Bereichs scrollen"
     >
       <div class="skill-root">
-        <img src="kenny/skins/kenny-blue-portrait.png" alt="Kenny (Basis)" />
+        <img [src]="skinPortrait()" alt="Kenny (Basis)" />
         <strong>🦖 Kenny</strong><small>Ursprung aller Fusionen</small>
         <button type="button" [class.active]="isSelected(nodes[0])" (click)="chooseKit(nodes[0])">
           {{ isSelected(nodes[0]) ? '✓ Gewählt' : 'Basis wählen' }}
@@ -37,11 +37,11 @@
             [class.active]="isSelected(node)"
           >
             <div class="skill-art">
-              <img src="kenny/skins/kenny-blue-portrait.png" alt="" class="skill-dino" />
+              <img [src]="skinPortrait()" alt="" class="skill-dino" />
               <img [src]="kitArt(node)" alt="" class="skill-gear" />
               <img
                 *ngIf="node.needs.length > 1"
-                [src]="'kenny/hornweide/drops/' + node.needs[1] + '.png'"
+                [src]="dropArt(node.needs[1])"
                 alt=""
                 class="skill-gear secondary"
               />
@@ -87,11 +87,11 @@
             [class.active]="isSelected(node)"
           >
             <div class="skill-art">
-              <img src="kenny/skins/kenny-blue-portrait.png" alt="" class="skill-dino" />
+              <img [src]="skinPortrait()" alt="" class="skill-dino" />
               <img [src]="kitArt(node)" alt="" class="skill-gear" />
               <img
                 *ngIf="node.needs.length > 1"
-                [src]="'kenny/hornweide/drops/' + node.needs[1] + '.png'"
+                [src]="dropArt(node.needs[1])"
                 alt=""
                 class="skill-gear secondary"
               />
@@ -132,7 +132,7 @@
     </div>
     <div class="achievement-cards" *ngIf="tab === 'achievements'">
       <article *ngFor="let item of items" [class.unlocked]="count(item.id) >= 50">
-        <img [src]="'kenny/hornweide/drops/' + item.id + '.png'" [alt]="item.name" />
+        <img [src]="dropArt(item.id)" [alt]="item.name" />
         <small>{{ count(item.id) >= 50 ? '✓ FREIGESCHALTET' : '🔒 GESPERRT' }}</small>
         <h3>{{ item.achievement }}</h3>
         <p>{{ item.quip }}</p>
@@ -155,7 +155,7 @@
       <p>{{ item.quip }}</p>
       <img
         class="reward-art"
-        [src]="'kenny/hornweide/drops/' + item.id + '.png'"
+        [src]="dropArt(item.id)"
         [alt]="item.name"
       />
       <p>
