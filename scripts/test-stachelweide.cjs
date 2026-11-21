@@ -471,6 +471,7 @@ rear.player.x = trike.x + trike.w - 16;
 rear.player.y = trike.y;
 rear.invulnerable = 0;
 rear.step(STEP, idle);
+console.log('CONTACT DEBUG', {health:rear.health, px:rear.player.x, py:rear.player.y, ex:trike.x, ey:trike.y, direction:trike.direction, attackTime:trike.attackTime, alerted:trike.alerted, invulnerable:rear.invulnerable});
 assert.equal(rear.health, 2, 'Only Triceratops horn side causes contact damage');
 const swap = new KennyWorld('triceratops-horns');
 swap.enemies.length = 0;
