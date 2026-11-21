@@ -49,6 +49,11 @@ async function initialize(context, retained = true, companions = undefined) {
   await context.addInitScript(
     ({ retained, companions }) => {
       if (window.parent !== window) return;
+      // Seed only once per browser context. Re-seeding on every top-level
+      // navigation erased freshly equipped kits and acknowledged achievements,
+      // making the Kennyverse -> platformer flow falsely fail.
+      if (localStorage.getItem('__kenny_e2e_seeded_v1') === '1') return;
+      localStorage.setItem('__kenny_e2e_seeded_v1', '1');
       localStorage.setItem('studyverse_import_prompt_seen_v1', '1');
       localStorage.setItem(
         'studyverse_profile_v1',
