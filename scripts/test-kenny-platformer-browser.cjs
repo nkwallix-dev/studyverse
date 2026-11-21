@@ -402,12 +402,15 @@ async function initialize(context, retained = true, companions = undefined) {
     });
     const inventory = await collection.newPage();
     await inventory.goto(base + '#companions');
-    await inventory.getByRole('button', { name: 'Skillbaum & Erfolge', exact: true }).click();
+    assert.equal(await inventory.getByRole('button', { name: 'Skillbaum & Erfolge', exact: true }).count(), 0,
+      'The global Companion menu must not expose Kennyverse equipment');
+    // This hidden deep link exercises the shared component; users reach it via Kennyverse.
+    await inventory.goto(base + '#companion-equipment');
     await inventory.getByRole('heading', { name: 'Mit dem Kopf durch die Wand' }).waitFor();
     await inventory.getByRole('button', { name: 'Annehmen', exact: true }).click();
     const tree = inventory.locator('.skill-tree-viewport');
     await tree.waitFor();
-    assert.equal(await tree.locator('.skill-node').count(), 8, 'Four tiers on each fusion branch');
+    assert.equal(await tree.locator('.skill-node').count(), 8, 'Two equal items per dinosaur, two complete kits, two hybrid fusions');
     const fusion = tree.locator('.skill-node').filter({ hasText: 'Hörner + Rückenplatten' });
     await fusion.getByRole('button', { name: 'Als Starter wählen' }).click();
     await fusion.getByRole('button', { name: /Ausgerüstet/ }).waitFor();
