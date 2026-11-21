@@ -444,9 +444,13 @@ assert.equal(fallingDino.alive, false, 'Enemies entering the lava gap must die')
 console.log('Pangaea PASS: expanded map, reachable crystals, level-aware pursuit, spread spawns and lava deaths.');
 
 const starter = new KennyWorld(null, { expedition: true, random: () => 0.99 });
-assert(starter.hazards.some(h => h.x === 195 && h.w === 140), 'Intro must have a separate lava lake');
-assert(starter.platforms.some(p => p.x === 0 && p.x + p.w <= 195));
-assert(starter.enemies.every(e => e.x > 335), 'Enemies must stay beyond the opening lava lake');
+assert(!starter.hazards.some(h => h.x < 600), 'Spawn must no longer have an instant-charge lava pit');
+const spawnMountain = starter.platforms.find(p => p.mountain);
+assert(spawnMountain && spawnMountain.x > 190 && spawnMountain.y >= 335,
+  'Start mountain must be solid but low enough to jump over');
+assert(starter.platforms.some(p => p.x === 0 && p.x + p.w >= 600));
+assert(starter.enemies.every(e => e.x >= spawnMountain.x + spawnMountain.w),
+  'Enemies remain beyond the mountain');
 const onLedge = new KennyWorld(null, { expedition: true, random: () => 0.99 });
 onLedge.enemies.length = 0;
 const top = onLedge.platforms.find(p => p.oneWay && p.x === 335);
@@ -484,6 +488,6 @@ assert.equal(swap.offense, 'stegosaurus-spikes');
 assert(swap.loot.some(d => !d.collected && d.item === 'triceratops-horns'), 'Replaced horns remain on ground');
 assert(swap.loot.some(d => d.receiptEligible === false), 'Swap loot cannot farm achievement receipts');
 assert.equal(swap.pickupEvents.length, 1, 'Only original pickup counts');
-console.log('v2 PASS: protected spawn lake, one-way drops, horn-only body contact and fair item swaps.');
+console.log('v3 PASS: solid spawn mountain, one-way drops, horn-only body contact and fair item swaps.');
 
 
