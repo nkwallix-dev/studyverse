@@ -433,6 +433,31 @@ async function initialize(context, retained = true, companions = undefined) {
       .getByText(/Stegosaurus-Rückenplatten/)
       .waitFor();
     assert((await inventory.locator('.shield').innerText()).includes('1/1'));
+    const fusedSprite = inventory.locator('.platformer-player');
+    await inventory.waitForFunction(() => {
+      const el = document.querySelector('.platformer-player');
+      return el?.getAttribute('data-fusion-row') === '5';
+    });
+    assert.equal(await fusedSprite.getAttribute('data-fusion-row'), '5',
+      'Horns and plates must use the combined, actually illustrated fusion row');
+    const spriteStyle = await fusedSprite.evaluate((el) => ({
+      image: el.style.backgroundImage,
+      size: el.style.backgroundSize,
+      position: el.style.backgroundPosition,
+    }));
+    assert(spriteStyle.image.includes('kenny/animations/fusions/green.png'),
+      'Real game sprite must use the imported green fusion PNG, never loose item icons');
+    assert.equal(spriteStyle.size, '800% 800%');
+    assert((await inventory.locator('.kenny-fusion-layer').getAttribute('data-native-atlas')) === 'true',
+      'Separate fake accessory overlays must be disabled for a real animated fusion');
+    const fusedImage = await inventory.evaluate(() => new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve([image.naturalWidth, image.naturalHeight]);
+      image.onerror = () => reject(new Error('Production fusion atlas failed to decode'));
+      image.src = new URL('kenny/animations/fusions/green.png?v=4', document.baseURI).href;
+    }));
+    assert.deepEqual(fusedImage, [1254, 1254], 'Full-resolution supplied atlas must load');
+    await inventory.screenshot({ path: path.join(screenshots, 'kenny-fusion-horns-plates.png') });
     const stageBefore = await inventory.locator('canvas').boundingBox();
     await inventory.keyboard.press('KeyL');
     await inventory.waitForTimeout(300);

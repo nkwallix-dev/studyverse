@@ -56,6 +56,7 @@ jobs:
           node scripts/test-companion-equipment.cjs
           node scripts/test-stachelweide.cjs
           node scripts/test-kenny-platformer.cjs
+          node scripts/test-kenny-fusions.cjs
 
       - name: Test Kenny season economy, level gates and finale
         run: node scripts/test-dino-season.cjs

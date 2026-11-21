@@ -6,6 +6,7 @@ import { KennyWorld, WORLD_HEIGHT } from './kenny-platformer.world';
 export class KennyRenderer {
   readonly ready: Promise<void>;
   private readonly images = new Map<string, HTMLImageElement>();
+  private readonly fusionPending = new Map<string, Promise<void>>();
   camera = 0;
   scale = 1;
   private width = 960;
@@ -31,6 +32,10 @@ export class KennyRenderer {
         (name) => ({ name: `drop-${name}`, path: `kenny/hornweide/drops/${name}.png` }),
       ),
       { name: 'amber-icon', path: 'kenny/hornweide/ui/bernstein.png' },
+      {
+        name: 'stegosaurus-fusion-8poses',
+        path: 'kenny/animations/fusions/stegosaurus-8poses.png?v=4',
+      },
     ];
     this.ready = Promise.all(
       sources.map(
@@ -46,6 +51,36 @@ export class KennyRenderer {
           }),
       ),
     ).then(() => undefined);
+  }
+
+  /** Load only the currently selected skin's atlas. Each verified 8×8 WebP atlas
+   * is under 900 KB, so don't download all five colors for every mobile player.
+   */
+  loadFusionAtlas(skin: string): Promise<void> {
+    const selected = ['blue', 'pink', 'green', 'red', 'zebra'].includes(skin) ? skin : 'blue';
+    if (this.images.has(`fusion-${selected}`)) return Promise.resolve();
+    const previous = this.fusionPending.get(selected);
+    if (previous) return previous;
+    const task = new Promise<void>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => {
+        if (image.naturalWidth !== 1254 || image.naturalHeight !== 1254) {
+          reject(new Error(`Ungültiger Fusionsatlas: ${selected}`));
+          return;
+        }
+        this.images.set(`fusion-${selected}`, image);
+        resolve();
+      };
+      image.onerror = () => reject(new Error(`Fusionsatlas fehlt: ${selected}`));
+      image.src = new URL(`kenny/animations/fusions/${selected}.png?v=4`, document.baseURI).href;
+    });
+    this.fusionPending.set(selected, task);
+    void task.finally(() => this.fusionPending.delete(selected)).catch(() => undefined);
+    return task;
+  }
+
+  hasFusionAtlas(skin: string): boolean {
+    return this.images.has(`fusion-${skin}`);
   }
 
   resize(): void {
@@ -230,7 +265,9 @@ export class KennyRenderer {
     world.enemies.forEach((enemy) => {
       if (!enemy.alive) return;
       const state = enemyAnimation(enemy, world.elapsed);
-      const image = this.images.get(`${enemy.species}-${state.animation}`);
+      const fullStego =
+        enemy.species === 'stegosaurus' ? this.images.get('stegosaurus-fusion-8poses') : undefined;
+      const image = fullStego || this.images.get(`${enemy.species}-${state.animation}`);
       if (!image) return;
       const size = enemy.species === 'stegosaurus' ? 190 : 104;
       const bodyWidth = enemy.species === 'stegosaurus' ? 224 : size;
@@ -249,10 +286,10 @@ export class KennyRenderer {
       }
       ctx.drawImage(
         image,
-        state.frame * 192,
-        0,
-        192,
-        192,
+        state.frame * (fullStego ? image.width / 4 : 192),
+        fullStego && state.animation === 'attack' ? image.height / 2 : 0,
+        fullStego ? image.width / 4 : 192,
+        fullStego ? image.height / 2 : 192,
         -bodyWidth / 2,
         (-size * 180) / 192,
         bodyWidth,
