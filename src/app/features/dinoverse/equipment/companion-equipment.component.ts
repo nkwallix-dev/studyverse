@@ -25,6 +25,7 @@ export class CompanionEquipmentComponent {
   @Input() showNavigation = true;
   @Input() popupOnly = false;
   @Input() state: CompanionState = normalizeCompanions(null);
+  @Input() skin = 'blue';
   @Output() inventoryRequested = new EventEmitter<void>();
   @Output() playRequested = new EventEmitter<void>();
   @Output() equipRequested = new EventEmitter<{ item: ItemId | null; slot: ItemSlot }>();
@@ -49,10 +50,17 @@ export class CompanionEquipmentComponent {
     this.equipRequested.emit({ item: node.slots.offense, slot: 'offense' });
     this.equipRequested.emit({ item: node.slots.defense, slot: 'defense' });
   }
+  skinPortrait(): string {
+    const selected = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin)
+      ? this.skin
+      : 'blue';
+    return `kenny/skins/kenny-${selected}-portrait.png`;
+  }
+  dropArt(item: ItemId): string {
+    return `kenny/hornweide/drops/${item}.${item === 'stegosaurus-spikes' ? 'svg' : 'png'}`;
+  }
   kitArt(node: CompanionSkillNode): string {
-    return node.needs.length
-      ? 'kenny/hornweide/drops/' + node.needs[0] + '.png'
-      : 'kenny/skins/kenny-blue-portrait.png';
+    return node.needs.length ? this.dropArt(node.needs[0]) : this.skinPortrait();
   }
   get visibleItems() {
     return this.tab === 'inventory'
