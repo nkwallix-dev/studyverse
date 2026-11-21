@@ -432,6 +432,13 @@ async function initialize(context, retained = true, companions = undefined) {
       });
     }
     await inventory.locator('.side a.kenny-platformer-link').click();
+    // A separate, yet-unacknowledged item may reveal a reward on entering the game.
+    // Acknowledge it normally before trying to press the obscured Start button.
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const acknowledge = inventory.getByRole('button', { name: 'Annehmen', exact: true });
+      if (!(await acknowledge.isVisible())) break;
+      await acknowledge.click();
+    }
     await inventory.getByRole('button', { name: 'Expedition starten' }).click();
     await inventory.getByRole('heading', { name: 'Wähle dein Starter-Kit' }).waitFor();
     await inventory.getByRole('button', { name: 'Mit diesem Kit starten' }).click();
