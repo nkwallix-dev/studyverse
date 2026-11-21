@@ -34,6 +34,7 @@ import {
 } from '@angular/core';
 import { Controls, KennyWorld, STEP } from './kenny-platformer.world';
 import { KennyRenderer } from './kenny-platformer.renderer';
+import { KennyFusionPreviewComponent } from '../equipment/kenny-fusion-preview.component';
 
 type Action =
   'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack' | 'special' | 'interact' | 'drop';
@@ -61,7 +62,7 @@ const KEYS: Record<string, Action> = {
 
 @Component({
   selector: 'app-kenny-platformer',
-  imports: [CommonModule],
+  imports: [CommonModule, KennyFusionPreviewComponent],
   templateUrl: './kenny-platformer.component.html',
   styleUrl: './kenny-platformer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
