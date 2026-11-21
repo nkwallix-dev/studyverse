@@ -485,7 +485,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
           attack: this.attackQueued,
           special: this.specialQueued,
           interact: this.interactQueued,
-          drop: this.dropQueued || this.held('drop'),
+          drop: this.dropQueued,
         };
         this.world.step(STEP, controls);
         this.advanceTutorial(controls);
