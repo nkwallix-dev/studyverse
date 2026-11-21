@@ -491,3 +491,32 @@ assert.equal(swap.pickupEvents.length, 1, 'Only original pickup counts');
 console.log('v3 PASS: solid spawn mountain, one-way drops, horn-only body contact and fair item swaps.');
 
 
+
+// Head-on charge clash: neither combatant should take damage, both recoil.
+const parry = new KennyWorld('triceratops-horns');
+const parryEnemy = parry.enemies[0];
+parry.enemies.splice(1);
+parry.player.x = 500;
+parry.player.y = 390;
+parry.grounded = undefined;
+parryEnemy.x = 544;
+parryEnemy.y = parry.player.y + parry.player.h - parryEnemy.h;
+parryEnemy.direction = -1;
+parryEnemy.attackFacing = -1;
+parryEnemy.attackTime = 0.24;
+parryEnemy.attackCooldown = 2;
+parryEnemy.alerted = true;
+parry.attackTime = 0.24;
+parry.attackKind = 'charge';
+parry.attackFacing = 1;
+parry.attackOrigin = { ...parry.player };
+const parryHealth = parry.health;
+const enemyHealth = parryEnemy.health;
+parry.step(STEP, idle);
+assert.equal(parry.health, parryHealth, 'Head-on charge parry prevents damage to Kenny');
+assert.equal(parryEnemy.health, enemyHealth, 'Head-on charge parry prevents damage to enemy');
+assert.equal(parry.attackTime, 0, 'Player charge stops on parry');
+assert.equal(parryEnemy.attackTime, 0, 'Enemy charge stops on parry');
+assert(parryEnemy.knockbackRemaining > 0, 'Enemy recoils from a parried charge');
+assert(parry.invulnerable > 0, 'No immediate contact damage after charge collision');
+console.log('Parry PASS: simultaneous opposing Triceratops charges bounce apart without damage.');
