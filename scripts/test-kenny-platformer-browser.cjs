@@ -439,10 +439,16 @@ async function initialize(context, retained = true, companions = undefined) {
     ));
     // A separate, yet-unacknowledged item may reveal a reward on entering the game.
     // Acknowledge it normally before trying to press the unobscured Start button.
-    for (let attempt = 0; attempt < 4; attempt++) {
+    for (let attempt = 0; attempt < 5; attempt++) {
       const acknowledge = inventory.getByRole('button', { name: 'Annehmen', exact: true });
       if (!(await acknowledge.isVisible())) break;
-      await acknowledge.click();
+      try {
+        await acknowledge.click({ timeout: 1800 });
+      } catch {
+        // Cloud reconciliation can detach the reward dialog between visibility
+        // check and click. If so, re-check the current dialog instead of failing.
+      }
+      await inventory.waitForTimeout(80);
     }
     await inventory.getByRole('button', { name: 'Expedition starten' }).click();
     await inventory.getByRole('heading', { name: 'Wähle dein Starter-Kit' }).waitFor();
