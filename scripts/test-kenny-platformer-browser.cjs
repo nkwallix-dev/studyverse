@@ -432,8 +432,13 @@ async function initialize(context, retained = true, companions = undefined) {
       });
     }
     await inventory.locator('.side a.kenny-platformer-link').click();
+    // Wait for the new Angular page and renderer to finish booting; a reward
+    // dialog may only appear AFTER cloud hydration, not on initial navigation.
+    await inventory.waitForFunction(() => [...document.querySelectorAll('button')].some(
+      (button) => button.textContent?.trim() === 'Expedition starten' && !button.disabled,
+    ));
     // A separate, yet-unacknowledged item may reveal a reward on entering the game.
-    // Acknowledge it normally before trying to press the obscured Start button.
+    // Acknowledge it normally before trying to press the unobscured Start button.
     for (let attempt = 0; attempt < 4; attempt++) {
       const acknowledge = inventory.getByRole('button', { name: 'Annehmen', exact: true });
       if (!(await acknowledge.isVisible())) break;
