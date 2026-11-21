@@ -473,12 +473,9 @@ async function initialize(context, retained = true, companions = undefined) {
       'Do not show the global Studyverse navigation inside Kennyverse',
     );
     assert.equal(await panel.locator('nav[aria-label="Begleiter-Sammlung"]').count(), 0);
-    await panel
-      .locator('article')
-      .first()
-      .getByRole('button', { name: 'Ausrüsten', exact: true })
-      .click();
-    await panel.getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
+    const unlockedHorn = panel.locator('.skill-node').filter({ hasText: 'Kenny · Hörner' });
+    await unlockedHorn.getByRole('button', { name: 'Als Starter wählen' }).click();
+    await unlockedHorn.getByRole('button', { name: /Ausgerüstet/ }).waitFor();
     await kenny.locator('.side [data-kenny-nav="achievements"]').click();
     await panel.getByRole('heading', { name: 'Begleiter-Achievements', exact: true }).waitFor();
     await panel.getByRole('heading', { name: 'Plattenbau Deluxe', exact: true }).waitFor();
@@ -494,7 +491,7 @@ async function initialize(context, retained = true, companions = undefined) {
       const navigation = width <= 610 ? '.kenny-mobile-nav' : '.side';
       await kenny.locator(navigation + ' [data-kenny-nav="inventory"]').click();
       await panel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
-      await panel.getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
+      await unlockedHorn.getByRole('button', { name: /Ausgerüstet/ }).waitFor();
       assert(await kenny.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
       assert(
         await panel
