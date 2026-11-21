@@ -341,6 +341,12 @@ async function initialize(context, retained = true, companions = undefined) {
           fit.controls.every((r) => r.left >= 0 && r.right <= fit.width && r.bottom <= fit.height),
         `Mobile game and controls must fit ${width}×${height}: ${JSON.stringify(fit)}`,
       );
+      assert.equal(fit.controls.length, 10, 'Kenny keeps all ten touch controls, including Q');
+      if (width === 844 && height === 390) {
+        // Regression: the Q button used to wrap to a second row and leave the viewport.
+        const tops = fit.controls.map((button) => Math.round(button.bottom));
+        assert.equal(new Set(tops).size, 1, 'Landscape must display Q and all other controls in one row');
+      }
       await phone.screenshot({ path: path.join(screenshots, `kenny-platformer-${width}.png`) });
     }
     await phone.setViewportSize({ width: 390, height: 844 });
