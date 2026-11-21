@@ -532,8 +532,9 @@ async function initialize(context, retained = true, companions = undefined) {
     const empty = await emptyContext.newPage();
     await empty.goto(base + 'kennyverse/index.html?mode=inventory');
     const emptyPanel = empty.frameLocator('#kennyCollection iframe');
-    await emptyPanel.getByText(/Dein Inventar ist leer/).waitFor();
-    assert.equal(await emptyPanel.locator('article').count(), 0);
+    await emptyPanel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
+    assert.equal(await emptyPanel.locator('.skill-node.locked').count(), 8, 'New accounts start with every fusion locked');
+    assert.equal(await emptyPanel.locator('.skill-root').count(), 1, 'Base Kenny remains playable without pickups');
     assert.equal(await empty.locator('#kennyAmber strong').innerText(), '1');
     await empty.evaluate(() => {
       const p = JSON.parse(localStorage.getItem('studyverse_profile_v1'));
