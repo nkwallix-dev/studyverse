@@ -119,6 +119,9 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     this.starterKitId.set(skillUnlocked(this.companionState, current) ? current.id : 'base');
     this.starterCustomizeOpen.set(false);
     this.starterPickerOpen.set(true);
+    requestAnimationFrame(() => {
+      this.stage.nativeElement.querySelector<HTMLElement>('.starter-overlay button')?.focus();
+    });
   }
   selectedStarter(): CompanionSkillNode {
     return this.skillNodes.find((node) => node.id === this.starterKitId()) || this.skillNodes[0];
@@ -374,7 +377,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   @HostListener('window:keydown', ['$event'])
   keyDown(event: KeyboardEvent): void {
     if (event.code === 'Tab' && (this.status() !== 'playing' || !this.available)) {
-      const dialog = this.stage.nativeElement.querySelector('.game-dialog');
+      const dialog = this.stage.nativeElement.querySelector(this.starterPickerOpen() ? '.starter-overlay' : '.game-dialog');
       const buttons = dialog?.querySelectorAll<HTMLElement>('button, a[href]');
       if (buttons?.length) {
         const first = buttons[0];
