@@ -1,6 +1,6 @@
 import { BALANCE, playerSpecialDuration } from './kenny-platformer.balance';
 import { playerAnimation } from './kenny-platformer.animation';
-import { atlasPosition, fusionColumn, fusionRow } from './kenny-platformer.fusion';
+import { fusionColumn, fusionRow } from './kenny-platformer.fusion';
 import {
   ItemId,
   EquipmentSlots,
@@ -83,6 +83,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('expedition', { static: true }) expedition!: ElementRef<HTMLElement>;
   @ViewChild('sprite', { static: true }) sprite!: ElementRef<HTMLDivElement>;
+  @ViewChild('fusionSpriteCanvas', { static: true }) fusionSpriteCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('fusionLayer', { static: true }) fusionLayer!: ElementRef<HTMLDivElement>;
   @ViewChild('stage', { static: true }) stage!: ElementRef<HTMLDivElement>;
   @ViewChild('dialogAction') dialogAction?: ElementRef<HTMLButtonElement>;
@@ -577,7 +578,8 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     const skin = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin) ? this.skin : 'blue';
     const outfitRow = fusionRow(this.world.offense, this.world.defense);
     const nativeFusion = outfitRow !== null && this.renderer.hasFusionAtlas(skin);
-    const height = nativeFusion ? 88 : state.motion === 'idle' ? 75 : 77;
+    const baseDownBite = !nativeFusion && this.world.biteTime > 0 && this.world.biteAim > 0;
+    const height = nativeFusion ? 88 : baseDownBite ? 70 : state.motion === 'idle' ? 75 : 77;
     const width = nativeFusion ? height : state.motion === 'idle' ? (height * 541) / 727 : height;
     const element = this.sprite.nativeElement;
     element.style.width = `${width * scale}px`;
@@ -589,7 +591,8 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
       this.world.attackTime > 0 &&
       this.world.attackKind === 'charge' &&
       playerSpecialDuration('charge') - this.world.attackTime < BALANCE.playerChargeWindup;
-    element.style.transform = `scaleX(${player.facing})${chargeWindup ? ' rotate(10deg)' : ''}`;
+    // The base Kenny crouches/leans into his real bite frame; no detached head overlay.
+    element.style.transform = `scaleX(${player.facing})${baseDownBite ? ' scaleY(0.86) rotate(9deg)' : ''}${chargeWindup ? ' rotate(10deg)' : ''}`;
     element.dataset['special'] = this.world.attackTime > 0 ? this.world.attackKind : '';
     element.style.opacity =
       this.world.invulnerable > 0 && Math.floor(this.world.invulnerable * 12) % 2 ? '0.4' : '1';
@@ -599,15 +602,19 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     if (nativeFusion) {
       const pose = fusionColumn(this.world, state.motion);
       element.dataset['fusionPose'] = String(pose);
-      element.style.backgroundImage = `url("kenny/animations/fusions/${skin}.png?v=3")`;
-      element.style.backgroundSize = '800% 800%';
-      element.style.backgroundPosition = atlasPosition(outfitRow, pose);
-      element.style.backgroundRepeat = 'no-repeat';
+      const canvas = this.fusionSpriteCanvas.nativeElement;
+      canvas.style.display = 'block';
+      this.renderer.drawFusionSprite(canvas, skin, outfitRow, pose);
+      element.style.backgroundImage = 'none';
+      element.style.removeProperty('background-size');
+      element.style.removeProperty('background-position');
+      element.style.removeProperty('background-repeat');
       element.style.animation =
         this.world.defense === 'stegosaurus-plates' && this.world.shield < this.world.shieldMaximum
           ? 'kenny-native-plate-glow 1.2s ease-in-out infinite alternate'
           : 'none';
     } else if (state.motion === 'idle') {
+      this.fusionSpriteCanvas.nativeElement.style.display = 'none';
       element.dataset['fusionPose'] = '';
       element.style.removeProperty('background-image');
       element.style.removeProperty('background-position');
@@ -616,8 +623,9 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
       element.style.removeProperty('animation');
       element.style.animationPlayState = this.status() === 'playing' ? 'running' : 'paused';
     } else {
+      this.fusionSpriteCanvas.nativeElement.style.display = 'none';
       element.dataset['fusionPose'] = '';
-      const animation = state.motion === 'walk' || this.world.biteTime > 0 ? 'walk' : 'attack';
+      const animation = state.motion === 'walk' && this.world.biteTime <= 0 ? 'walk' : 'attack';
       element.style.backgroundImage = `url("kenny/animations/${skin}-${animation}.png?v=2")`;
       element.style.backgroundPosition = `${(state.frame * 100) / 3}% 0`;
       element.style.backgroundSize = '400% 100%';
