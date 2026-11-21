@@ -396,7 +396,7 @@ async function initialize(context, retained = true, companions = undefined) {
     });
     const inventory = await collection.newPage();
     await inventory.goto(base + '#companions');
-    await inventory.getByRole('button', { name: 'Inventar & Erfolge', exact: true }).click();
+    await inventory.getByRole('button', { name: 'Skillbaum & Erfolge', exact: true }).click();
     await inventory.getByRole('heading', { name: 'Mit dem Kopf durch die Wand' }).waitFor();
     await inventory.getByRole('button', { name: 'Annehmen', exact: true }).click();
     const tree = inventory.locator('.skill-tree-viewport');
@@ -466,7 +466,7 @@ async function initialize(context, retained = true, companions = undefined) {
     await kenny.goto(base + 'kennyverse/index.html');
     await kenny.locator('.side [data-kenny-nav="inventory"]').click();
     const panel = kenny.frameLocator('#kennyCollection iframe');
-    await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
+    await panel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
     assert.equal(
       await panel.locator('.sidebar').count(),
       0,
@@ -493,7 +493,7 @@ async function initialize(context, retained = true, companions = undefined) {
       await kenny.setViewportSize({ width, height: 900 });
       const navigation = width <= 610 ? '.kenny-mobile-nav' : '.side';
       await kenny.locator(navigation + ' [data-kenny-nav="inventory"]').click();
-      await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
+      await panel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
       await panel.getByRole('button', { name: 'Ablegen', exact: true }).waitFor();
       assert(await kenny.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2));
       assert(
@@ -516,7 +516,7 @@ async function initialize(context, retained = true, companions = undefined) {
     await kenny.locator('.side [data-kenny-nav="quiz"]').click();
     const question = await kenny.locator('.question').innerText();
     await kenny.locator('.side [data-kenny-nav="inventory"]').click();
-    await panel.getByRole('heading', { name: 'Begleiter-Inventar', exact: true }).waitFor();
+    await panel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
     await kenny.locator('.side [data-kenny-nav="quiz"]').click();
     assert.equal(
       await kenny.locator('.question').innerText(),
