@@ -242,9 +242,14 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['skin'] && this.renderer && this.assetsReady()) {
       // Profile skins may change without reconstructing the whole platformer.
-      void this.renderer.loadFusionAtlas(this.skin)
-        .then(() => { if (!this.destroyed) this.render(); })
-        .catch(() => { if (!this.destroyed) this.status.set('error'); });
+      void this.renderer
+        .loadFusionAtlas(this.skin)
+        .then(() => {
+          if (!this.destroyed) this.render();
+        })
+        .catch(() => {
+          if (!this.destroyed) this.status.set('error');
+        });
     }
     this.tryAutoTutorial();
   }
@@ -559,8 +564,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     const player = this.world.player;
     const scale = this.renderer.scale;
     const state = playerAnimation(this.world);
-    const skin = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin)
-      ? this.skin : 'blue';
+    const skin = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin) ? this.skin : 'blue';
     const outfitRow = fusionRow(this.world.offense, this.world.defense);
     const nativeFusion = outfitRow !== null && this.renderer.hasFusionAtlas(skin);
     const height = nativeFusion ? 88 : state.motion === 'idle' ? 75 : 77;
@@ -585,14 +589,14 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     if (nativeFusion) {
       const pose = fusionColumn(this.world, state.motion);
       element.dataset['fusionPose'] = String(pose);
-      element.style.backgroundImage =
-        `url("kenny/animations/fusions/${skin}.png?v=3")`;
+      element.style.backgroundImage = `url("kenny/animations/fusions/${skin}.png?v=3")`;
       element.style.backgroundSize = '800% 800%';
       element.style.backgroundPosition = atlasPosition(outfitRow, pose);
       element.style.backgroundRepeat = 'no-repeat';
-      element.style.animation = this.world.defense === 'stegosaurus-plates' &&
-        this.world.shield < this.world.shieldMaximum
-        ? 'kenny-native-plate-glow 1.2s ease-in-out infinite alternate' : 'none';
+      element.style.animation =
+        this.world.defense === 'stegosaurus-plates' && this.world.shield < this.world.shieldMaximum
+          ? 'kenny-native-plate-glow 1.2s ease-in-out infinite alternate'
+          : 'none';
     } else if (state.motion === 'idle') {
       element.dataset['fusionPose'] = '';
       element.style.removeProperty('background-image');

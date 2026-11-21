@@ -32,7 +32,10 @@ export class KennyRenderer {
         (name) => ({ name: `drop-${name}`, path: `kenny/hornweide/drops/${name}.png` }),
       ),
       { name: 'amber-icon', path: 'kenny/hornweide/ui/bernstein.png' },
-      { name: 'stegosaurus-fusion-8poses', path: 'kenny/animations/fusions/stegosaurus-8poses.png?v=4' },
+      {
+        name: 'stegosaurus-fusion-8poses',
+        path: 'kenny/animations/fusions/stegosaurus-8poses.png?v=4',
+      },
     ];
     this.ready = Promise.all(
       sources.map(
@@ -54,8 +57,7 @@ export class KennyRenderer {
    * is under 900 KB, so don't download all five colors for every mobile player.
    */
   loadFusionAtlas(skin: string): Promise<void> {
-    const selected = ['blue', 'pink', 'green', 'red', 'zebra'].includes(skin)
-      ? skin : 'blue';
+    const selected = ['blue', 'pink', 'green', 'red', 'zebra'].includes(skin) ? skin : 'blue';
     if (this.images.has(`fusion-${selected}`)) return Promise.resolve();
     const previous = this.fusionPending.get(selected);
     if (previous) return previous;
@@ -263,9 +265,8 @@ export class KennyRenderer {
     world.enemies.forEach((enemy) => {
       if (!enemy.alive) return;
       const state = enemyAnimation(enemy, world.elapsed);
-      const fullStego = enemy.species === 'stegosaurus'
-        ? this.images.get('stegosaurus-fusion-8poses')
-        : undefined;
+      const fullStego =
+        enemy.species === 'stegosaurus' ? this.images.get('stegosaurus-fusion-8poses') : undefined;
       const image = fullStego || this.images.get(`${enemy.species}-${state.animation}`);
       if (!image) return;
       const size = enemy.species === 'stegosaurus' ? 190 : 104;

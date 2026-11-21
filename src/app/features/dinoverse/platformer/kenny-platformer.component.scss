@@ -1284,8 +1284,12 @@ p {
   display: none !important;
 }
 @keyframes kenny-native-plate-glow {
-  from { filter: drop-shadow(0 0 2px #7fe6aa); }
-  to { filter: drop-shadow(0 0 12px #a0ffb9) drop-shadow(0 0 7px #fff2a6); }
+  from {
+    filter: drop-shadow(0 0 2px #7fe6aa);
+  }
+  to {
+    filter: drop-shadow(0 0 12px #a0ffb9) drop-shadow(0 0 7px #fff2a6);
+  }
 }
 
 .kenny-fusion-layer[data-bite='front'] .kenny-bite-front,
