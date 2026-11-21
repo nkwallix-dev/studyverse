@@ -31,6 +31,7 @@ export interface Platform extends Rect {
   period?: number;
   previousX?: number;
   oneWay?: boolean;
+  mountain?: boolean;
 }
 export interface Enemy extends Rect {
   min: number;
@@ -339,8 +340,10 @@ export class KennyWorld {
     this.platforms.splice(
       0,
       this.platforms.length,
-      floor(0, 195),
-      floor(335, 305),
+      // A solid, jumpable mountain separates spawn from the first hunting lane.
+      // No early lava pit: charges cannot target Kenny through this rock.
+      floor(0, 640),
+      { x: 205, y: 350, w: 145, h: 100, mountain: true },
       floor(760, 1110),
       floor(1990, 1380),
       floor(3490, 1140),
@@ -384,7 +387,6 @@ export class KennyWorld {
       0,
       this.hazards.length,
       ...[
-        [195, 140],
         [640, 120],
         [1870, 120],
         [3370, 120],
