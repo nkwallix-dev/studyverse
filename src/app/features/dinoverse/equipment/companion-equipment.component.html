@@ -37,14 +37,11 @@
             [class.active]="isSelected(node)"
           >
             <div class="skill-art">
-              <img [src]="skinPortrait()" alt="" class="skill-dino" />
-              <img [src]="kitArt(node)" alt="" class="skill-gear" />
-              <img
-                *ngIf="node.needs.length > 1"
-                [src]="dropArt(node.needs[1])"
-                alt=""
-                class="skill-gear secondary"
-              />
+              <app-kenny-fusion-preview
+                [skin]="skin"
+                [offense]="node.slots.offense"
+                [defense]="node.slots.defense"
+              ></app-kenny-fusion-preview>
             </div>
             <div class="skill-node-body">
               <small
@@ -87,14 +84,11 @@
             [class.active]="isSelected(node)"
           >
             <div class="skill-art">
-              <img [src]="skinPortrait()" alt="" class="skill-dino" />
-              <img [src]="kitArt(node)" alt="" class="skill-gear" />
-              <img
-                *ngIf="node.needs.length > 1"
-                [src]="dropArt(node.needs[1])"
-                alt=""
-                class="skill-gear secondary"
-              />
+              <app-kenny-fusion-preview
+                [skin]="skin"
+                [offense]="node.slots.offense"
+                [defense]="node.slots.defense"
+              ></app-kenny-fusion-preview>
             </div>
             <div class="skill-node-body">
               <small
