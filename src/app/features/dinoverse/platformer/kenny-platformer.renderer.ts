@@ -32,7 +32,7 @@ export class KennyRenderer {
         (name) => ({ name: `drop-${name}`, path: `kenny/hornweide/drops/${name}.png` }),
       ),
       { name: 'amber-icon', path: 'kenny/hornweide/ui/bernstein.png' },
-      { name: 'stegosaurus-fusion-8poses', path: 'kenny/animations/fusion-stegosaurus.webp?v=4' },
+      { name: 'stegosaurus-fusion-8poses', path: 'kenny/animations/fusions/stegosaurus-8poses.png?v=4' },
     ];
     this.ready = Promise.all(
       sources.map(
@@ -70,7 +70,7 @@ export class KennyRenderer {
         resolve();
       };
       image.onerror = () => reject(new Error(`Fusionsatlas fehlt: ${selected}`));
-      image.src = new URL(`kenny/animations/fusion-${selected}.webp?v=4`, document.baseURI).href;
+      image.src = new URL(`kenny/animations/fusions/${selected}.png?v=4`, document.baseURI).href;
     });
     this.fusionPending.set(selected, task);
     void task.finally(() => this.fusionPending.delete(selected)).catch(() => undefined);
