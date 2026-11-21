@@ -585,9 +585,10 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     const skin = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin) ? this.skin : 'blue';
     const outfitRow = fusionRow(this.world.offense, this.world.defense);
     const nativeFusion = outfitRow !== null && this.renderer.hasFusionAtlas(skin);
-    const baseDownBite = !nativeFusion && this.world.biteTime > 0 && this.world.biteAim > 0;
-    const height = nativeFusion ? 88 : baseDownBite ? 70 : state.motion === 'idle' ? 75 : 77;
-    const width = nativeFusion ? height : state.motion === 'idle' ? (height * 541) / 727 : height;
+    const directionalBite = this.world.biteTime > 0 && this.world.biteAim !== 0;
+    const canvasArtwork = nativeFusion || directionalBite;
+    const height = nativeFusion ? 88 : state.motion === 'idle' ? 75 : 77;
+    const width = canvasArtwork ? height : state.motion === 'idle' ? (height * 541) / 727 : height;
     const element = this.sprite.nativeElement;
     element.style.width = `${width * scale}px`;
     element.style.height = `${height * scale}px`;
@@ -598,20 +599,34 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
       this.world.attackTime > 0 &&
       this.world.attackKind === 'charge' &&
       playerSpecialDuration('charge') - this.world.attackTime < BALANCE.playerChargeWindup;
-    // The base Kenny crouches/leans into his real bite frame; no detached head overlay.
-    element.style.transform = `scaleX(${player.facing})${baseDownBite ? ' scaleY(0.86) rotate(9deg)' : ''}${chargeWindup ? ' rotate(10deg)' : ''}`;
+    // Directional bites rotate the real head in Canvas, never Kenny's whole body.
+    element.style.transform = `scaleX(${player.facing})${chargeWindup ? ' rotate(10deg)' : ''}`;
     element.dataset['special'] = this.world.attackTime > 0 ? this.world.attackKind : '';
     element.style.opacity =
       this.world.invulnerable > 0 && Math.floor(this.world.invulnerable * 12) % 2 ? '0.4' : '1';
     element.dataset['motion'] = state.motion;
     element.dataset['frame'] = String(state.frame);
     element.dataset['fusionRow'] = nativeFusion ? String(outfitRow) : '';
-    if (nativeFusion) {
-      const pose = fusionColumn(this.world, state.motion);
-      element.dataset['fusionPose'] = String(pose);
+    if (canvasArtwork) {
+      const pose = nativeFusion ? fusionColumn(this.world, state.motion) : null;
+      element.dataset['fusionPose'] = pose === null ? '' : String(pose);
       const canvas = this.fusionSpriteCanvas.nativeElement;
       canvas.style.display = 'block';
-      this.renderer.drawFusionSprite(canvas, skin, outfitRow, pose);
+      if (directionalBite) {
+        const progress = Math.max(
+          0,
+          Math.min(1, (BALANCE.bite.duration - this.world.biteTime) / BALANCE.bite.duration),
+        );
+        this.renderer.drawDirectionalBite(
+          canvas,
+          skin,
+          nativeFusion ? outfitRow : null,
+          this.world.biteAim,
+          progress,
+        );
+      } else if (outfitRow !== null) {
+        this.renderer.drawFusionSprite(canvas, skin, outfitRow, pose!);
+      }
       element.style.backgroundImage = 'none';
       element.style.removeProperty('background-size');
       element.style.removeProperty('background-position');
