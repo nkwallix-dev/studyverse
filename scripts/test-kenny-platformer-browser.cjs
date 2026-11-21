@@ -157,8 +157,10 @@ async function initialize(context, retained = true, companions = undefined) {
     assert(!(await settingsPanel.isVisible()), 'Settings must close again');
 
     await page.getByRole('button', { name: 'Expedition starten' }).click();
+    await page.clock.runFor(32);
     await page.getByRole('heading', { name: 'Wähle dein Starter-Kit' }).waitFor();
     await page.getByRole('button', { name: 'Mit diesem Kit starten' }).click();
+    await page.clock.runFor(32);
 
     assert.equal(await page.locator('.platformer-player').getAttribute('data-skin'), 'green');
     const image = await page
