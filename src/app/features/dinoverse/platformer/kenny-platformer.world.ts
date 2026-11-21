@@ -23,6 +23,7 @@ export interface Controls {
   special?: boolean;
   interact?: boolean;
   drop?: boolean;
+  discard?: boolean;
 }
 export interface Platform extends Rect {
   origin?: number;
@@ -174,6 +175,7 @@ export class KennyWorld {
   })[] = [];
   readonly enemyAmberDrops: (Rect & { id: string; collected: boolean })[] = [];
   readonly pickupEvents: { id: string; item: ItemId }[] = [];
+  readonly pickupBursts: { x: number; y: number; life: number; duration: number }[] = [];
   readonly amberEvents: string[] = [];
   readonly fusions = new Set<ItemId>();
   readonly damageTexts: DamageText[] = [];
@@ -234,6 +236,37 @@ export class KennyWorld {
       this.sinceDamage = 0;
     }
   }
+  /** Q drops the equipped offense, or the shield if no offense is equipped.
+   * Items returned to the ground never generate progress receipts.
+   */
+  discardEquipped(): ItemId | null {
+    if (this.attackTime > 0 || this.dead || this.won) return null;
+    const slot = this.offense ? 'offense' : this.defense ? 'defense' : null;
+    if (!slot) {
+      this.say('Kenny hat gerade kein Item zum Ablegen.');
+      return null;
+    }
+    const item = this[slot]!;
+    this[slot] = null;
+    this.fusions.delete(item);
+    if (slot === 'defense') {
+      this.shield = 0;
+      this.sinceDamage = 0;
+    }
+    this.loot.push({
+      id: `${this.runId}_discard_${++this.swapSerial}`,
+      item,
+      x: Math.max(6, Math.min(this.width - 28, this.player.x + (this.player.facing > 0 ? 39 : -27))),
+      y: this.player.y + this.player.h - 23,
+      w: 22,
+      h: 22,
+      collected: false,
+      receiptEligible: false,
+    });
+    this.say(`${slot === 'offense' ? 'Offensiv-Item' : 'Schild'} abgelegt · E zum Aufheben.`);
+    return item;
+  }
+
   private attackOrigin: Rect = { x: 90, y: 390, w: 34, h: 60 };
   private attackLaunched = false;
   private pogoUsed = false;
@@ -243,7 +276,7 @@ export class KennyWorld {
   private jumpBuffer = 0;
   private coyote = 0;
   private damageId = 0;
-  message = 'A/D laufen · Space springen · J beißen · L Spezialangriff · E aufheben';
+  message = 'A/D laufen · Space springen · J beißen · L Spezialangriff · E aufheben · Q Item ablegen';
   private messageTime = 0;
   constructor(
     startItem: ItemId | Partial<EquipmentSlots> | null = null,
@@ -494,6 +527,10 @@ export class KennyWorld {
     if (!this.dropIgnoreTime) this.dropIgnore = undefined;
     this.biteCooldown = Math.max(0, this.biteCooldown - dt);
     this.biteTime = Math.max(0, this.biteTime - dt);
+    for (let i = this.pickupBursts.length - 1; i >= 0; i--) {
+      this.pickupBursts[i].life -= dt;
+      if (this.pickupBursts[i].life <= 0) this.pickupBursts.splice(i, 1);
+    }
     this.invulnerable = Math.max(0, this.invulnerable - dt);
     this.playerStun = Math.max(0, this.playerStun - dt);
     // Bleeding applies four separate quarter-heart ticks, even during hit i-frames.
@@ -530,6 +567,7 @@ export class KennyWorld {
         attack: false,
         special: false,
         drop: false,
+        discard: false,
       };
       player.vx = 0;
     }
@@ -651,6 +689,7 @@ export class KennyWorld {
       return;
     }
     this.collect(input.interact === true);
+    if (input.discard) this.discardEquipped();
     if (!this.hardcore && inHazard) this.respawn();
     if (this.runeProgress === 3 && this.player.x > this.exitX - 32) {
       this.won = true;
@@ -1146,6 +1185,13 @@ export class KennyWorld {
       drop.collected = true;
       const previous = this[itemSlot(drop.item)];
       this.equipRun(drop.item);
+      // One short magical burst even for swaps, but never a second achievement receipt.
+      this.pickupBursts.push({
+        x: this.player.x + this.player.w / 2,
+        y: this.player.y + this.player.h * 0.45,
+        life: 0.52,
+        duration: 0.52,
+      });
       if (previous && previous !== drop.item) {
         // Swapped gear stays on the ground; repeated swaps never farm achievements.
         this.loot.push({
