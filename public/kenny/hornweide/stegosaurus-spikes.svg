@@ -1,1 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="180" height="120" viewBox="0 0 180 120"><rect x="1" y="1" width="178" height="118" rx="18" fill="#292038" stroke="#b774d9"/><text x="90" y="72" fill="#ded1ec" text-anchor="middle" font-size="52">✧</text><text x="90" y="108" fill="#c5b9d3" text-anchor="middle" font-size="12">PLATZHALTER</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="440" viewBox="0 0 1810 869" role="img" aria-label="Grüner Stegosaurus-Schwanz mit vier elfenbeinfarbenen Schwanzstacheln, ohne Rückenplatten">
+<defs>
+  <linearGradient id="skin" x1="0" y1="0" x2="0.2" y2="1"><stop stop-color="#d1e900"/><stop offset=".44" stop-color="#8ec30d"/><stop offset=".7" stop-color="#6eae0a"/><stop offset="1" stop-color="#538b09"/></linearGradient>
+  <linearGradient id="belly" x1="0" y1="0" x2="0.14" y2="1"><stop stop-color="#ffeba9"/><stop offset=".48" stop-color="#ffd38c"/><stop offset="1" stop-color="#e7a55d"/></linearGradient>
+  <linearGradient id="spike" x1=".08" y1=".08" x2=".93" y2=".96"><stop stop-color="#fffdf0"/><stop offset=".34" stop-color="#fff0c8"/><stop offset=".68" stop-color="#f8c989"/><stop offset="1" stop-color="#cf8546"/></linearGradient>
+  <linearGradient id="cut" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffdc9e"/><stop offset="1" stop-color="#d58f52"/></linearGradient>
+</defs>
+<!-- Smooth green tail with a light belly and an unarmed pointed tip -->
+<path d="M 58 483 C 53 381 149 313 282 286 C 458 236 628 302 795 355 C 917 394 1064 442 1225 414 C 1387 385 1554 417 1724 374 C 1754 365 1772 380 1755 405 C 1702 483 1630 519 1519 543 C 1284 589 1042 611 780 655 C 562 692 384 743 281 793 C 178 837 68 796 42 690 C 25 621 35 540 58 483 Z" fill="url(#skin)" stroke="#261507" stroke-width="21" stroke-linejoin="round"/>
+<!-- Cream underside rises to the point at right -->
+<path d="M 67 543 C 287 609 494 509 705 513 C 916 516 1127 553 1381 525 C 1577 504 1689 446 1750 399 C 1711 476 1645 530 1519 552 C 1264 598 1028 620 783 658 C 567 692 390 744 272 794 C 178 831 90 787 55 690 C 41 634 44 574 67 543 Z" fill="url(#belly)"/>
+<path d="M 82 562 C 300 625 507 527 704 535 C 926 548 1149 572 1372 540" stroke="#ffecc0" stroke-width="18" opacity=".45" fill="none" stroke-linecap="round"/>
+<g fill="none" stroke="#ca8f53" stroke-width="11" stroke-linecap="round" opacity=".33"><path d="M486 607 Q500 650 482 715"/><path d="M688 540 Q703 588 686 681"/><path d="M884 558 Q903 595 886 648"/><path d="M1074 565 Q1099 591 1072 621"/></g>
+<!-- Organic dorsal spots -->
+<g fill="#5b9507" opacity=".86">
+ <ellipse cx="339" cy="367" rx="85" ry="40" transform="rotate(-19 339 367)"/>
+ <ellipse cx="519" cy="320" rx="74" ry="32" transform="rotate(-7 519 320)"/>
+ <ellipse cx="652" cy="385" rx="79" ry="38" transform="rotate(9 652 385)"/>
+ <ellipse cx="399" cy="479" rx="88" ry="43" transform="rotate(-13 399 479)"/>
+ <ellipse cx="224" cy="450" rx="53" ry="30" transform="rotate(-16 224 450)"/>
+ <ellipse cx="528" cy="498" rx="43" ry="27" transform="rotate(10 528 498)"/>
+ <ellipse cx="816" cy="442" rx="66" ry="33" transform="rotate(11 816 442)"/>
+ <ellipse cx="997" cy="465" rx="50" ry="25" transform="rotate(-5 997 465)"/>
+ <ellipse cx="1116" cy="486" rx="38" ry="19"/>
+ <ellipse cx="746" cy="343" rx="45" ry="19" transform="rotate(17 746 343)"/>
+ <ellipse cx="1044" cy="414" rx="38" ry="17" transform="rotate(-15 1044 414)"/>
+</g>
+<path d="M81 475 C240 305 466 251 687 335 C863 407 1016 472 1257 433" stroke="#d8fa34" stroke-width="18" stroke-linecap="round" opacity=".6" fill="none"/>
+<!-- Four ivory lateral tail spikes: rear side pair above, front side pair below -->
+<g stroke="#241207" stroke-linejoin="round" stroke-linecap="round" stroke-width="19">
+ <path d="M 1160 445 C 1216 387 1271 304 1323 238 C 1370 181 1424 103 1449 82 C 1468 71 1476 85 1472 112 C 1466 201 1433 292 1377 390 C 1358 426 1325 453 1294 470 C 1254 476 1202 469 1160 445 Z" fill="url(#spike)"/>
+ <path d="M 1382 451 C 1411 414 1473 348 1522 291 C 1555 253 1598 207 1626 191 C 1647 179 1655 192 1649 218 C 1631 308 1581 406 1511 463 C 1474 483 1414 475 1382 451 Z" fill="url(#spike)"/>
+ <path d="M 1136 531 C 1182 511 1225 518 1260 554 C 1301 609 1342 677 1370 729 C 1378 744 1367 760 1350 755 C 1257 730 1187 657 1140 588 C 1124 565 1120 549 1136 531 Z" fill="url(#spike)"/>
+ <path d="M 1327 525 C 1367 510 1399 521 1435 548 C 1480 580 1539 641 1582 679 C 1599 694 1588 713 1567 709 C 1490 687 1418 650 1365 595 C 1339 571 1319 545 1327 525 Z" fill="url(#spike)"/>
+</g>
+<!-- Cream highlights on each spike -->
+<g fill="none" stroke="#fffdf0" stroke-linecap="round" opacity=".85">
+ <path d="M1211 428 C1328 274 1418 166 1448 108" stroke-width="24"/>
+ <path d="M1422 443 C1504 351 1608 232 1624 211" stroke-width="17"/>
+ <path d="M1167 551 C1209 561 1282 672 1336 727" stroke-width="17"/>
+ <path d="M1360 548 C1412 566 1500 669 1550 691" stroke-width="13"/>
+</g>
+<!-- Tail cross section at its attachment point -->
+<ellipse cx="188" cy="628" rx="124" ry="171" transform="rotate(-15 188 628)" fill="url(#cut)" stroke="#261507" stroke-width="22"/>
+<path d="M131 519 C210 519 269 620 272 716" fill="none" stroke="#ffebba" stroke-width="12" opacity=".38" stroke-linecap="round"/>
+</svg>
