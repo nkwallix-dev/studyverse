@@ -1,13 +1,17 @@
 import { BALANCE, specialDuration } from './kenny-platformer.balance';
 import { enemyAnimation } from './kenny-platformer.animation';
 import { KennyWorld, WORLD_HEIGHT } from './kenny-platformer.world';
-import { drawKennyFusionCell } from './kenny-fusion-frame';
+import { composeKennyDirectionalBite, drawKennyFusionCell } from './kenny-fusion-frame';
 
 /** Canvas handles the scenery; Kenny remains a real, skin-aware animated sprite. */
 export class KennyRenderer {
   readonly ready: Promise<void>;
   private readonly images = new Map<string, HTMLImageElement>();
   private readonly fusionPending = new Map<string, Promise<void>>();
+  private readonly biteSources = new Map<
+    string,
+    { standing: HTMLCanvasElement; open: HTMLCanvasElement }
+  >();
   camera = 0;
   scale = 1;
   private width = 960;
@@ -86,6 +90,39 @@ export class KennyRenderer {
   hasFusionAtlas(skin: string): boolean {
     return this.images.has(`fusion-${skin}`);
   }
+
+  /** Head-only jaw animation; all existing atlas armor, body pose and skin colors survive. */
+  drawDirectionalBite(
+    target: HTMLCanvasElement,
+    skin: string,
+    row: number | null,
+    aim: number,
+    progress: number,
+  ): void {
+    const key = `${skin}-${row ?? 'base'}`;
+    let sources = this.biteSources.get(key);
+    if (!sources) {
+      const standing = document.createElement('canvas');
+      const open = document.createElement('canvas');
+      standing.width = standing.height = open.width = open.height = 192;
+      if (row !== null) {
+        const atlas = this.images.get(`fusion-${skin}`);
+        if (!atlas) return;
+        drawKennyFusionCell(standing, atlas, row, 0);
+        drawKennyFusionCell(open, atlas, row, 5);
+      } else {
+        const walk = this.images.get(`${skin}-walk`);
+        const attack = this.images.get(`${skin}-attack`);
+        if (!walk || !attack) return;
+        standing.getContext('2d')?.drawImage(walk, 0, 0, 192, 192, 0, 0, 192, 192);
+        open.getContext('2d')?.drawImage(attack, 384, 0, 192, 192, 0, 0, 192, 192);
+      }
+      sources = { standing, open };
+      this.biteSources.set(key, sources);
+    }
+    composeKennyDirectionalBite(target, sources.standing, sources.open, aim, progress);
+  }
+
 
   /** The Canvas source crop prevents neighbouring 8×8 atlas cells bleeding into Kenny. */
   drawFusionSprite(canvas: HTMLCanvasElement, skin: string, row: number, pose: number): void {
