@@ -339,6 +339,24 @@ export class KennyRenderer {
       else if (enemy.alerted)
         this.label('•', enemy.x + enemy.w / 2, feet - size - 22, '#eeab99', 12);
     });
+    // A brief, deterministic ring of magical sparks when Kenny equips a pickup.
+    for (const burst of world.pickupBursts) {
+      const progress = 1 - burst.life / burst.duration;
+      const fade = Math.max(0, Math.min(1, burst.life / 0.18));
+      ctx.save();
+      ctx.globalAlpha = fade;
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 12; i++) {
+        const angle = (Math.PI * 2 * i) / 12 + i * 0.35;
+        const spread = 7 + progress * (23 + (i % 3) * 7);
+        const x = burst.x + Math.cos(angle) * spread;
+        const y = burst.y + Math.sin(angle) * spread * 0.85 - progress * 11;
+        const radius = (i % 3 === 0 ? 3.4 : 2.1) * (1 - progress * 0.65);
+        this.circle(x, y, radius + 2, i % 2 ? '#c385ff66' : '#ffd86c66');
+        this.circle(x, y, radius, i % 2 ? '#dbaaff' : '#fff3a1');
+      }
+      ctx.restore();
+    }
     this.box(world.exitX - 32, 320, 64, 130, '#8ddbab77', 32);
     ctx.strokeStyle = world.runeProgress === 3 ? '#a0f0cc' : '#647b7b';
     ctx.lineWidth = 4;
