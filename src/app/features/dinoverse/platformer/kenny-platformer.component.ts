@@ -377,7 +377,9 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   @HostListener('window:keydown', ['$event'])
   keyDown(event: KeyboardEvent): void {
     if (event.code === 'Tab' && (this.status() !== 'playing' || !this.available)) {
-      const dialog = this.stage.nativeElement.querySelector(this.starterPickerOpen() ? '.starter-overlay' : '.game-dialog');
+      const dialog = this.stage.nativeElement.querySelector(
+        this.starterPickerOpen() ? '.starter-overlay' : '.game-dialog',
+      );
       const buttons = dialog?.querySelectorAll<HTMLElement>('button, a[href]');
       if (buttons?.length) {
         const first = buttons[0];
