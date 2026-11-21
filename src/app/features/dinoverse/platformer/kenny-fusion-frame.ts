@@ -70,3 +70,58 @@ export function drawKennyFusionCell(
     resolution - 2 * padY * unitY,
   );
 }
+
+/** Build bite poses at runtime from the SAME actual Kenny/fusion atlas.
+ * Only the skull/neck moves, with the legs and inventory staying fully visible.
+ * The resulting poses are reused for every skin and all eight fusion rows.
+ */
+export function composeKennyDirectionalBite(
+  target: HTMLCanvasElement,
+  standing: HTMLCanvasElement,
+  openMouth: HTMLCanvasElement,
+  aim: number,
+  progress: number,
+): void {
+  if (target.width !== 192 || target.height !== 192) {
+    target.width = 192;
+    target.height = 192;
+  }
+  const ctx = target.getContext('2d');
+  if (!ctx) return;
+  ctx.clearRect(0, 0, 192, 192);
+  ctx.drawImage(standing, 0, 0);
+  // Erase only the skull, keeping the torso, arms, tail and feet stationary.
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.beginPath();
+  ctx.ellipse(126, 54, 68, 53, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  const open = progress >= 0.20 && progress <= 0.80;
+  const headSource = open ? openMouth : standing;
+  const head = document.createElement('canvas');
+  head.width = 192;
+  head.height = 192;
+  const headCtx = head.getContext('2d');
+  if (!headCtx) return;
+  headCtx.drawImage(headSource, 0, 0);
+  headCtx.globalCompositeOperation = 'destination-in';
+  headCtx.beginPath();
+  headCtx.ellipse(123, 70, 71, 69, 0, 0, Math.PI * 2);
+  headCtx.fill();
+
+  const ease = progress < 0.25
+    ? progress / 0.25
+    : progress < 0.75
+      ? 1
+      : Math.max(0, (1 - progress) / 0.25);
+  // Positive canvas rotation points the nose down; negative looks up.
+  const angle = (aim < 0 ? -0.38 : 0.38) * ease;
+  ctx.save();
+  ctx.translate(108, 111);
+  ctx.rotate(angle);
+  ctx.translate(-108, -111);
+  ctx.drawImage(head, 0, 0);
+  ctx.restore();
+}
