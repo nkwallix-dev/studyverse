@@ -325,7 +325,7 @@ console.log('Expedition PASS: 20 randomized enemies, independent species/tier, o
 // Daily map amber receipts persist across fresh runs and are scoped to each calendar day.
 const day1 = new KennyWorld(null, { expedition: true, amberDay: '2026-11-20', random: () => 0.99 });
 day1.enemies.length = 0;
-day1.player.x = 300;
+day1.player.x = 340;
 day1.player.y = 265;
 day1.step(STEP, idle);
 assert(day1.amberEvents.includes('stachelweide_2026-11-20_map_0'));
@@ -442,4 +442,48 @@ fallingDino.originX = 667;
 seconds(falling, 0.7);
 assert.equal(fallingDino.alive, false, 'Enemies entering the lava gap must die');
 console.log('Pangaea PASS: expanded map, reachable crystals, level-aware pursuit, spread spawns and lava deaths.');
+
+const starter = new KennyWorld(null, { expedition: true, random: () => 0.99 });
+assert(starter.hazards.some(h => h.x === 195 && h.w === 140), 'Intro must have a separate lava lake');
+assert(starter.platforms.some(p => p.x === 0 && p.x + p.w <= 195));
+assert(starter.enemies.every(e => e.x > 335), 'Enemies must stay beyond the opening lava lake');
+const onLedge = new KennyWorld(null, { expedition: true, random: () => 0.99 });
+onLedge.enemies.length = 0;
+const top = onLedge.platforms.find(p => p.oneWay && p.x === 335);
+onLedge.player.x = 380;
+onLedge.player.y = top.y - onLedge.player.h;
+onLedge.grounded = top;
+onLedge.step(STEP, { ...idle, drop: true });
+assert(onLedge.player.y > top.y - onLedge.player.h, 'X drops through semisolid floor');
+assert.equal(onLedge.grounded, undefined, 'Dropping clears support');
+seconds(onLedge, 0.4);
+assert(onLedge.player.y > top.y + 20, 'Kenny falls under the one-way platform');
+const rear = new KennyWorld();
+const trike = rear.enemies[0];
+rear.enemies.splice(1);
+trike.x = 500;
+trike.direction = 1;
+rear.player.x = 476;
+rear.player.y = trike.y;
+rear.step(STEP, idle);
+assert.equal(rear.health, 3, 'Triceratops tail contact is harmless');
+rear.player.x = trike.x + trike.w - 16;
+rear.player.y = trike.y;
+rear.invulnerable = 0;
+rear.step(STEP, idle);
+assert.equal(rear.health, 2, 'Only Triceratops horn side causes contact damage');
+const swap = new KennyWorld('triceratops-horns');
+swap.enemies.length = 0;
+swap.loot.push({
+ id: 'original_gear_1', item: 'stegosaurus-spikes',
+ x: swap.player.x + 4, y: swap.player.y + 24,
+ w: 22, h: 22, collected: false,
+});
+swap.step(STEP, { ...idle, interact: true });
+assert.equal(swap.offense, 'stegosaurus-spikes');
+assert(swap.loot.some(d => !d.collected && d.item === 'triceratops-horns'), 'Replaced horns remain on ground');
+assert(swap.loot.some(d => d.receiptEligible === false), 'Swap loot cannot farm achievement receipts');
+assert.equal(swap.pickupEvents.length, 1, 'Only original pickup counts');
+console.log('v2 PASS: protected spawn lake, one-way drops, horn-only body contact and fair item swaps.');
+
 
