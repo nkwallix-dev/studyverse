@@ -3,7 +3,7 @@
     <h1>{{ kennyPanel === 'inventory' ? 'Begleiter-Skillbaum' : 'Begleiter-Achievements' }}</h1>
     <p *ngIf="!cloudReady" role="status">Deine Sammlung wird geladen …</p>
     <p *ngIf="cloudMessage" role="alert">{{ cloudMessage }}</p>
-    <app-companion-equipment *ngIf="cloudReady" [showNavigation]="false" [tab]="kennyPanel" [state]="companionState"
+    <app-companion-equipment *ngIf="cloudReady" [showNavigation]="false" [tab]="kennyPanel" [state]="companionState" [skin]="kennySkin"
       (equipRequested)="equipCompanionItem($event)" (seenRequested)="acknowledgeCompanion($event)"
       (inventoryRequested)="openKennyCollectionTab('inventory')" />
     <p *ngIf="cloud.session" role="status">{{ cloudStatus }}</p>
@@ -25,7 +25,7 @@
   [available]="kennyPresent && (!cloud.session || cloudMaySave)"
   (exitRequested)="closeKennyPlatformer()"
 ></app-kenny-platformer>
-<app-companion-equipment *ngIf="view === 'platformer'" [popupOnly]="true" [state]="companionState"
+<app-companion-equipment *ngIf="view === 'platformer'" [popupOnly]="true" [state]="companionState" [skin]="kennySkin"
   (seenRequested)="acknowledgeCompanion($event)" (inventoryRequested)="go('companion-equipment')" />
 <div class="universe" [attr.inert]="view==='platformer'?'':null" [class.kenny-mode]="view==='shop' && (shopTab==='kenny'||shopTab==='designer')" [class.shop-mode]="view==='shop' && (shopTab==='catalog'||shopTab==='inventory')" [class.friends-mode]="view==='friends'" [class.designer-mode]="view==='shop' && shopTab==='designer'" [class.companions-mode]="view==='companions'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
   <div class="ambient a"></div><div class="ambient b"></div>
@@ -150,7 +150,7 @@
 
         <ng-container *ngSwitchCase="'companion-equipment'">
           <button type="button" class="rail-button" (click)="openCompanions()">Meine Begleiter</button>
-          <app-companion-equipment (playRequested)="go('platformer')" [state]="companionState" (equipRequested)="equipCompanionItem($event)" (seenRequested)="acknowledgeCompanion($event)" />
+          <app-companion-equipment (playRequested)="go('platformer')" [state]="companionState" [skin]="kennySkin" (equipRequested)="equipCompanionItem($event)" (seenRequested)="acknowledgeCompanion($event)" />
         </ng-container>
         <ng-container *ngSwitchCase="'companions'">
           <section class="companions-page" [class.has-kenny]="kennyPresent">
