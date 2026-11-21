@@ -72,4 +72,50 @@ for (const [name, w, h] of [
   assert.equal(bytes.readUInt32BE(20), h, `${name} height`);
   assert(bytes.length > 1_000_000, `Do not ship tiny placeholder art: ${name}`);
 }
-console.log('FUSION ATLAS PASS: six real spritesheets, eight equip combinations and direction-aware poses.');
+// The 8px inset must crop adjacent atlas cells without changing the rendered footprint.
+const { drawKennyFusionCell } = require(
+  '../src/app/features/dinoverse/platformer/kenny-fusion-frame.ts',
+);
+const drawn = [];
+const mockCanvas = {
+  width: 0,
+  height: 0,
+  getContext: () => ({
+    clearRect: () => undefined,
+    drawImage: (...args) => drawn.push(args),
+    imageSmoothingEnabled: false,
+    imageSmoothingQuality: 'low',
+  }),
+};
+drawKennyFusionCell(mockCanvas, { naturalWidth: 1254, naturalHeight: 1254 }, 5, 6);
+assert.equal(mockCanvas.width, 192);
+assert.equal(mockCanvas.height, 192);
+assert.equal(drawn.length, 1);
+assert.equal(drawn[0][1], 6 * (1254 / 8) + 8, 'crop away left neighbour');
+assert.equal(drawn[0][3], (1254 / 8) - 16, 'crop away both adjacent cells');
+
+const { KennyWorld, STEP } = require(
+  '../src/app/features/dinoverse/platformer/kenny-platformer.world.ts',
+);
+const sandbox = new KennyWorld();
+sandbox.equipRun('triceratops-horns');
+sandbox.equipRun('stegosaurus-plates');
+const input = (extra = {}) => ({
+  axis: 0, aim: 0, jump: false, jumpHeld: false, attack: false, ...extra,
+});
+sandbox.step(STEP, input({ discard: true }));
+assert.equal(sandbox.offense, null, 'Q discards offensive gear first');
+assert.equal(sandbox.defense, 'stegosaurus-plates', 'Q leaves the other slot alone');
+assert.equal(sandbox.loot.length, 1);
+assert.equal(sandbox.loot[0].receiptEligible, false, 'discard cannot farm achievements');
+sandbox.step(STEP, input({ interact: true }));
+assert.equal(sandbox.offense, 'triceratops-horns', 'E restores discarded gear');
+assert.equal(sandbox.pickupEvents.length, 0, 're-pick of discarded item grants no receipt');
+assert.equal(sandbox.pickupBursts.length, 1, 'equipping an item creates magical sparks');
+sandbox.step(STEP, input({ discard: true }));
+sandbox.step(STEP, input({ discard: true }));
+assert.equal(sandbox.offense, null);
+assert.equal(sandbox.defense, null, 'Q can discard shield when no offense is equipped');
+assert.equal(sandbox.shield, 0, 'discarding shield removes shield hearts');
+assert.equal(sandbox.loot.filter(drop => !drop.collected).length, 2);
+console.log('FUSION ATLAS PASS: true preview cells, no atlas bleed, safe Q drops and pickup sparks.');
