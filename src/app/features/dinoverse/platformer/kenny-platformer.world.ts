@@ -204,6 +204,8 @@ export class KennyWorld {
   aim = 0;
   invulnerable = 0;
   playerStun = 0;
+  private parryRemaining = 0;
+  private parryVelocity = 0;
   bleedRemaining = 0;
   private bleedTick = 0;
   private readonly random: () => number;
@@ -514,6 +516,8 @@ export class KennyWorld {
     this.biteTime = 0;
     this.invulnerable = BALANCE.player.respawnInvulnerability;
     this.playerStun = 0;
+    this.parryRemaining = 0;
+    this.parryVelocity = 0;
     this.bleedRemaining = 0;
     this.bleedTick = 0;
     this.deaths++;
@@ -535,6 +539,7 @@ export class KennyWorld {
     }
     this.invulnerable = Math.max(0, this.invulnerable - dt);
     this.playerStun = Math.max(0, this.playerStun - dt);
+    this.parryRemaining = Math.max(0, this.parryRemaining - dt);
     // Bleeding applies four separate quarter-heart ticks, even during hit i-frames.
     // This preserves a meaningful escape window and never causes instant bonus damage.
     if (this.bleedRemaining > 0 && !this.dead) {
@@ -652,6 +657,7 @@ export class KennyWorld {
       this.coyote = 0;
       this.jumpBuffer = 0;
     }
+    if (this.parryRemaining > 0) player.vx = this.parryVelocity;
     if (player.vy >= 0) this.pogoRising = false;
     player.vy += BALANCE.gravity * dt;
     this.movePlayer(dt);
@@ -766,6 +772,8 @@ export class KennyWorld {
         continue;
       if (this.attackKind === 'charge' && !reaches(player, enemy, 0.25, this.attackFacing))
         continue;
+      // Head-on charges cancel each other, knock both dinosaurs back and deal no damage.
+      if (this.tryParryCharge(enemy)) return;
       this.attackHits.add(enemy);
       this.hitEnemy(enemy, BALANCE[this.attackKind].damage);
       if (this.attackKind === 'charge' || this.attackKind === 'tail') {
@@ -801,6 +809,45 @@ export class KennyWorld {
       }
     }
   }
+  private tryParryCharge(enemy: Enemy): boolean {
+    if (
+      this.attackTime <= 0 ||
+      this.attackKind !== 'charge' ||
+      this.offense !== 'triceratops-horns' ||
+      enemy.species !== 'triceratops' ||
+      enemy.attackTime <= 0 ||
+      this.attackFacing !== -enemy.attackFacing
+    )
+      return false;
+    const playerElapsed = playerSpecialDuration('charge') - this.attackTime;
+    const enemyElapsed = specialDuration('charge') - enemy.attackTime;
+    if (
+      playerElapsed < BALANCE.playerChargeWindup ||
+      playerElapsed >= BALANCE.playerChargeWindup + BALANCE.charge.active ||
+      enemyElapsed < BALANCE.charge.windup ||
+      enemyElapsed >= BALANCE.charge.windup + BALANCE.charge.active
+    )
+      return false;
+    if (!overlaps(this.player, enemy) && !reaches(this.player, enemy, 0.25, this.attackFacing))
+      return false;
+
+    this.attackHits.add(enemy);
+    this.attackTime = 0;
+    enemy.attackTime = 0;
+    enemy.tailHit = true;
+    enemy.alerted = false;
+    enemy.returning = true;
+    enemy.stun = Math.max(enemy.stun, 0.48);
+    enemy.knockbackRemaining = 0.30;
+    enemy.knockbackVelocity = -enemy.attackFacing * 380;
+    this.parryRemaining = 0.30;
+    this.parryVelocity = -this.attackFacing * 380;
+    this.playerStun = Math.max(this.playerStun, 0.42);
+    this.invulnerable = Math.max(this.invulnerable, 0.65);
+    this.say('PARRY! Beide Triceratops-Charges prallen zurück.');
+    return true;
+  }
+
   private hitEnemy(enemy: Enemy, amount: number): void {
     if (!enemy.alive) return;
     enemy.health = Math.max(0, enemy.health - amount);
@@ -951,7 +998,7 @@ export class KennyWorld {
             true,
           );
           if (!enemy.tailHit && overlaps(this.player, enemy)) {
-            this.hurt(enemy, BALANCE.charge.damage, 'charge');
+            if (!this.tryParryCharge(enemy)) this.hurt(enemy, BALANCE.charge.damage, 'charge');
             enemy.tailHit = true;
           }
         }
