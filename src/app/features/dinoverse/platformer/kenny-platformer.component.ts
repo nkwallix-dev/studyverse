@@ -1,5 +1,6 @@
 import { BALANCE, playerSpecialDuration } from './kenny-platformer.balance';
 import { playerAnimation } from './kenny-platformer.animation';
+import { atlasPosition, fusionColumn, fusionRow } from './kenny-platformer.fusion';
 import {
   ItemId,
   EquipmentSlots,
@@ -210,7 +211,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   ngAfterViewInit(): void {
     try {
       this.renderer = new KennyRenderer(this.canvas.nativeElement);
-      void this.renderer.ready
+      void Promise.all([this.renderer.ready, this.renderer.loadFusionAtlas(this.skin)])
         .then(() => {
           if (!this.destroyed)
             this.zone.run(() => {
@@ -238,7 +239,13 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     this.focusDialog();
   }
 
-  ngOnChanges(_changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['skin'] && this.renderer && this.assetsReady()) {
+      // Profile skins may change without reconstructing the whole platformer.
+      void this.renderer.loadFusionAtlas(this.skin)
+        .then(() => { if (!this.destroyed) this.render(); })
+        .catch(() => { if (!this.destroyed) this.status.set('error'); });
+    }
     this.tryAutoTutorial();
   }
 
@@ -552,13 +559,18 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     const player = this.world.player;
     const scale = this.renderer.scale;
     const state = playerAnimation(this.world);
-    const height = state.motion === 'idle' ? 75 : 77;
-    const width = state.motion === 'idle' ? (height * 541) / 727 : height;
+    const skin = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin)
+      ? this.skin : 'blue';
+    const outfitRow = fusionRow(this.world.offense, this.world.defense);
+    const nativeFusion = outfitRow !== null && this.renderer.hasFusionAtlas(skin);
+    const height = nativeFusion ? 88 : state.motion === 'idle' ? 75 : 77;
+    const width = nativeFusion ? height : state.motion === 'idle' ? (height * 541) / 727 : height;
     const element = this.sprite.nativeElement;
     element.style.width = `${width * scale}px`;
     element.style.height = `${height * scale}px`;
-    element.style.left = `${(player.x + player.w / 2 - this.renderer.camera - width / 2) * scale}px`;
-    element.style.top = `${(player.y + player.h - height * (state.motion === 'idle' ? 698 / 727 : 180 / 192)) * scale}px`;
+    element.style.left = `${(player.x + player.w / 2 - width / 2 - this.renderer.camera) * scale}px`;
+    const footRatio = nativeFusion ? 0.92 : state.motion === 'idle' ? 698 / 727 : 180 / 192;
+    element.style.top = `${(player.y + player.h - height * footRatio) * scale}px`;
     const chargeWindup =
       this.world.attackTime > 0 &&
       this.world.attackKind === 'charge' &&
@@ -569,18 +581,33 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
       this.world.invulnerable > 0 && Math.floor(this.world.invulnerable * 12) % 2 ? '0.4' : '1';
     element.dataset['motion'] = state.motion;
     element.dataset['frame'] = String(state.frame);
-    if (state.motion === 'idle') {
+    element.dataset['fusionRow'] = nativeFusion ? String(outfitRow) : '';
+    if (nativeFusion) {
+      const pose = fusionColumn(this.world, state.motion);
+      element.dataset['fusionPose'] = String(pose);
+      element.style.backgroundImage =
+        `url("kenny/animations/fusions/${skin}.png?v=3")`;
+      element.style.backgroundSize = '800% 800%';
+      element.style.backgroundPosition = atlasPosition(outfitRow, pose);
+      element.style.backgroundRepeat = 'no-repeat';
+      element.style.animation = this.world.defense === 'stegosaurus-plates' &&
+        this.world.shield < this.world.shieldMaximum
+        ? 'kenny-native-plate-glow 1.2s ease-in-out infinite alternate' : 'none';
+    } else if (state.motion === 'idle') {
+      element.dataset['fusionPose'] = '';
       element.style.removeProperty('background-image');
       element.style.removeProperty('background-position');
+      element.style.removeProperty('background-size');
+      element.style.removeProperty('background-repeat');
       element.style.removeProperty('animation');
       element.style.animationPlayState = this.status() === 'playing' ? 'running' : 'paused';
     } else {
-      const skin = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin)
-        ? this.skin
-        : 'blue';
+      element.dataset['fusionPose'] = '';
       const animation = state.motion === 'walk' || this.world.biteTime > 0 ? 'walk' : 'attack';
       element.style.backgroundImage = `url("kenny/animations/${skin}-${animation}.png?v=2")`;
       element.style.backgroundPosition = `${(state.frame * 100) / 3}% 0`;
+      element.style.backgroundSize = '400% 100%';
+      element.style.backgroundRepeat = 'no-repeat';
       element.style.animation = 'none';
     }
     element.dataset['bite'] =
@@ -604,6 +631,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     fusion.dataset['offense'] = this.world.offense || '';
     fusion.dataset['defense'] = this.world.defense || '';
     fusion.dataset['bite'] = element.dataset['bite'];
+    fusion.dataset['nativeAtlas'] = nativeFusion ? 'true' : 'false';
     fusion.classList.toggle(
       'plates-regenerating',
       element.classList.contains('plates-regenerating'),
