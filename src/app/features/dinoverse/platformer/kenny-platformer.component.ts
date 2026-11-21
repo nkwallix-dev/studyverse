@@ -124,6 +124,15 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
       this.stage.nativeElement.querySelector<HTMLElement>('.starter-overlay button')?.focus();
     });
   }
+  skinPortrait(): string {
+    const selected = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin)
+      ? this.skin
+      : 'blue';
+    return `kenny/skins/kenny-${selected}-portrait.png`;
+  }
+  dropArt(item: ItemId): string {
+    return `kenny/hornweide/drops/${item}.${item === 'stegosaurus-spikes' ? 'svg' : 'png'}`;
+  }
   selectedStarter(): CompanionSkillNode {
     return this.skillNodes.find((node) => node.id === this.starterKitId()) || this.skillNodes[0];
   }
