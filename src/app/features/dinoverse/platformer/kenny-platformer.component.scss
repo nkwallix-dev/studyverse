@@ -739,7 +739,8 @@ p {
 }
 @media (max-height: 500px) and (pointer: coarse) {
   .touch-controls {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
+    /* All ten controls, including Q, must fit on one row in landscape. */
+    grid-template-columns: repeat(10, minmax(0, 1fr));
     bottom: 5px;
     height: 58px;
   }
@@ -1269,7 +1270,7 @@ p {
     padding: 3px 6px;
   }
   .touch-controls {
-    grid-template-columns: repeat(9, minmax(0, 1fr));
+    grid-template-columns: repeat(10, minmax(0, 1fr));
   }
   .starter-panel {
     padding: 10px;
