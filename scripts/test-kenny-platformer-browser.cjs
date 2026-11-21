@@ -453,6 +453,12 @@ async function initialize(context, retained = true, companions = undefined) {
     }
     await inventory.getByRole('button', { name: 'Expedition starten' }).click();
     await inventory.getByRole('heading', { name: 'Wähle dein Starter-Kit' }).waitFor();
+    // Re-select explicitly via the real starter picker: changing pages may change
+    // which preview is highlighted before cloud persistence settles.
+    await inventory.getByRole('button', { name: /Anpassen/ }).click();
+    const mixedKit = inventory.locator('.kit-selection button').filter({ hasText: 'Hörner + Rückenplatten' });
+    await mixedKit.click();
+    await inventory.getByRole('button', { name: 'Auswahl übernehmen' }).click();
     await inventory.getByRole('button', { name: 'Mit diesem Kit starten' }).click();
     await inventory
       .locator('.ability-hud')
