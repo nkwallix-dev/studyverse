@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="260" viewBox="0 0 360 260" role="img" aria-label="Stegosaurus-Schwanz mit zwei oberen und zwei unteren Stacheln">
+<defs>
+<linearGradient id="skin" x1="0" y1="0" x2="0.2" y2="1"><stop stop-color="#dcf85c"/><stop offset=".42" stop-color="#94c912"/><stop offset="1" stop-color="#5b9411"/></linearGradient>
+<linearGradient id="belly" x1="0" y1="0" x2=".5" y2="1"><stop stop-color="#fff2b0"/><stop offset="1" stop-color="#e3a45c"/></linearGradient>
+<linearGradient id="spike" x1=".2" y1=".1" x2=".9" y2="1"><stop stop-color="#fff9df"/><stop offset=".4" stop-color="#ffe4a3"/><stop offset="1" stop-color="#cf8c4a"/></linearGradient>
+<linearGradient id="cut" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe2a1"/><stop offset="1" stop-color="#c78548"/></linearGradient>
+</defs>
+<!-- Two upper spikes, two lower spikes; the very tip of the tail is bare. -->
+<g stroke="#2b1a10" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M85 112 C76 84 80 47 102 21 C107 12 112 14 118 27 C131 54 135 80 131 105 Z" fill="url(#spike)"/>
+<path d="M175 111 C185 77 202 39 227 17 C235 11 240 15 238 27 C233 63 222 92 213 116 Z" fill="url(#spike)"/>
+<path d="M109 156 C114 180 111 216 127 242 C131 251 140 249 146 240 C157 222 155 189 151 158 Z" fill="url(#spike)"/>
+<path d="M210 146 C230 164 258 194 288 208 C298 212 302 205 297 196 C281 171 263 145 248 129 Z" fill="url(#spike)"/>
+<path d="M39 109 C74 88 113 92 156 100 C211 111 259 96 318 99 C325 100 326 110 318 118 C283 154 214 162 155 177 C103 191 64 195 35 174 C16 158 17 126 39 109 Z" fill="url(#skin)"/>
+</g>
+<path d="M30 149 C64 169 99 168 154 159 C210 149 276 135 317 103 C309 137 232 162 157 177 C101 192 63 194 35 175 C28 169 27 157 30 149 Z" fill="url(#belly)" opacity=".94"/>
+<g fill="#5d9815" opacity=".85">
+<ellipse cx="77" cy="120" rx="21" ry="8" transform="rotate(-17 77 120)"/>
+<ellipse cx="129" cy="116" rx="14" ry="7"/>
+<ellipse cx="168" cy="128" rx="24" ry="10" transform="rotate(6 168 128)"/>
+<ellipse cx="222" cy="123" rx="12" ry="6"/>
+<ellipse cx="260" cy="114" rx="16" ry="6"/>
+<ellipse cx="109" cy="140" rx="9" ry="5"/>
+<ellipse cx="202" cy="145" rx="11" ry="5"/>
+</g>
+<path d="M49 116 C110 93 210 132 303 106" fill="none" stroke="#e3ff7f" stroke-width="6" stroke-linecap="round" opacity=".45"/>
+<g stroke="#c68948" stroke-width="3.5" stroke-linecap="round" fill="none" opacity=".6">
+<path d="M105 45 Q109 73 105 90"/><path d="M214 46 Q211 71 201 91"/>
+<path d="M131 196 Q133 218 138 234"/><path d="M254 164 Q276 192 290 199"/>
+</g>
+<ellipse cx="35" cy="142" rx="20" ry="35" fill="url(#cut)" stroke="#2b1a10" stroke-width="7" transform="rotate(-17 35 142)"/>
+<ellipse cx="35" cy="142" rx="10" ry="23" fill="none" stroke="#d99d58" stroke-width="3" opacity=".85" transform="rotate(-17 35 142)"/>
+</svg>
