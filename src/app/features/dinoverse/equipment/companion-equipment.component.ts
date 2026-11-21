@@ -33,11 +33,21 @@ export class CompanionEquipmentComponent {
   @Output() seenRequested = new EventEmitter<ItemId>();
   readonly items = COMPANION_ITEMS;
   readonly nodes = COMPANION_SKILL_TREE;
+  // Equal-rank single items feed a complete species fusion and finally the hybrids.
   get stegoNodes(): readonly CompanionSkillNode[] {
-    return this.nodes.filter((node) => node.family === 'stegosaurus');
+    return this.nodes.filter((node) => node.family === 'stegosaurus' && node.tier === 1);
   }
   get trikeNodes(): readonly CompanionSkillNode[] {
-    return this.nodes.filter((node) => node.family === 'triceratops');
+    return this.nodes.filter((node) => node.family === 'triceratops' && node.tier === 1);
+  }
+  get fullStego(): CompanionSkillNode {
+    return this.nodes.find((node) => node.id === 'full-stego')!;
+  }
+  get fullTrike(): CompanionSkillNode {
+    return this.nodes.find((node) => node.id === 'full-trike')!;
+  }
+  get mixedNodes(): readonly CompanionSkillNode[] {
+    return this.nodes.filter((node) => node.tier === 3);
   }
   isUnlocked(node: CompanionSkillNode): boolean {
     return skillUnlocked(this.state, node);
