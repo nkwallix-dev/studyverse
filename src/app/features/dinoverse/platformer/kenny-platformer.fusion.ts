@@ -28,13 +28,19 @@ export function fusionRow(offense: ItemId | null, defense: ItemId | null): numbe
  * 5 open mouth, 6 crouch/bite down, 7 dash or tail swing.
  */
 export function fusionColumn(world: KennyWorld, motion: PlayerMotion): number {
-  if (world.biteTime > 0) return world.biteAim < 0 ? 3 : world.biteAim > 0 ? 6 : 5;
+  // A bite must never borrow the airborne jump pose (column 3).
+  // Directional head animation is layered on standing sprites by the renderer.
+  if (world.biteTime > 0) return world.biteAim > 0 ? 6 : 5;
   if (world.attackTime > 0) {
-    if (world.attackKind === 'tail') return 7;
+    // Row 6/7 column 7 has missing armor and clipped tails in the supplied atlas.
+    // Use the fully equipped attack pose instead of dropping the frill.
+    if (world.attackKind === 'tail')
+      return world.defense === 'triceratops-frill' ? 5 : 7;
     if (world.attackKind === 'charge') return world.player.vx !== 0 ? 7 : 4;
     return 3;
   }
-  if (motion === 'jump') return world.player.vy < 0 ? 3 : 7;
+  // Column 7 is a tail-swing, NOT a landing frame; it amputates body parts.
+  if (motion === 'jump') return world.player.vy < 0 ? 3 : 2;
   if (motion === 'walk') return [0, 1, 2, 1][Math.floor(world.elapsed * 9) % 4];
   return 0;
 }
