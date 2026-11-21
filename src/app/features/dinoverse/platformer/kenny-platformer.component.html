@@ -88,7 +88,7 @@
       <img
         class="fuse-item fuse-spikes"
         [hidden]="hud().offense !== 'stegosaurus-spikes'"
-        src="kenny/hornweide/drops/stegosaurus-spikes.png"
+        src="kenny/hornweide/drops/stegosaurus-spikes.svg"
         alt=""
       />
       <img
@@ -322,7 +322,7 @@
         </header>
         <p>Deine Achievements bestimmen, mit welchen Fusionen Kenny starten darf.</p>
         <div class="starter-preview">
-          <img src="kenny/skins/kenny-blue-portrait.png" alt="Kenny" />
+          <img [src]="skinPortrait()" alt="Kenny" />
           <div>
             <strong>{{ selectedStarter().title }}</strong>
             <small>{{
@@ -331,7 +331,7 @@
             <div class="starter-art">
               <img
                 *ngFor="let item of selectedStarter().needs"
-                [src]="'kenny/hornweide/drops/' + item + '.png'"
+                [src]="dropArt(item)"
                 alt="Ausrüstungsitem"
               />
             </div>
@@ -368,7 +368,7 @@
               [class.selected]="starterKitId() === node.id"
               (click)="selectStarter(node)"
             >
-              <img src="kenny/skins/kenny-blue-portrait.png" alt="" />
+              <img [src]="skinPortrait()" alt="" />
               <strong>{{ node.title }}</strong>
               <small>{{ isUnlocked(node) ? '✓ Freigeschaltet' : '🔒 50 Pickups je Item' }}</small>
               <span *ngIf="node.needs.length">⚔ {{ node.needs.length }} Item(s)</span>
