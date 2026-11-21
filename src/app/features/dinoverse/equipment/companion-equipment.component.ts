@@ -4,6 +4,7 @@ import {
   skillUnlocked,
   matchingSkill,
 } from './companion-skill-tree';
+import { KennyFusionPreviewComponent } from './kenny-fusion-preview.component';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
@@ -17,7 +18,7 @@ import {
 } from './companion-equipment.model';
 @Component({
   selector: 'app-companion-equipment',
-  imports: [CommonModule],
+  imports: [CommonModule, KennyFusionPreviewComponent],
   templateUrl: './companion-equipment.component.html',
   styleUrl: './companion-equipment.component.scss',
 })
