@@ -331,3 +331,178 @@ progress {
     font-size: 10px;
   }
 }
+
+/* Kenny's fusion tree: one origin -> two dinosaur families -> their two equal
+   item choices -> complete family -> the two cross-family combinations. */
+.skill-branch {
+  gap: 0;
+}
+.skill-branch > h3 {
+  padding: 3px 8px 18px;
+  position: relative;
+}
+.skill-branch > h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  height: 14px;
+  border-left: 2px solid #8dbb99;
+}
+.skill-branch.trike > h3::after {
+  border-color: #e6b28a;
+}
+.skill-item-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  position: relative;
+  padding-top: 13px;
+}
+.skill-item-pair::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  width: 50%;
+  height: 12px;
+  border: 2px solid #80b998;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+}
+.skill-branch.trike .skill-item-pair::before {
+  border-color: #d5a678;
+}
+.skill-item-pair .skill-node {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+  padding: 10px;
+  align-content: start;
+}
+.skill-item-pair .skill-art {
+  height: 105px;
+  width: min(120px, 100%);
+  justify-self: center;
+}
+.skill-item-pair .skill-node-body {
+  width: 100%;
+}
+.skill-item-pair .skill-node::after,
+.skill-branch > .skill-node::after,
+.hybrid-pair .skill-node::after {
+  display: none;
+}
+.species-merge {
+  position: relative;
+  height: 40px;
+  flex: 0 0 40px;
+}
+.species-merge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  width: 50%;
+  height: 18px;
+  border: 2px solid #80b998;
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+}
+.species-merge::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  height: 22px;
+  border-left: 2px solid #80b998;
+}
+.skill-branch.trike .species-merge::before,
+.skill-branch.trike .species-merge::after {
+  border-color: #d5a678;
+}
+.skill-branch > .skill-node {
+  flex: 1 0 auto;
+}
+.hybrid-bridge {
+  height: 47px;
+  position: relative;
+}
+.hybrid-bridge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 21px;
+  border: 2px solid #c8ae90;
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+}
+.hybrid-bridge::after {
+  content: '';
+  position: absolute;
+  top: 21px;
+  height: 26px;
+  left: 50%;
+  border-left: 3px solid #c8ae90;
+}
+.hybrid-heading {
+  color: #f6dfb9;
+  text-align: center;
+  font-size: 16px;
+  margin: 0 0 19px;
+}
+.hybrid-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 4vw, 42px);
+  position: relative;
+  padding-top: 17px;
+}
+.hybrid-pair::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  width: 50%;
+  height: 16px;
+  border: 2px solid #c8ae90;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+}
+.hybrid-pair .skill-node {
+  border-color: #d3acdc;
+}
+@media (max-width: 850px) {
+  .skill-item-pair .skill-art {
+    height: 82px;
+  }
+}
+@media (max-width: 760px) {
+  .skill-branches {
+    grid-template-columns: 1fr;
+    row-gap: 36px;
+  }
+  .skill-branches::before {
+    left: 20%;
+    width: 60%;
+  }
+  .skill-branch {
+    min-width: 0;
+  }
+  .skill-item-pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hybrid-pair {
+    grid-template-columns: 1fr;
+  }
+  .hybrid-pair::before {
+    display: none;
+  }
+  .hybrid-heading {
+    font-size: 13px;
+  }
+  .skill-item-pair .skill-art {
+    height: 92px;
+  }
+}
