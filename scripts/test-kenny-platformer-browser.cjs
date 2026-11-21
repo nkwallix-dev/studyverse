@@ -404,11 +404,13 @@ async function initialize(context, retained = true, companions = undefined) {
     await inventory.goto(base + '#companions');
     assert.equal(await inventory.getByRole('button', { name: 'Skillbaum & Erfolge', exact: true }).count(), 0,
       'The global Companion menu must not expose Kennyverse equipment');
-    // This hidden deep link exercises the shared component; users reach it via Kennyverse.
-    await inventory.goto(base + '#companion-equipment');
-    await inventory.getByRole('heading', { name: 'Mit dem Kopf durch die Wand' }).waitFor();
-    await inventory.getByRole('button', { name: 'Annehmen', exact: true }).click();
-    const tree = inventory.locator('.skill-tree-viewport');
+    // Kenny fusion progression is accessible only from the dedicated Kennyverse.
+    await inventory.goto(base + 'kennyverse/index.html');
+    await inventory.locator('.side [data-kenny-nav="inventory"]').click();
+    const skillPanel = inventory.frameLocator('#kennyCollection iframe');
+    await skillPanel.getByRole('heading', { name: 'Mit dem Kopf durch die Wand' }).waitFor();
+    await skillPanel.getByRole('button', { name: 'Annehmen', exact: true }).click();
+    const tree = skillPanel.locator('.skill-tree-viewport');
     await tree.waitFor();
     assert.equal(await tree.locator('.skill-node').count(), 8, 'Two equal items per dinosaur, two complete kits, two hybrid fusions');
     const fusion = tree.locator('.skill-node').filter({ hasText: 'Hörner + Rückenplatten' });
@@ -429,7 +431,7 @@ async function initialize(context, retained = true, companions = undefined) {
         fullPage: true,
       });
     }
-    await inventory.getByRole('button', { name: /Expedition/ }).click();
+    await inventory.locator('.side a.kenny-platformer-link').click();
     await inventory.getByRole('button', { name: 'Expedition starten' }).click();
     await inventory.getByRole('heading', { name: 'Wähle dein Starter-Kit' }).waitFor();
     await inventory.getByRole('button', { name: 'Mit diesem Kit starten' }).click();
