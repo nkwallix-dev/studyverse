@@ -418,7 +418,7 @@ async function initialize(context, retained = true, companions = undefined) {
         fullPage: true,
       });
     }
-    await inventory.getByRole('button', { name: 'Expedition', exact: true }).click();
+    await inventory.getByRole('button', { name: /Expedition/ }).click();
     await inventory.getByRole('button', { name: 'Expedition starten' }).click();
     await inventory.getByRole('heading', { name: 'Wähle dein Starter-Kit' }).waitFor();
     await inventory.getByRole('button', { name: 'Mit diesem Kit starten' }).click();
