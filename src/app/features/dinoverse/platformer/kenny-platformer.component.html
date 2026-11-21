@@ -322,7 +322,12 @@
         </header>
         <p>Deine Achievements bestimmen, mit welchen Fusionen Kenny starten darf.</p>
         <div class="starter-preview">
-          <img [src]="skinPortrait()" alt="Kenny" />
+          <app-kenny-fusion-preview
+            class="starter-kenny-preview"
+            [skin]="skin"
+            [offense]="selectedStarter().slots.offense"
+            [defense]="selectedStarter().slots.defense"
+          ></app-kenny-fusion-preview>
           <div>
             <strong>{{ selectedStarter().title }}</strong>
             <small>{{
@@ -368,7 +373,11 @@
               [class.selected]="starterKitId() === node.id"
               (click)="selectStarter(node)"
             >
-              <img [src]="skinPortrait()" alt="" />
+              <app-kenny-fusion-preview
+                [skin]="skin"
+                [offense]="node.slots.offense"
+                [defense]="node.slots.defense"
+              ></app-kenny-fusion-preview>
               <strong>{{ node.title }}</strong>
               <small>{{ isUnlocked(node) ? '✓ Freigeschaltet' : '🔒 50 Pickups je Item' }}</small>
               <span *ngIf="node.needs.length">⚔ {{ node.needs.length }} Item(s)</span>
