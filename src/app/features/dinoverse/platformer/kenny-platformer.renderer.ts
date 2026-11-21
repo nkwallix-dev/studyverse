@@ -1,6 +1,7 @@
 import { BALANCE, specialDuration } from './kenny-platformer.balance';
 import { enemyAnimation } from './kenny-platformer.animation';
 import { KennyWorld, WORLD_HEIGHT } from './kenny-platformer.world';
+import { drawKennyFusionCell } from './kenny-fusion-frame';
 
 /** Canvas handles the scenery; Kenny remains a real, skin-aware animated sprite. */
 export class KennyRenderer {
@@ -84,6 +85,12 @@ export class KennyRenderer {
 
   hasFusionAtlas(skin: string): boolean {
     return this.images.has(`fusion-${skin}`);
+  }
+
+  /** The Canvas source crop prevents neighbouring 8×8 atlas cells bleeding into Kenny. */
+  drawFusionSprite(canvas: HTMLCanvasElement, skin: string, row: number, pose: number): void {
+    const atlas = this.images.get(`fusion-${skin}`);
+    if (atlas) drawKennyFusionCell(canvas, atlas, row, pose);
   }
 
   resize(): void {
