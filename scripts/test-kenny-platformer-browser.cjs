@@ -398,7 +398,7 @@ async function initialize(context, retained = true, companions = undefined) {
       ),
       equipped: null,
       equippedAt: 0,
-      seen: ['stegosaurus-plates'],
+      seen: ['stegosaurus-plates', 'triceratops-horns'],
     });
     const inventory = await collection.newPage();
     await inventory.goto(base + '#companions');
@@ -408,8 +408,9 @@ async function initialize(context, retained = true, companions = undefined) {
     await inventory.goto(base + 'kennyverse/index.html');
     await inventory.locator('.side [data-kenny-nav="inventory"]').click();
     const skillPanel = inventory.frameLocator('#kennyCollection iframe');
-    await skillPanel.getByRole('heading', { name: 'Mit dem Kopf durch die Wand' }).waitFor();
-    await skillPanel.getByRole('button', { name: 'Annehmen', exact: true }).click();
+    // Both earned items were acknowledged in the fixture. Test navigation and
+    // kit selection here; reward dialogs are checked in their own suite.
+    await skillPanel.getByRole('heading', { name: 'Kennys Fusions-Skillbaum' }).waitFor();
     const tree = skillPanel.locator('.skill-tree-viewport');
     await tree.waitFor();
     assert.equal(await tree.locator('.skill-node').count(), 8, 'Two equal items per dinosaur, two complete kits, two hybrid fusions');
