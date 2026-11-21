@@ -32,7 +32,7 @@ export class KennyRenderer {
         (name) => ({ name: `drop-${name}`, path: `kenny/hornweide/drops/${name}.png` }),
       ),
       { name: 'amber-icon', path: 'kenny/hornweide/ui/bernstein.png' },
-      { name: 'stegosaurus-fusion-8poses', path: 'kenny/animations/fusions/stegosaurus-8poses.png' },
+      { name: 'stegosaurus-fusion-8poses', path: 'kenny/animations/fusion-stegosaurus.webp?v=4' },
     ];
     this.ready = Promise.all(
       sources.map(
@@ -50,8 +50,8 @@ export class KennyRenderer {
     ).then(() => undefined);
   }
 
-  /** Load only the currently selected skin's atlas. Each full-resolution PNG
-   * is ~2.5 MB, so don't download all five colors for every mobile player.
+  /** Load only the currently selected skin's atlas. Each verified 8×8 WebP atlas
+   * is under 900 KB, so don't download all five colors for every mobile player.
    */
   loadFusionAtlas(skin: string): Promise<void> {
     const selected = ['blue', 'pink', 'green', 'red', 'zebra'].includes(skin)
@@ -70,7 +70,7 @@ export class KennyRenderer {
         resolve();
       };
       image.onerror = () => reject(new Error(`Fusionsatlas fehlt: ${selected}`));
-      image.src = new URL(`kenny/animations/fusions/${selected}.png?v=3`, document.baseURI).href;
+      image.src = new URL(`kenny/animations/fusion-${selected}.webp?v=4`, document.baseURI).href;
     });
     this.fusionPending.set(selected, task);
     void task.finally(() => this.fusionPending.delete(selected)).catch(() => undefined);
