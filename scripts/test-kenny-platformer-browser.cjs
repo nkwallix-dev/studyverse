@@ -270,7 +270,7 @@ async function initialize(context, retained = true, companions = undefined) {
       );
     }
     await page.evaluate(() => window.__kennyFrames(20));
-    const stageSize = await page.locator('canvas').boundingBox();
+    const stageSize = await page.locator('.kenny-stage > canvas').boundingBox();
     // The permanent key hint was intentionally removed. Inject a simulated
     // contextual overlay to verify long messages cannot resize the canvas.
     await page.locator('.kenny-stage').evaluate((stage) => {
@@ -279,7 +279,7 @@ async function initialize(context, retained = true, companions = undefined) {
       overlay.textContent = 'Ein sehr langer Pickup-Hinweis '.repeat(30);
       stage.append(overlay);
     });
-    assert.deepEqual(await page.locator('canvas').boundingBox(), stageSize);
+    assert.deepEqual(await page.locator('.kenny-stage > canvas').boundingBox(), stageSize);
     // Random encounters can legitimately end a run before the UI regression finishes.
     if (await page.getByRole('button', { name: 'Neuer Versuch' }).isVisible()) {
       await page.getByRole('button', { name: 'Neuer Versuch' }).click();
@@ -440,14 +440,17 @@ async function initialize(context, retained = true, companions = undefined) {
     });
     assert.equal(await fusedSprite.getAttribute('data-fusion-row'), '5',
       'Horns and plates must use the combined, actually illustrated fusion row');
-    const spriteStyle = await fusedSprite.evaluate((el) => ({
-      image: el.style.backgroundImage,
-      size: el.style.backgroundSize,
-      position: el.style.backgroundPosition,
-    }));
-    assert(spriteStyle.image.includes('kenny/animations/fusions/green.png'),
-      'Real game sprite must use the imported green fusion PNG, never loose item icons');
-    assert.equal(spriteStyle.size, '800% 800%');
+    const fusionCanvas = fusedSprite.locator('.kenny-native-fusion-frame');
+    await inventory.waitForFunction(() => {
+      const canvas = document.querySelector('.platformer-player .kenny-native-fusion-frame');
+      if (!canvas || canvas.width !== 192 || canvas.height !== 192) return false;
+      return canvas.getContext('2d').getImageData(0, 0, 192, 192).data.some((pixel, i) =>
+        i % 4 === 3 && pixel > 0);
+    });
+    assert.equal(await fusionCanvas.evaluate(el => getComputedStyle(el).display), 'block',
+      'Native full fusion must render a cropped Canvas frame instead of background atlas bleeding');
+    assert.equal(await fusedSprite.evaluate(el => el.style.backgroundImage), 'none',
+      'Old 800% CSS background must be disabled to avoid neighbouring-frame pixels');
     assert((await inventory.locator('.kenny-fusion-layer').getAttribute('data-native-atlas')) === 'true',
       'Separate fake accessory overlays must be disabled for a real animated fusion');
     const fusedImage = await inventory.evaluate(() => new Promise((resolve, reject) => {
@@ -458,14 +461,14 @@ async function initialize(context, retained = true, companions = undefined) {
     }));
     assert.deepEqual(fusedImage, [1254, 1254], 'Full-resolution supplied atlas must load');
     await inventory.screenshot({ path: path.join(screenshots, 'kenny-fusion-horns-plates.png') });
-    const stageBefore = await inventory.locator('canvas').boundingBox();
+    const stageBefore = await inventory.locator('.kenny-stage > canvas').boundingBox();
     await inventory.keyboard.press('KeyL');
     await inventory.waitForTimeout(300);
     assert.equal(
       await inventory.locator('.platformer-player').getAttribute('data-special'),
       'charge',
     );
-    assert.deepEqual(await inventory.locator('canvas').boundingBox(), stageBefore);
+    assert.deepEqual(await inventory.locator('.kenny-stage > canvas').boundingBox(), stageBefore);
     assert.equal(
       await inventory.evaluate(
         () => JSON.parse(localStorage.getItem('studyverse_profile_v1')).tokens,
