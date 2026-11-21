@@ -29,7 +29,10 @@ export class KennyRenderer {
     const sources = [
       ...names.map((name) => ({ name, path: `kenny/animations/${name}.png?v=2` })),
       ...['triceratops-horns', 'triceratops-frill', 'stegosaurus-plates', 'stegosaurus-spikes'].map(
-        (name) => ({ name: `drop-${name}`, path: `kenny/hornweide/drops/${name}.png` }),
+        (name) => ({
+          name: `drop-${name}`,
+          path: `kenny/hornweide/drops/${name}.${name === 'stegosaurus-spikes' ? 'svg' : 'png'}`,
+        }),
       ),
       { name: 'amber-icon', path: 'kenny/hornweide/ui/bernstein.png' },
       {
@@ -291,7 +294,10 @@ export class KennyRenderer {
         fullStego ? image.width / 4 : 192,
         fullStego ? image.height / 2 : 192,
         -bodyWidth / 2,
-        (-size * 180) / 192,
+        // The 8-pose atlas has ~95–110px of transparent padding below Stego's feet
+        // in each 443px frame. Ground the artwork without changing its size or collision box.
+        (-size * 180) / 192 +
+          (fullStego ? (state.animation === 'attack' ? 29 : 35) : 0),
         bodyWidth,
         size,
       );
