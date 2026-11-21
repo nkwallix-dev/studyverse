@@ -77,7 +77,7 @@
       class="platformer-player kenny-sprite"
       [attr.data-skin]="skin"
       aria-hidden="true"
-    ></div>
+    ><canvas #fusionSpriteCanvas class="kenny-native-fusion-frame" aria-hidden="true"></canvas></div>
     <div #fusionLayer class="kenny-fusion-layer" aria-hidden="true">
       <img
         class="fuse-item fuse-horns"
@@ -103,13 +103,7 @@
         src="kenny/hornweide/drops/stegosaurus-plates.png"
         alt=""
       />
-      <img
-        class="kenny-bite-graphic kenny-bite-front"
-        src="kenny/animations/bite-front.svg"
-        alt=""
-      />
-      <img class="kenny-bite-graphic kenny-bite-up" src="kenny/animations/bite-up.svg" alt="" />
-      <img class="kenny-bite-graphic kenny-bite-down" src="kenny/animations/bite-down.svg" alt="" />
+
     </div>
     <div class="stage-caption" aria-hidden="true">
       <span>{{
