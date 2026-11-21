@@ -156,6 +156,35 @@ export class KennyRenderer {
     ctx.translate(-this.camera, 0);
     for (const platform of world.platforms) {
       if (!this.visible(platform.x, platform.w, viewport)) continue;
+      if (platform.mountain) {
+        // Rocky physical barrier: true collision silhouette has a reachable flat summit.
+        this.polygon(
+          [
+            [platform.x, platform.y + platform.h],
+            [platform.x, platform.y + 37],
+            [platform.x + 20, platform.y + 12],
+            [platform.x + 45, platform.y],
+            [platform.x + platform.w - 37, platform.y],
+            [platform.x + platform.w - 11, platform.y + 20],
+            [platform.x + platform.w, platform.y + 37],
+            [platform.x + platform.w, platform.y + platform.h],
+          ],
+          '#846d58',
+        );
+        this.polygon(
+          [
+            [platform.x + 8, platform.y + 40],
+            [platform.x + 45, platform.y],
+            [platform.x + 75, platform.y],
+            [platform.x + 50, platform.y + 48],
+            [platform.x + 58, platform.y + platform.h],
+            [platform.x + 22, platform.y + platform.h],
+          ],
+          '#9c8973',
+        );
+        this.box(platform.x + 43, platform.y, platform.w - 79, 8, '#77bd69', 3);
+        continue;
+      }
       // Soil faces and lush grass tops replace neon-scifi rectangles.
       this.box(platform.x, platform.y, platform.w, platform.h, '#85654a', 5);
       this.box(
