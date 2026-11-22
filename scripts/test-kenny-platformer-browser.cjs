@@ -557,7 +557,9 @@ async function initialize(context, retained = true, companions = undefined) {
     await panel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
     assert.equal(await kenny.locator('#kennyCollection iframe').count(), 1,
       'Returning from Bernstein-Labor reuses the same collection and saved equipment');
-    await kenny.goto(base + '#achievements');
+    // The main SPA does not route #achievements via URL; use the actual global navigation.
+    await kenny.goto(base + '#companions');
+    await kenny.locator('.sidebar .navigation button[aria-label="Achievements"]').click();
     await kenny.locator('.kenny-achievement-section').waitFor();
     await kenny.getByRole('heading', { name: 'Plattenbau Deluxe', exact: true }).waitFor();
     assert.equal(await kenny.locator('.kenny-achievement-section .achievement-card').count(), 8,
