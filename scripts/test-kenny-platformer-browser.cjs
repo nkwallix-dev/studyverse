@@ -585,10 +585,12 @@ async function initialize(context, retained = true, companions = undefined) {
         'Collection has usable space at ' + width,
       );
       await kenny.screenshot({ path: path.join(screenshots, `kenny-inventory-tab-${width}.png`) });
-      await kenny.locator(navigation + ' [data-kenny-nav="achievements"]').click();
-      await panel.getByRole('heading', { name: 'Begleiter-Achievements', exact: true }).waitFor();
+      await kenny.locator(navigation + ' [data-kenny-nav="labor"]').click();
+      await kenny.locator('.kenny-labor-screen').waitFor();
+      assert(await kenny.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2),
+        'Bernstein-Labor must not overflow at ' + width);
       await kenny.screenshot({
-        path: path.join(screenshots, `kenny-achievements-tab-${width}.png`),
+        path: path.join(screenshots, `kenny-bernstein-labor-${width}.png`),
       });
     }
     await kenny.locator('.side [data-kenny-nav="quiz"]').click();
