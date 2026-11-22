@@ -47,9 +47,15 @@ assert(homepage.includes("new URL('kennyverse/index.html',document.baseURI)"),
 assert(dailyApp.includes('const chem=shuffle(chemSource).slice(0,10)'),'Mixed run must include Chemistry');
 assert(dailyApp.includes('const code=shuffle(dsaiSource.filter(q=>q.code)).slice(0,3)'),'Mixed run must include DSAI code snippets');
 assert(dailyApp.includes('const other=shuffle(dsaiSource.filter(q=>!code.includes(q))).slice(0,7)'),'Mixed run must have 10 DSAI questions');
-for (const tab of ['inventory','achievements']) {
- assert(dailyHTML.includes('data-kenny-nav="'+tab+'"'), 'Both collection areas need their own Kennyverse navigation entry');
+for (const tab of ['inventory','labor']) {
+ assert(dailyHTML.includes('data-kenny-nav="'+tab+'"'), 'Skilltree and Bernstein-Labor need distinct Kennyverse tabs');
 }
+assert(!dailyHTML.includes('data-kenny-nav="achievements"'),
+ 'Separate companion achievements tab is replaced by DNA lab');
+assert(dailyApp.includes('function laborScreen()')&&dailyApp.includes('FORSCHUNG IN VORBEREITUNG'),
+ 'Amber laboratory must present an honest future-DNA concept without spending');
+assert(homepage.includes('companionAchievementCards')&&homepage.includes('showCompanionAchievements'),
+ 'Kenny achievements are now discoverable through the global Studyverse filter');
 assert(dailyHTML.includes('id="kennyCollection"'), 'Collection content stays inside the Kennyverse shell');
 assert(dailyApp.includes('event.origin!==location.origin') && dailyApp.includes('event.source!==collectionFrame?.contentWindow'), 'Embedded navigation validates both origin and source');
 const today=(()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')})();
