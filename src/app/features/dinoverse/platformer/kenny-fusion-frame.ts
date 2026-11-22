@@ -11,6 +11,7 @@ export function normalizedKennySkin(skin: string): string {
 }
 
 const atlasCache = new Map<string, Promise<HTMLImageElement>>();
+const frillSourceCache = new WeakMap<HTMLImageElement, HTMLCanvasElement>();
 
 export function loadKennyFusionAtlas(skin: string): Promise<HTMLImageElement> {
   const selected = normalizedKennySkin(skin);
@@ -51,13 +52,31 @@ export function drawKennyFusionCell(
   ctx.clearRect(0, 0, resolution, resolution);
   const cellWidth = atlas.naturalWidth / 8;
   const cellHeight = atlas.naturalHeight / 8;
-  // 8 source px on each side removes stray pixels from the adjacent frames.
-  const padX = 8;
+  // Attack pose 7 extends nearly to the cell edges (head left, spikes right).
+  // Other poses get the wider inset to suppress bleed from neighbour cells.
+  const padX = column === 7 ? 2 : 8;
   const padY = 3;
   const unitX = resolution / cellWidth;
   const unitY = resolution / cellHeight;
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
+  if (row === 6 && column === 7 && typeof document !== 'undefined') {
+    // The shipped spikes+frill tail-swing frame omits its frill. Draw the
+    // intact frill from pose 0 behind the attacking head, then the actual
+    // swipe on top. No neighbouring pose is overlaid over the tail.
+    let base = frillSourceCache.get(atlas);
+    if (!base) {
+      base = document.createElement('canvas');
+      drawKennyFusionCell(base, atlas, row, 0);
+      frillSourceCache.set(atlas, base);
+    }
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(28, 61, 42, 57, 0, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(base, -68, 8);
+    ctx.restore();
+  }
   ctx.drawImage(
     atlas,
     column * cellWidth + padX,
