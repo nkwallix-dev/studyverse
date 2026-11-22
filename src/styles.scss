@@ -2814,3 +2814,58 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
     height: 195px;
   }
 }
+
+/* Companion hub v4: the Kenny card always fits its viewport, no nested scrollbars. */
+.universe.companions-mode .companion-kenny{container-type:size}
+.universe.companions-mode .companion-kenny .companion-stage{
+  flex:0 0 auto;
+  height:clamp(108px,20dvh,215px);
+  min-height:0;
+}
+.universe.companions-mode .companion-kenny .companion-card-body{
+  flex:1 1 auto;min-height:0;overflow:visible;overscroll-behavior:auto;
+  padding:clamp(7px,1.1dvh,13px);
+  gap:clamp(3px,.65dvh,8px);
+  justify-content:space-evenly;
+}
+.universe.companions-mode .companion-kenny .companion-card-body > h2{font-size:clamp(15px,1.5vw,22px);line-height:1.1}
+.universe.companions-mode .companion-kenny .companion-card-body > p{
+  font-size:clamp(9px,.85vw,12px);line-height:1.3;margin:0;
+}
+.universe.companions-mode .companion-kenny .companion-status{font-size:9px}
+.universe.companions-mode .companion-kenny .companion-daily{margin:0;gap:5px}
+.universe.companions-mode .companion-kenny .companion-daily span{padding:clamp(4px,.6dvh,8px);font-size:clamp(9px,.85vw,11px)}
+.universe.companions-mode .companion-kenny .companion-daily b{font-size:clamp(15px,1.7vw,22px)}
+.universe.companions-mode .companion-kenny .companion-enter{
+  min-height:clamp(29px,4.1dvh,43px);padding:5px 8px;margin:0;position:static;flex-shrink:0;
+}
+.universe.companions-mode .companion-kenny .companion-actions button{
+  min-height:clamp(28px,3.7dvh,40px);padding:5px 7px;
+}
+.universe.companions-mode .companion-kenny .companion-retain-hint{
+  font-size:clamp(8px,.79vw,10px);line-height:1.24;
+}
+@container (max-height: 590px){
+  .universe.companions-mode .companion-kenny .companion-stage{height:clamp(90px,17dvh,150px)}
+  .universe.companions-mode .companion-kenny .companion-card-body>p:not(.companion-retain-hint):not(.companion-mobile-description){display:none}
+  .universe.companions-mode .companion-kenny .companion-card-body{gap:3px;padding:6px}
+}
+@media(max-width:700px){
+  .universe.companions-mode .companion-kenny .companion-stage{height:clamp(74px,15dvh,116px)}
+  .universe.companions-mode .companion-kenny .companion-card-body{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-rows:auto auto auto minmax(28px,1fr) auto;align-content:stretch;
+    gap:3px 6px;padding:6px 8px;
+  }
+  .universe.companions-mode .companion-kenny .companion-card-body>:is(.companion-status,h2,p,.companion-daily){grid-column:1/-1}
+  .universe.companions-mode .companion-kenny .companion-card-body>.companion-mobile-description{display:block;font-size:clamp(9px,2.4vw,11px);line-height:1.15}
+  .universe.companions-mode .companion-kenny .companion-actions{align-self:stretch}
+  .universe.companions-mode .companion-kenny .companion-enter{align-self:stretch;min-height:29px}
+}
+@media(max-height:620px) and (min-width:701px){
+  .universe.companions-mode .companion-kenny .companion-stage{height:clamp(80px,15dvh,135px)}
+  .universe.companions-mode .companion-kenny .companion-card-body>p:not(.companion-retain-hint){display:none}
+  .universe.companions-mode .companion-kenny .companion-card-body{gap:3px}
+}
+.kenny-achievement-symbol img{width:100%;max-width:96px;height:68px;object-fit:contain;image-rendering:auto}
+.kenny-achievement-section .achievement-reward{color:#edcd9d}
