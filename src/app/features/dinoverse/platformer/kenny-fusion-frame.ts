@@ -27,7 +27,7 @@ export function loadKennyFusionAtlas(skin: string): Promise<HTMLImageElement> {
       resolve(image);
     };
     image.onerror = () => reject(new Error(`Fusionsatlas fehlt: ${selected}`));
-    image.src = new URL(`kenny/animations/fusions/${selected}.png?v=4`, document.baseURI).href;
+    image.src = new URL(`kenny/animations/fusions/${selected}.png?v=5`, document.baseURI).href;
   });
   atlasCache.set(selected, load);
   // A transient network error must not poison the preview forever.
