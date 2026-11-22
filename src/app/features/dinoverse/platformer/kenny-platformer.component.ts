@@ -3,6 +3,7 @@ import { playerAnimation } from './kenny-platformer.animation';
 import { fusionColumn, fusionRow } from './kenny-platformer.fusion';
 import {
   ItemId,
+  FusionId,
   EquipmentSlots,
   COMPANION_ITEMS,
   CompanionState,
@@ -79,6 +80,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   @Output() tutorialAcknowledged = new EventEmitter<void>();
   @Output() amberCollected = new EventEmitter<string[]>();
   @Output() pickupCollected = new EventEmitter<{ id: string; item: ItemId }>();
+  @Output() fusionRunRecorded = new EventEmitter<{ id: string; fusionId: FusionId }>();
   @Input() available = false;
   @Output() exitRequested = new EventEmitter<void>();
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
@@ -546,6 +548,13 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
               for (const event of events) this.pickupCollected.emit(event);
             }
           });
+        }
+        if (this.world.fusionRunEvents.length) {
+          const events = this.world.fusionRunEvents.splice(0);
+          if (!this.tutorialActive)
+            this.zone.run(() => {
+              for (const event of events) this.fusionRunRecorded.emit(event);
+            });
         }
         if (this.world.amberEvents.length) {
           const events = this.world.amberEvents.splice(0);
