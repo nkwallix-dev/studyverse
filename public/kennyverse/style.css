@@ -483,3 +483,33 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
   text-align: center;
   font-weight: 700;
 }
+
+/* Bernstein-Labor: deliberately non-transactional concept until DNA design is approved. */
+.kenny-labor-screen{padding:clamp(2px,.9vh,10px);gap:clamp(9px,1.4vh,18px)}
+.kenny-labor-header{flex:0 0 auto;padding:clamp(5px,1vh,12px) 3px}
+.kenny-labor-header .eyebrow{color:#edc78d;font-size:clamp(10px,.9vw,13px);letter-spacing:2px}
+.kenny-labor-header h1{font-size:clamp(33px,5.1vw,69px);letter-spacing:-2px;line-height:1.05;margin:clamp(4px,.8vh,9px) 0}
+.kenny-labor-header h1 span{color:#facb8b}
+.kenny-labor-header p{max-width:780px;font-size:clamp(11px,1vw,15px);color:var(--muted);line-height:1.45;margin:0}
+.kenny-labor-layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:clamp(10px,1.7vw,24px);flex:1;min-height:0}
+.kenny-labor-chamber{position:relative;overflow:hidden;border:1px solid #bc956e88;border-radius:24px;background:radial-gradient(circle at 50% 42%,#e9b55e59,transparent 38%),radial-gradient(circle at 50% 58%,#50d2be35,transparent 65%),linear-gradient(160deg,#243341,#1a2438 74%);display:grid;place-items:center}
+.kenny-labor-grid{position:absolute;inset:0;background-image:linear-gradient(#d4c29913 1px,transparent 1px),linear-gradient(90deg,#d4c29913 1px,transparent 1px);background-size:35px 35px;mask-image:radial-gradient(circle,#000 30%,transparent 80%)}
+.kenny-labor-orb{width:min(46%,33vh,260px);aspect-ratio:1;border-radius:48% 52% 43% 57%;display:grid;place-items:center;background:radial-gradient(circle at 35% 27%,#fff1be,#f0b85a 34%,#c37b30 75%,#774321 100%);border:5px solid #fddfa68c;box-shadow:inset -16px -18px 36px #6d421f88,inset 13px 13px 24px #fff5d599,0 0 0 14px #f8dc8a1b,0 0 82px #f8ce8559;transform:rotate(-8deg);animation:kenny-labor-glow 5s ease-in-out infinite}
+.kenny-labor-orb span{font-size:clamp(50px,10vh,115px);filter:drop-shadow(0 8px 7px #2a4c56b9);transform:rotate(8deg)}
+.kenny-labor-particles{position:absolute;top:20%;left:20%;font-size:clamp(20px,2vw,34px);color:#ffe4a8;letter-spacing:35px;animation:kenny-labor-float 4.5s ease-in-out infinite alternate}
+.kenny-labor-tag{position:absolute;left:20px;bottom:16px;border:1px solid #ffe0af55;border-radius:99px;background:#191f2db8;color:#ffe5ad;font-size:11px;letter-spacing:1px;font-weight:850;padding:8px 12px}
+.kenny-labor-steps{display:flex;flex-direction:column;justify-content:center;gap:clamp(6px,1.3vh,13px);min-width:0}
+.kenny-labor-status{color:#f4ca8c;background:#efba7030;border:1px solid #efba7062;border-radius:12px;padding:clamp(7px,1.3vh,13px);font-size:clamp(10px,.89vw,12px);font-weight:900;letter-spacing:1px;text-align:center}
+.kenny-labor-step{display:flex;align-items:center;gap:clamp(8px,1.2vw,15px);border:1px solid var(--kenny-line);background:linear-gradient(120deg,var(--kenny-panel),var(--kenny-panel2));border-radius:15px;padding:clamp(9px,1.45vh,17px)}
+.kenny-labor-step>b{font-size:clamp(22px,2.9vw,38px);color:#efc68c;opacity:.8;flex:0 0 43px}
+.kenny-labor-step>div{flex:1;min-width:0}
+.kenny-labor-step strong{font-size:clamp(13px,1.28vw,18px);color:#fff3dd}
+.kenny-labor-step p{font-size:clamp(10px,1vw,13px);line-height:1.35;margin:3px 0 0;color:var(--muted)}
+.kenny-labor-step>span{font-size:22px}
+.kenny-labor-notice{color:#bdd2d2;font-size:clamp(10px,.95vw,12px);line-height:1.4;margin:2px 2px 0}
+@keyframes kenny-labor-glow{50%{box-shadow:inset -16px -18px 36px #6d421f88,inset 13px 13px 24px #fff5d599,0 0 0 21px #f8dc8a14,0 0 115px #f8ce8599;transform:rotate(-5deg)}}
+@keyframes kenny-labor-float{to{transform:translateY(-18px)}}
+@media(max-width:800px){.kenny-labor-layout{grid-template-columns:.78fr 1fr}.kenny-labor-step>b{flex-basis:25px}.kenny-labor-chamber{border-radius:15px}}
+@media(max-width:610px){.kenny-mobile-nav{grid-template-columns:repeat(6,minmax(0,1fr))}.kenny-mobile-nav a,.kenny-mobile-nav button{font-size:clamp(7px,2vw,9px);padding:2px 1px;text-decoration:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;border:0;border-top:3px solid transparent;background:transparent}.kenny-mobile-nav a span,.kenny-mobile-nav button span{font-size:16px}.kenny-labor-screen{gap:4px}.kenny-labor-header h1{font-size:32px}.kenny-labor-header p{font-size:10px}.kenny-labor-layout{grid-template-columns:1fr;grid-template-rows:minmax(90px,.8fr) minmax(0,2fr);gap:6px}.kenny-labor-orb{width:min(100px,13vh)}.kenny-labor-orb span{font-size:44px}.kenny-labor-particles{top:5%;font-size:13px;letter-spacing:8px}.kenny-labor-tag{font-size:8px;padding:3px 6px;left:7px;bottom:5px}.kenny-labor-steps{gap:4px}.kenny-labor-status{font-size:9px;padding:5px}.kenny-labor-step{padding:6px 8px;gap:6px;border-radius:9px}.kenny-labor-step>b{font-size:17px;flex-basis:25px}.kenny-labor-step strong{font-size:12px}.kenny-labor-step p{font-size:9px;line-height:1.2}.kenny-labor-notice{font-size:9px}}
+@media(max-height:590px){.kenny-labor-header h1{font-size:clamp(25px,3.8vw,43px)}.kenny-labor-screen{gap:4px}.kenny-labor-step{padding:5px 8px}.kenny-labor-orb{width:min(29%,20vh)}.kenny-labor-orb span{font-size:40px}}
+@media(prefers-reduced-motion:reduce){.kenny-labor-orb,.kenny-labor-particles{animation:none}}
