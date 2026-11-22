@@ -62,6 +62,58 @@ assert.equal(w.pickupEvents.length, 1, 'Collision cannot duplicate a pickup');
 assert.equal(new KennyWorld().fusions.size, 0, 'Run fusion must not leak into next run');
 assert.equal(w.enemies[0].health, 2);
 assert.equal(w.enemies[2].health, 7);
+
+const { COMPANION_SKILL_TREE, skillUnlocked } = require(
+  '../src/app/features/dinoverse/equipment/companion-skill-tree.ts',
+);
+const nodeById = (id) => COMPANION_SKILL_TREE.find((node) => node.id === id);
+let comboState = m.normalizeCompanions(null);
+const fullStego = nodeById('full-stego');
+for (let i = 0; i < 24; i++)
+  comboState = m.recordFusionRun(comboState, 'stego_test_run_' + i, 'full-stego');
+assert.equal(m.countFusionRuns(comboState, 'full-stego'), 24);
+assert.equal(skillUnlocked(comboState, fullStego), false, '24/25 runs stays locked');
+comboState = m.recordFusionRun(comboState, 'stego_test_run_24', 'full-stego');
+comboState = m.recordFusionRun(comboState, 'stego_test_run_24', 'full-stego');
+assert.equal(m.countFusionRuns(comboState, 'full-stego'), 25, 'same run cannot be farmed');
+assert.equal(skillUnlocked(comboState, fullStego), true, '25 runs unlock complete Stego');
+const fullKit = m.equipCompanionKit(comboState, fullStego.slots);
+assert.deepEqual(fullKit.equippedSlots, fullStego.slots,
+  'Completed run achievement allows dual starter kit even without 50 solo pickups');
+assert.equal(m.equipCompanion(comboState, 'stegosaurus-spikes').equipped, null,
+  'Run achievements do not bypass single-item 50 pickup requirement');
+let hybrid = m.normalizeCompanions(null);
+for (let i = 0; i < 9; i++)
+  hybrid = m.recordFusionRun(hybrid, 'hybrid_run_' + i, 'spikes-frill');
+assert(!skillUnlocked(hybrid, nodeById('spikes-frill')), '9/10 hybrid remains locked');
+hybrid = m.recordFusionRun(hybrid, 'hybrid_run_9', 'spikes-frill');
+assert(skillUnlocked(hybrid, nodeById('spikes-frill')), '10/10 hybrid unlocks');
+const mergedHybrid = m.mergeCompanions(
+  m.recordFusionRun(null, 'hybrid_device_a', 'horns-plates'),
+  m.recordFusionRun(null, 'hybrid_device_b', 'horns-plates'),
+);
+assert.equal(m.countFusionRuns(mergedHybrid, 'horns-plates'), 2,
+  'Distinct local and remote runs must survive cloud merge');
+assert.deepEqual(
+  m.mergeCompanions(mergedHybrid, comboState).fusionRuns,
+  m.mergeCompanions(comboState, mergedHybrid).fusionRuns,
+  'Cloud merge must be deterministic and commutative for combo runs',
+);
+const runWorld = new KennyWorld(fullStego.slots, { expedition: true, random: () => 0.7 });
+runWorld.enemies.length = 0;
+runWorld.step(STEP, idle);
+assert.equal(runWorld.fusionRunEvents.length, 1, 'Starter combo counts when a real run begins');
+runWorld.step(STEP, idle);
+assert.equal(runWorld.fusionRunEvents.length, 1, 'No repeated credit per tick');
+runWorld.discardEquipped();
+runWorld.step(STEP, idle);
+runWorld.equipRun('stegosaurus-spikes');
+runWorld.step(STEP, idle);
+assert.equal(runWorld.fusionRunEvents.length, 1, 'Q and re-equipping cannot farm one run');
+const practice = new KennyWorld(fullStego.slots);
+practice.step(STEP, idle);
+assert.equal(practice.fusionRunEvents.length, 0, 'Tutorial/practice must not count toward fusion goals');
+console.log('Fusion runs: 25 complete/10 hybrid, one receipt per real run, cloud merge and atomic kit passed.');
 console.log(
   'Companion equipment: thresholds, deduplication, merge, persistence, equipment and real pickups passed.',
 );
