@@ -4,7 +4,7 @@
     <p *ngIf="!cloudReady" role="status">Deine Sammlung wird geladen …</p>
     <p *ngIf="cloudMessage" role="alert">{{ cloudMessage }}</p>
     <app-companion-equipment *ngIf="cloudReady" [showNavigation]="false" [tab]="kennyPanel" [state]="companionState" [skin]="kennySkin"
-      (equipRequested)="equipCompanionItem($event)" (seenRequested)="acknowledgeCompanion($event)"
+      (kitRequested)="equipCompanionKit($event)" (equipRequested)="equipCompanionItem($event)" (seenRequested)="acknowledgeCompanion($event)"
       (inventoryRequested)="openKennyCollectionTab('inventory')" />
     <p *ngIf="cloud.session" role="status">{{ cloudStatus }}</p>
   </main>
@@ -22,6 +22,7 @@
   (tutorialAcknowledged)="acknowledgeKennyTutorial()"
   (amberCollected)="collectAmber($event)"
   (pickupCollected)="collectCompanion($event)"
+  (fusionRunRecorded)="collectFusionRun($event)"
   [available]="kennyPresent && (!cloud.session || cloudMaySave)"
   (exitRequested)="closeKennyPlatformer()"
 ></app-kenny-platformer>
@@ -150,7 +151,7 @@
 
         <ng-container *ngSwitchCase="'companion-equipment'">
           <button type="button" class="rail-button" (click)="openCompanions()">Meine Begleiter</button>
-          <app-companion-equipment (playRequested)="go('platformer')" [state]="companionState" [skin]="kennySkin" (equipRequested)="equipCompanionItem($event)" (seenRequested)="acknowledgeCompanion($event)" />
+          <app-companion-equipment (playRequested)="go('platformer')" [state]="companionState" [skin]="kennySkin" (kitRequested)="equipCompanionKit($event)" (equipRequested)="equipCompanionItem($event)" (seenRequested)="acknowledgeCompanion($event)" />
         </ng-container>
         <ng-container *ngSwitchCase="'companions'">
           <section class="companions-page" [class.has-kenny]="kennyPresent">
