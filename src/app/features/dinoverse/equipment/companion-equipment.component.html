@@ -11,8 +11,9 @@
     </nav>
     <h2>{{ tab === 'inventory' ? 'Kennys Fusions-Skillbaum' : 'Dino-Achievements' }}</h2>
     <p>
-      50 originale Pickups pro Ausrüstung schalten den jeweiligen Skill dauerhaft frei. Eine
-      offensive und eine defensive Fusion können kombiniert werden.
+      Einzelne Items: 50 originale Pickups. Komplette Dino-Kits: 25 Runs mit beiden
+      Items ausgerüstet. Mischfusionen: 10 Runs mit der jeweiligen Kombination.
+      Pro Run und Kombination zählt nur ein Einsatz.
     </p>
     <div
       class="skill-tree-viewport"
@@ -37,12 +38,18 @@
           <small>STUFE {{ node.tier }} · {{ isUnlocked(node) ? 'FREIGESCHALTET' : 'GESPERRT' }}</small>
           <h4>{{ node.title }}</h4>
           <p>{{ node.subtitle }}</p>
-          <label *ngFor="let item of node.needs">
-            {{ count(item) }} / 50 ·
-            {{ item === 'stegosaurus-plates' ? 'Platten' :
-               item === 'stegosaurus-spikes' ? 'Stacheln' :
-               item === 'triceratops-horns' ? 'Hörner' : 'Nackenschild' }}
-            <progress [value]="count(item)" max="50"></progress>
+          <ng-container *ngIf="node.tier === 1">
+            <label *ngFor="let item of node.needs">
+              {{ count(item) }} / 50 ·
+              {{ item === 'stegosaurus-plates' ? 'Platten' :
+                 item === 'stegosaurus-spikes' ? 'Stacheln' :
+                 item === 'triceratops-horns' ? 'Hörner' : 'Nackenschild' }}
+              <progress [value]="count(item)" max="50"></progress>
+            </label>
+          </ng-container>
+          <label *ngIf="node.tier > 1">
+            {{ fusionProgress(node) }} / {{ fusionTarget(node) }} Runs · Beide Items ausgerüstet
+            <progress [value]="fusionProgress(node)" [max]="fusionTarget(node)"></progress>
           </label>
           <button type="button" [disabled]="!isUnlocked(node)" (click)="chooseKit(node)">
             {{ isSelected(node) ? '✓ Ausgerüstet' : isUnlocked(node) ? 'Als Starter wählen' : '🔒 Achievement nötig' }}
