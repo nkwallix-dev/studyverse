@@ -30,6 +30,35 @@ for (const [offense, defense, expected] of cases)
   assert.equal(fusionRow(offense, defense), expected,
     `Unexpected 8×8 row for ${offense} / ${defense}`);
 
+// Regression matrix: across all eight real fusion types, J is ALWAYS a bite.
+for (const [offense, defense, row] of cases.filter((c) => c[2] !== null)) {
+  for (const aim of [-1, 0, 1]) {
+    const world = {
+      offense, defense, biteTime: 0.19, biteAim: aim, attackTime: 0,
+      attackKind: 'tail', player: { vx: 0, vy: 0 }, elapsed: 0,
+    };
+    const pose = fusionColumn(world, 'attack');
+    assert.equal(pose, aim === 1 ? 6 : 5,
+      `J with ${offense} / ${defense}, aim=${aim} must bite, not swing`);
+    assert.notEqual(pose, 7, 'Tail-swing pose is never a J action');
+    world.biteTime = 0;
+    world.attackTime = 0.3;
+    world.attackKind = offense === 'stegosaurus-spikes' ? 'tail' : 'charge';
+    if (offense === 'stegosaurus-spikes')
+      assert.equal(fusionColumn(world, 'attack'), 7,
+        `L with ${offense} / ${defense} must swing tail`);
+    else
+      assert.notEqual(fusionColumn(world, 'attack'), 7,
+        'Other L abilities must not borrow the tail-swing frame');
+    for (const vy of [-120, 120]) {
+      world.attackTime = 0;
+      world.player.vy = vy;
+      assert.equal(fusionColumn(world, 'jump'), 2, 'Jump arms stay canonical');
+    }
+  }
+}
+
+
 function sampleWorld() {
   return {
     biteTime: 0, biteAim: 0,
