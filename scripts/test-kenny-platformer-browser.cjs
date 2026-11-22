@@ -522,7 +522,7 @@ async function initialize(context, retained = true, companions = undefined) {
     );
     await collection.close();
 
-    // Enter from the Kennyverse itself: both collection tabs retain its shell.
+    // Enter from the Kennyverse: Skilltree stays here, while achievements moved global.
     const tabs = await browser.newContext({ viewport: { width: 1280, height: 900 } });
     await initialize(tabs, true, {
       version: 1,
@@ -549,16 +549,22 @@ async function initialize(context, retained = true, companions = undefined) {
     const unlockedHorn = panel.locator('.skill-node').filter({ hasText: 'Kenny · Hörner' });
     await unlockedHorn.getByRole('button', { name: 'Als Starter wählen' }).click();
     await unlockedHorn.getByRole('button', { name: /Ausgerüstet/ }).waitFor();
-    await kenny.locator('.side [data-kenny-nav="achievements"]').click();
-    await panel.getByRole('heading', { name: 'Begleiter-Achievements', exact: true }).waitFor();
-    await panel.getByRole('heading', { name: 'Plattenbau Deluxe', exact: true }).waitFor();
-    assert.equal(await panel.locator('article').count(), 4);
-    assert.equal(await panel.getByRole('button', { name: 'Ausrüsten', exact: true }).count(), 0);
-    assert.equal(
-      await kenny.locator('#kennyCollection iframe').count(),
-      1,
-      'Tab switches reuse the collection and pending saves',
-    );
+    await kenny.locator('.side [data-kenny-nav="labor"]').click();
+    await kenny.locator('#root .kenny-labor-screen').waitFor();
+    assert.equal(await kenny.locator('#kennyCollection').isHidden(), true,
+      'Skilltree iframe is hidden while in the amber laboratory');
+    await kenny.locator('.side [data-kenny-nav="inventory"]').click();
+    await panel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
+    assert.equal(await kenny.locator('#kennyCollection iframe').count(), 1,
+      'Returning from Bernstein-Labor reuses the same collection and saved equipment');
+    await kenny.goto(base + '#achievements');
+    await kenny.locator('.kenny-achievement-section').waitFor();
+    await kenny.getByRole('heading', { name: 'Plattenbau Deluxe', exact: true }).waitFor();
+    assert.equal(await kenny.locator('.kenny-achievement-section .achievement-card').count(), 8,
+      'Four solo and four fusion achievements belong to global Studyverse');
+    await kenny.goto(base + 'kennyverse/index.html');
+    await kenny.locator('.side [data-kenny-nav="inventory"]').click();
+    await panel.getByRole('heading', { name: 'Begleiter-Skillbaum', exact: true }).waitFor();
     for (const width of [320, 390, 768, 1280]) {
       await kenny.setViewportSize({ width, height: 900 });
       const navigation = width <= 610 ? '.kenny-mobile-nav' : '.side';
