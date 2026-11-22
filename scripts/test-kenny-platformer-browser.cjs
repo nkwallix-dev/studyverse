@@ -161,7 +161,22 @@ async function initialize(context, retained = true, companions = undefined) {
     await page.clock.runFor(32);
     assert(!(await settingsPanel.isVisible()), 'Settings must close again');
 
-    await page.getByRole('button', { name: 'Expedition starten' }).click();
+    const startExpedition = page.getByRole('button', { name: 'Expedition starten' });
+    if (!(await startExpedition.isVisible())) {
+      console.log('KENNY START DIAGNOSTIC', {
+        url: page.url(),
+        dialog: await page.locator('.game-dialog').innerText().catch(() => ''),
+        title: await page.title(),
+        errors,
+      });
+      // Profile reconciliation can reveal the first-visit tutorial prompt.
+      const directStart = page.getByRole('button', { name: 'Direkt loslegen' });
+      if (await directStart.isVisible()) {
+        await directStart.click();
+        await page.clock.runFor(32);
+      }
+    }
+    await startExpedition.click({ timeout: 12000 });
     await page.clock.runFor(32);
     await page.getByRole('heading', { name: 'Wähle dein Starter-Kit' }).waitFor();
     await page.getByRole('button', { name: 'Mit diesem Kit starten' }).click();
