@@ -48,8 +48,15 @@ w.biteAim = -1;
 assert.equal(fusionColumn(w, 'attack'), 5, 'Upward bite keeps feet planted and rotates the actual head');
 w.biteAim = 1;
 assert.equal(fusionColumn(w, 'attack'), 6, 'Downward bite uses low head pose');
+w.biteAim = -1;
 w.offense = 'stegosaurus-spikes';
-assert.equal(fusionColumn(w, 'attack'), 7, 'J must show the tail swipe with spikes');
+w.defense = 'triceratops-frill';
+assert.equal(fusionColumn(w, 'attack'), 5, 'W+J must bite UP in spikes + frill');
+w.biteAim = 0;
+assert.equal(fusionColumn(w, 'attack'), 5, 'Neutral J must bite in spikes + frill');
+w.biteAim = 1;
+w.offense = 'stegosaurus-spikes';
+assert.equal(fusionColumn(w, 'attack'), 6, 'S+J must BITE DOWN even when tail spikes are equipped');
 w.biteTime = 0;
 w.attackTime = 0.6;
 w.attackKind = 'tail';
@@ -58,13 +65,17 @@ w.defense = 'triceratops-frill';
 assert.equal(fusionColumn(w, 'attack'), 7, 'Mixed spikes+frill keeps the real tail swing');
 w.attackTime = 0;
 w.biteTime = 0.14;
-assert.equal(fusionColumn(w, 'attack'), 7, 'Mixed spikes+frill J also swings its tail');
+assert.equal(fusionColumn(w, 'attack'), 6, 'Mixed spikes+frill J must BITE, never swing');
 w.biteTime = 0;
+w.attackTime = 0.4;
+w.attackKind = 'charge';
+w.player.vx = 300;
+assert.equal(fusionColumn(w, 'attack'), 2, 'Charge keeps the familiar arms, not flight pose');
 w.attackTime = 0;
 w.player.vy = 55;
 assert.equal(fusionColumn(w, 'jump'), 2, 'Landing cannot show the clipped tail-swing frame');
 w.player.vy = -55;
-assert.equal(fusionColumn(w, 'jump'), 3, 'Jumping uses the intact airborne frame');
+assert.equal(fusionColumn(w, 'jump'), 2, 'Jump keeps canonical clawed arms rather than the draft raised-arm pose');
 assert.equal(atlasPosition(0, 0), '0.00000% 0.00000%');
 assert.equal(atlasPosition(7, 7), '100.00000% 100.00000%');
 
@@ -85,7 +96,17 @@ for (const [name, w, h] of [
   assert.equal(bytes.readUInt32BE(20), h, `${name} height`);
   assert(bytes.length > 1_000_000, `Do not ship tiny placeholder art: ${name}`);
 }
-// The 8px inset must crop adjacent atlas cells without changing the rendered footprint.
+// Both source and production-polished atlases must be real raster sheets.
+for (const name of ['blue', 'green', 'pink', 'red', 'zebra']) {
+  const polished = path.join(root, name + '-polished.png');
+  assert(fs.existsSync(polished), `Missing 64-pose polished atlas for ${name}`);
+  const bytes = fs.readFileSync(polished);
+  assert.equal(bytes.readUInt32BE(16), 1536, `${name} must have 192px cells`);
+  assert.equal(bytes.readUInt32BE(20), 1536);
+  assert(bytes.length > 1_000_000, 'Real cleaned sprite art, not placeholders');
+}
+// The old 1254px sources are retained; 1536px polished cells draw edge-to-edge.
+
 const { drawKennyFusionCell } = require(
   '../src/app/features/dinoverse/platformer/kenny-fusion-frame.ts',
 );
@@ -106,6 +127,11 @@ assert.equal(mockCanvas.height, 192);
 assert.equal(drawn.length, 1);
 assert.equal(drawn[0][1], 6 * (1254 / 8) + 8, 'crop away left neighbour');
 assert.equal(drawn[0][3], (1254 / 8) - 16, 'crop away both adjacent cells');
+drawn.length = 0;
+drawKennyFusionCell(mockCanvas, { naturalWidth: 1536, naturalHeight: 1536 }, 7, 7);
+assert.deepEqual(drawn[0].slice(1, 5), [7 * 192, 7 * 192, 192, 192],
+  'Polished tail swipe must keep the full head AND every spike');
+
 
 const { KennyWorld, STEP } = require(
   '../src/app/features/dinoverse/platformer/kenny-platformer.world.ts',
