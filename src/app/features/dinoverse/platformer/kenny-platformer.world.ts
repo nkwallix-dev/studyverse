@@ -2,6 +2,8 @@ import {
   ItemId,
   DinoSpecies,
   EquipmentSlots,
+  FusionId,
+  fusionIdForSlots,
   itemSlot,
   dropsFor,
 } from '../equipment/companion-equipment.model';
@@ -176,6 +178,8 @@ export class KennyWorld {
   })[] = [];
   readonly enemyAmberDrops: (Rect & { id: string; collected: boolean })[] = [];
   readonly pickupEvents: { id: string; item: ItemId }[] = [];
+  readonly fusionRunEvents: { id: string; fusionId: FusionId }[] = [];
+  private readonly countedFusions = new Set<FusionId>();
   readonly pickupBursts: { x: number; y: number; life: number; duration: number }[] = [];
   readonly amberEvents: string[] = [];
   readonly fusions = new Set<ItemId>();
@@ -698,6 +702,18 @@ export class KennyWorld {
     }
     this.collect(input.interact === true);
     if (input.discard) this.discardEquipped();
+    // Record a combination only while actively playing an expedition (never tutorial).
+    // Repeated swaps during the same world run cannot generate extra credits.
+    if (this.hardcore && !this.dead) {
+      const fusionId = fusionIdForSlots(this);
+      if (fusionId && !this.countedFusions.has(fusionId)) {
+        this.countedFusions.add(fusionId);
+        this.fusionRunEvents.push({
+          id: `kennyrun_${this.runId.replace(/-/g, '')}`,
+          fusionId,
+        });
+      }
+    }
     if (!this.hardcore && inHazard) this.respawn();
     if (this.runeProgress === 3 && this.player.x > this.exitX - 32) {
       this.won = true;
