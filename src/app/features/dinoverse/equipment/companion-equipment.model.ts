@@ -3,6 +3,29 @@ export type ItemId =
   'triceratops-horns' | 'triceratops-frill' | 'stegosaurus-plates' | 'stegosaurus-spikes';
 export type ItemSlot = 'offense' | 'defense';
 export type EquipmentSlots = Record<ItemSlot, ItemId | null>;
+
+/** Complete and mixed kit achievements count distinct actual runs, not item pickups. */
+export const FUSION_GOALS = {
+  'full-stego': { offense: 'stegosaurus-spikes', defense: 'stegosaurus-plates', runs: 25 },
+  'full-trike': { offense: 'triceratops-horns', defense: 'triceratops-frill', runs: 25 },
+  'horns-plates': { offense: 'triceratops-horns', defense: 'stegosaurus-plates', runs: 10 },
+  'spikes-frill': { offense: 'stegosaurus-spikes', defense: 'triceratops-frill', runs: 10 },
+} as const satisfies Record<string, { offense: ItemId; defense: ItemId; runs: number }>;
+export type FusionId = keyof typeof FUSION_GOALS;
+export const FUSION_IDS = Object.keys(FUSION_GOALS) as FusionId[];
+export const isFusionId = (id: unknown): id is FusionId =>
+  typeof id === 'string' && Object.prototype.hasOwnProperty.call(FUSION_GOALS, id);
+export function fusionIdForSlots(slots: Partial<EquipmentSlots>): FusionId | null {
+  return (
+    FUSION_IDS.find(
+      (id) =>
+        FUSION_GOALS[id].offense === slots.offense &&
+        FUSION_GOALS[id].defense === slots.defense,
+    ) ?? null
+  );
+}
+export const countFusionRuns = (state: CompanionState, fusion: FusionId): number =>
+  state.fusionRuns?.[fusion]?.length ?? 0;
 export const itemSlot = (id: ItemId): ItemSlot =>
   id === 'triceratops-horns' || id === 'stegosaurus-spikes' ? 'offense' : 'defense';
 export interface CompanionItem {
@@ -64,6 +87,8 @@ export interface CompanionState {
   version: 1;
   pickups: Record<string, ItemId>;
   amberPickups: Record<string, true>;
+  /** Unique world-run receipts per two-item combination. Cloud merges by union. */
+  fusionRuns: Record<FusionId, string[]>;
   equippedSlots: EquipmentSlots;
   slotUpdatedAt: Record<ItemSlot, number>;
   /** Compatibility mirror for saves from the former single-slot inventory. */
@@ -85,10 +110,25 @@ export function normalizeCompanions(raw: unknown): CompanionState {
     if (validReceipt(id) && isItem(item)) pickups[id] = item;
   for (const [id, value] of Object.entries(data.amberPickups || {}))
     if (validReceipt(id) && value === true) amberPickups[id] = true;
+  const rawRuns = data.fusionRuns && typeof data.fusionRuns === 'object'
+    ? data.fusionRuns : {} as Partial<Record<FusionId, unknown>>;
+  const fusionRuns = {} as Record<FusionId, string[]>;
+  for (const id of FUSION_IDS) {
+    const receipts = rawRuns[id];
+    fusionRuns[id] = Array.isArray(receipts)
+      ? [...new Set(receipts.filter((receipt): receipt is string =>
+          typeof receipt === 'string' && validReceipt(receipt)))].sort()
+      : [];
+  }
   const slots: EquipmentSlots = { offense: null, defense: null };
   const times = { offense: 0, defense: 0 };
   const legacy = isItem(data.equipped) ? data.equipped : null;
   const hasSlots = !!data.equippedSlots && typeof data.equippedSlots === 'object';
+  const proposed: Partial<EquipmentSlots> = hasSlots
+    ? data.equippedSlots || {}
+    : { [legacy && itemSlot(legacy) === 'offense' ? 'offense' : 'defense']: legacy };
+  const fusion = fusionIdForSlots(proposed);
+  const fusionUnlocked = fusion !== null && fusionRuns[fusion].length >= FUSION_GOALS[fusion].runs;
   for (const slot of ['offense', 'defense'] as const) {
     const value = hasSlots
       ? data.equippedSlots?.[slot]
@@ -98,7 +138,7 @@ export function normalizeCompanions(raw: unknown): CompanionState {
     if (
       isItem(value) &&
       itemSlot(value) === slot &&
-      Object.values(pickups).filter((id) => id === value).length >= 50
+      (Object.values(pickups).filter((id) => id === value).length >= 50 || fusionUnlocked)
     )
       slots[slot] = value;
     times[slot] = hasSlots
@@ -112,6 +152,7 @@ export function normalizeCompanions(raw: unknown): CompanionState {
     version: 1,
     pickups,
     amberPickups,
+    fusionRuns,
     equippedSlots: slots,
     slotUpdatedAt: times,
     equipped: slots[recent] || slots[recent === 'offense' ? 'defense' : 'offense'],
@@ -139,6 +180,9 @@ export function mergeCompanions(a: unknown, b: unknown): CompanionState {
     slotUpdatedAt: times,
     pickups: { ...left.pickups, ...right.pickups },
     amberPickups: { ...left.amberPickups, ...right.amberPickups },
+    fusionRuns: Object.fromEntries(
+      FUSION_IDS.map((id) => [id, [...new Set([...left.fusionRuns[id], ...right.fusionRuns[id]])].sort()]),
+    ),
     seen: [...left.seen, ...right.seen],
   });
 }
@@ -147,6 +191,17 @@ export function recordPickup(raw: unknown, id: string, item: ItemId): CompanionS
   if (!validReceipt(id) || !isItem(item) || state.pickups[id]) return state;
   return { ...state, pickups: { ...state.pickups, [id]: item } };
 }
+/** One credit per fusion per real world.runId, even if Q/E swaps gear repeatedly. */
+export function recordFusionRun(raw: unknown, receipt: string, fusion: FusionId): CompanionState {
+  const state = normalizeCompanions(raw);
+  if (!validReceipt(receipt) || !isFusionId(fusion) || state.fusionRuns[fusion].includes(receipt))
+    return state;
+  return normalizeCompanions({
+    ...state,
+    fusionRuns: { ...state.fusionRuns, [fusion]: [...state.fusionRuns[fusion], receipt] },
+  });
+}
+
 export function recordAmber(raw: unknown, id: string): CompanionState {
   const state = normalizeCompanions(raw);
   if (!validReceipt(id) || state.amberPickups[id]) return state;
@@ -175,6 +230,28 @@ export function equipCompanion(
   }
   return normalizeCompanions(next);
 }
+/** Choose a kit atomically: a run achievement may unlock the pair before 50 solo pickups. */
+export function equipCompanionKit(raw: unknown, requested: EquipmentSlots): CompanionState {
+  const state = normalizeCompanions(raw);
+  const fusion = fusionIdForSlots(requested);
+  if (fusion) {
+    if (countFusionRuns(state, fusion) < FUSION_GOALS[fusion].runs) return state;
+  } else if (
+    (requested.offense && (!isItem(requested.offense) || itemSlot(requested.offense) !== 'offense' ||
+      countItem(state, requested.offense) < 50)) ||
+    (requested.defense && (!isItem(requested.defense) || itemSlot(requested.defense) !== 'defense' ||
+      countItem(state, requested.defense) < 50))
+  ) {
+    return state;
+  }
+  const updatedAt = Math.max(Date.now(), state.equippedAt + 1);
+  return normalizeCompanions({
+    ...state,
+    equippedSlots: { ...requested },
+    slotUpdatedAt: { offense: updatedAt, defense: updatedAt },
+  });
+}
+
 export function dropsFor(
   species: DinoSpecies,
   tier: 'basic' | 'medium' | 'elite',
