@@ -80,7 +80,7 @@ export class KennyRenderer {
         resolve();
       };
       image.onerror = () => reject(new Error(`Fusionsatlas fehlt: ${selected}`));
-      image.src = new URL(`kenny/animations/fusions/${selected}.png?v=4`, document.baseURI).href;
+      image.src = new URL(`kenny/animations/fusions/${selected}.png?v=5`, document.baseURI).href;
     });
     this.fusionPending.set(selected, task);
     void task.finally(() => this.fusionPending.delete(selected)).catch(() => undefined);
