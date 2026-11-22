@@ -77,7 +77,7 @@ export class CompanionEquipmentComponent {
     return `kenny/skins/kenny-${selected}-portrait.png`;
   }
   dropArt(item: ItemId): string {
-    return `kenny/hornweide/drops/${item}.${item === 'stegosaurus-spikes' ? 'svg' : 'png'}`;
+    return `kenny/hornweide/drops/${item === 'stegosaurus-spikes' ? 'stegosaurus-spikes-lowres' : item}.png`;
   }
   kitArt(node: CompanionSkillNode): string {
     return node.needs.length ? this.dropArt(node.needs[0]) : this.skinPortrait();
