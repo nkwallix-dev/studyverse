@@ -28,20 +28,21 @@ export function fusionRow(offense: ItemId | null, defense: ItemId | null): numbe
  * 5 open mouth, 6 crouch/bite down, 7 dash or tail swing.
  */
 export function fusionColumn(world: KennyWorld, motion: PlayerMotion): number {
-  // A bite must never borrow the airborne jump pose (column 3).
-  // Directional head animation is layered on standing sprites by the renderer.
-  // Spikes use the authentic side-to-side tail swing on J; a mouth bite is
-  // only correct for horns or ordinary Kenny. L remains the stronger special.
-  if (world.biteTime > 0)
-    return world.offense === 'stegosaurus-spikes' ? 7 : world.biteAim > 0 ? 6 : 5;
+  // J means BITE for every equipment combination, including tail spikes.
+  // Directional J head movement is composed on the intact standing body.
+  // The true tail attack in column 7 is reserved exclusively for L.
+  if (world.biteTime > 0) return world.biteAim > 0 ? 6 : 5;
   if (world.attackTime > 0) {
     // Preserve the real tail-swing animation. The shield is restored in the renderer.
     if (world.attackKind === 'tail') return 7;
-    if (world.attackKind === 'charge') return world.player.vx !== 0 ? 7 : 4;
-    return 3;
+    // Keep the same small clawed arm silhouette for charges and shields.
+    if (world.attackKind === 'charge') return world.player.vx !== 0 ? 2 : 0;
+    return 0;
   }
   // Column 7 is a tail-swing, NOT a landing frame; it amputates body parts.
-  if (motion === 'jump') return world.player.vy < 0 ? 3 : 2;
+  // Flight position already changes physically; don't replace Kenny's small
+  // arms with the human-looking lifted-arm pose from the draft atlas.
+  if (motion === 'jump') return 2;
   if (motion === 'walk') return [0, 1, 2, 1][Math.floor(world.elapsed * 9) % 4];
   return 0;
 }
