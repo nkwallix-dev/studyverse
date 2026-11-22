@@ -1,5 +1,6 @@
 import { CompanionEquipmentComponent } from './features/dinoverse/equipment/companion-equipment.component';
-import { CompanionState, EquipmentSlots, FusionId, FUSION_GOALS, ItemId, ItemSlot, amberTotal, recordAmber, normalizeCompanions, mergeCompanions, countItem, countFusionRuns, recordPickup, recordFusionRun, equipCompanion, equipCompanionKit } from './features/dinoverse/equipment/companion-equipment.model';
+import { COMPANION_SKILL_TREE } from './features/dinoverse/equipment/companion-skill-tree';
+import { CompanionState, EquipmentSlots, FusionId, FUSION_GOALS, ItemId, ItemSlot, COMPANION_ITEMS, amberTotal, recordAmber, normalizeCompanions, mergeCompanions, countItem, countFusionRuns, recordPickup, recordFusionRun, equipCompanion, equipCompanionKit } from './features/dinoverse/equipment/companion-equipment.model';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -1195,7 +1196,37 @@ export class App implements OnInit,OnDestroy {
    this.save();
  }
  get trainers(){return TRAINERS;}
- get achievementSubjects(){return ['Alle',...new Set(TRAINERS.map(t=>t.subjectId))];}
+ get achievementSubjects(){return ['Alle',...new Set(TRAINERS.map(t=>t.subjectId)),'begleiter'];}
+ get showCompanionAchievements():boolean {
+   return (this.achievementSubject==='Alle'||this.achievementSubject==='begleiter') &&
+     (this.achievementTest==='Alle'||this.achievementTest==='kennyverse');
+ }
+ get companionAchievementCards() {
+   const state=this.companionState;
+   const items=COMPANION_ITEMS.map(item=>{
+     const value=countItem(state,item.id);
+     return {id:item.id,title:item.achievement,description:item.quip,value,target:50,
+       done:value>=50,percent:Math.min(100,Math.round(value/50*100)),reward:0,
+       asset:`kenny/hornweide/drops/${item.id==='stegosaurus-spikes'?'stegosaurus-spikes-lowres':item.id}.png`,
+       category:'50 originale Pickups'};
+   });
+   const fusions=COMPANION_SKILL_TREE.filter(node=>node.tier>1).map(node=>{
+     const target=FUSION_GOALS[node.id as FusionId].runs;
+     const value=countFusionRuns(state,node.id as FusionId);
+     return {id:node.id,title:node.title,description:'Spiele die Expedition mit beiden Gegenständen ausgerüstet.',
+       value,target,done:value>=target,percent:Math.min(100,Math.round(value/target*100)),reward:0,
+       asset:`kenny/skins/kenny-${this.kennySkin}-portrait.png`,category:`${target} Kombinations-Runs`};
+   });
+   return [...items,...fusions].sort((a,b)=>{
+     switch(this.achievementSort){
+       case 'done':return Number(b.done)-Number(a.done)||b.percent-a.percent;
+       case 'progress':return b.percent-a.percent||Number(a.done)-Number(b.done);
+       case 'title':return a.title.localeCompare(b.title,'de');
+       case 'reward':return b.reward-a.reward||b.percent-a.percent;
+       default:return Number(a.done)-Number(b.done)||b.percent-a.percent;
+     }
+   });
+ }
  get achievementTests(){return TRAINERS.filter(t=>this.achievementSubject==='Alle'||t.subjectId===this.achievementSubject);}
  get achievementGroups(){
    return this.achievementTests.filter(t=>this.achievementTest==='Alle'||t.id===this.achievementTest).map(trainer=>{
@@ -1215,7 +1246,7 @@ export class App implements OnInit,OnDestroy {
      return {trainer,items};
    });
  }
- get achievementTotals(){const gs=this.achievementGroups;return {total:gs.reduce((n,g)=>n+g.items.length,0),done:gs.reduce((n,g)=>n+g.items.filter(a=>a.done).length,0)};}
+ get achievementTotals(){const gs=this.achievementGroups;const extra=this.showCompanionAchievements?this.companionAchievementCards:[];return {total:gs.reduce((n,g)=>n+g.items.length,0)+extra.length,done:gs.reduce((n,g)=>n+g.items.filter(a=>a.done).length,0)+extra.filter(a=>a.done).length};}
  getTrainerForSubject(id:string){return TRAINERS.filter(t=>t.subjectId===id);}
  subjectHasTrainer(id:string):boolean{return TRAINERS.some(t=>t.subjectId===id && !!t.path);}
  subjectCountLabel(id:string):string{
