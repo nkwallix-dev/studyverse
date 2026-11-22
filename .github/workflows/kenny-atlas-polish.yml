@@ -1,0 +1,51 @@
+name: Rebuild Kenny Fusion Atlases
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/kenny-atlas-polish.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  polish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Prepare image processing
+        run: python3 -m pip install --quiet Pillow numpy
+      - name: Create five complete polished 8x8 PNG atlases
+        run: python3 scripts/polish-kenny-atlases.py
+      - name: Validate all 320 real sprite frames
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          skins=('blue','pink','green','red','zebra')
+          for name in skins:
+              file=Path(f'public/kenny/animations/fusions/{name}-polished.png')
+              image=Image.open(file).convert('RGBA')
+              assert image.size==(1536,1536),(name,image.size)
+              assert file.stat().st_size>1000000,name
+              for row in range(8):
+                  for column in range(8):
+                      frame=image.crop((column*192,row*192,(column+1)*192,(row+1)*192))
+                      bbox=frame.getchannel('A').getbbox()
+                      assert bbox and bbox[0]>=0 and bbox[2]<=192 and bbox[3]<=182,(name,row,column,bbox)
+              print(f'PASS {name}: 64 complete sprites, full width, unified baseline')
+          PY
+      - name: Commit the five original-art rework PNGs
+        run: |
+          git config user.name 'studyverse-art-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/kenny/animations/fusions/*-polished.png
+          if git diff --cached --quiet; then
+            echo "All polished Kenny PNGs already current"
+          else
+            git commit -m "assets(kenny): polished 320 fusion frames; correct eyes, spikes and complete tail swings"
+            git push origin HEAD:main
+          fi
