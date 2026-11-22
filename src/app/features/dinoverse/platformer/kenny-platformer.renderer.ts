@@ -328,7 +328,10 @@ export class KennyRenderer {
     world.enemyAmberDrops.forEach((drop) => {
       if (drop.collected) return;
       const x = drop.x + drop.w / 2;
-      const y = drop.y + drop.h / 2;
+      const erupt = drop.checkpointReward && drop.pickupDelay
+        ? Math.sin((1 - drop.pickupDelay / 0.65) * Math.PI) * 22
+        : 0;
+      const y = drop.y + drop.h / 2 - erupt;
       const icon = this.images.get('amber-icon');
       if (icon) ctx.drawImage(icon, x - 8, y - 10, 16, 20);
     });
