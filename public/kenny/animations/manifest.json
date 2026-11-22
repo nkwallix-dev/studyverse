@@ -1,8 +1,26 @@
 {
-  "version": 2,
+  "version": 3,
+  "fps": 30,
   "cell": 192,
-  "frames": 4,
+  "columns": 12,
   "baseline": 180,
+  "actions": {
+    "idle": { "frames": 48 },
+    "walk": { "frames": 12 },
+    "attack": { "frames": 12 },
+    "jump": { "frames": 18 },
+    "feed": {
+      "frames": 96,
+      "phases": {
+        "offscreen": [0, 11],
+        "enter": [12, 29],
+        "notice": [30, 41],
+        "catch": [42, 59],
+        "eat": [60, 77],
+        "recover": [78, 95]
+      }
+    }
+  },
   "assets": {
     "blue-walk": {
       "path": "kenny/animations/blue-walk.png",
