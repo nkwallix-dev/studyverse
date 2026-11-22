@@ -30,12 +30,13 @@ export function fusionRow(offense: ItemId | null, defense: ItemId | null): numbe
 export function fusionColumn(world: KennyWorld, motion: PlayerMotion): number {
   // A bite must never borrow the airborne jump pose (column 3).
   // Directional head animation is layered on standing sprites by the renderer.
-  if (world.biteTime > 0) return world.biteAim > 0 ? 6 : 5;
+  // Spikes use the authentic side-to-side tail swing on J; a mouth bite is
+  // only correct for horns or ordinary Kenny. L remains the stronger special.
+  if (world.biteTime > 0)
+    return world.offense === 'stegosaurus-spikes' ? 7 : world.biteAim > 0 ? 6 : 5;
   if (world.attackTime > 0) {
-    // Row 6/7 column 7 has missing armor and clipped tails in the supplied atlas.
-    // Use the fully equipped attack pose instead of dropping the frill.
-    if (world.attackKind === 'tail')
-      return world.defense === 'triceratops-frill' ? 5 : 7;
+    // Preserve the real tail-swing animation. The shield is restored in the renderer.
+    if (world.attackKind === 'tail') return 7;
     if (world.attackKind === 'charge') return world.player.vx !== 0 ? 7 : 4;
     return 3;
   }
