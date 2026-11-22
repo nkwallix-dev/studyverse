@@ -520,3 +520,25 @@ assert.equal(parryEnemy.attackTime, 0, 'Enemy charge stops on parry');
 assert(parryEnemy.knockbackRemaining > 0, 'Enemy recoils from a parried charge');
 assert(parry.invulnerable > 0, 'No immediate contact damage after charge collision');
 console.log('Parry PASS: simultaneous opposing Triceratops charges bounce apart without damage.');
+
+// Checkpoint rewards are tangible, unique amber drops and a visible sparkle.
+const checkpointWorld = new KennyWorld(null, { expedition: true, random: () => 0.5 });
+checkpointWorld.enemies.length = 0;
+const checkpointX = checkpointWorld.checkpoints[1];
+const checkpointGround = { x: checkpointX - 95, y: 450, w: 190, h: 24 };
+checkpointWorld.platforms.push(checkpointGround);
+checkpointWorld.player.x = checkpointX - 4;
+checkpointWorld.player.y = 390;
+checkpointWorld.player.vx = 0;
+checkpointWorld.player.vy = 0;
+checkpointWorld.grounded = checkpointGround;
+checkpointWorld.step(STEP, idle);
+assert.equal(checkpointWorld.checkpoint, 1, 'First checkpoint must activate on arrival');
+assert.equal(checkpointWorld.checkpointBursts.length, 1, 'Checkpoint should visibly sparkle');
+const checkpointLoot = checkpointWorld.enemyAmberDrops.filter(x => x.id.includes('_checkpoint_1_amber_'));
+assert(checkpointLoot.length >= 3 && checkpointLoot.length <= 5, 'Checkpoints drop 3–5 real amber pieces');
+assert.equal(new Set(checkpointLoot.map(x => x.id)).size, checkpointLoot.length, 'No duplicate checkpoint receipt IDs');
+checkpointWorld.step(STEP, idle);
+assert.equal(checkpointWorld.enemyAmberDrops.filter(x => x.id.includes('_checkpoint_1_amber_')).length,
+  checkpointLoot.length, 'Revisiting a checkpoint cannot duplicate its amber');
+console.log('Checkpoint PASS: one sparkle and 3–5 physical Bernstein pickups per activated marker.');
