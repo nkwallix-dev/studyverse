@@ -43,10 +43,10 @@ function shuffledOptions(q){
 }
 let mode=(new URLSearchParams(location.search).get("mode")==="boss"?"boss":"quiz");
 const requestedScreen=new URLSearchParams(location.search).get("mode");
-let session=null,screen=["inventory","achievements"].includes(requestedScreen)?requestedScreen:"overview";
+let session=null,screen=["inventory","labor"].includes(requestedScreen)?requestedScreen:"overview";
 let collectionFrame=null;
 function showCollection(tab){
- if(tab!=="inventory"&&tab!=="achievements")return;
+ if(tab!=="inventory")return;
  screen=tab;
  history.replaceState(null,"","?mode="+tab);
  render();
@@ -63,8 +63,8 @@ function collectionScreen(){
  syncCollectionTab();
 }
 function syncCollectionTab(){
- if(!collectionFrame||!["inventory","achievements"].includes(screen))return;
- collectionFrame.title=screen==="inventory"?"Begleiter-Inventar":"Begleiter-Achievements";
+ if(!collectionFrame||screen!=="inventory")return;
+ collectionFrame.title="Kennys Fusions-Skillbaum";
  collectionFrame.contentWindow?.postMessage({type:"studyverse-kenny-tab",tab:screen},location.origin);
 }
 window.addEventListener("message",event=>{
@@ -112,7 +112,7 @@ function startScreen(){
  '<div class="hero"><div><div class="eyebrow">🦖 KENNYVERSE · DEINE TÄGLICHE EXPEDITION</div>'+
  '<h1>Mit Kenny<br><span>Wissen entdecken.</span></h1>'+
  '<p>Entdecke mit Kenny Chemie und Data Science, beantworte 20 Fragen und besiege den Expeditionsboss. Verdiene täglich bis zu 300 TastyTokens.</p>'+
- '<div class="actions"><button class="btn" data-action="quiz">⚡ Forschungsquiz</button><button class="btn secondary" data-action="boss">👾 Expeditionsboss</button><a class="btn secondary" href="../#kenny-platformer">✦ Jump &amp; Run</a></div></div>'+
+ '<div class="actions"><button class="btn" data-action="quiz">⚡ Forschungsquiz</button><button class="btn secondary" data-action="boss">👾 Expeditionsboss</button><a class="btn secondary" href="../#kenny-platformer">🦖 Kennys Expedition in Pangea</a></div></div>'+
  '<div class="hero-icon">'+KENNY_PORTRAIT+'</div>'+URZEIT_BANNER+'</div>'+
  stats()+
  '<div class="kenny-home-footnote">🌋 Kennys Urzeit-Expedition · 20 vergütete Quizfragen · einmaliger Bossbonus ab 70 % · gemeinsames Tageslimit von 300 TT</div>'+
@@ -147,9 +147,26 @@ function resultScreen(){
  '<div class="actions"><button class="btn" data-action="restart">🔁 Nochmal spielen</button><button class="btn secondary" data-action="overview">🏠 Startseite</button><a class="btn secondary" href="../#companions">← Zurück zu Begleiter</a></div></div>'+
  stats()+'</div>';
 }
+function laborScreen(){
+ return '<div class="kenny-screen kenny-labor-screen">'+
+  '<header class="kenny-labor-header"><div class="eyebrow">🧬 KENNYVERSE · FORSCHUNG IN VORBEREITUNG</div>'+
+  '<h1>Bernstein-<span>Labor.</span></h1>'+
+  '<p>In Bernstein schlummern Spuren prähistorischer DNA. Hier sollen später exklusive Kenny-Fusionen entstehen.</p></header>'+
+  '<div class="kenny-labor-layout">'+
+    '<section class="kenny-labor-chamber" aria-label="DNA-Probe im Forschungsbehälter">'+
+      '<div class="kenny-labor-grid"></div><div class="kenny-labor-orb"><span>🧬</span></div>'+
+      '<div class="kenny-labor-particles" aria-hidden="true">✦ &nbsp; ⋆ &nbsp; ✧ &nbsp; ✦</div>'+
+      '<span class="kenny-labor-tag">PROBE #001 · BERNSTEIN</span></section>'+
+    '<section class="kenny-labor-steps"><div class="kenny-labor-status">⏳ KONZEPTPHASE · NOCH NICHT AKTIV</div>'+
+      '<div class="kenny-labor-step"><b>01</b><div><strong>Bernstein untersuchen</strong><p>Gesammelten Bernstein als Forschungsressource erfassen.</p></div><span>◇</span></div>'+
+      '<div class="kenny-labor-step"><b>02</b><div><strong>DNA extrahieren</strong><p>Verschiedene DNA-Sequenzen entdecken und kombinieren.</p></div><span>🧬</span></div>'+
+      '<div class="kenny-labor-step"><b>03</b><div><strong>Exklusive Fusionen</strong><p>Neue Kenny-Styles und einzigartige Eigenschaften erforschen.</p></div><span>🔒</span></div>'+
+      '<p class="kenny-labor-notice">Noch keine Kosten oder Freischaltungen: Dein Bernstein und deine Gegenstände bleiben unverändert.</p>'+
+    '</section></div></div>';
+}
 function render(){
- const collection=screen==="inventory"||screen==="achievements";
- const nav=collection?screen:screen==="overview"?"overview":mode;
+ const collection=screen==="inventory";
+ const nav=screen==="inventory"||screen==="labor"?screen:screen==="overview"?"overview":mode;
  ROOT.hidden=collection;
  const collectionHost=document.getElementById("kennyCollection");
  if(collectionHost)collectionHost.hidden=!collection;
@@ -159,9 +176,9 @@ function render(){
   button.setAttribute("aria-pressed",String(active));
  });
  if(collection){collectionScreen();return;}
- const actual=screen==="overview"?"home":session&&session.pos<session.questions.length?"play":"result";
+ const actual=screen==="labor"?"labor":screen==="overview"?"home":session&&session.pos<session.questions.length?"play":"result";
  ROOT.dataset.screen=actual;
- ROOT.innerHTML=actual==="home"?startScreen():actual==="play"?questionScreen():resultScreen();
+ ROOT.innerHTML=actual==="labor"?laborScreen():actual==="home"?startScreen():actual==="play"?questionScreen():resultScreen();
 }
 function answer(i){
  if(!session||session.answered||!session.options[i])return;
@@ -198,7 +215,8 @@ ROOT.addEventListener("click",e=>{
 });
 document.querySelectorAll('[data-kenny-nav]').forEach(button=>button.addEventListener("click",()=>{
  if(button.dataset.kennyNav==="overview")goHome();
- else if(["inventory","achievements"].includes(button.dataset.kennyNav))showCollection(button.dataset.kennyNav);
+ else if(button.dataset.kennyNav==="inventory")showCollection("inventory");
+ else if(button.dataset.kennyNav==="labor"){screen="labor";history.replaceState(null,"","?mode=labor");render();}
  else begin(button.dataset.kennyNav);
 }));
 document.getElementById("topHome").addEventListener("click",goHome);
