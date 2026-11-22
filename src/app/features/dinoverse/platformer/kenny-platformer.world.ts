@@ -181,6 +181,7 @@ export class KennyWorld {
   readonly fusionRunEvents: { id: string; fusionId: FusionId }[] = [];
   private readonly countedFusions = new Set<FusionId>();
   readonly pickupBursts: { x: number; y: number; life: number; duration: number }[] = [];
+  readonly checkpointBursts: { x: number; y: number; life: number; duration: number }[] = [];
   readonly amberEvents: string[] = [];
   readonly fusions = new Set<ItemId>();
   readonly damageTexts: DamageText[] = [];
@@ -540,6 +541,10 @@ export class KennyWorld {
     for (let i = this.pickupBursts.length - 1; i >= 0; i--) {
       this.pickupBursts[i].life -= dt;
       if (this.pickupBursts[i].life <= 0) this.pickupBursts.splice(i, 1);
+    }
+    for (let i = this.checkpointBursts.length - 1; i >= 0; i--) {
+      this.checkpointBursts[i].life -= dt;
+      if (this.checkpointBursts[i].life <= 0) this.checkpointBursts.splice(i, 1);
     }
     this.invulnerable = Math.max(0, this.invulnerable - dt);
     this.playerStun = Math.max(0, this.playerStun - dt);
@@ -1290,8 +1295,22 @@ export class KennyWorld {
       }
     }
     this.checkpoints.forEach((x, index) => {
-      if (index > this.checkpoint && Math.abs(this.player.x - x) < 45 && this.grounded)
+      if (index > this.checkpoint && Math.abs(this.player.x - x) < 45 && this.grounded) {
         this.checkpoint = index;
+        this.checkpointBursts.push({ x, y: 381, duration: 0.68, life: 0.68 });
+        const reward = 3 + Math.floor(this.random() * 3); // 3–5 real amber pickups
+        for (let i = 0; i < reward; i++) {
+          this.enemyAmberDrops.push({
+            id: `${this.runId}_checkpoint_${index}_amber_${i}`,
+            x: x + (i - (reward - 1) / 2) * 20 - 7,
+            y: 419 - (i % 2) * 15,
+            w: 14,
+            h: 18,
+            collected: false,
+          });
+        }
+        this.say(`Checkpoint ${index} aktiviert! ✦ ${reward} Bernstein erschienen.`);
+      }
     });
   }
 }
