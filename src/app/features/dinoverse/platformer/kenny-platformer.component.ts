@@ -594,20 +594,20 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     const skin = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin) ? this.skin : 'blue';
     const outfitRow = fusionRow(this.world.offense, this.world.defense);
     const nativeFusion = outfitRow !== null && this.renderer.hasFusionAtlas(skin);
-    // Spike users animate the existing tail attack on J; don't replace it with
-    // the generic directional jaw-composition animation.
-    const directionalBite =
-      this.world.biteTime > 0 &&
-      this.world.biteAim !== 0 &&
-      this.world.offense !== 'stegosaurus-spikes';
+    // Every J action, even with spikes equipped, animates only the head/jaw.
+    // Tail strikes belong exclusively to the L special (attackKind='tail').
+    const directionalBite = this.world.biteTime > 0;
     const canvasArtwork = nativeFusion || directionalBite;
-    const height = nativeFusion ? 88 : state.motion === 'idle' ? 75 : 77;
+    // The original 88px fusion size made the whole mascot 15% larger than
+    // base Kenny. New padded atlas cells share the same 75/77px presentation.
+    const height = state.motion === 'idle' ? 75 : 77;
     const width = canvasArtwork ? height : state.motion === 'idle' ? (height * 541) / 727 : height;
     const element = this.sprite.nativeElement;
     element.style.width = `${width * scale}px`;
     element.style.height = `${height * scale}px`;
     element.style.left = `${(player.x + player.w / 2 - width / 2 - this.renderer.camera) * scale}px`;
-    const footRatio = nativeFusion ? 0.92 : state.motion === 'idle' ? 698 / 727 : 180 / 192;
+    // Normalized full-body atlas: toes terminate at source y=181/192.
+    const footRatio = nativeFusion ? 181 / 192 : state.motion === 'idle' ? 698 / 727 : 180 / 192;
     element.style.top = `${(player.y + player.h - height * footRatio) * scale}px`;
     const chargeWindup =
       this.world.attackTime > 0 &&
