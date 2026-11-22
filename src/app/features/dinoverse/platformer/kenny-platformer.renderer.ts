@@ -36,7 +36,7 @@ export class KennyRenderer {
       ...['triceratops-horns', 'triceratops-frill', 'stegosaurus-plates', 'stegosaurus-spikes'].map(
         (name) => ({
           name: `drop-${name}`,
-          path: `kenny/hornweide/drops/${name}.${name === 'stegosaurus-spikes' ? 'svg' : 'png'}`,
+          path: `kenny/hornweide/drops/${name === 'stegosaurus-spikes' ? 'stegosaurus-spikes-lowres' : name}.png`,
         }),
       ),
       { name: 'amber-icon', path: 'kenny/hornweide/ui/bernstein.png' },
