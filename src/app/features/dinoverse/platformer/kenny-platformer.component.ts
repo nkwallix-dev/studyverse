@@ -136,7 +136,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     return `kenny/skins/kenny-${selected}-portrait.png`;
   }
   dropArt(item: ItemId): string {
-    return `kenny/hornweide/drops/${item}.${item === 'stegosaurus-spikes' ? 'svg' : 'png'}`;
+    return `kenny/hornweide/drops/${item === 'stegosaurus-spikes' ? 'stegosaurus-spikes-lowres' : item}.png`;
   }
   selectedStarter(): CompanionSkillNode {
     return this.skillNodes.find((node) => node.id === this.starterKitId()) || this.skillNodes[0];
