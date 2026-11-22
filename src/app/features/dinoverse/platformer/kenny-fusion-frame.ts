@@ -98,10 +98,38 @@ export function drawKennyFusionCell(
   );
 }
 
-/** Build bite poses at runtime from the SAME actual Kenny/fusion atlas.
- * Only the skull/neck moves, with the legs and inventory staying fully visible.
- * The resulting poses are reused for every skin and all eight fusion rows.
+/** True head-only bites, identical for all eight fusion rows and five skins.
+ * The eye is a stable landmark across all 320 sprites. Aligning *both* source
+ * heads by their eye fixes the old neck gap where pose5's huge open jaw was
+ * pasted at pose0's unrelated (126,54) coordinates.
  */
+const biteEyeCache = new WeakMap<HTMLCanvasElement, { x: number; y: number }>();
+
+function biteEye(image: HTMLCanvasElement): { x: number; y: number } {
+  const cached = biteEyeCache.get(image);
+  if (cached) return cached;
+  const ctx = image.getContext('2d');
+  if (!ctx) return { x: 120, y: 58 };
+  const pixels = ctx.getImageData(0, 0, 192, 192).data;
+  let sx = 0, sy = 0, count = 0;
+  for (let y = 0; y < 120; y++) {
+    for (let x = 98; x < 192; x++) {
+      const index = (y * 192 + x) * 4;
+      const r = pixels[index], g = pixels[index + 1],
+        b = pixels[index + 2], a = pixels[index + 3];
+      // Yellow iris, not the darker orange plates or pale ivory horn.
+      if (r > 210 && g > 184 && b < 115 && a > 200) {
+        sx += x;
+        sy += y;
+        count++;
+      }
+    }
+  }
+  const result = count ? { x: sx / count, y: sy / count } : { x: 120, y: 58 };
+  biteEyeCache.set(image, result);
+  return result;
+}
+
 export function composeKennyDirectionalBite(
   target: HTMLCanvasElement,
   standing: HTMLCanvasElement,
@@ -117,39 +145,42 @@ export function composeKennyDirectionalBite(
   if (!ctx) return;
   ctx.clearRect(0, 0, 192, 192);
   ctx.drawImage(standing, 0, 0);
-  // Cut the actual head only, not the shoulders, chest or clawed arms.
-  // Old 68px ellipse erased most of Kenny's torso in the small sprites.
+
+  // The whole body/arms/feet are always pose0; *only* the real face rotates.
+  const eye = biteEye(standing);
+  const open = progress >= 0.2 && progress <= 0.8;
+  const source = open ? openMouth : standing;
+  const sourceEye = open ? biteEye(openMouth) : eye;
+  const ease = progress < 0.25
+    ? progress / 0.25
+    : progress < 0.75 ? 1 : Math.max(0, (1 - progress) / 0.25);
+
+  // Remove the old head and horns but do not erase the arm/chest silhouette.
   ctx.save();
   ctx.globalCompositeOperation = 'destination-out';
   ctx.beginPath();
-  ctx.ellipse(140, 67, 43, 49, 0, 0, Math.PI * 2);
+  ctx.ellipse(eye.x + 11.5, eye.y - 8, 48.5, 49, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 
-  const open = progress >= 0.20 && progress <= 0.80;
-  const headSource = open ? openMouth : standing;
   const head = document.createElement('canvas');
   head.width = 192;
   head.height = 192;
   const headCtx = head.getContext('2d');
   if (!headCtx) return;
-  headCtx.drawImage(headSource, 0, 0);
+  headCtx.drawImage(source, 0, 0);
   headCtx.globalCompositeOperation = 'destination-in';
   headCtx.beginPath();
-  headCtx.ellipse(140, 67, 46, 51, 0, 0, Math.PI * 2);
+  headCtx.ellipse(sourceEye.x + 10.5, sourceEye.y - 0.5, 50.5, 56.5, 0, 0, Math.PI * 2);
   headCtx.fill();
 
-  const ease = progress < 0.25
-    ? progress / 0.25
-    : progress < 0.75
-      ? 1
-      : Math.max(0, (1 - progress) / 0.25);
-  // Positive canvas rotation points the nose down; negative looks up.
-  const angle = (aim < 0 ? -0.34 : aim > 0 ? 0.36 : 0) * ease;
+  const angle = (aim < 0 ? -0.24 : aim > 0 ? 0.22 : 0) * ease;
+  const pivotX = eye.x - 24;
+  const pivotY = eye.y + 35;
   ctx.save();
-  ctx.translate(111, 108);
+  ctx.translate(pivotX, pivotY);
   ctx.rotate(angle);
-  ctx.translate(-111, -108);
-  ctx.drawImage(head, 0, 0);
+  ctx.translate(-pivotX, -pivotY);
+  ctx.drawImage(head, eye.x - sourceEye.x, eye.y - sourceEye.y);
   ctx.restore();
 }
