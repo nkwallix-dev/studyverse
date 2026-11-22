@@ -247,11 +247,12 @@
           </div>
           <div class="achievement-filters">
             <label>Fach<select [ngModel]="achievementSubject" (ngModelChange)="setAchievementSubject($event)">
-              <option *ngFor="let id of achievementSubjects" [value]="id">{{id==='Alle'?'Alle Fächer':(id==='nawi'?'NAWI · Naturwissenschaften':id.toUpperCase())}}</option>
+              <option *ngFor="let id of achievementSubjects" [value]="id">{{id==='Alle'?'Alle Fächer':id==='begleiter'?'🦖 Begleiter':(id==='nawi'?'NAWI · Naturwissenschaften':id.toUpperCase())}}</option>
             </select></label>
             <label>Test<select [(ngModel)]="achievementTest">
               <option value="Alle">Alle Tests</option>
               <option *ngFor="let trainer of achievementTests" [value]="trainer.id">{{trainer.title}}</option>
+              <option *ngIf="achievementSubject==='Alle'||achievementSubject==='begleiter'" value="kennyverse">Begleiter · Kennyverse</option>
             </select></label>
             <label>Sortieren nach<select [(ngModel)]="achievementSort" aria-label="Achievements sortieren">
               <option value="open">Noch offen zuerst</option>
@@ -269,7 +270,25 @@
               <div class="progress-track"><i [style.width.%]="a.percent"></i></div></div>
             </article></div>
           </section>
-          <div class="empty-tests" *ngIf="achievementGroups.length===0"><span>🪐</span><h3>Hier wartet noch ein Universum voller Erfolge.</h3><p>Beim Hinzufügen neuer Tests erscheinen hier automatisch deren Achievements.</p></div>
+          <section *ngIf="showCompanionAchievements" class="achievements-section kenny-achievement-section" aria-label="Begleiter-Achievements">
+            <div class="section-heading">
+              <div><div class="eyebrow">🦖 BEGLEITER · KENNYVERSE</div><h2>Kennys Achievements <span>✦</span></h2></div>
+              <span class="pill">{{companionAchievementCards.length}} mögliche Erfolge</span>
+            </div>
+            <div class="achievement-grid">
+              <article class="achievement-card" *ngFor="let badge of companionAchievementCards" [class.achievement-unlocked]="badge.done">
+                <div class="achievement-symbol kenny-achievement-symbol"><img [src]="badge.asset" [alt]="badge.title" loading="lazy" /></div>
+                <div class="achievement-content">
+                  <div class="achievement-status">{{badge.done?'✓ FREIGESCHALTET':'🔒 NOCH GESPERRT'}}</div>
+                  <h3>{{badge.title}}</h3><p>{{badge.description}}</p>
+                  <div class="achievement-reward">🦖 {{badge.category}} · Kennyverse</div>
+                  <div class="achievement-foot"><span>{{badge.value}} / {{badge.target}}</span><span>{{badge.percent}}%</span></div>
+                  <div class="progress-track"><i [style.width.%]="badge.percent"></i></div>
+                </div>
+              </article>
+            </div>
+          </section>
+          <div class="empty-tests" *ngIf="achievementGroups.length===0 && !showCompanionAchievements"><span>🪐</span><h3>Hier wartet noch ein Universum voller Erfolge.</h3><p>Beim Hinzufügen neuer Tests erscheinen hier automatisch deren Achievements.</p></div>
         </ng-container>
 
         <ng-container *ngSwitchCase="'shop'">
