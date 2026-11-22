@@ -1,5 +1,5 @@
 import { CompanionEquipmentComponent } from './features/dinoverse/equipment/companion-equipment.component';
-import { CompanionState, ItemId, ItemSlot, amberTotal, recordAmber, normalizeCompanions, mergeCompanions, countItem, recordPickup, equipCompanion } from './features/dinoverse/equipment/companion-equipment.model';
+import { CompanionState, EquipmentSlots, FusionId, FUSION_GOALS, ItemId, ItemSlot, amberTotal, recordAmber, normalizeCompanions, mergeCompanions, countItem, countFusionRuns, recordPickup, recordFusionRun, equipCompanion, equipCompanionKit } from './features/dinoverse/equipment/companion-equipment.model';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -296,6 +296,17 @@ export class App implements OnInit,OnDestroy {
    write(KEY,JSON.stringify(profile));
  }
  get companionState(): CompanionState { return normalizeCompanions(this.profile['companions']); }
+ collectFusionRun(event: { id: string; fusionId: FusionId }): void {
+   if (this.cloud.session && !this.cloudMaySave) return;
+   const before = countFusionRuns(this.companionState, event.fusionId);
+   const next = recordFusionRun(this.companionState, event.id, event.fusionId);
+   if (countFusionRuns(next, event.fusionId) === before) return;
+   this.profile['companions'] = next;
+   this.saveCompanionProgress();
+   if (before < FUSION_GOALS[event.fusionId].runs &&
+       countFusionRuns(next, event.fusionId) >= FUSION_GOALS[event.fusionId].runs)
+     this.platformer?.pause();
+ }
  collectCompanion(event: { id: string; item: ItemId }): void {
    if (this.cloud.session && !this.cloudMaySave) return;
    const before = countItem(this.companionState, event.item);
@@ -316,6 +327,12 @@ export class App implements OnInit,OnDestroy {
    let next = this.companionState;
    for (const id of ids) next = recordAmber(next, id);
    this.profile['companions'] = next;
+   this.saveCompanionProgress();
+ }
+ equipCompanionKit(slots: EquipmentSlots): void {
+   if (this.kennyPanel) this.profile = this.load();
+   if (this.cloud.session && !this.cloudMaySave) return;
+   this.profile['companions'] = equipCompanionKit(this.companionState, slots);
    this.saveCompanionProgress();
  }
  equipCompanionItem(event: { item: ItemId | null; slot: ItemSlot }): void {
