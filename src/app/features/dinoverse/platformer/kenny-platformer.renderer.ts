@@ -61,8 +61,8 @@ export class KennyRenderer {
     ).then(() => undefined);
   }
 
-  /** Load only the currently selected skin's atlas. Each verified 8×8 WebP atlas
-   * is under 900 KB, so don't download all five colors for every mobile player.
+  /** Lazy-load only the equipped skin's real 1536px 8×8 PNG atlas.
+   * Do not fetch all five 2–3MB atlases for every mobile player.
    */
   loadFusionAtlas(skin: string): Promise<void> {
     const selected = ['blue', 'pink', 'green', 'red', 'zebra'].includes(skin) ? skin : 'blue';
@@ -72,7 +72,7 @@ export class KennyRenderer {
     const task = new Promise<void>((resolve, reject) => {
       const image = new Image();
       image.onload = () => {
-        if (image.naturalWidth !== 1254 || image.naturalHeight !== 1254) {
+        if (image.naturalWidth !== 1536 || image.naturalHeight !== 1536) {
           reject(new Error(`Ungültiger Fusionsatlas: ${selected}`));
           return;
         }
