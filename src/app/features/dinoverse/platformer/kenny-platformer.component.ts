@@ -594,7 +594,12 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     const skin = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin) ? this.skin : 'blue';
     const outfitRow = fusionRow(this.world.offense, this.world.defense);
     const nativeFusion = outfitRow !== null && this.renderer.hasFusionAtlas(skin);
-    const directionalBite = this.world.biteTime > 0 && this.world.biteAim !== 0;
+    // Spike users animate the existing tail attack on J; don't replace it with
+    // the generic directional jaw-composition animation.
+    const directionalBite =
+      this.world.biteTime > 0 &&
+      this.world.biteAim !== 0 &&
+      this.world.offense !== 'stegosaurus-spikes';
     const canvasArtwork = nativeFusion || directionalBite;
     const height = nativeFusion ? 88 : state.motion === 'idle' ? 75 : 77;
     const width = canvasArtwork ? height : state.motion === 'idle' ? (height * 541) / 727 : height;
