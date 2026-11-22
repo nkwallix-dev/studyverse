@@ -176,7 +176,7 @@ export class KennyWorld {
     collected: boolean;
     receiptEligible?: boolean;
   })[] = [];
-  readonly enemyAmberDrops: (Rect & { id: string; collected: boolean })[] = [];
+  readonly enemyAmberDrops: (Rect & { id: string; collected: boolean; pickupDelay?: number; checkpointReward?: boolean })[] = [];
   readonly pickupEvents: { id: string; item: ItemId }[] = [];
   readonly fusionRunEvents: { id: string; fusionId: FusionId }[] = [];
   private readonly countedFusions = new Set<FusionId>();
@@ -538,6 +538,10 @@ export class KennyWorld {
     if (!this.dropIgnoreTime) this.dropIgnore = undefined;
     this.biteCooldown = Math.max(0, this.biteCooldown - dt);
     this.biteTime = Math.max(0, this.biteTime - dt);
+    for (const crystal of this.enemyAmberDrops) {
+      if (crystal.pickupDelay && crystal.pickupDelay > 0)
+        crystal.pickupDelay = Math.max(0, crystal.pickupDelay - dt);
+    }
     for (let i = this.pickupBursts.length - 1; i >= 0; i--) {
       this.pickupBursts[i].life -= dt;
       if (this.pickupBursts[i].life <= 0) this.pickupBursts.splice(i, 1);
@@ -1288,7 +1292,8 @@ export class KennyWorld {
       }
     });
     for (const crystal of this.enemyAmberDrops) {
-      if (!crystal.collected && distanceInFields(this.player, crystal) <= BALANCE.pickup.range) {
+      if (!crystal.collected && !crystal.pickupDelay &&
+        distanceInFields(this.player, crystal) <= BALANCE.pickup.range) {
         crystal.collected = true;
         this.amberCount++;
         this.amberEvents.push(crystal.id);
@@ -1307,6 +1312,8 @@ export class KennyWorld {
             w: 14,
             h: 18,
             collected: false,
+            pickupDelay: 0.65,
+            checkpointReward: true,
           });
         }
         this.say(`Checkpoint ${index} aktiviert! ✦ ${reward} Bernstein erschienen.`);
