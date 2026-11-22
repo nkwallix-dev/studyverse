@@ -403,6 +403,10 @@ async function initialize(context, retained = true, companions = undefined) {
       ),
       equipped: null,
       equippedAt: 0,
+      // Cross-family starter kits are now earned by ten distinct equipped runs.
+      fusionRuns: {
+        'horns-plates': Array.from({ length: 10 }, (_, i) => 'historical_horns_plates_' + i),
+      },
       seen: ['stegosaurus-plates', 'triceratops-horns'],
     });
     const inventory = await collection.newPage();
