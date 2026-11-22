@@ -2,6 +2,8 @@ import {
   COMPANION_SKILL_TREE,
   CompanionSkillNode,
   skillUnlocked,
+  fusionProgress,
+  fusionTarget,
   matchingSkill,
 } from './companion-skill-tree';
 import { KennyFusionPreviewComponent } from './kenny-fusion-preview.component';
@@ -10,6 +12,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   COMPANION_ITEMS,
   CompanionState,
+  EquipmentSlots,
   ItemId,
   ItemSlot,
   itemSlot,
@@ -30,6 +33,7 @@ export class CompanionEquipmentComponent {
   @Output() inventoryRequested = new EventEmitter<void>();
   @Output() playRequested = new EventEmitter<void>();
   @Output() equipRequested = new EventEmitter<{ item: ItemId | null; slot: ItemSlot }>();
+  @Output() kitRequested = new EventEmitter<EquipmentSlots>();
   @Output() seenRequested = new EventEmitter<ItemId>();
   readonly items = COMPANION_ITEMS;
   readonly nodes = COMPANION_SKILL_TREE;
@@ -57,9 +61,14 @@ export class CompanionEquipmentComponent {
   }
   chooseKit(node: CompanionSkillNode): void {
     if (!this.isUnlocked(node)) return;
-    // Persist each slot independently with the same existing cloud/achievement system.
-    this.equipRequested.emit({ item: node.slots.offense, slot: 'offense' });
-    this.equipRequested.emit({ item: node.slots.defense, slot: 'defense' });
+    // Commit both slots in one atomic cloud save (also supports run-unlocked pairs).
+    this.kitRequested.emit({ ...node.slots });
+  }
+  fusionProgress(node: CompanionSkillNode): number {
+    return fusionProgress(this.state, node);
+  }
+  fusionTarget(node: CompanionSkillNode): number {
+    return fusionTarget(node);
   }
   skinPortrait(): string {
     const selected = ['blue', 'pink', 'green', 'red', 'zebra'].includes(this.skin)
