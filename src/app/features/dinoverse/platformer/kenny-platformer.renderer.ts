@@ -332,6 +332,23 @@ export class KennyRenderer {
       const icon = this.images.get('amber-icon');
       if (icon) ctx.drawImage(icon, x - 8, y - 10, 16, 20);
     });
+    // A newly reached Pangea checkpoint flashes just like equipping a fusion.
+    for (const burst of world.checkpointBursts) {
+      const progress = 1 - burst.life / burst.duration;
+      const fade = Math.min(1, burst.life / 0.22);
+      ctx.save();
+      ctx.globalAlpha = fade;
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 15; i++) {
+        const angle = Math.PI * 2 * i / 15 + 0.4;
+        const radius = 9 + progress * (31 + (i % 4) * 6);
+        const x = burst.x + Math.cos(angle) * radius;
+        const y = burst.y + Math.sin(angle) * radius;
+        this.circle(x, y, 4.5 - 2.5 * progress, i % 2 ? '#f5c785' : '#b7ffec');
+        this.circle(x, y, 2 - progress, '#fff8db');
+      }
+      ctx.restore();
+    }
     world.loot.forEach((drop) => {
       if (drop.collected) return;
       const icon = this.images.get(`drop-${drop.item}`);
