@@ -1,4 +1,7 @@
-import { CompanionState, EquipmentSlots, ItemId, countItem } from './companion-equipment.model';
+import {
+  CompanionState, EquipmentSlots, ItemId, FusionId, FUSION_GOALS,
+  countItem, countFusionRuns, isFusionId,
+} from './companion-equipment.model';
 
 export interface CompanionSkillNode {
   id: string;
@@ -21,7 +24,13 @@ const kit = (
   title,
   family,
   tier,
-  subtitle: family === 'base' ? 'Von Anfang an verfügbar' : '50 Pickups pro benötigtem Item',
+  subtitle: family === 'base'
+    ? 'Von Anfang an verfügbar'
+    : tier === 1
+      ? '50 originale Pickups'
+      : tier === 2
+        ? '25 Runs mit beiden Items ausgerüstet'
+        : '10 Runs mit beiden Items ausgerüstet',
   slots: { offense, defense },
   needs: [offense, defense].filter((item): item is ItemId => item !== null),
 });
@@ -65,7 +74,14 @@ export const COMPANION_SKILL_TREE: readonly CompanionSkillNode[] = [
   ),
 ];
 export function skillUnlocked(state: CompanionState, node: CompanionSkillNode): boolean {
+  if (isFusionId(node.id)) return countFusionRuns(state, node.id) >= FUSION_GOALS[node.id].runs;
   return node.needs.every((item) => countItem(state, item) >= 50);
+}
+export function fusionProgress(state: CompanionState, node: CompanionSkillNode): number {
+  return isFusionId(node.id) ? countFusionRuns(state, node.id) : 0;
+}
+export function fusionTarget(node: CompanionSkillNode): number {
+  return isFusionId(node.id) ? FUSION_GOALS[node.id].runs : 0;
 }
 export function matchingSkill(slots: EquipmentSlots): CompanionSkillNode {
   return (
