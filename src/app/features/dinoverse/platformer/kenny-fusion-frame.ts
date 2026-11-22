@@ -20,14 +20,14 @@ export function loadKennyFusionAtlas(skin: string): Promise<HTMLImageElement> {
   const load = new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
     image.onload = () => {
-      if (image.naturalWidth !== 1254 || image.naturalHeight !== 1254) {
+      if (image.naturalWidth !== 1536 || image.naturalHeight !== 1536) {
         reject(new Error(`Ungültiger Fusionsatlas: ${selected}`));
         return;
       }
       resolve(image);
     };
     image.onerror = () => reject(new Error(`Fusionsatlas fehlt: ${selected}`));
-    image.src = new URL(`kenny/animations/fusions/${selected}.png?v=5`, document.baseURI).href;
+    image.src = new URL(`kenny/animations/fusions/${selected}-polished.png?v=6`, document.baseURI).href;
   });
   atlasCache.set(selected, load);
   // A transient network error must not poison the preview forever.
@@ -50,6 +50,14 @@ export function drawKennyFusionCell(
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
   ctx.clearRect(0, 0, resolution, resolution);
+  if (atlas.naturalWidth === 1536 && atlas.naturalHeight === 1536) {
+    // Polished sources have exactly 192 transparent-margined pixels per cell.
+    // Draw every pixel: old 8px crop visibly amputated nose and tail.
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(atlas, column * 192, row * 192, 192, 192, 0, 0, 192, 192);
+    return;
+  }
   const cellWidth = atlas.naturalWidth / 8;
   const cellHeight = atlas.naturalHeight / 8;
   // Attack pose 7 extends nearly to the cell edges (head left, spikes right).
@@ -109,11 +117,12 @@ export function composeKennyDirectionalBite(
   if (!ctx) return;
   ctx.clearRect(0, 0, 192, 192);
   ctx.drawImage(standing, 0, 0);
-  // Erase only the skull, keeping the torso, arms, tail and feet stationary.
+  // Cut the actual head only, not the shoulders, chest or clawed arms.
+  // Old 68px ellipse erased most of Kenny's torso in the small sprites.
   ctx.save();
   ctx.globalCompositeOperation = 'destination-out';
   ctx.beginPath();
-  ctx.ellipse(126, 54, 68, 53, 0, 0, Math.PI * 2);
+  ctx.ellipse(140, 67, 43, 49, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 
@@ -127,7 +136,7 @@ export function composeKennyDirectionalBite(
   headCtx.drawImage(headSource, 0, 0);
   headCtx.globalCompositeOperation = 'destination-in';
   headCtx.beginPath();
-  headCtx.ellipse(123, 70, 71, 69, 0, 0, Math.PI * 2);
+  headCtx.ellipse(140, 67, 46, 51, 0, 0, Math.PI * 2);
   headCtx.fill();
 
   const ease = progress < 0.25
@@ -136,11 +145,11 @@ export function composeKennyDirectionalBite(
       ? 1
       : Math.max(0, (1 - progress) / 0.25);
   // Positive canvas rotation points the nose down; negative looks up.
-  const angle = (aim < 0 ? -0.38 : 0.38) * ease;
+  const angle = (aim < 0 ? -0.34 : aim > 0 ? 0.36 : 0) * ease;
   ctx.save();
-  ctx.translate(108, 111);
+  ctx.translate(111, 108);
   ctx.rotate(angle);
-  ctx.translate(-108, -111);
+  ctx.translate(-111, -108);
   ctx.drawImage(head, 0, 0);
   ctx.restore();
 }
