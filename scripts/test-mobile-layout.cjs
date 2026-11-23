@@ -1820,7 +1820,7 @@ async function main(){
      assert.equal(await cosmeticPage.locator('#nav [data-nav="graphs"]').count(),0,'Graphenlabor removed from MathsVerse');
      await cosmeticPage.locator('[data-action="source:open:group-1-80"]').evaluate(el=>el.click());
      const scanned=cosmeticPage.locator('.book-original-sheet img');
-     assert.equal(await scanned.count(),2,'Book 1.80 should present its two authentic source-image fragments');
+     assert.equal(await scanned.count(),1,'Book 1.80 must show its exact original diagram from screenshot 11');
      await cosmeticPage.locator('.book-original-toggle').evaluate(el=>el.open=true);
      await cosmeticPage.waitForFunction(()=>[...document.querySelectorAll('.book-original-sheet img')].every(el=>el.complete&&el.naturalWidth>0));
      assert.equal(await cosmeticPage.locator('.book-step-pick').count(),2,'Book 1.80 must have exactly two independently selectable subtasks');

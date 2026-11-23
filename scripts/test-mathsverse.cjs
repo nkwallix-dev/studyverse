@@ -94,7 +94,7 @@ for(const group of sourceGroups){
 }
 assert.equal(sourceGroups.find(g=>g.number==='1.80').steps.length,2,'Rotational-solid book example 1.80 must be grouped in two steps');
 assert.equal(sourceGroups.find(g=>g.number==='1.100').steps.length,4,'Drone book example 1.100 must be grouped in four steps');
-assert(sourceGroups.find(g=>g.number==='1.80').artwork.includes('book-1-80-a.webp'),'Use original 1.80 diagram, not a hand-drawn substitute');
+assert(sourceGroups.find(g=>g.number==='1.80').artwork.includes('book-1-80.webp'),'Use original 1.80 diagram, not a hand-drawn substitute');
 assert(sourceGroups.find(g=>g.number==='1.100').artwork.includes('book-1-100.webp'),'Use original 1.100 statement scan');
 for(let n=1;n<=15;n++)assert(fs.existsSync('public/maths/sa-01/original-figures/book-page-'+n+'.webp'),'Missing original image for source page '+n);
 
