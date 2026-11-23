@@ -144,6 +144,28 @@ for(const skin of skinIds) {
     }
     await sharp(buf,{raw:{width:b.width,height:b.height,channels:4}}).png({compressionLevel:9}).toFile(path.join(outDir,allRegions[k].id+'.png'));
   }
+  // Narrow backpaint around the articulated joints. Only revealed by tiny rotations,
+  // never replaces the 18 exclusive, pixel-exact base layers.
+  const seams=[
+    [699,437,87],[756,380,62],[729,623,78],
+    [584,704,74],[396,658,68],[197,552,49],
+    [631,682,72],[724,723,62],[849,690,65],[896,716,58]
+  ];
+  const backing=Buffer.alloc(W*H*4);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    let coverage=0;
+    for(const [cx,cy,radius] of seams){
+      const dist=Math.hypot(x-cx,y-cy);
+      if(dist<=radius){
+        coverage=Math.max(coverage,Math.min(1,(radius-dist)/7));
+      }
+    }
+    if(!coverage)continue;
+    const at=(y*W+x)*4;
+    backing[at]=color[at];backing[at+1]=color[at+1];backing[at+2]=color[at+2];
+    backing[at+3]=Math.round(color[at+3]*coverage);
+  }
+  await sharp(backing,{raw:{width:W,height:H,channels:4}}).png({compressionLevel:9}).toFile(path.join(outDir,'seam_underlay.png'));
   // Dedicated eyelid sprite: always covers the eye, no old eye remaining underneath.
   const blue=presets[skin]?.body;
   const lidColor=skin==='blue'?'#187bf0':skin==='green'?'#31ba69':skin==='red'?'#ec4553':skin==='pink'?'#fa5cbd':'#f7f7fb';
