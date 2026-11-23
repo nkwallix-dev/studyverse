@@ -66,14 +66,10 @@ function render(){
  const oldList=document.querySelector('.source-list');
  if(oldList&&document.body.dataset.sourceView)SOURCE.captureList(document.body.dataset.sourceView,oldList.scrollTop);
  document.body.classList.toggle('source-screen',view==='book'||view==='pool');
- document.body.classList.toggle('source-solution-open',(view==='book'||view==='pool')&&SOURCE.isSolutionOpen());
  document.body.dataset.sourceView=(view==='book'||view==='pool')?view:'';
 $('crumb').textContent=names[view]||'MathsVerse';document.querySelectorAll('[data-nav]').forEach(x=>{x.classList.toggle('active',x.dataset.nav===view||(view==='lesson'&&x.dataset.nav==='academy')||(view.startsWith('boss')&&x.dataset.nav==='boss'));if(x.dataset.nav===view)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});$('main').innerHTML=({home,academy,lesson,book,pool,sources,boss:()=>SOURCE.intro(state),bossrun:()=>SOURCE.run(),bossresult:()=>SOURCE.result()}[view]||home)();if(view==='book'||view==='pool'){
  SOURCE.restoreList(view,$('main').querySelector('.source-list'));
- SOURCE.fitDetail($('main'));
- $('main').querySelectorAll('.source-original-figures img').forEach(img=>{
-  if(!img.complete)img.addEventListener('load',()=>SOURCE.fitDetail($('main')),{once:true});
- });
+ SOURCE.focusSolution($('main'));
 }}
 function nav(page){if(!names[page])return;view=page;answered=false;selectedAnswer=-1;feedback='';$('sidebar').classList.remove('open');$('menuToggle').setAttribute('aria-expanded','false');render();window.scrollTo({top:0,behavior:'instant'})}
 document.addEventListener('click',e=>{let t=e.target.closest('[data-nav],[data-action]');if(!t)return;if(t.dataset.nav){nav(t.dataset.nav);return}let a=t.dataset.action||'';

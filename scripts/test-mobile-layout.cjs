@@ -1803,9 +1803,19 @@ async function main(){
      assert(await cosmeticPage.evaluate(()=>document.body.classList.contains('source-screen')),'Book workspace must be fixed');
      assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,'Book page itself must not scroll');
      await cosmeticPage.locator('[data-action="source:reveal"]').first().click();
-     assert(await cosmeticPage.evaluate(()=>document.body.classList.contains('source-solution-open')),'Solution should switch to expandable reading layout');
+     assert.equal(await cosmeticPage.locator('.source-reading .source-solution').count(),1,
+       'Solution must appear inside the document reader, not expand the overall page');
+     assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,
+       'Showing solution must never make the page scrollable');
+     const dockAfterReveal=await cosmeticPage.locator('.source-answer-dock').evaluate(el=>({
+       bottom:el.getBoundingClientRect().bottom,viewport:window.innerHeight,
+       visible:el.getBoundingClientRect().height>60
+     }));
+     assert(dockAfterReveal.visible && dockAfterReveal.bottom<=dockAfterReveal.viewport+3,
+       'Answer dock must remain at the bottom, even when solution is open: '+JSON.stringify(dockAfterReveal));
      await cosmeticPage.locator('[data-action="source:next"]').click();
-     assert(!await cosmeticPage.evaluate(()=>document.body.classList.contains('source-solution-open')),'Selecting the next exercise closes solution mode');
+     assert.equal(await cosmeticPage.locator('.source-reading .source-solution').count(),0,
+       'Selecting next exercise must close the solution inside the reader');
      assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,'Page must be fixed again after next exercise');
      assert.equal(await cosmeticPage.locator('#nav [data-nav="graphs"]').count(),0,'Graphenlabor removed from MathsVerse');
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-original-390.png'),fullPage:true});
@@ -1820,15 +1830,56 @@ async function main(){
      await cosmeticPage.waitForFunction(()=>document.querySelector('.source-original-figures img')?.naturalWidth>0,{timeout:10000});
      assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,
        'Descriptor original statement must not re-enable outer page scrolling');
-     const fitted=await cosmeticPage.locator('.source-detail').evaluate(el=>({
-       outer:el.getBoundingClientRect().bottom,
-       inner:el.querySelector('.source-detail-inner').getBoundingClientRect().bottom
-     }));
-     assert(fitted.inner<=fitted.outer+8,'Original task content must be visually fitted into the fixed card: '+JSON.stringify(fitted));
+     const layout=await cosmeticPage.locator('.source-detail').evaluate(el=>{
+       const reader=el.querySelector('.source-reading'),dock=el.querySelector('.source-answer-dock');
+       const readerRect=reader.getBoundingClientRect(),dockRect=dock.getBoundingClientRect();
+       return {readerBottom:readerRect.bottom,dockTop:dockRect.top,dockBottom:dockRect.bottom,
+         viewport:window.innerHeight,readerScrollable:getComputedStyle(reader).overflowY==='auto',
+         fullWidth:readerRect.width>=el.getBoundingClientRect().width-40};
+     });
+     assert(layout.readerScrollable&&layout.fullWidth,'The entire original descriptor must use the large readable scroll pane: '+JSON.stringify(layout));
+     assert(layout.readerBottom<=layout.dockTop+2&&layout.dockBottom<=layout.viewport+3,
+       'The input dock must stay below the reader and inside the viewport: '+JSON.stringify(layout));
+     const labels=await cosmeticPage.locator('.source-list .source-task').evaluateAll(buttons=>
+       buttons.slice(0,15).map(el=>{
+         const number=el.querySelector('.source-task-number').getBoundingClientRect(),
+               title=el.querySelector('.source-task-title').getBoundingClientRect(),
+               button=el.getBoundingClientRect();
+         return {numberBottom:number.bottom,titleTop:title.top,titleBottom:title.bottom,buttonBottom:button.bottom}
+       }));
+     assert(labels.every(x=>x.numberBottom<=x.titleTop+1&&x.titleBottom<=x.buttonBottom+2),
+       'Task number and title must never overlap inside their button: '+JSON.stringify(labels));
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-50-official-390.png'),fullPage:true});
    }
    await equipped.close();
   }
+  // Desktop regression: original PDF occupies the entire reader width, not a thumbnail.
+  const mathDesktop=await browser.newContext({viewport:{width:1600,height:900},deviceScaleFactor:1});
+  const mathPage=await mathDesktop.newPage();
+  await mathPage.goto(base+'maths/sa-01/',{waitUntil:'load'});
+  await mathPage.locator('#nav [data-nav="pool"]').click();
+  await mathPage.locator('[data-action="source:open:pool-b-377-c"]').evaluate(el=>el.click());
+  await mathPage.locator('.source-pdf-sheet iframe').waitFor();
+  const pdfGeometry=await mathPage.locator('.source-detail').evaluate(detail=>{
+    const iframe=detail.querySelector('.source-pdf-sheet iframe');
+    const reader=detail.querySelector('.source-reading');
+    const dock=detail.querySelector('.source-answer-dock');
+    const pdf=iframe.getBoundingClientRect(),rr=reader.getBoundingClientRect(),dr=dock.getBoundingClientRect();
+    return {pdfWidth:pdf.width,readerWidth:rr.width,iframeHeight:pdf.height,
+      readerBottom:rr.bottom,dockTop:dr.top,dockBottom:dr.bottom,viewport:innerHeight,
+      documentOverflow:document.documentElement.scrollHeight-document.documentElement.clientHeight,
+      pdfSrc:iframe.src,readerOverflow:getComputedStyle(reader).overflowY};
+  });
+  assert(pdfGeometry.pdfWidth>780&&pdfGeometry.pdfWidth>=pdfGeometry.readerWidth-45,
+    'Original SRDP document must fill the right hand pane: '+JSON.stringify(pdfGeometry));
+  assert(pdfGeometry.iframeHeight>=900&&pdfGeometry.pdfSrc.includes('view=FitH'),
+    'PDF must render full-width and allow vertical scrolling inside reading area: '+JSON.stringify(pdfGeometry));
+  assert(pdfGeometry.documentOverflow<=3&&pdfGeometry.readerOverflow==='auto',
+    'Page remains fixed while original PDF is scrollable: '+JSON.stringify(pdfGeometry));
+  assert(pdfGeometry.readerBottom<=pdfGeometry.dockTop+2&&pdfGeometry.dockBottom<=pdfGeometry.viewport+3,
+    'Answer dock must remain fixed below the PDF on desktop: '+JSON.stringify(pdfGeometry));
+  await mathPage.screenshot({path:path.join(screenshots,'mathsverse-pdf-reader-desktop.png'),fullPage:false});
+  await mathDesktop.close();
   // 1440 × 900 desktop: profile settings should fit without scrolling.
   const desktop=await browser.newContext({viewport:{width:1440,height:900}});
   const desktopPage=await desktop.newPage();
