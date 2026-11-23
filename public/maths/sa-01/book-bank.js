@@ -144,12 +144,12 @@ B('1.93a',K,'Die Steigung von y=x²+a·x+2 an x₀=−1 ist k=3. Bestimme a.','a
  'f′=2x+a. Bei x=−1 ist f′=−2+a=3 ⇒ a=5.',5);
 B('1.93b',K,'Die Steigung von y=4x³−a·x²+x an x₀=2 ist k=−1. Bestimme a.','a=25/2=12,5.',
  'f′(x)=12x²−2ax+1. Bei x=2 ergibt 49−4a=−1 ⇒ a=12,5.',12.5);
-B('1.98a',F,'Berechne ∫₀⁴(x²+4x−1)dx.','Achtung: bestimmtes, orientiertes Integral =148/3≈49,3333.',
- 'Stammfunktion x³/3+2x²−x. F(4)−F(0)=64/3+32−4=148/3.',148/3);
+B('1.98a',F,'Berechne ∫₁⁴(x²+4x−1)dx.','Bestimmtes Integral =48.',
+ 'Stammfunktion F(x)=x³/3+2x²−x. Es gilt F(4)=148/3 und F(1)=4/3; Differenz =144/3=48.',48);
 B('1.98b',F,'Berechne ∫₀¹ e^(2x) dx.','(e²−1)/2≈3,1945.',
  'Eine Stammfunktion ist ½e^(2x). Bei 1 und 0 einsetzen.',(Math.exp(2)-1)/2);
-B('1.98c',F,'Berechne ∫₂⁵ √(x³) dx.','(2/5)(5^(5/2)−2^(5/2))≈20,098.',
- 'Schreibe √(x³)=x^(3/2), Stammfunktion 2x^(5/2)/5.',(2/5)*(Math.pow(5,2.5)-Math.pow(2,2.5)));
+B('1.98c',F,'Berechne ∫₂⁵ ³√(x²) dx.','(3/5)(5^(5/3)−2^(5/3))≈6,875.',
+ 'Schreibe ³√(x²)=x^(2/3) und verwende die Potenzregel für Stammfunktionen: 3x^(5/3)/5.',(3/5)*(Math.pow(5,5/3)-Math.pow(2,5/3)));
 B('1.98d',F,'Berechne ∫₀^(π/2) 3sin(x)dx.','Ergebnis =3.',
  'Stammfunktion −3cos x. Obere minus untere Grenze: −3cos(π/2)+3cos 0=3.',3);
 B('1.100a',V,'Eine Drohne wird durch a(t)=0,0036t²−0,18t+2,25 auf [0;25] beschleunigt. Anfangsgeschwindigkeit v(0)=3 m/s. Bestimme v(t).','v(t)=0,0012t³−0,09t²+2,25t+3.',
@@ -577,6 +577,27 @@ B('1.82b',K,'Zeichne f(x)=x³/8−3x²/2+9x/2+1 im Intervall [1;7], markiere Max
  'f(2)=5 mit f′(2)=0 und f″(2)<0. Bei x=4 ist f″(4)=0 und f′(4)=−3/2.',
  'Berechne eine kleine Wertetabelle und markiere die beiden besonderen Punkte. Die Kurve ist kubisch.',
  null,{curves:[{label:'f',poly:[1/8,-3/2,9/2,1]}],x:[1,7],y:[0,6]});
+
+
+B('1.97a',I,'Bei ∫(2+sin(3x))dx wurde fälschlich 2x−3cos(3x)+C als Stammfunktion notiert. Finde und korrigiere den Fehler.',
+ 'Korrekt F(x)=2x−(1/3)cos(3x)+C.',
+ 'Wegen der inneren Ableitung 3 muss bei der Integration von sin(3x) durch 3 geteilt werden, nicht mit 3 multipliziert werden.');
+B('1.97b',I,'Bei ∫(2x−1/x³)dx wurde fälschlich x²−3/x²+C notiert. Korrigiere.',
+ 'Korrekt F(x)=x²+1/(2x²)+C.',
+ 'Schreibe −1/x³=−x⁻³. Die Potenzregel rückwärts gibt (−1)/(−2)·x⁻²=1/(2x²).');
+B('1.99',F,'Ein gerader Kanal ist 10 m lang. Sein Querschnitt wird durch f(x)=1+cos(2πx/3) für 0≤x≤3 beschrieben und ist spiegelbildlich. Das Wasser steht 1 m hoch. Berechne die Wassermenge in Hektolitern.',
+ 'Wasserquerschnitt A=3/π≈0,955 m²; Volumen ≈9,549 m³=95,49 hL.',
+ 'Wasser liegt unter y=1 und über f zwischen x=0,75 und 2,25. A=∫₀,₇₅²,₂₅(1−f(x))dx=3/π. Mit Kanallänge 10 multiplizieren, m³ in hL umrechnen.',300/Math.PI,
+ {curves:[{label:'Kanalsohle',points:[[0,2],[0.375,1.707],[0.75,1],[1.125,.293],[1.5,0],[1.875,.293],[2.25,1],[2.625,1.707],[3,2]]},{label:'Wasserstand',points:[[0,1],[3,1]]}],area:{a:.75,b:2.25,between:true},x:[0,3],y:[-.15,2.3]});
+B('1.100b',V,'Eine Drohne hat a(t)=0,0036t²−0,18t+2,25 und v(0)=3 m/s auf 0≤t≤25 s. Berechne die Geschwindigkeit nach 25 s.',
+ 'v(t)=0,0012t³−0,09t²+2,25t+3; v(25)=21,75 m/s.',
+ 'Beschleunigung integrieren, Anfangsgeschwindigkeit als Konstante verwenden und t=25 einsetzen.',21.75);
+B('1.100c',V,'Erkläre die Bedeutung des Integrals ∫₀²⁵a(t)dt bei der Drohne mit Beschleunigung a(t)=0,0036t²−0,18t+2,25.',
+ 'Das Integral ist die Geschwindigkeitsänderung in 25 s, hier 18,75 m/s.',
+ 'Da a=v′ gilt ∫₀²⁵a(t)dt=v(25)−v(0)=21,75−3.');
+B('1.100d',V,'Die Drohne startet mit v(0)=3 m/s und a(t)=0,0036t²−0,18t+2,25. Wann hat sie ab Messbeginn 200 m zurückgelegt?',
+ 'Löse 0,0003t⁴−0,03t³+1,125t²+3t=200 im zulässigen Intervall 0≤t≤25.',
+ 'Aus a erhält man v(t)=0,0012t³−0,09t²+2,25t+3. Nochmals integrieren und s(0)=0 setzen. Danach s(t)=200 numerisch lösen.');
 
 if(new Set(R.map(x=>x.id)).size!==R.length)throw Error('Duplicate book IDs');
 window.MATHS_BOOK_BANK=Object.freeze(R);
