@@ -21,7 +21,7 @@ import { StudyverseCloud, CloudSnapshot, PublicPlayer, PublicShowcase, PublicCou
 import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, KENNY_ZEBRA_SKIN, KENNY_BLUE_SKIN, KENNY_BLUE_AVATAR, KENNY_SKIN_AVATARS, DinoSeasonState, DinoDrop,
   freshDinoState, normalizeDinoState, dinoLevel, nextDinoLevel, isKennyActive, cashbackDue, kennyCountdown,
   eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason, hasKennyCompanion, kennyStaysAfterSeason, kennyAvatarForSkin, kennyAvatarSkin, kennyPortrait } from './dino-season';
-import { atlasBackgroundPosition, feedAtlasCell } from './features/dinoverse/kenny-atlas.animation';
+import { atlasAsset, atlasBackgroundPosition, feedAtlasCell } from './features/dinoverse/kenny-atlas.animation';
 
 type View =
   | 'dashboard'
@@ -117,6 +117,8 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
  private kennyAnimationFrame:number|null=null;
  private kennyFeedStartedAt=0;
  private readonly kennyReducedMotion=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ /** Resolve public sprite URLs against the deployed app base, including /studyverse/. */
+ kennyAtlasBackground(skin:string):string{return `url("${new URL(atlasAsset(skin)+'?v=8',document.baseURI).href}")`;}
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  readonly cloud=new StudyverseCloud();
  cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
@@ -223,7 +225,7 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
      if(sprite){
        const logicalFeedFrame=Math.max(0,Math.min(95,Math.floor((timestamp-this.kennyFeedStartedAt)*30/1000)));
        const idleTick=Math.floor(timestamp*30/1000)%192;
-       const cell=this.kennyFeeding&&!this.kennyReducedMotion
+       const cell=this.kennyFeeding
          ?feedAtlasCell(logicalFeedFrame)
          :{column:this.kennyReducedMotion||idleTick<183?0:idleTick-183,row:0};
        sprite.style.backgroundPosition=atlasBackgroundPosition(cell);
