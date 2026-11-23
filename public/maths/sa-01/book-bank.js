@@ -64,7 +64,7 @@ B('1.30',V,'Aus 144 cm Draht entsteht das Kantenmodell eines Quaders mit quadrat
  'Drahtlänge 8a+4h=144 ⇒ h=36−2a. V=a²(36−2a). V′=72a−6a²=0 liefert a=12, h=12.',12);
 B('1.31',K,'Ein Bauer hat 50 m² Wiese. Eine Ziege gibt jährlich 800 l Milch; jede zusätzliche Ziege senkt die Jahresproduktion pro Ziege um 10 l. Wie viele Ziegen geben insgesamt die größte Milchmenge?','40 Ziegen, Milchmenge 16 000 l.',
  'M(n)=n(800−10n). Die Parabel ist nach unten geöffnet; Scheitel bei n=800/(20)=40.',40);
-B('1.55a',I,'Berechne ∫(4x²−3x+1) dx.','F(x)=4x³/3−3x²/2+x+C.',
+B('1.55a',I,'Berechne ∫(4x³−3x+1) dx.','F(x)=x⁴−3x²/2+x+C.',
  'Potenzregel rückwärts auf alle Summanden anwenden. Jede Stammfunktion hat +C.');
 B('1.55b',I,'Berechne ∫(a·t+b) dt (a,b sind Konstanten).','F(t)=a·t²/2+b·t+C.',
  'Konstante Faktoren stehen lassen; t bekommt beim Integrieren Exponent 2.');
@@ -222,9 +222,9 @@ B('1.9c',A,'Gegeben v=−ωcos(ωt−φ). Bestimme ∂v/∂t und ∂v/∂ω.',
 B('1.9d',A,'Gegeben η=(T₂−T₁)/T₁. Bestimme ∂η/∂T₁ und ∂η/∂T₂.',
  'η_T₁=−T₂/T₁²; η_T₂=1/T₁.',
  'Schreibe zuerst η=T₂/T₁−1. Bei jeder partiellen Ableitung bleibt die andere Temperatur konstant.');
-B('1.56a',I,'Berechne ∫(−5x²+3/x³−√x)dx.',
- 'F(x)=−5x³/3−3/(2x²)−(2/3)x^(3/2)+C.',
- '3/x³ als 3x⁻³ schreiben: Integral ist −(3/2)x⁻². √x=x^(1/2) wird zu (2/3)x^(3/2).');
+B('1.56a',I,'Berechne ∫(−5x²+3/x³−³√x)dx.',
+ 'F(x)=−5x³/3−3/(2x²)−(3/4)x^(4/3)+C.',
+ '3/x³ als 3x⁻³ schreiben. Die dritte Wurzel als x^(1/3) auffassen; das Integral ist (3/4)x^(4/3).');
 B('1.61a',I,'Berechne ∫3x·e^(2x)dx mittels partieller Integration.',
  'F(x)=(3/2)x·e^(2x)−(3/4)e^(2x)+C.',
  'u=3x und dv=e^(2x)dx; damit du=3dx und v=e^(2x)/2. Verwende ∫u dv=uv−∫vdu.');
