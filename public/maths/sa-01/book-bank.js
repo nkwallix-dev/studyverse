@@ -47,7 +47,7 @@ B('1.10b',K,'f(x)=sin(x), x₀=π, k=0. Gib Steigung und Steigungswinkel bei x�
  'Sinus ableiten. Bei π ist der Cosinus −1. Für die Nullstellen von cos x die Periode beachten.',-1);
 B('1.12a',K,'Eine Fahrt wird durch das nebenstehende Entfernungs-Zeit-Diagramm näherungsweise beschrieben. 1) Ermittle jeweils die Geschwindigkeit für die drei Abschnitte.','Abschnitt 1: 50/3≈16,67 km/h; Abschnitt 2: 0 km/h; Abschnitt 3: −50/3≈−16,67 km/h.',
  'Geschwindigkeit = ΔWeg/ΔZeit. Positive Steigung bedeutet Entfernung nimmt zu, Null bedeutet unveränderte Entfernung, negative Steigung bedeutet Rückfahrt.',
- null,{curves:[{label:'s(t)',points:[[0,0],[3,50],[5,50],[8,0]]}],x:[0,8],y:[-5,60]});
+ null,{kind:'book-distance-time',curves:[{label:'s(t)',points:[[0,0],[3,50],[5,50],[8,0]]}],x:[0,8],y:[-5,60]});
 B('1.14',K,'Diskutiere f(x)=0,2x³−x² und bestimme die Wendetangente.','f′=0,6x²−2x; f″=1,2x−2. Wendestelle x=5/3; Wendepunkt (5/3|−50/27); Steigung m=−5/3. Wendetangente y=−5x/3+25/27.',
  'Für Wendestellen f″=0 setzen; x in f und f′ einsetzen. Wendetangente y=f′(xW)(x−xW)+f(xW).',
  null,{curves:[{label:'f',poly:[0.2,-1,0,0]}],x:[-1,5],y:[-4,3]});
@@ -468,13 +468,13 @@ B('1.61c',I,'Berechne ∫(3−2x)/(x²−3x+4)² dx.',
 /* Subparts from original graph and application pages 2, 3 and 9. */
 B('1.12b',K,'Eine Fahrt wird durch das Entfernungs-Zeit-Diagramm beschrieben. 2) Erkläre, warum zum Zeitpunkt t=3 keine Momentangeschwindigkeit berechnet werden kann.',
  'Die Funktion ist bei t=3 nicht differenzierbar: Linkssteigung 50/3 km/h, Rechtssteigung 0 km/h.',
- 'Am Knick sind links- und rechtsseitige Differenzialquotienten unterschiedlich, also existiert dort keine gemeinsame Tangentensteigung.');
+ 'Am Knick sind links- und rechtsseitige Differenzialquotienten unterschiedlich, also existiert dort keine gemeinsame Tangentensteigung.',null,{kind:'book-distance-time'});
 B('1.12c',K,'Eine Fahrt wird durch das Entfernungs-Zeit-Diagramm mit (0|0),(3|50),(5|50),(8|0) beschrieben. 3) Zeichne das zugehörige Geschwindigkeit-Zeit-Diagramm.',
  'v(t)=50/3 km/h auf (0;3), v(t)=0 auf (3;5), v(t)=−50/3 auf (5;8); an den Knicken t=3 und t=5 ist v nicht eindeutig.',
- 'Nimm die Steigung der drei Strecken des Entfernungs-Zeit-Diagramms. Diese Steigung ist die Geschwindigkeit.');
+ 'Nimm die Steigung der drei Strecken des Entfernungs-Zeit-Diagramms. Diese Steigung ist die Geschwindigkeit.',null,{kind:'book-distance-time'});
 B('1.12d',K,'Eine Fahrt wird durch das Entfernungs-Zeit-Diagramm beschrieben. 4) Berechne die mittlere Geschwindigkeit im Zeitintervall [0; 5].',
  'v_mittel=(50−0)/(5−0)=10 km/h.',
- 'Die mittlere Änderungsrate ist der Differenzenquotient (s(5)−s(0))/5.',10);
+ 'Die mittlere Änderungsrate ist der Differenzenquotient (s(5)−s(0))/5.',10,{kind:'book-distance-time'});
 B('1.17b',K,'Die Temperatur T(t)=−0,16t³+0,82t²+0,8t+36,5 (0≤t≤6) steigt zunächst. Wann ist ihr Anstieg am stärksten?',
  'Der stärkste Temperaturanstieg liegt bei t=41/24≈1,708 h.',
  'Maximiere T′(t)=−0,48t²+1,64t+0,8. Für das Maximum von T′ gilt T″=−0,96t+1,64=0.',41/24);

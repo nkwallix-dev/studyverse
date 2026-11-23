@@ -14,6 +14,18 @@ function shuffle(items){let a=[...items];for(let i=a.length-1;i>0;i--){let j=Mat
 const key=q=>q.id.replace(/[^a-z0-9-]/gi,'_');
 const solvedKey=(q,mode)=>mode==='book'?'n'+key(q):'q'+key(q);
 function plot(graph){
+ if(graph?.kind==='book-distance-time'){
+  const nums=[0,1,2,3,4,5,6,7,8].map(x=>'<text x="'+(48+68*x)+'" y="222" font-size="12" text-anchor="middle" fill="#e6f6df">'+x+'</text>').join('');
+  return '<figure class="source-graph book-original-graph"><svg viewBox="0 0 660 270" role="img" aria-label="Entfernungs-Zeit-Diagramm aus Buchbeispiel 1.12, nach der Originalabbildung gezeichnet">'+
+  '<path d="M48 18V205H639" stroke="#d3edc7" stroke-width="2" fill="none"/>'+
+  '<path d="M48 35H640M48 68H640M48 101H640M48 135H640M48 168H640" stroke="#b9d6b4" stroke-opacity=".16" fill="none"/>'+
+  '<path d="M48 205L252 35L388 35L592 205" fill="none" stroke="#a4edb4" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>'+
+  '<path d="M252 35V205M388 35V205" stroke="#e1f5db" stroke-opacity=".45" stroke-dasharray="6 5"/>'+
+  '<text x="22" y="38" fill="#e6f6df" font-size="13">50</text><text x="22" y="172" fill="#e6f6df" font-size="13">10</text>'+
+  '<text x="11" y="14" fill="#e6f6df" font-size="13">Entfernung in km</text><text x="513" y="253" fill="#e6f6df" font-size="13">Zeit in h</text>'+
+  '<text x="143" y="133" font-size="21" font-weight="bold" fill="#eff4ab">①</text><text x="317" y="25" font-size="21" font-weight="bold" fill="#eff4ab">②</text><text x="485" y="132" font-size="21" font-weight="bold" fill="#eff4ab">③</text>'+
+  nums+'</svg><figcaption>Entfernungs-Zeit-Diagramm aus dem Buch (nach Screenshot 02 rekonstruiert, keine Trapezflächen)</figcaption></figure>';
+ }
  if(!graph||!Array.isArray(graph.curves)||!graph.curves.length)return '';
  const W=640,H=280,xRange=graph.x||[-5,5],yRange=graph.y||[-5,5];
  const x0=Number(xRange[0]),x1=Number(xRange[1]),y0=Number(yRange[0]),y1=Number(yRange[1]);

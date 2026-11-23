@@ -88,6 +88,8 @@ const approx=(actual,expected,id)=>assert(Math.abs(actual-expected)<1e-8,id+' va
 for(const [number,page] of [['1.1a',1],['1.11a',2],['1.18a',3],['1.21',4],['1.31',6],['1.55a',7],['1.57c',7],['1.67c',8],['1.73b',9],['1.82d',11],['1.98d',13],['2.24a',14],['2.36a',15]]){
  assert.equal(original.get(number)?.originalScreenshot,page,number+' must cite the actual screenshot in the provided ZIP');
 }
+assert(original.get('1.12a').graph.kind==='book-distance-time'&&original.get('1.12b').graph.kind==='book-distance-time'&&original.get('1.12d').graph.kind==='book-distance-time','1.12 variants use the real distance-time diagram instead of a made-up graph');
+assert(sourceJs.includes('book-original-graph'),'Source graph must be an accurately labelled diagram');
 assert(original.get('1.18a').prompt.includes('110 GE'),'Sessel variable costs are part of original 1.18');
 assert(original.get('1.21').prompt.includes('W(−1|0,5)'),'Wendepunkt must use original ordinate 0.5');
 assert(original.get('1.55a').prompt.includes('4x³'),'1.55a contains a cubic power');
