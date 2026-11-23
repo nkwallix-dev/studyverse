@@ -2894,3 +2894,14 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 }
 .shop-preview-modal[data-category="avatar"] .preview-after,
 .shop-preview-modal[data-category="title"] .preview-after{clip-path:none!important}
+
+/* Toxic Neon globals live outside the component CSS size budget. */
+.universe[data-theme="neon"]{
+ --bg:#200f34;--sidebar:#2a1249;--card:#34214f;--card2:#23243e;--border:#7851a2;
+ --accent:#aaff60;--accent2:#d1a1ff;--glow:#88ff4a;
+ background:radial-gradient(circle at 85% 12%,#a9ff4540,transparent 36%),linear-gradient(125deg,#351157 0%,#3e2172 38%,#134631 72%,#23683c 100%);
+}
+.universe[data-theme="neon"] .sidebar{background:linear-gradient(180deg,#2f1652,#203a32)!important}
+.universe[data-theme="neon"] .topbar{background:linear-gradient(95deg,#3c1c68eb,#215b44e8)!important}
+.universe[data-theme="neon"] .hero{background:linear-gradient(112deg,#4f2487,#4c247a 34%,#29764c 73%,#6dbd37)!important}
+.universe[data-theme="neon"] .stat,.universe[data-theme="neon"] .item{background:linear-gradient(140deg,#412458,#254a3a 90%)}
