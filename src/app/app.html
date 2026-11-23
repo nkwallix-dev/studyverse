@@ -170,7 +170,7 @@
                   <div class="kenny-sun"></div><div class="kenny-mountain left"></div><div class="kenny-mountain right"></div>
                   <div class="kenny-volcano"><i></i></div><div class="kenny-ground"></div>
                   <span class="kenny-stage-label">🦖 SEASON 01 · KENNY</span>
-                  <div class="kenny-sprite" role="img" aria-label="Kenny mit deinem Skin" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyLevel-1)*0.07"></div>
+                  <div class="kenny-sprite" role="img" aria-label="Kenny mit deinem Skin" [attr.data-skin]="kennySkin" [style.background-image]="kennyAtlasBackground(kennySkin)" [style.--kenny-scale]="1+(kennyLevel-1)*0.07"></div>
                   <div class="kenny-stage-name"><strong>KENNY</strong><span>Level {{kennyLevel}} / 5</span></div><button type="button" class="companion-banner-brush" (click)="openDinoDesigner()" aria-label="Kenny gestalten" title="Designe deinen Dino">🖌️</button>
                 </div>
                 <div class="companion-card-body">
@@ -387,7 +387,7 @@
                 <div class="kenny-volcano"><i></i></div><div class="kenny-lava"></div>
                 <div class="kenny-ground"></div><div class="kenny-fern fern-left">🌿</div><div class="kenny-fern fern-right">🌿</div>
                 <span class="kenny-stage-label">🦖 DINO-VERSE · SEASON 01</span>
-                <div #kennyStageSprite class="kenny-sprite" role="img" aria-label="Kenny, der Raptor" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyVisualLevel-1)*0.07"></div>
+                <div #kennyStageSprite class="kenny-sprite" role="img" aria-label="Kenny, der Raptor" [attr.data-skin]="kennySkin" [style.background-image]="kennyAtlasBackground(kennySkin)" [style.--kenny-scale]="1+(kennyVisualLevel-1)*0.07"></div>
                 <div class="kenny-stage-name"><strong>KENNY</strong><span>Dein Begleiter für Chemie und Data Science</span></div>
                 <div class="kenny-level-medal"><small>LEVEL</small><strong>{{kennyVisualLevel}}</strong><span>/ 5</span></div>
               </div>
