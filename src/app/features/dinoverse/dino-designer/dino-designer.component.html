@@ -14,6 +14,11 @@
       </button>
     </div>
   </header>
+  <nav class="kenny-designer-mode" aria-label="Dino-Designer Ansichten">
+    <button type="button" [class.active]="view === 'designer'" [attr.aria-pressed]="view === 'designer'" (click)="view='designer'">🎨 Dino-Designer</button>
+    <button type="button" [class.active]="view === 'test'" [attr.aria-pressed]="view === 'test'" (click)="view='test'">🦴 Test · Kenny-Rig</button>
+  </nav>
+  <ng-container *ngIf="view === 'designer'">
   <div class="dino-designer-grid">
     <article class="dino-designer-card">
       <div class="kenny-stage dino-designer-live">
@@ -75,4 +80,6 @@
       <small>🔒 COMING SOON</small>
     </article>
   </div>
+  </ng-container>
+  <app-kenny-rig-preview *ngIf="view === 'test'" [skin]="kennySkin"></app-kenny-rig-preview>
 </section>
