@@ -61,9 +61,9 @@
     <div class="eyebrow">Vorschau · Originalgrafik als PNG-Bauteile</div>
     <h3>Kennys Rig-Testlabor</h3>
     <p>
-      Kein neu gezeichneter Dino: Die Figur wird aus separaten transparenten PNGs
-      des freigegebenen Kenny zusammengesetzt. Gelenke und Animation werden
-      unabhängig von Skin, Expedition und Firestore gesteuert.
+      Kein neu gezeichneter Dino: Die Figur wird aus separaten transparenten PNGs des freigegebenen
+      Kenny zusammengesetzt. Gelenke und Animation werden unabhängig von Skin, Expedition und
+      Firestore gesteuert.
     </p>
     <div class="skins" role="group" aria-label="Test-Skin auswählen">
       <button
@@ -84,17 +84,9 @@
       >
         {{ playing ? '⏸ Pause' : '▶ Play' }}
       </button>
-      <button type="button" (click)="step(-1)" aria-label="Ein Frame zurück">
-        ← Frame
-      </button>
-      <button type="button" (click)="step(1)" aria-label="Ein Frame weiter">
-        Frame →
-      </button>
-      <button
-        type="button"
-        (click)="showBones = !showBones"
-        [attr.aria-pressed]="showBones"
-      >
+      <button type="button" (click)="step(-1)" aria-label="Ein Frame zurück">← Frame</button>
+      <button type="button" (click)="step(1)" aria-label="Ein Frame weiter">Frame →</button>
+      <button type="button" (click)="showBones = !showBones" [attr.aria-pressed]="showBones">
         🦴 Gelenke
       </button>
     </div>
@@ -103,14 +95,14 @@
       {{ parts.length }} transparente Master-PNG-Ebenen · 6,4 s Idle-Loop
     </div>
     <p *ngIf="imageError" class="rig-error" role="alert">
-      Einige Einzelbilder konnten nicht geladen werden. Die Originalgrafik bleibt als Fallback sichtbar.
+      Einige Einzelbilder konnten nicht geladen werden. Die Originalgrafik bleibt als Fallback
+      sichtbar.
       {{ imageError }}
     </p>
     <p class="rig-legend">
-      <strong>Testversion:</strong> Form, Farben und Details stammen vom
-      freigegebenen Kenny. Die Gelenkbewegungen sind absichtlich noch klein,
-      bis alle verdeckten Flächen und Übergänge künstlerisch geprüft wurden.
-      Skins wechseln hier ausschließlich in der Vorschau.
+      <strong>Testversion:</strong> Form, Farben und Details stammen vom freigegebenen Kenny. Die
+      Gelenkbewegungen sind absichtlich noch klein, bis alle verdeckten Flächen und Übergänge
+      künstlerisch geprüft wurden. Skins wechseln hier ausschließlich in der Vorschau.
     </p>
   </div>
 </section>

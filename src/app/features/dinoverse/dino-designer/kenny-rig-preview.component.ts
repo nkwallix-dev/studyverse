@@ -49,10 +49,8 @@ export class KennyRigPreviewComponent implements OnInit, OnDestroy {
   ];
   readonly bones = KENNY_RIG_BONES;
   readonly fps = KENNY_RIG_FPS;
-  readonly fallback = new URL(
-    'kenny/rig/v1/source/kenny-approved-master.png',
-    document.baseURI,
-  ).href;
+  readonly fallback = new URL('kenny/rig/v1/source/kenny-approved-master.png', document.baseURI)
+    .href;
 
   currentSkin = 'blue';
   skinOverridden = false;
@@ -70,12 +68,24 @@ export class KennyRigPreviewComponent implements OnInit, OnDestroy {
 
   // Composition order: far side -> core -> face -> near side.
   private readonly order = [
-    'tail_tip', 'tail_mid', 'tail_base',
-    'thigh_far', 'shin_far', 'foot_far',
-    'torso_core', 'neck', 'head_upper', 'jaw_lower', 'eye_open',
-    'arm_far', 'hand_far',
-    'thigh_near', 'shin_near', 'foot_near',
-    'arm_near', 'hand_near',
+    'tail_tip',
+    'tail_mid',
+    'tail_base',
+    'thigh_far',
+    'shin_far',
+    'foot_far',
+    'torso_core',
+    'neck',
+    'head_upper',
+    'jaw_lower',
+    'eye_open',
+    'arm_far',
+    'hand_far',
+    'thigh_near',
+    'shin_near',
+    'foot_near',
+    'arm_near',
+    'hand_near',
   ];
 
   get orderedParts(): KennyPart[] {
@@ -141,17 +151,13 @@ export class KennyRigPreviewComponent implements OnInit, OnDestroy {
       return;
     }
     this.imageError = '';
-    const urls = this.parts.map((part) =>
-      new URL(
-        `kenny/rig/v1/parts/${this.renderSkin(skin)}/${part.id}.png`,
-        document.baseURI,
-      ).href,
+    const urls = this.parts.map(
+      (part) =>
+        new URL(`kenny/rig/v1/parts/${this.renderSkin(skin)}/${part.id}.png`, document.baseURI)
+          .href,
     );
     urls.push(
-      new URL(
-        `kenny/rig/v1/parts/${this.renderSkin(skin)}/eye_closed.png`,
-        document.baseURI,
-      ).href,
+      new URL(`kenny/rig/v1/parts/${this.renderSkin(skin)}/eye_closed.png`, document.baseURI).href,
     );
     try {
       await Promise.all(
@@ -184,21 +190,18 @@ export class KennyRigPreviewComponent implements OnInit, OnDestroy {
     const nearArm = this.pose.nearArm * 0.16;
     const farArm = (this.pose.farArm - kennyIdlePose(0).farArm) * 0.15;
     if (id === 'tail_base') return rotate(tail, 584, 704);
-    if (id === 'tail_mid')
-      return `${rotate(tail, 584, 704)} ${rotate(tailTip * 0.5, 396, 658)}`;
+    if (id === 'tail_mid') return `${rotate(tail, 584, 704)} ${rotate(tailTip * 0.5, 396, 658)}`;
     if (id === 'tail_tip')
       return `${rotate(tail, 584, 704)} ${rotate(tailTip * 0.5, 396, 658)} ${rotate(tailTip, 197, 552)}`;
     if (id === 'neck') return rotate(head * 0.4, 729, 623);
     if (id === 'head_upper' || id === 'eye_open' || id === 'eye_closed')
       return rotate(head, 699, 437);
-    if (id === 'jaw_lower')
-      return `${rotate(head, 699, 437)} ${rotate(jaw, 756, 380)}`;
+    if (id === 'jaw_lower') return `${rotate(head, 699, 437)} ${rotate(jaw, 756, 380)}`;
     if (id === 'arm_near') return rotate(nearArm, 631, 682);
     if (id === 'hand_near')
       return `${rotate(nearArm, 631, 682)} ${rotate(nearArm * 0.4, 724, 723)}`;
     if (id === 'arm_far') return rotate(farArm, 849, 690);
-    if (id === 'hand_far')
-      return `${rotate(farArm, 849, 690)} ${rotate(farArm * 0.4, 896, 716)}`;
+    if (id === 'hand_far') return `${rotate(farArm, 849, 690)} ${rotate(farArm * 0.4, 896, 716)}`;
     return '';
   }
 
