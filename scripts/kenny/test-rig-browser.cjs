@@ -84,6 +84,10 @@ function browserPath() {
     await rig.getByRole('button',{name:'Pause'}).click();
     const before=await rig.locator('.frame-meta').last().innerText();
     await rig.getByRole('button',{name:'Ein Frame weiter'}).click();
+    await page.waitForFunction(previous => {
+      const nodes = document.querySelectorAll('app-kenny-rig-preview .frame-meta');
+      return nodes.length > 0 && nodes[nodes.length - 1].textContent.trim() !== previous.trim();
+    }, before, {timeout: 5000});
     const after=await rig.locator('.frame-meta').last().innerText();
     assert.notEqual(before,after,'Frame step should change the frame counter');
     await rig.getByRole('button',{name:'Pink',exact:true}).click();
