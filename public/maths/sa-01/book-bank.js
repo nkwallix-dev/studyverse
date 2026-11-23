@@ -513,6 +513,42 @@ B('1.74a',V,'Nach Öffnung einer Kanalschleuse ist v(t)=6,2t·e^(−1,4t) m³/s.
  'Es ist das Wasservolumen in m³, das während der ersten 40 Sekunden durch die Schleuse strömt.',
  'Durchflussgeschwindigkeit ist Volumen pro Zeit. Integrieren über die Zeit summiert das Gesamtvolumen.');
 
+
+/* Complete source page 12 (1.89–1.92), preserving the provided formulas. */
+B('1.89b',A,'Bestimme f′ und f″ von f(x)=³√x+2/√x−4/x³.',
+ 'f′=(1/3)x^(−2/3)−x^(−3/2)+12x^(−4); f″=−(2/9)x^(−5/3)+(3/2)x^(−5/2)−48x^(−5).',
+ 'Schreibe die Ausdrücke als Potenzen x^(1/3), 2x^(−1/2) und −4x^(−3). Dann zweimal die Potenzregel anwenden.');
+B('1.89c',A,'Bestimme f′ und f″ von f(x)=−2x³+⁴√(x³).',
+ 'f′=−6x²+(3/4)x^(−1/4); f″=−12x−(3/16)x^(−5/4).',
+ 'Die vierte Wurzel von x³ ist x^(3/4), dann beide Glieder zweimal ableiten.');
+B('1.90a',A,'Leite f(x)=(2x³−4x+5)³ ab.',
+ 'f′(x)=3(2x³−4x+5)²·(6x²−4).',
+ 'Kettenregel: Äußere Potenz drei ableiten und mit innerer Ableitung 6x²−4 multiplizieren.');
+B('1.90b',A,'Leite g(x)=x²·ln(x) ab.',
+ 'g′(x)=2xln(x)+x, x>0.',
+ 'Produktregel, wobei (x²)′=2x und (ln x)′=1/x.');
+B('1.90c',A,'Leite h(x)=(3x²−5)/(4−x²) ab.',
+ 'h′(x)=14x/(4−x²)² für x≠±2.',
+ 'Quotientenregel: [(6x)(4−x²)−(3x²−5)(−2x)]/(4−x²)²; im Zähler kürzen sich die kubischen Terme.');
+B('1.91a',A,'Leite f(x)=sin²(5x) ab.',
+ 'f′(x)=10sin(5x)cos(5x)=5sin(10x).',
+ 'Äußere Funktion u² zu 2u ableiten; innere Ableitung von sin(5x) ist 5cos(5x).');
+B('1.91b',A,'Leite g(x)=3cos(4x²) ab.',
+ 'g′(x)=−24xsin(4x²).',
+ 'Kettenregel: cos wird zu −sin, innere Ableitung 8x; der Faktor 3 bleibt erhalten.');
+B('1.91c',A,'Leite h(x)=tan³(4x) ab.',
+ 'h′(x)=12tan²(4x)/cos²(4x).',
+ 'Äußere Potenzregel, Ableitung von tan(4x) ist 4/cos²(4x).');
+B('1.92a',A,'Leite f(x)=e^(6x²)·ln(4x) ab.',
+ 'f′(x)=e^(6x²)[12xln(4x)+1/x].',
+ 'Produktregel mit der inneren Ableitung von e^(6x²), nämlich 12x·e^(6x²). Für ln(4x) ist die Ableitung 1/x.');
+B('1.92b',A,'Leite g(x)=5x²·e^(7x) ab.',
+ 'g′(x)=e^(7x)(10x+35x²).',
+ 'Produktregel; e^(7x) wird beim Ableiten zu 7e^(7x).');
+B('1.92c',A,'Leite h(x)=ln(³√(2x−1)) ab.',
+ 'h′(x)=2/[3(2x−1)], gültig für 2x−1>0.',
+ 'Logarithmengesetz h=(1/3)ln(2x−1), danach Kettenregel.');
+
 if(new Set(R.map(x=>x.id)).size!==R.length)throw Error('Duplicate book IDs');
 window.MATHS_BOOK_BANK=Object.freeze(R);
 })();
