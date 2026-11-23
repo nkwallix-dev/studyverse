@@ -106,3 +106,22 @@ body.source-screen .source-answer-dock{position:relative;bottom:auto;z-index:1}
  .source-original-text{font-size:13px}
 }
 @media(prefers-reduced-motion:reduce){.source-reading,.source-list{scroll-behavior:auto}}
+
+/* Grouped textbook exercises: one original prompt/figure and selectable parts. */
+.book-original-toggle{border:1px solid var(--border);border-radius:12px;background:var(--card2);overflow:hidden}
+.book-original-toggle summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;font-weight:850;color:var(--accent);font-size:14px}
+.book-original-toggle summary::-webkit-details-marker{display:none}
+.book-original-toggle summary:after{content:"▾";font-size:18px}
+.book-original-toggle:not([open]) summary:after{content:"▸"}
+.book-original-body{padding:0 14px 12px;display:grid;gap:10px;justify-items:center}
+.book-original-sheet{width:min(100%,900px);margin:0;padding:9px;border:1px solid var(--border);border-radius:9px;background:#fff}
+.book-original-sheet img{display:block;width:100%;height:auto;max-height:none;object-fit:contain;image-rendering:auto}
+.book-original-sheet figcaption{color:#48674f;font-size:11px;margin-top:5px;text-align:center}
+.book-step-tabs{display:flex;flex-wrap:wrap;gap:8px;padding:10px 0}
+.book-step-pick{border:1px solid var(--border);border-radius:10px;background:var(--card2);color:var(--ink);padding:9px 15px;font-weight:800;cursor:pointer;min-height:38px}
+.book-step-pick.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,var(--card));color:var(--ink)}
+.book-active-step{padding:10px 0 6px;display:grid;gap:10px}
+.book-active-step h3{margin:0;font-size:17px}
+.book-active-step .source-question{margin:0;white-space:pre-wrap;line-height:1.55}
+.source-answer-dock .source-actions .btn{min-height:34px}
+@media(max-width:540px){.book-original-body{padding:0 8px 8px}.book-original-sheet{padding:4px}.book-step-pick{font-size:11px;padding:6px 8px}.book-step-tabs{gap:4px}}

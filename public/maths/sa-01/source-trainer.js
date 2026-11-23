@@ -110,7 +110,7 @@ function bookDetails(group){
  const q=activeStep(),stepIndex=Math.max(0,group.steps.findIndex(x=>x.id===q.id));
  const solved=window.__mathSourceState?.solved||{};
  const nDone=group.steps.filter(x=>solved[solvedKey(x,'book')]).length;
- const sheet=group.pages.map(page=>'<figure class="book-original-sheet"><img loading="lazy" src="original-figures/book-page-'+page+'.webp" alt="Original-Buchseite '+page+' mit originalen Abbildungen, Beschriftungen und Farben" onerror="this.closest(&quot;figure&quot;).classList.add(&quot;book-scan-missing&quot;)"><figcaption>Original-Buchseite '+String(page).padStart(2,'0')+' · Schulbuch-Screenshot</figcaption></figure>').join('');
+ const sheet=group.artwork.map((name,i)=>'<figure class="book-original-sheet"><img loading="eager" src="original-figures/'+esc(name)+'" alt="Originale Buchangabe und Abbildung zu Aufgabe '+esc(group.number)+' (Grafik '+(i+1)+')"><figcaption>Original-Screenshot · '+esc(group.number)+' · Abbildung '+(i+1)+'</figcaption></figure>').join('');
  const stepMenu=group.steps.map((x,i)=>'<button class="book-step-pick '+(x.id===q.id?'active':'')+'" data-action="source:step:'+esc(x.id)+'" aria-current="'+(x.id===q.id?'step':'false')+'">Schritt '+(i+1)+(solved[solvedKey(x,'book')]?' ✓':'')+'</button>').join('');
  const solution=ui.shown?'<section class="source-solution" id="sourceSolution"><h3>Lösung · Schritt '+(stepIndex+1)+'</h3><p>'+esc(q.steps)+'</p><div class="formula">'+esc(q.solution)+'</div></section>':'';
  const expected=Number.isFinite(q.expected);
