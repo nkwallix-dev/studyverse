@@ -151,7 +151,7 @@ canvas {
   transform-origin: center;
   pointer-events: none;
   filter: drop-shadow(0 3px 2px #0004);
-  animation: kenny-look 3.2s steps(1) infinite;
+  animation: none;
 }
 .platformer-stage .kenny-native-fusion-frame {
   display: none;

@@ -1,5 +1,6 @@
 import { Enemy, KennyWorld, STEGO_ATTACK_DURATION } from './kenny-platformer.world';
 import { BALANCE, playerSpecialDuration } from './kenny-platformer.balance';
+import { frameAt30Fps, idleAtlasFrame } from '../kenny-atlas.animation';
 export type PlayerMotion = 'idle' | 'walk' | 'jump' | 'attack';
 export function playerAnimation(world: KennyWorld): { motion: PlayerMotion; frame: number } {
   if (world.attackTime > 0) {
@@ -7,19 +8,26 @@ export function playerAnimation(world: KennyWorld): { motion: PlayerMotion; fram
       elapsed = duration - world.attackTime;
     if (world.attackKind === 'charge')
       return elapsed < BALANCE.playerChargeWindup
-        ? { motion: 'attack', frame: 1 }
-        : { motion: 'walk', frame: Math.floor(elapsed * 18) % 4 };
+        ? { motion: 'attack', frame: 0 }
+        : { motion: 'walk', frame: frameAt30Fps(elapsed) };
     const progress = elapsed / duration;
     return {
       motion: 'attack',
-      frame: progress < 0.16 ? 0 : progress < 0.38 ? 1 : progress < 0.76 ? 2 : 3,
+      frame: Math.min(8, Math.floor(progress * 9)),
     };
   }
-  if (world.biteTime > 0) return { motion: 'attack', frame: world.biteTime > 0.1 ? 2 : 3 };
-  if (!world.grounded) return { motion: 'jump', frame: world.player.vy < 0 ? 1 : 3 };
+  if (world.biteTime > 0)
+    return {
+      motion: 'attack',
+      frame: Math.min(
+        8,
+        Math.floor(((BALANCE.bite.duration - world.biteTime) / BALANCE.bite.duration) * 9),
+      ),
+    };
+  if (!world.grounded) return { motion: 'jump', frame: frameAt30Fps(world.elapsed) };
   if (Math.abs(world.player.vx) > 10)
-    return { motion: 'walk', frame: Math.floor(world.elapsed * 10) % 4 };
-  return { motion: 'idle', frame: 0 };
+    return { motion: 'walk', frame: frameAt30Fps(world.elapsed) };
+  return { motion: 'idle', frame: idleAtlasFrame(world.elapsed) };
 }
 export function enemyAnimation(
   enemy: Enemy,

@@ -2,15 +2,16 @@
 
 const KENNY_ANIMATION_FPS = 30;
 const KENNY_CELL = 192;
-const KENNY_COLUMNS = 12;
-const KENNY_BASELINE = 180;
+const KENNY_COLUMNS = 9;
+const KENNY_ROWS = 6;
 const KENNY_ACTIONS = Object.freeze({
-  idle: Object.freeze({ frames: 48 }),
-  walk: Object.freeze({ frames: 12 }),
-  attack: Object.freeze({ frames: 12 }),
-  jump: Object.freeze({ frames: 18 }),
+  idle: Object.freeze({ frames: 9, row: 0 }),
+  walk: Object.freeze({ frames: 9, row: 5 }),
+  attack: Object.freeze({ frames: 9, row: 2 }),
+  jump: Object.freeze({ frames: 9, row: 4 }),
   feed: Object.freeze({
     frames: 96,
+    rows: Object.freeze([1, 2, 3]),
     phases: Object.freeze({
       offscreen: Object.freeze([0, 11]),
       enter: Object.freeze([12, 29]),
@@ -31,8 +32,8 @@ function frameAt(elapsedSeconds, frameCount, fps = KENNY_ANIMATION_FPS) {
 module.exports = {
   KENNY_ACTIONS,
   KENNY_ANIMATION_FPS,
-  KENNY_BASELINE,
   KENNY_CELL,
   KENNY_COLUMNS,
+  KENNY_ROWS,
   frameAt,
 };
