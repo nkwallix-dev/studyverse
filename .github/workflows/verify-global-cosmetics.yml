@@ -1,0 +1,35 @@
+name: Verify global cosmetics and navigation
+on:
+  push:
+    paths:
+      - 'src/app/app.html'
+      - 'src/app/app.ts'
+      - 'src/app/app.scss'
+      - 'src/styles.scss'
+      - 'src/app/shop-items.ts'
+      - 'public/shared/verse-cosmetics.*'
+      - 'scripts/test-global-cosmetics.cjs'
+      - '.github/workflows/verify-global-cosmetics.yml'
+  pull_request:
+    paths:
+      - 'src/app/app.html'
+      - 'src/app/app.ts'
+      - 'src/app/app.scss'
+      - 'src/styles.scss'
+      - 'src/app/shop-items.ts'
+      - 'public/shared/verse-cosmetics.*'
+      - 'scripts/test-global-cosmetics.cjs'
+      - '.github/workflows/verify-global-cosmetics.yml'
+  workflow_dispatch:
+jobs:
+  cosmetics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node scripts/test-global-cosmetics.cjs
+      - run: npm run build -- --base-href /studyverse/ --output-path dist/site

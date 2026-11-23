@@ -204,3 +204,54 @@ body[data-theme="neon"]:is([data-banner="none"],[data-banner="default"]) .hero{
  background:linear-gradient(110deg,#471b74,#572895 36%,#29734f 70%,#7bc63e)!important;
 }
 body[data-theme="neon"] .sidebar{background:linear-gradient(180deg,#321650,#223d31)!important}
+
+/* Global equipment parity in all four standalone learning worlds. */
+body[data-theme="gold"]{--bg:#11100c;--side:#1a160d;--card:#29231a;--card2:#1c1710;--border:#64512e;--accent:#ffda76;--aqua:#e8bd5e;--ink:#fff6db}
+body[data-theme="ocean"]{--bg:#071b29;--side:#0a2332;--card:#123047;--card2:#0d2738;--border:#2e6074;--accent:#71f0ce;--aqua:#71c0f9;--ink:#e8faff}
+body[data-theme="chem_reactor"]{--bg:#0d1b1b;--side:#11272d;--card:#1b3540;--card2:#132730;--border:#376271;--accent:#8ce7ff;--aqua:#7bf0ce;--ink:#e8fdff}
+body[data-frame="glass"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:2px solid #86e6ffb8!important;box-shadow:inset 0 0 20px #a3eaff1d,0 7px 22px #65d6ff28;background-color:color-mix(in srgb,var(--card,var(--panel)) 87%,transparent)}
+body[data-frame="kenny_fossil"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){border:3px double #f1bf7d!important;box-shadow:inset 0 0 0 2px #a8763657,0 0 16px #f3b96c35;border-radius:14px}
+body[data-banner="kenny_volcano"] .hero{background:radial-gradient(circle at 75% 35%,#ffa45b77,transparent 42%),linear-gradient(115deg,#41212a,#a35332 67%,#e69a57)!important}
+/* Complete theme variables across verse-specific surface/panel/card systems. */
+body.studyverse-cosmetics[data-theme="neon"]{--sidebar-bg:#2d194d;--panel2:#25283c;--surface:#3c2455;--surface2:#25283c;--surface3:#8264a6;--mint:#d4aaff;--violet:#adff63;--pink:#adff63;--white:#f7f2ff}
+body.studyverse-cosmetics[data-theme="pizza"]{--bg2:#25130c;--sidebar-bg:#28160e;--panel2:#302019;--surface:#3e271c;--surface2:#302019;--surface3:#935a39;--ink:#edf3ff;--text:#edf3ff;--muted:#c3cbe0;--accent2:#ffca91;--mint:#ffca91;--violet:#ffd27a;--pink:#ffd27a;--white:#edf3ff}
+body.studyverse-cosmetics[data-theme="cosmic"]{--bg2:#090c24;--sidebar-bg:#11143d;--panel2:#191b3b;--surface:#22234a;--surface2:#191b3b;--surface3:#6256a7;--ink:#edf3ff;--text:#edf3ff;--muted:#c3cbe0;--accent2:#8cf0f9;--mint:#8cf0f9;--violet:#d3a6ff;--pink:#d3a6ff;--white:#edf3ff}
+body.studyverse-cosmetics[data-theme="arcade"]{--bg2:#180d2b;--sidebar-bg:#271542;--panel2:#2b1c44;--surface:#382455;--surface2:#2b1c44;--surface3:#8d53b6;--ink:#edf3ff;--text:#edf3ff;--muted:#c3cbe0;--accent2:#a2f5ff;--mint:#a2f5ff;--violet:#ff99ef;--pink:#ff99ef;--white:#edf3ff}
+body.studyverse-cosmetics[data-theme="lava"]{--bg2:#210c13;--sidebar-bg:#31131b;--panel2:#331b20;--surface:#3f2226;--surface2:#331b20;--surface3:#95473f;--ink:#edf3ff;--text:#edf3ff;--muted:#c3cbe0;--accent2:#ffd69b;--mint:#ffd69b;--violet:#ffbf86;--pink:#ffbf86;--white:#edf3ff}
+body.studyverse-cosmetics[data-theme="frost"]{--bg2:#071b29;--sidebar-bg:#0e2a3d;--panel2:#102d42;--surface:#183c53;--surface2:#102d42;--surface3:#36748e;--ink:#edf3ff;--text:#edf3ff;--muted:#c3cbe0;--accent2:#84ffe9;--mint:#84ffe9;--violet:#beefff;--pink:#beefff;--white:#edf3ff}
+body.studyverse-cosmetics[data-theme="sakura"]{--panel2:#481939;--white:#fff2f9}
+body.studyverse-cosmetics[data-theme="matrix"]{--bg2:#05170b;--sidebar-bg:#092213;--panel2:#112b1a;--surface:#193c25;--surface2:#112b1a;--surface3:#488658;--ink:#edf3ff;--text:#edf3ff;--muted:#c3cbe0;--accent2:#91ff9a;--mint:#91ff9a;--violet:#91ff9a;--pink:#91ff9a;--white:#edf3ff}
+body.studyverse-cosmetics[data-theme="sunset"]{--bg2:#2a1225;--sidebar-bg:#351a32;--panel2:#361b36;--surface:#46243f;--surface2:#361b36;--surface3:#a76091;--ink:#edf3ff;--text:#edf3ff;--muted:#c3cbe0;--accent2:#ffb3d1;--mint:#ffb3d1;--violet:#ffc591;--pink:#ffc591;--white:#edf3ff}
+body.studyverse-cosmetics[data-theme="paper"]{--bg2:#ecdfc9;--sidebar-bg:#e0d2b8;--panel2:#f3e7d3;--surface:#fff4df;--surface2:#f3e7d3;--surface3:#b4a188;--accent2:#345d58;--mint:#345d58;--violet:#864d31;--pink:#864d31;--white:#37251e}
+body.studyverse-cosmetics[data-theme="hologram"]{--bg2:#071d29;--sidebar-bg:#0d2f3d;--panel2:#123340;--surface:#1b3c4b;--surface2:#123340;--surface3:#4b8394;--ink:#edf3ff;--text:#edf3ff;--muted:#c3cbe0;--accent2:#80fff2;--mint:#80fff2;--violet:#80fff2;--pink:#80fff2;--white:#edf3ff}
+body.studyverse-cosmetics[data-theme="blueprint"]{--bg2:#071527;--sidebar-bg:#112b44;--panel2:#122940;--surface:#19334d;--surface2:#122940;--surface3:#3677a1;--ink:#edf3ff;--text:#edf3ff;--muted:#c3cbe0;--accent2:#a3eaff;--mint:#a3eaff;--violet:#a3eaff;--pink:#a3eaff;--white:#edf3ff}
+body.studyverse-cosmetics[data-theme="dsai_neural"]{--sidebar-bg:#1d1140;--panel2:#221a3f;--surface3:#8062be;--mint:#8cffe8;--violet:#cf9eff;--pink:#cf9eff;--white:#fff3ff}
+body.studyverse-cosmetics[data-theme="dsai_terminal"]{--sidebar-bg:#0b2623;--panel2:#0d2b22;--surface3:#347d63;--mint:#e4f8a9;--violet:#8dffd2;--pink:#8dffd2;--white:#e7fff6}
+body.studyverse-cosmetics[data-theme="maths_chalk"]{--panel2:#143527;--mint:#95dfac;--violet:#d5ed98;--pink:#d5ed98;--white:#f2ffe8}
+body.studyverse-cosmetics[data-theme="sharp_theme"]{--panel2:#1e1638;--mint:#87f5dc;--violet:#eeb3ff;--pink:#eeb3ff;--white:#f8efff}
+body.studyverse-cosmetics[data-theme="sharp_cutline"]{--sidebar-bg:#0c1831;--panel2:#10223a;--mint:#f3a3de;--violet:#91f3ed;--pink:#91f3ed;--white:#e9fbff}
+body.studyverse-cosmetics[data-theme="gold"]{--bg2:#11100c;--sidebar-bg:#1a160d;--panel:#29231a;--panel2:#1c1710;--surface:#29231a;--surface2:#1c1710;--surface3:#64512e;--text:#fff6db;--muted:#c3cbe0;--accent2:#e8bd5e;--mint:#e8bd5e;--violet:#ffda76;--pink:#ffda76;--white:#fff6db}
+body.studyverse-cosmetics[data-theme="ocean"]{--bg2:#071b29;--sidebar-bg:#0a2332;--panel:#123047;--panel2:#0d2738;--surface:#123047;--surface2:#0d2738;--surface3:#2e6074;--text:#e8faff;--muted:#c3cbe0;--accent2:#71c0f9;--mint:#71c0f9;--violet:#71f0ce;--pink:#71f0ce;--white:#e8faff}
+body.studyverse-cosmetics[data-theme="chem_reactor"]{--bg2:#0d1b1b;--sidebar-bg:#11272d;--panel:#1b3540;--panel2:#132730;--surface:#1b3540;--surface2:#132730;--surface3:#376271;--text:#e8fdff;--muted:#c3cbe0;--accent2:#7bf0ce;--mint:#7bf0ce;--violet:#8ce7ff;--pink:#8ce7ff;--white:#e8fdff}
+
+/* Recolor hard-coded default shell gradients; preserve Kawaii/Galaxy/Neon art. */
+body.studyverse-cosmetics[data-theme]:not([data-theme="base"]):not([data-theme="sakura"]):not([data-theme="cosmic"]):not([data-theme="neon"]) .sidebar{background:linear-gradient(170deg,var(--side),var(--bg))!important;border-color:var(--border)}
+body.studyverse-cosmetics[data-theme]:not([data-theme="base"]):not([data-theme="sakura"]):not([data-theme="cosmic"]):not([data-theme="neon"]) .workspace{background:radial-gradient(ellipse 65% 30% at 70% 0%,color-mix(in srgb,var(--accent) 15%,transparent),transparent 72%),var(--bg)!important}
+body.studyverse-cosmetics[data-theme]:not([data-theme="base"]):not([data-theme="sakura"]):not([data-theme="cosmic"]):not([data-theme="neon"]) .topbar{background:var(--card)!important;border-color:var(--border)}
+body.studyverse-cosmetics[data-theme="paper"] :is(.sidebar,.topbar,.workspace){color:var(--ink)}
+body.studyverse-cosmetics[data-frame="gold"]{--verse-frame-color:#ffd073}
+body.studyverse-cosmetics[data-frame="legend"]{--verse-frame-color:#fce29b}
+body.studyverse-cosmetics[data-frame="glow"]{--verse-frame-color:#91ffec}
+body.studyverse-cosmetics[data-frame="pixel"]{--verse-frame-color:#93e9f4}
+body.studyverse-cosmetics[data-frame="dashed"]{--verse-frame-color:#c5b1f6}
+body.studyverse-cosmetics[data-frame="prism"]{--verse-frame-color:#aab7ff}
+body.studyverse-cosmetics[data-frame="dataframe"]{--verse-frame-color:#86ddbd}
+body.studyverse-cosmetics[data-frame="neural"]{--verse-frame-color:#b89dff}
+body.studyverse-cosmetics[data-frame="safety"]{--verse-frame-color:#ecc54b}
+body.studyverse-cosmetics[data-frame="soft"]{--verse-frame-color:#c2c5f6}
+body.studyverse-cosmetics[data-frame="maths_axes"]{--verse-frame-color:#93d9a5}
+body.studyverse-cosmetics[data-frame="maths_fibonacci"]{--verse-frame-color:#bdd98b}
+body.studyverse-cosmetics[data-frame="glass"]{--verse-frame-color:#86e6ff}
+body.studyverse-cosmetics[data-frame="kenny_fossil"]{--verse-frame-color:#f1bf7d}
+/* Global stylesheet only; maths source/exam layout is left untouched. */
+body.studyverse-cosmetics[data-frame]:not([data-frame="none"]) :is(.source-task,.source-detail,.source-exam-card){outline:2px solid var(--verse-frame-color,var(--border));outline-offset:-2px}

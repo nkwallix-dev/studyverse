@@ -35,15 +35,6 @@
       <span class="brand-icon">✦</span>
       <span><strong>STUDY<span>VERSE</span></strong><small>YOUR LEARNING UNIVERSE</small></span>
     </button>
-    <div class="menu-label sidebar-live-label">SPIELBARE KURSE <span class="live-indicator">● LIVE</span></div>
-    <div class="sidebar-live-courses">
-      <button class="sidebar-live-course" [class.chemistry]="trainer.subjectId==='nawi'" [class.datascience]="trainer.subjectId==='dsai'" [class.sharpverse]="trainer.subjectId==='pos'" [class.mathsverse]="trainer.subjectId==='mat'"
-              *ngFor="let trainer of trainers" (click)="openTrainer(trainer.id)">
-        <span class="course-icon">{{trainer.subjectId==='nawi'?'🧪':trainer.subjectId==='dsai'?'🤖':trainer.subjectId==='mat'?'🧮':'♯'}}</span>
-        <span class="course-text"><strong>{{trainer.subjectId==='nawi'?'Chemverse':trainer.subjectId==='dsai'?'Dsaiverse':trainer.subjectId==='mat'?'MathsVerse':'Sharpverse'}}</strong>
-        <small>{{trainer.subjectId==='mat'?'1. SCHULARBEIT · AM':trainer.subjectId==='pos'?'1. PA · C#':trainer.subjectId==='nawi'?'1. TEST · CHEMIE':'1. TEST · DATA SCIENCE'}}</small></span><span class="course-arrow">↗</span>
-      </button>
-    </div>
     <div class="menu-label">DEIN UNIVERSUM</div>
     <nav class="navigation">
       <button [class.active]="view==='dashboard'" (click)="go('dashboard')" aria-label="Dashboard"><span>◈</span> Dashboard <small class="mobile-nav-label">Home</small><b>↗</b></button>
@@ -134,7 +125,7 @@
             <section>
               <div class="section-heading"><div><div class="eyebrow">EXPLORE THE UNIVERSE</div><h2>Deine Lernwelten <span>✦</span></h2></div><button class="text-link" (click)="go('subjects')">Alle Fächer ansehen →</button></div>
               <div class="tiles">
-                <button class="subject-card" *ngFor="let s of activeSubjects" (click)="choose(s.id)" [style.--tilecolor]="s.color" [attr.aria-label]="s.name+' öffnen'">
+                <button class="subject-card" *ngFor="let s of activeSubjects" (click)="go('subjects')" [style.--tilecolor]="s.color" [attr.aria-label]="'Zu Lernwelten – '+s.name>
                   <span class="subject-icon">{{s.icon}}</span><span class="card-arrow">↗</span><small>{{s.short}}</small><strong>{{s.name}}</strong><span class="tile-bottom">{{subjectCountLabel(s.id)}} →</span>
                 </button>
               </div>

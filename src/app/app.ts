@@ -51,7 +51,7 @@ interface Profile {
  kennySharpRefundedIds?:Record<string,boolean>;
   [key:string]:unknown;
 }
-const KEY='studyverse_profile_v1', INTRO='studyverse_import_prompt_seen_v1';
+const KEY='studyverse_profile_v1', INTRO='studyverse_import_prompt_seen_v1', EQUIP_PENDING='studyverse_equipment_pending_v1';
 const CHEM='chemverse_niklas_v1', BRIDGE='studyverse_trainer_launch_v2', RESTORE='studyverse_before_restore_v1', LOCAL_ARCHIVE='studyverse_before_first_cloud_login_v1';
 const defaultEquip=()=>({theme:'base',atm:'none',frame:'none',avatar:'🧪',font:'standard',banner:'default',title:'',fx:'none'});
 const initial=():Profile=>({xp:0,tokens:0,nickname:'Explorer',inventory:[],equipped:defaultEquip(),claimedLevels:{},activity:[],customSubjects:[],shopDropMigrationV1:true,rewardSeen:{},rewardQueue:[],rewardBatchTotal:0,rewardBatchPosition:0,dinoSeasons:{},kennyWonItems:{}});
@@ -589,12 +589,41 @@ export class App implements OnInit,OnDestroy {
    if(isObj(bridge))snapshot.bridge=bridge;
    return snapshot;
  }
+
+ /** Persist only pending equipment slots for this Cloud UID across same-tab Verse trips.
+  * No XP, tokens or trainer data can enter this buffer. */
+ private pendingEquipment(uid:string):Record<string,string>{
+  try{
+   const raw=parse(sessionStorage.getItem(EQUIP_PENDING));
+   if(!isObj(raw)||raw['uid']!==uid||!isObj(raw['slots']))return {};
+   const slots=new Set(['theme','frame','atm','font','banner','fx','avatar','title']);
+   return Object.fromEntries(Object.entries(raw['slots']).filter(([key,value])=>
+    slots.has(key)&&typeof value==='string'&&value.length<80)) as Record<string,string>;
+  }catch{return {};}
+ }
+ private rememberEquipment(slot:string):void{
+  const uid=this.cloud.session?.uid;
+  if(!uid)return;
+  try{
+   sessionStorage.setItem(EQUIP_PENDING,JSON.stringify({
+    uid,slots:{...this.pendingEquipment(uid),[slot]:this.profile.equipped[slot]}
+   }));
+  }catch{}
+ }
+ private confirmEquipmentSave(uid:string,saved:Record<string,string>):void{
+  const pending=this.pendingEquipment(uid);
+  if(Object.keys(pending).length&&Object.entries(pending).every(([slot,value])=>saved[slot]===value))
+   try{sessionStorage.removeItem(EQUIP_PENDING);}catch{}
+ }
+
  private useCloudSnapshot(snapshot:CloudSnapshot){
    if (this.cloud.session?.uid && this.profile['companionOwnerUid'] === this.cloud.session.uid) {
      snapshot.profile['companions'] = mergeCompanions(snapshot.profile['companions'], this.profile['companions']);
    }
    snapshot.profile['companionOwnerUid'] = this.cloud.session?.uid || null;
    if(!validStudyverse(snapshot.profile))throw Error('Ungültiger Cloud-Spielstand. Der lokale Stand bleibt erhalten.');
+   const pending=this.cloud.session?.uid?this.pendingEquipment(this.cloud.session.uid):{};
+   if(Object.keys(pending).length)snapshot.profile.equipped={...snapshot.profile.equipped,...pending};
    const previous=this.currentBackupSnapshot();
    // A Verse writes its completed lessons locally before returning here.
    // Never overwrite that still-pending bridge with an older Cloud snapshot.
@@ -649,6 +678,7 @@ export class App implements OnInit,OnDestroy {
      if(this.cloud.session?.uid!==uid)return;
      await this.cloud.save(snapshot);
      if (this.cloud.session?.uid === uid) {
+       this.confirmEquipmentSave(uid,snapshot.profile.equipped);
        this.profile['companions'] = mergeCompanions(this.profile['companions'], snapshot.profile['companions']);
        write(KEY, JSON.stringify(this.profile));
      }
@@ -1106,6 +1136,7 @@ export class App implements OnInit,OnDestroy {
    if (!item || item.group !== 'avatar' || !this.owns(item)) return;
 
    this.profile.equipped['avatar'] = this.avatarEquipValue(item);
+   this.rememberEquipment('avatar');
    this.save();
    this.acknowledgeKennyReveal();
  }
@@ -1348,6 +1379,7 @@ export class App implements OnInit,OnDestroy {
   if(!this.owns(item))return;
   const key=item.group,value=this.avatarEquipValue(item);
   this.profile.equipped[key]=value;
+  this.rememberEquipment(key);
   this.finishRewardItem(item.id);
  }
  get title(){return [...this.items,...LEGACY_OWNED_ITEMS].find(i=>
@@ -1393,6 +1425,7 @@ export class App implements OnInit,OnDestroy {
      if(!item||!this.owns(item)){this.alert('Diesen Titel hast du noch nicht freigeschaltet.');return;}
    }
    this.profile.equipped['title']=id||'';
+   this.rememberEquipment('title');
    this.save();
    this.alert('🏅 Titel geändert: '+this.title);
  }
@@ -1407,7 +1440,7 @@ export class App implements OnInit,OnDestroy {
      if(!item||!this.owns(item)){this.alert('Diesen Avatar musst du erst im Item-Shop erhalten.');return;}
      this.profile.equipped['avatar']=this.avatarEquipValue(item);
    }
-   this.avatarPickerOpen=false;this.save();this.alert('🖌️ Avatar aktualisiert!');
+   this.avatarPickerOpen=false;this.rememberEquipment('avatar');this.save();this.alert('🖌️ Avatar aktualisiert!');
  }
  go(page:View){if(page==='achievements'||page==='shop')this.syncTrainer();this.view=page;this.selected=null;this.previewed=null;if(page==='shop')this.shopTab='catalog';if(page==='companions'){this.kennyClock=Date.now();this.settleKennyIfExpired();}if(page==='friends')void this.refreshFriends();window.scrollTo({top:0,behavior:'smooth'});}
  choose(id:string){if(!this.subjectHasTrainer(id))return;this.selected=id;this.view='subjects';window.scrollTo({top:0,behavior:'smooth'});}
@@ -1607,6 +1640,7 @@ export class App implements OnInit,OnDestroy {
   }else{
    const key=item.group,value=this.avatarEquipValue(item);
    this.profile.equipped[key]=this.active(item)?this.equipDefault(key):value;
+   this.rememberEquipment(key);
    this.alert(this.itemDisplayName(item)+' – Ausrüstung geändert.');
   }
   this.previewed=null;this.spotlightRewardId='';this.save();
