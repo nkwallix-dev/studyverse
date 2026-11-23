@@ -314,6 +314,73 @@ B('1.102',F,'Ordne zu: Welcher mathematische Begriff entspricht „einem orienti
  'Das bestimmte Integral. Es kann im Gegensatz zum geometrischen Flächeninhalt negativ sein.',
  'Auf der x-Achse liegende positive und negative Teilflächen werden beim bestimmten Integral mit Vorzeichen addiert.');
 
+
+/* Further independently checked source subparts, original pages 6–15. */
+B('1.33',V,'Ein Rundlaufweg um ein rechteckiges Fußballfeld besteht aus zwei Halbkreisbögen an den Torseiten und zwei Geraden. Die innere Bahnlänge beträgt 500 m. Bei welchen Abmessungen ist die rechteckige Spielfläche maximal?',
+ 'Geradenlänge 125 m, Feldbreite 250/π≈79,58 m; maximierte Fläche 31 250/π≈9 947,18 m².',
+ 'Sei r der Radius der Halbkreise und L die Länge der geraden Bahnteile. 2L+2πr=500 ⇒ L=250−πr. A=2rL=500r−2πr². Aus A′=500−4πr=0 folgt r=125/π und L=125.');
+B('1.63c',I,'Berechne das unbestimmte Integral ∫x³/(x²−x−6) dx.',
+ 'F(x)=x²/2+x+(27/5)ln|x−3|+(8/5)ln|x+2|+C.',
+ 'Polynomdivision: x³/(x²−x−6)=x+1+(7x+6)/(x²−x−6). Der Nenner ist (x−3)(x+2); Partialbruchzerlegung liefert (27/5)/(x−3)+(8/5)/(x+2).');
+B('1.64a',I,'Bestimme die fehlende obere Grenze a aus ∫₀ᵃ(2x²−3x)dx=56/3.',
+ 'a=4.',
+ 'F(x)=2x³/3−3x²/2. Gleichung 2a³/3−3a²/2=56/3 ⇒ 4a³−9a²−112=0. Einsetzen und Faktorisieren ergibt a=4.',4);
+B('1.64b',I,'Bestimme alle reellen oberen Grenzen b, die ∫₁ᵇ(3x−4)dx=10,5 erfüllen.',
+ 'b=4 oder b=−4/3.',
+ 'F(x)=3x²/2−4x. F(b)−F(1)=10,5 ⇒ 3b²−8b−16=0. Mit der Mitternachtsformel erhältst du beide Lösungen.');
+B('1.64c',I,'Bestimme die untere Grenze c aus ∫c⁶(3x²+2x)dx=240.',
+ 'c=2.',
+ 'F(x)=x³+x². F(6)=252, daher F(c)=12 und c³+c²=12. Die reelle Lösung ist c=2.',2);
+B('1.65',K,'Im Buch ist f′ als nach unten geöffnete Kurve dargestellt, mit Nullstellen x=0 und x=2. Kreuze die richtige Aussage über f an (A: Maximum bei 1, B: Extrempunkt bei 0, C: f linear, D: steigend auf [−1;0], E: Wendepunkt bei 2).',
+ 'B ist richtig. f hat bei x=0 einen Extrempunkt (Minimum), weil f′ von negativ auf positiv wechselt.',
+ 'Für Extrema von f nicht nach Hochpunkten von f′ suchen, sondern nach den Nullstellen von f′ und dem Vorzeichenwechsel. Bei x=2 hat f ein Maximum, keinen Wendepunkt.',
+ null,{curves:[{label:"f′(x)",poly:[-1,2,0]}],x:[-1.4,3.3],y:[-1.6,1.5]});
+B('1.67d',F,'Berechne den gesamten eingeschlossenen Flächeninhalt zwischen f(x)=4/x² und g(x)=−x²+5.',
+ 'Zwei symmetrische Teilflächen von jeweils 2/3; zusammen A=4/3 Flächeneinheiten.',
+ 'f=g ⇒ 4/x²=5−x² ⇒ (x²−1)(x²−4)=0. Schnittpunkte x=±1, ±2. Auf [1;2] liegt g über f; ∫₁²(5−x²−4/x²)dx=2/3. Symmetrie verdoppeln.',4/3);
+B('1.69c',F,'Rechts vom Maximum einer Funktion f verläuft im Buch eine blau markierte Fläche unter der Höhe f(0), über der Kurve f und zwischen x=0 und x=a. Stelle die Integralformel auf.',
+ 'A=∫₀ᵃ[f(0)−f(x)]dx.',
+ 'Der obere Rand ist die waagrechte Gerade y=f(0); der untere Rand ist y=f(x). Integrationsgrenzen 0 und a.');
+B('1.70b',F,'Begründe, warum man mit dem orientierten Integral ∫₋₂¹f(x)dx nicht immer den geometrischen Flächeninhalt zwischen f und x-Achse erhält.',
+ 'Das bestimmte Integral zählt negative Teilflächen mit negativem Vorzeichen. Geometrische Fläche = Summe der Beträge der Teilintegrale nach Aufteilung an den Nullstellen.',
+ 'Wenn f innerhalb des Intervalls die x-Achse schneidet, können sich positive und negative Flächen teilweise aufheben. Das Ergebnis des Integrals ist nicht automatisch die Fläche.');
+B('1.71b',K,'Gegeben ist f′(x)=x²−4x sowie f(0)=4. Ermittle die Extrempunkte von f.',
+ 'f(x)=x³/3−2x²+4. Hochpunkt H(0|4), Tiefpunkt T(4|−20/3).',
+ 'f′=x(x−4) hat Nullstellen x=0 und x=4. f″=2x−4: bei 0 negativ (H), bei 4 positiv (T). Funktionswerte in f einsetzen.');
+B('1.73a',F,'Eine Wand (6 m × 10 m) wird zweifarbig gestaltet. Die Farbgrenzen werden durch g(x)=(x³−12x)/8 und h(x)=−g(x) beschrieben. Berechne die blau und rot eingefärbten Flächen.',
+ 'Jede Farbe bedeckt 9 m², beide Farben zusammen 18 m².',
+ 'Schnittstellen g=h liefern x=−2√3, 0, 2√3. Die vier Teilbereiche werden durch die Graphen und die x-Achse unterteilt; je Farbe bestehen zwei Teilflächen von 4,5 m².');
+B('1.73b',F,'Eine 6×10-m-Wand wird nach 1.73 mit je 9 m² Blau und Rot gestrichen. Für 2 m² werden 0,5 l Farbe gebraucht; Blau kostet 5,50 €/l und Rot 4,30 €/l. Berechne die Mindestkosten.',
+ 'Blau 2,25 l·5,50 €/l=12,375 €, Rot 2,25 l·4,30 €/l=9,675 €; zusammen 22,05 €.',
+ '0,5 l auf 2 m² bedeutet 0,25 l pro m². Jede Farbe benötigt 9·0,25=2,25 l; anschließend Preis mit Litern multiplizieren.',22.05);
+B('1.73c',F,'Welche Prozentzahl der Wandfläche bleibt bei der zweifarbigen Gestaltung aus 1.73 weiß?',
+ 'Die Wand hat 60 m², farbig sind 18 m², weiß 42 m² ⇒ 70 %.',
+ 'Gesamtfläche =6·10=60 m². Weißer Anteil (60−18)/60·100.',70);
+B('1.75b',V,'Die Beschleunigung eines Autos ist a(t)=(30t−t²)/225 m/s² auf [0;30]. Erkläre die Bedeutung von ∫₀²⁰ a(t)dt.',
+ 'Das Integral beschreibt den Geschwindigkeitszuwachs in den ersten 20 Sekunden, in m/s.',
+ 'Beschleunigung ist die Ableitung der Geschwindigkeit. Ihr Zeitintegral liefert die Änderung der Geschwindigkeit.');
+B('1.75c',V,'Ein Auto startet mit v(0)=0 und hat a(t)=(30t−t²)/225. Bestimme v(t) und die Geschwindigkeit nach 30 Sekunden.',
+ 'v(t)=t²/15−t³/675; v(30)=20 m/s.',
+ 'a(t) integrieren; Integrationskonstante aus v(0)=0. Danach t=30 einsetzen.',20);
+B('1.75d',V,'Begründe anhand von a(t)=(30t−t²)/225, warum v(t) auf [0;30] monoton steigt.',
+ 'a(t)=t(30−t)/225≥0 für 0≤t≤30, daher ist v′(t)=a(t)≥0.',
+ 'Monotonie der Geschwindigkeit aus dem Vorzeichen der Ableitung a(t) ablesen.');
+B('1.76a',V,'Ein kreisförmiger Pool hat Durchmesser 20 m. Ein geschwungener Barbereich liegt zwischen y₁=sin(πx/8) und y₂=4sin(πx/8) für −8≤x≤8. Wie viel Prozent der Poolfläche nimmt der Barbereich ein?',
+ 'A_Bar=96/π≈30,56 m². Poolfläche 100π m²; Anteil 96/π²≈9,73 %.',
+ 'Zwischen den beiden Sinusgraphen ergibt sich durch Symmetrie A=2∫₀⁸[4sin(πx/8)−sin(πx/8)]dx=96/π. Durch 100π teilen und mit 100 multiplizieren.',9600/(Math.PI*Math.PI));
+B('1.76b',V,'Der Barbereich aus 1.76 hat eine Fläche von 96/π m². Der Pool ist 120 cm tief. Wie viele Hektoliter Wasser passen in den Pool ohne Barbereich?',
+ 'Wasserfläche =100π−96/π m². Volumen=1,2·(100π−96/π) m³, in hL: ≈340,32 hL.',
+ 'Poolvolumen aus Oberfläche·Tiefe (1,2 m). Für Barbereich kein Wasser mitzählen. 1 m³=10 hL.');
+B('1.82a',K,'Ein Polynom 3. Grades hat Maximum H(2|5), Wendestelle x=4 und Wendetangenten-Steigung k=−3/2. Bestimme Funktion und Wendetangente.',
+ 'f(x)=x³/8−3x²/2+9x/2+1. Wendepunkt W(4|3) und Wendetangente y=−(3/2)x+9.',
+ 'f(2)=5, f′(2)=0, f″(4)=0, f′(4)=−3/2. Löse das lineare Gleichungssystem für a,b,c,d. Setze x=4 für W und die Tangente ein.');
+B('1.82c',F,'Berechne den orientierten Flächeninhalt zwischen f(x)=x³/8−3x²/2+9x/2+1 und der x-Achse auf [1;7].',
+ 'Bestimmtes Integral ∫₁⁷f(x)dx =18 Flächeneinheiten.',
+ 'Stammfunktion x⁴/32−x³/2+9x²/4+x bilden und Grenzen 7 und 1 einsetzen.',18);
+B('1.82d',V,'Rotiert f(x)=x³/8−3x²/2+9x/2+1 auf [1;7] um die x-Achse, wie groß ist das Rotationsvolumen?',
+ 'V=π·75951/1120≈213,03 cm³.',
+ 'Rotation um die x-Achse: V=π∫₁⁷[f(x)]²dx. Polynom quadrieren, integrieren und Grenzen einsetzen.',75951*Math.PI/1120);
+
 if(new Set(R.map(x=>x.id)).size!==R.length)throw Error('Duplicate book IDs');
 window.MATHS_BOOK_BANK=Object.freeze(R);
 })();
