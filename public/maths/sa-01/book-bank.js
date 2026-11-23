@@ -243,6 +243,77 @@ B('1.69b',F,'Die blau markierte Fläche liegt im Rechteck von x=a bis x=b über 
  'A=∫ₐᵇ[c−f(x)]dx.',
  'Obere Begrenzungsfunktion minus untere Begrenzungsfunktion integrieren.');
 
+
+/* Graph interpretation, optimization and context exercises transcribed from the ZIP. */
+B('1.11a',K,'Zeichne den Graphen von f′ zu einer stückweise linearen Funktion f durch (0|0),(2|3),(3,5|3),(5|0),(7|0),(9|2).',
+ 'f′ ist stückweise konstant: 1,5 auf (0;2), 0 auf (2;3,5), −2 auf (3,5;5), 0 auf (5;7), 1 auf (7;9). An den Knicken existiert keine eindeutige Ableitung.',
+ 'Die Ableitung entspricht den Steigungen der fünf Geradenabschnitte. An echten Knickstellen ist sie nicht definiert.',
+ null,{curves:[{label:'f',points:[[0,0],[2,3],[3.5,3],[5,0],[7,0],[9,2]]}],x:[-0.5,9.5],y:[-0.5,4]});
+B('1.11b',K,'Der Graph von f ist eine Parabel mit Nullstellen 1 und 3 sowie Scheitel (2|−1). Skizziere den Graphen ihrer Ableitung.',
+ 'f(x)=(x−2)²−1 ⇒ f′(x)=2x−4, eine Gerade mit Nullstelle bei x=2.',
+ 'Die Ableitung einer quadratischen Funktion ist eine Gerade. Links des Scheitels negativ, rechts positiv.',
+ null,{curves:[{label:'f',poly:[1,-4,3]}],x:[-.2,4.3],y:[-2,5]});
+B('1.13',K,'Eine Geschwindigkeits-Zeit-Funktion steigt linear von (0|0) bis (3|6), verläuft bis (5|6) konstant und steigt dann bis (8|10). Wie groß ist die Beschleunigung im Intervall ]3;5[?',
+ 'a=0 m/s². Die Geschwindigkeit ist dort konstant.',
+ 'Beschleunigung ist die Steigung des v-t-Diagramms. Ein waagrechter Abschnitt hat Steigung 0.',0,
+ {curves:[{label:'v(t)',points:[[0,0],[3,6],[5,6],[8,10]]}],x:[0,8],y:[0,11]});
+B('1.15a',K,'Führe eine Kurvendiskussion für f(x)=x⁵−4x durch (Nullstellen, Extrema, Verhalten).',
+ 'f′=5x⁴−4; kritische Stellen x=±(4/5)^(1/4). f″=20x³: am negativen x lokales Maximum, am positiven x lokales Minimum. Nullstellen: x=0 und x=±√2.',
+ 'Mit f= x(x⁴−4) Nullstellen bestimmen. Für Extrema f′=0 und f″ untersuchen. Wegen ungeradem Grad fallen/steigen die Enden unterschiedlich.');
+B('1.15b',K,'Diskutiere f(x)=½(x³−5x²+2x−5). Bestimme die beiden ersten Ableitungen und die Kandidaten für Extremstellen.',
+ 'f′=½(3x²−10x+2); f″=3x−5. Kritische Stellen x=(5±√19)/3.',
+ 'Ableiten, dann 3x²−10x+2=0 lösen. Zweite Ableitung zur Klassifizierung einsetzen.');
+B('1.15c',K,'Diskutiere f(x)=⅓x⁴−2x²: Extremwerte und Wendestellen.',
+ 'f′=(4/3)x³−4x; f″=4x²−4. Hochpunkt (0|0), Tiefpunkte (±√3|−3); Wendestellen x=±1.',
+ 'Kritische x-Werte aus (4/3)x(x²−3)=0, Wendestellen aus 4(x²−1)=0. Krümmungswechsel prüfen.',
+ null,{curves:[{label:'f',poly:[1/3,0,-2,0,0]}],x:[-3,3],y:[-4,7]});
+B('1.16',K,'Diskutiere f(x)=(x−4)/(x²−4) mit Definitionsmenge, Polstellen und erster Ableitung.',
+ 'D=ℝ∖{−2,2}; Pole bei x=±2; Nullstelle x=4. f′(x)=(−x²+8x−4)/(x²−4)².',
+ 'Nenner darf nicht 0 sein. Nullstellen durch Zähler=0. Für f′ die Quotientenregel verwenden.');
+B('1.18b',K,'Bei E(x)=−4x²+450x und Fixkosten 1200 GE berechne die Gewinnschwelle, Gewinngrenze und die Höhe des maximalen Gewinns.',
+ 'G(x)=−4x²+450x−1200. Nullstellen ungefähr x≈2,73 und x≈109,77, Gewinnmaximum bei x=56,25 mit G=11 456,25 GE.',
+ 'G(x)=0 mit Mitternachtsformel lösen. Gewinnmaximum am Scheitel x=−b/(2a)=450/8=56,25.',
+ null,{curves:[{label:'G(x)',poly:[-4,450,-1200]}],x:[0,115],y:[-2500,12500]});
+B('1.19c',K,'Ein Ball folgt h(t)=−5t²+10t+7. Berechne die maximale Höhe.',
+ 'Maximalhöhe 12 m bei t=1 s.',
+ 'Ableitung h′(t)=−10t+10=0 führt zu t=1. In h einsetzen: −5+10+7=12.',12);
+B('1.19d',K,'Ein Ball folgt h(t)=−5t²+10t+7. Mit welcher vertikalen Geschwindigkeit trifft er auf dem Boden auf?',
+ 'Aufprallgeschwindigkeit v=−4√15≈−15,49 m/s (nach unten).',
+ 'Bodenkontakt: −5t²+10t+7=0 ⇒ t=1+2√15/5. v=h′=−10t+10 dort einsetzen.',-4*Math.sqrt(15));
+B('1.20a',K,'Konzentration K(t)=5(e^(−0,12t)−e^(−0,3t)), t≥0. Bestimme die Zeit der maximalen Konzentration.',
+ 't=ln(2,5)/0,18≈5,09 Stunden.',
+ 'K′=5(−0,12e^(−0,12t)+0,3e^(−0,3t))=0. Umformen und logarithmieren.',Math.log(2.5)/.18);
+B('1.22',K,'Ein Polynom 3. Grades geht durch (0|0), P(2|3) und berührt die x-Achse bei x=5. Ermittle die Funktionsgleichung.',
+ 'f(x)=x(x−5)²/6=⅙x³−(5/3)x²+(25/6)x.',
+ 'Eine Berührung bei x=5 ist eine doppelte Nullstelle. Wegen Nullstelle 0 gilt f=a·x·(x−5)². Aus f(2)=3 folgt a=1/6.');
+B('1.23',K,'Eine Parabel hat bei x=5 eine Nullstelle. An P mit x=3 hat ihre Tangente die Gleichung y=−x+7. Ermittle die Parabel und ihre Scheitelkrümmung.',
+ 'f(x)=−½x²+2x+2,5; Scheitel (2|4,5), Krümmungsradius im Scheitel R=1.',
+ 'Bedingungen: f(5)=0, f(3)=4 und f′(3)=−1. Für f=ax²+bx+c entsteht ein lineares System. Im Scheitel ist f′=0, f″=−1.');
+B('1.24',K,'Der höchste Punkt eines kubischen Seilverlaufs ist H(2|50), der tiefste T(4|4). Bestimme die Polynomfunktion und die Stelle des stärksten Gefälles.',
+ 'f(x)=11,5x³−103,5x²+276x−180. Das stärkste Gefälle zwischen H und T liegt beim Wendepunkt x=3 mit f(3)=27.',
+ 'Nutze f(2)=50, f′(2)=0, f(4)=4, f′(4)=0. Die größte negative Steigung zwischen beiden Extrema liegt bei f″=0.');
+B('1.25',K,'Ein beidseitig eingespannter Träger von 3 m Länge biegt sich in der Mitte um maximal 2 cm durch. Die Endwerte sind 0 und die Tangenten an beiden Enden waagrecht. Stelle ein Polynom 4. Grades auf.',
+ 'Mit x in mm und y als Durchbiegung in mm gilt y(x)=20·[x(3000−x)/(1500²)]².',
+ 'Doppelte Nullstellen bei x=0 und x=3000 erzwingen y=a x²(x−3000)². Mit y(1500)=20 mm wird a eindeutig bestimmt.');
+B('1.32a',K,'Einem Halbkreis mit Radius R ist ein gleichschenkliges Dreieck mit Grundseite am Durchmesser eingeschrieben. Wie viel Prozent der Halbkreisfläche kann die Dreiecksfläche maximal einnehmen?',
+ 'Anteil 2/π≈63,66 %.',
+ 'Größte Grundseite 2R (Durchmesser), maximale Höhe R. Dreiecksfläche R²; Halbkreisfläche πR²/2, Verhältnis 2/π.',200/Math.PI);
+B('1.32b',K,'Einem gleichschenkligen Dreieck mit Basis B und Höhe H wird ein Rechteck mit maximaler Fläche eingeschrieben. Bestimme seine Abmessungen.',
+ 'Breite B/2, Höhe H/2, Rechtecksfläche BH/4.',
+ 'Mit Strahlensatz beträgt die verfügbare Breite in Höhe h: B(1−h/H). Maximieren von A(h)=hB(1−h/H).');
+B('1.74',V,'Nach Öffnen einer Kanalschleuse gilt v(t)=6,2t·e^(−1,4t) m³/s für t≥0. Bestimme den Zeitpunkt maximaler Durchflussgeschwindigkeit.',
+ 'Maximum bei t=1/1,4≈0,7143 Sekunden.',
+ 'Produktregel: v′=6,2e^(−1,4t)(1−1,4t). Exponentialfaktor ist positiv, also 1−1,4t=0.',1/1.4);
+B('1.101a',V,'Der Graph von f(x)=√(x−3) wird im Bereich x∈[3;7] um die x-Achse rotiert. Bestimme das Rotationsvolumen.',
+ 'Vₓ=π∫₃⁷(√(x−3))²dx=π∫₃⁷(x−3)dx=8π.',
+ 'Formel für Rotation um x-Achse: π∫[f(x)]²dx. Die Wurzel quadrieren.',8*Math.PI);
+B('1.101b',V,'Der Graph von f(x)=√(x−3) wird im Bereich [3;7] um die y-Achse rotiert. Berechne das Volumen der erzeugten Rotationsfigur.',
+ 'Vᵧ=2π∫₃⁷ x√(x−3)dx=(288/5)π≈180,956.',
+ 'Zylinderschalenmethode: Umfang 2πx mal Höhe f(x) integrieren. Substitution u=x−3 benutzen.',288*Math.PI/5);
+B('1.102',F,'Ordne zu: Welcher mathematische Begriff entspricht „einem orientierten Flächeninhalt“?',
+ 'Das bestimmte Integral. Es kann im Gegensatz zum geometrischen Flächeninhalt negativ sein.',
+ 'Auf der x-Achse liegende positive und negative Teilflächen werden beim bestimmten Integral mit Vorzeichen addiert.');
+
 if(new Set(R.map(x=>x.id)).size!==R.length)throw Error('Duplicate book IDs');
 window.MATHS_BOOK_BANK=Object.freeze(R);
 })();
