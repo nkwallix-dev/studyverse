@@ -37,8 +37,9 @@
 }
 svg {
   width: 100%;
-  height: auto;
-  max-height: 480px;
+  height: min(300px, 36vh);
+  max-height: 300px;
+  min-height: 220px;
   display: block;
   margin: auto;
   overflow: visible;
@@ -109,6 +110,8 @@ button[aria-pressed='true'] {
     padding: 14px;
   }
   svg {
-    max-height: 340px;
+    height: min(260px, 34vh);
+    max-height: 260px;
+    min-height: 180px;
   }
 }
