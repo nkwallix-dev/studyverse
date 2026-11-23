@@ -20,6 +20,7 @@ function plot(graph){
  if(!(x1>x0&&y1>y0))return '';
  const X=x=>((x-x0)/(x1-x0))*W,Y=y=>H-((y-y0)/(y1-y0))*H;
  const pointY=(c,x)=>{
+  if(Array.isArray(c.domain)&&(x<c.domain[0]||x>c.domain[1]))return NaN;
   if(Array.isArray(c.poly)){return c.poly.reduce((v,n)=>v*x+Number(n),0)}
   if(Array.isArray(c.points)){
    let p=c.points;
