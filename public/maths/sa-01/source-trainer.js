@@ -104,7 +104,7 @@ function bookDetails(group){
  '<section class="book-active-step"><h3>Schritt '+(stepIndex+1)+' von '+group.steps.length+(group.steps.length===1?'':' · '+esc(q.number))+'</h3><div class="source-question">'+esc(q.prompt)+'</div>'+
  (!sheet&&q.graph?plot(q.graph):'')+'</section>'+solution+'</div>'+
  '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Rechne Schritt '+(stepIndex+1)+' eigenständig. Ergebnis erst danach überprüfen.</div>'+
- '<div class="answer-field"><input id="sourceAnswer" aria-label="Ergebnis für Schritt '+(stepIndex+1)+'" inputmode="'+(expected?'decimal':'text')+'" placeholder="'+(expected?'Deine Zahl':'Dein Ergebnis oder Lösungsweg')+'" value="'+esc(ui.answer)+'">'+(expected?'<button class="btn primary" data-action="source:submit">Überprüfen</button>':'')+'</div>'+result+
+ '<div class="answer-field"><input id="sourceAnswer" aria-label="Ergebnis für Schritt '+(stepIndex+1)+'" inputmode="'+(expected?'decimal':'text')+'" placeholder="'+(expected?'Deine Zahl':'Dein Ergebnis oder Lösungsweg')+'" value="'+esc(ui.answer)+'">'+'<button class="btn primary" data-action="source:submit">Überprüfen</button></div>'+result+
  '<div class="source-actions"><button class="btn secondary" data-action="source:reveal">'+(ui.shown?'Lösung schließen':'Lösung anzeigen')+'</button>'+
  (ui.shown?'<button class="btn primary" data-action="source:self-right">✓ Richtig gelöst</button><button class="btn secondary" data-action="source:self-wrong">Noch üben</button>':'')+
  '<button class="btn secondary" data-action="source:next">'+(stepIndex+1<group.steps.length?'Nächster Schritt →':'Nächstes Buchbeispiel →')+'</button></div></div></section>';
