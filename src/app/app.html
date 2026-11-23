@@ -125,7 +125,7 @@
             <section>
               <div class="section-heading"><div><div class="eyebrow">EXPLORE THE UNIVERSE</div><h2>Deine Lernwelten <span>✦</span></h2></div><button class="text-link" (click)="go('subjects')">Alle Fächer ansehen →</button></div>
               <div class="tiles">
-                <button class="subject-card" *ngFor="let s of activeSubjects" (click)="go('subjects')" [style.--tilecolor]="s.color" [attr.aria-label]="'Zu Lernwelten – '+s.name>
+                <button class="subject-card" *ngFor="let s of activeSubjects" (click)="go('subjects')" [style.--tilecolor]="s.color" [attr.aria-label]="'Zu Lernwelten – '+s.name">
                   <span class="subject-icon">{{s.icon}}</span><span class="card-arrow">↗</span><small>{{s.short}}</small><strong>{{s.name}}</strong><span class="tile-bottom">{{subjectCountLabel(s.id)}} →</span>
                 </button>
               </div>

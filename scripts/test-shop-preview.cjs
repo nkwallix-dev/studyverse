@@ -100,9 +100,12 @@ assert(/\[class\.panda-art\]="item\.id\s*===\s*'dsai_panda'"/.test(cosmeticArt)&
 console.log('PASS: clean item art; statuses next to titles; inventory-only ownership.');
 
 const newShop=fs.readFileSync('src/app/shop-items.ts','utf8');
-assert(h.includes('class="sidebar-live-courses"'),'All playable trainer shortcuts should appear in top-left sidebar');
-assert(h.includes('*ngFor="let trainer of trainers"')&&h.includes('openTrainer(trainer.id)'),
- 'Sidebar shortcuts must derive from registry so all verses, including future ones, appear automatically');
+assert(!h.includes('class="sidebar-live-courses"')&&!h.includes('sidebar-live-label'),
+ 'Home sidebar must not duplicate the Lernwelten navigation with LIVE shortcuts');
+assert(h.includes('(click)="go(\'subjects\')" [style.--tilecolor]="s.color"'),
+ 'Dashboard must open Lernwelten, never jump directly into a playable trainer');
+assert(h.includes('(click)="openTrainer(trainer.id)">Spielen'),
+ 'Only the selected subject detail offers a Spielen button');
 const bannerCount=(h.match(/class="banner-scenery"/g)||[]).length;
 assert.equal(bannerCount,3,'Home, shop preview, and public player showcase need full scene-based banners');
 for(const banner of ['gold','warning','galaxy','molecule','flow','curve','cloud','solitaire','pink_paradise','parallel_pulse']){

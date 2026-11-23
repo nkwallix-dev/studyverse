@@ -623,7 +623,7 @@ export class App implements OnInit,OnDestroy {
    snapshot.profile['companionOwnerUid'] = this.cloud.session?.uid || null;
    if(!validStudyverse(snapshot.profile))throw Error('Ungültiger Cloud-Spielstand. Der lokale Stand bleibt erhalten.');
    const pending=this.cloud.session?.uid?this.pendingEquipment(this.cloud.session.uid):{};
-   if(Object.keys(pending).length)snapshot.profile.equipped={...snapshot.profile.equipped,...pending};
+   if(Object.keys(pending).length)snapshot.profile['equipped']={...snapshot.profile['equipped'] as Record<string,string>,...pending};
    const previous=this.currentBackupSnapshot();
    // A Verse writes its completed lessons locally before returning here.
    // Never overwrite that still-pending bridge with an older Cloud snapshot.
@@ -678,7 +678,7 @@ export class App implements OnInit,OnDestroy {
      if(this.cloud.session?.uid!==uid)return;
      await this.cloud.save(snapshot);
      if (this.cloud.session?.uid === uid) {
-       this.confirmEquipmentSave(uid,snapshot.profile.equipped);
+       this.confirmEquipmentSave(uid,snapshot.profile['equipped'] as Record<string,string>);
        this.profile['companions'] = mergeCompanions(this.profile['companions'], snapshot.profile['companions']);
        write(KEY, JSON.stringify(this.profile));
      }
