@@ -85,16 +85,16 @@ function browserPath() {
     // Allow any already-queued 10 FPS tick to settle before reading the paused frame.
     await page.waitForTimeout(180);
     const before=await rig.locator('.frame-meta').last().innerText();
-    const beforeFrame=Number(before.match(/Frame:\\s*(\\d+)/)?.[1]);
+    const beforeFrame=Number(before.match(/Frame:\s*(\d+)/)?.[1]);
     assert(Number.isInteger(beforeFrame), 'Could not parse paused frame counter');
     await rig.getByRole('button',{name:'Ein Frame weiter'}).click();
     await page.waitForFunction(previous => {
       const nodes=document.querySelectorAll('app-kenny-rig-preview .frame-meta');
-      const match=nodes[nodes.length-1]?.textContent?.match(/Frame:\\s*(\\d+)/);
+      const match=nodes[nodes.length-1]?.textContent?.match(/Frame:\s*(\d+)/);
       return match && Number(match[1]) === (previous+1)%64;
     }, beforeFrame, {timeout: 5000});
     const after=await rig.locator('.frame-meta').last().innerText();
-    assert.equal(Number(after.match(/Frame:\\s*(\\d+)/)?.[1]),(beforeFrame+1)%64,
+    assert.equal(Number(after.match(/Frame:\s*(\d+)/)?.[1]),(beforeFrame+1)%64,
       'Frame step should advance exactly one frame');
     await rig.getByRole('button',{name:'Pink',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('app-kenny-rig-preview svg image[href*="/parts/pink/"]')!==null);
