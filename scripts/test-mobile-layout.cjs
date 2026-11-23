@@ -1683,7 +1683,7 @@ async function main(){
    }else{
     assert.equal(await cosmeticPage.locator('#menuBtn').count(),0,'Chemverse has no burger');
    }
-   const sourceNav=cosmeticPage.locator(world==='Sharpverse'?'[data-action="view:sources"]':world==='MathsVerse'?'#nav [data-nav="sources"]':'[data-nav="sources"]');
+   const sourceNav=cosmeticPage.locator(world==='Sharpverse'?'[data-action="view:sources"]':world==='MathsVerse'?'.verse-endgame [data-nav="sources"]':'[data-nav="sources"]');
    await sourceNav.click();
    await cosmeticPage.locator('.sources-list').waitFor();
    assert((await cosmeticPage.locator('.sources-list').innerText()).length>150,world+' must list real teaching sources');
@@ -1701,6 +1701,44 @@ async function main(){
    });
    await check(cosmeticPage,world+' sources');
    await cosmeticPage.screenshot({path:path.join(screenshots,world.toLowerCase()+'-sources-390.png'),fullPage:true});
+   if (world==='MathsVerse') {
+     // Check the global Galaxy theme as well as the forest-green default.
+     await cosmeticPage.evaluate(() => {
+       const profile=JSON.parse(localStorage.getItem('studyverse_profile_v1'));
+       profile.equipped.theme='cosmic';
+       localStorage.setItem('studyverse_profile_v1',JSON.stringify(profile));
+       window.dispatchEvent(new Event('pageshow'));
+     });
+     await cosmeticPage.waitForFunction(()=>document.body.dataset.theme==='cosmic');
+     const cosmic=await cosmeticPage.evaluate(() => {
+       const lum=s=>{
+         const v=(s.match(/\d+/g)||[]).slice(0,3).map(Number).map(n=>n/255);
+         return v.map(n=>n<=0.04045?n/12.92:((n+0.055)/1.055)**2.4)
+           .reduce((sum,n,i)=>sum+n*[0.2126,0.7152,0.0722][i],0);
+       };
+       const foreground=getComputedStyle(document.querySelector('#nav button')).color;
+       const background=getComputedStyle(document.querySelector('.sidebar')).backgroundColor;
+       const light=lum(foreground),dark=lum(background);
+       return {foreground,background,ratio:(Math.max(light,dark)+.05)/(Math.min(light,dark)+.05)};
+     });
+     assert(cosmic.ratio>=4.5,'MathsVerse Galaxy sidebar must remain readable: '+JSON.stringify(cosmic));
+     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-galaxy-contrast-390.png'),fullPage:true});
+     await cosmeticPage.evaluate(() => {
+       const profile=JSON.parse(localStorage.getItem('studyverse_profile_v1'));
+       Object.assign(profile.equipped,{theme:'base',atm:'none',frame:'none',banner:'default',fx:'none'});
+       localStorage.setItem('studyverse_profile_v1',JSON.stringify(profile));
+       window.dispatchEvent(new Event('pageshow'));
+     });
+     await cosmeticPage.waitForFunction(()=>document.body.dataset.theme==='base'&&document.body.dataset.banner==='default');
+     const shades=await cosmeticPage.evaluate(()=>({
+       background:getComputedStyle(document.body).backgroundColor,
+       card:getComputedStyle(document.querySelector('.panel')).backgroundColor
+     }));
+     const darkColor=s=>{const v=(s.match(/\d+/g)||[]).slice(0,3).map(Number);return v.length===3&&Math.max(...v)<110};
+     assert(darkColor(shades.background)&&darkColor(shades.card),
+       'Default MathsVerse background and cards should be emerald, not white: '+JSON.stringify(shades));
+     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-emerald-default-390.png'),fullPage:true});
+   }
    await equipped.close();
   }
   // 1440 × 900 desktop: profile settings should fit without scrolling.
