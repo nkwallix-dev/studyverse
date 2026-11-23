@@ -4,7 +4,7 @@
 'use strict';
 const book=window.MATHS_BOOK_BANK||[];
 const map=new Map();
-const numberOf=q=String(q.number||'').match(/^\d+\.\d+/)?.[0]||String(q.number);
+const numberOf=q=>String(q.number||'').match(/^\d+\.\d+/)?.[0]||String(q.number);
 for(const q of book){
  const number=numberOf(q);
  if(!map.has(number))map.set(number,{id:'group-'+number.replace('.','-'),number,category:q.category,steps:[],pages:new Set()});
