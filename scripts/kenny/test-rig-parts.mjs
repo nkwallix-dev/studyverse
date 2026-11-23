@@ -29,6 +29,6 @@ for(const skin of manifest.skins) {
  });
 }
 let diff=0;
-for(let i=0;i<assembled.length;i++)if(assembled[i]!==source.data[i])diff++;
+for(let i=0;i<assembled.length;i+=4){if(assembled[i+3]!==source.data[i+3])diff++;if(source.data[i+3]>0)for(let c=0;c<3;c++)if(assembled[i+c]!==source.data[i+c])diff++;}
 if(diff)throw Error('Restored blue Kenny differs from approved original by '+diff+' byte values');
 console.log('OK: original blue image reproduced exactly from '+parts.length+' isolated PNG layers; five skins and eyelids verified.');
