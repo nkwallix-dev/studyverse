@@ -1,6 +1,7 @@
 import { BALANCE, playerSpecialDuration } from './kenny-platformer.balance';
 import { playerAnimation } from './kenny-platformer.animation';
 import { fusionColumn, fusionRow } from './kenny-platformer.fusion';
+import { atlasAsset, atlasBackgroundPosition, atlasCellForMotion } from '../kenny-atlas.animation';
 import {
   ItemId,
   FusionId,
@@ -38,7 +39,16 @@ import { KennyRenderer } from './kenny-platformer.renderer';
 import { KennyFusionPreviewComponent } from '../equipment/kenny-fusion-preview.component';
 
 type Action =
-  'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack' | 'special' | 'interact' | 'drop' | 'discard';
+  | 'left'
+  | 'right'
+  | 'aimUp'
+  | 'aimDown'
+  | 'jump'
+  | 'attack'
+  | 'special'
+  | 'interact'
+  | 'drop'
+  | 'discard';
 type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error' | 'tutorialComplete' | 'lost';
 interface RecordTime {
   seconds: number;
@@ -86,7 +96,8 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('expedition', { static: true }) expedition!: ElementRef<HTMLElement>;
   @ViewChild('sprite', { static: true }) sprite!: ElementRef<HTMLDivElement>;
-  @ViewChild('fusionSpriteCanvas', { static: true }) fusionSpriteCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('fusionSpriteCanvas', { static: true })
+  fusionSpriteCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('fusionLayer', { static: true }) fusionLayer!: ElementRef<HTMLDivElement>;
   @ViewChild('stage', { static: true }) stage!: ElementRef<HTMLDivElement>;
   @ViewChild('dialogAction') dialogAction?: ElementRef<HTMLButtonElement>;
@@ -568,7 +579,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
         this.specialQueued = false;
         this.interactQueued = false;
         this.dropQueued = false;
-    this.discardQueued = false;
+        this.discardQueued = false;
         this.accumulator -= STEP;
       }
       if (this.world.won && !this.tutorialActive) this.zone.run(() => this.finish());
@@ -597,17 +608,17 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
     // Every J action, even with spikes equipped, animates only the head/jaw.
     // Tail strikes belong exclusively to the L special (attackKind='tail').
     const directionalBite = this.world.biteTime > 0;
-    const canvasArtwork = nativeFusion || directionalBite;
+    const canvasArtwork = nativeFusion;
     // The original 88px fusion size made the whole mascot 15% larger than
     // base Kenny. New padded atlas cells share the same 75/77px presentation.
     const height = state.motion === 'idle' ? 75 : 77;
-    const width = canvasArtwork ? height : state.motion === 'idle' ? (height * 541) / 727 : height;
+    const width = height;
     const element = this.sprite.nativeElement;
     element.style.width = `${width * scale}px`;
     element.style.height = `${height * scale}px`;
     element.style.left = `${(player.x + player.w / 2 - width / 2 - this.renderer.camera) * scale}px`;
     // Normalized full-body atlas: toes terminate at source y=181/192.
-    const footRatio = nativeFusion ? 181 / 192 : state.motion === 'idle' ? 698 / 727 : 180 / 192;
+    const footRatio = nativeFusion ? 181 / 192 : 0.92;
     element.style.top = `${(player.y + player.h - height * footRatio) * scale}px`;
     const chargeWindup =
       this.world.attackTime > 0 &&
@@ -649,22 +660,13 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
         this.world.defense === 'stegosaurus-plates' && this.world.shield < this.world.shieldMaximum
           ? 'kenny-native-plate-glow 1.2s ease-in-out infinite alternate'
           : 'none';
-    } else if (state.motion === 'idle') {
-      this.fusionSpriteCanvas.nativeElement.style.display = 'none';
-      element.dataset['fusionPose'] = '';
-      element.style.removeProperty('background-image');
-      element.style.removeProperty('background-position');
-      element.style.removeProperty('background-size');
-      element.style.removeProperty('background-repeat');
-      element.style.removeProperty('animation');
-      element.style.animationPlayState = this.status() === 'playing' ? 'running' : 'paused';
     } else {
       this.fusionSpriteCanvas.nativeElement.style.display = 'none';
       element.dataset['fusionPose'] = '';
-      const animation = state.motion === 'walk' && this.world.biteTime <= 0 ? 'walk' : 'attack';
-      element.style.backgroundImage = `url("kenny/animations/${skin}-${animation}.png?v=2")`;
-      element.style.backgroundPosition = `${(state.frame * 100) / 3}% 0`;
-      element.style.backgroundSize = '400% 100%';
+      const cell = atlasCellForMotion(state.motion, state.frame);
+      element.style.backgroundImage = `url("${atlasAsset(skin)}?v=8")`;
+      element.style.backgroundPosition = atlasBackgroundPosition(cell);
+      element.style.backgroundSize = '900% 600%';
       element.style.backgroundRepeat = 'no-repeat';
       element.style.animation = 'none';
     }

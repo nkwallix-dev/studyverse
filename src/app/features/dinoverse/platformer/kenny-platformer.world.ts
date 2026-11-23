@@ -176,7 +176,12 @@ export class KennyWorld {
     collected: boolean;
     receiptEligible?: boolean;
   })[] = [];
-  readonly enemyAmberDrops: (Rect & { id: string; collected: boolean; pickupDelay?: number; checkpointReward?: boolean })[] = [];
+  readonly enemyAmberDrops: (Rect & {
+    id: string;
+    collected: boolean;
+    pickupDelay?: number;
+    checkpointReward?: boolean;
+  })[] = [];
   readonly pickupEvents: { id: string; item: ItemId }[] = [];
   readonly fusionRunEvents: { id: string; fusionId: FusionId }[] = [];
   private readonly countedFusions = new Set<FusionId>();
@@ -264,7 +269,10 @@ export class KennyWorld {
     this.loot.push({
       id: `${this.runId}_discard_${++this.swapSerial}`,
       item,
-      x: Math.max(6, Math.min(this.width - 28, this.player.x + (this.player.facing > 0 ? 39 : -27))),
+      x: Math.max(
+        6,
+        Math.min(this.width - 28, this.player.x + (this.player.facing > 0 ? 39 : -27)),
+      ),
       y: this.player.y + this.player.h - 23,
       w: 22,
       h: 22,
@@ -284,7 +292,8 @@ export class KennyWorld {
   private jumpBuffer = 0;
   private coyote = 0;
   private damageId = 0;
-  message = 'A/D laufen · Space springen · J beißen · L Spezialangriff · E aufheben · Q Item ablegen';
+  message =
+    'A/D laufen · Space springen · J beißen · L Spezialangriff · E aufheben · Q Item ablegen';
   private messageTime = 0;
   constructor(
     startItem: ItemId | Partial<EquipmentSlots> | null = null,
@@ -863,9 +872,9 @@ export class KennyWorld {
     enemy.alerted = false;
     enemy.returning = true;
     enemy.stun = Math.max(enemy.stun, 0.48);
-    enemy.knockbackRemaining = 0.30;
+    enemy.knockbackRemaining = 0.3;
     enemy.knockbackVelocity = -enemy.attackFacing * 380;
-    this.parryRemaining = 0.30;
+    this.parryRemaining = 0.3;
     this.parryVelocity = -this.attackFacing * 380;
     this.playerStun = Math.max(this.playerStun, 0.42);
     this.invulnerable = Math.max(this.invulnerable, 0.65);
@@ -1292,8 +1301,11 @@ export class KennyWorld {
       }
     });
     for (const crystal of this.enemyAmberDrops) {
-      if (!crystal.collected && !crystal.pickupDelay &&
-        distanceInFields(this.player, crystal) <= BALANCE.pickup.range) {
+      if (
+        !crystal.collected &&
+        !crystal.pickupDelay &&
+        distanceInFields(this.player, crystal) <= BALANCE.pickup.range
+      ) {
         crystal.collected = true;
         this.amberCount++;
         this.amberEvents.push(crystal.id);

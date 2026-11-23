@@ -11,9 +11,9 @@
     </nav>
     <h2>{{ tab === 'inventory' ? 'Kennys Fusions-Skillbaum' : 'Dino-Achievements' }}</h2>
     <p>
-      Einzelne Items: 50 originale Pickups. Komplette Dino-Kits: 25 Runs mit beiden
-      Items ausgerüstet. Mischfusionen: 10 Runs mit der jeweiligen Kombination.
-      Pro Run und Kombination zählt nur ein Einsatz.
+      Einzelne Items: 50 originale Pickups. Komplette Dino-Kits: 25 Runs mit beiden Items
+      ausgerüstet. Mischfusionen: 10 Runs mit der jeweiligen Kombination. Pro Run und Kombination
+      zählt nur ein Einsatz.
     </p>
     <div
       class="skill-tree-viewport"
@@ -21,42 +21,56 @@
       tabindex="0"
       aria-label="Begleiter-Skillbaum – innerhalb dieses Bereichs scrollen"
     >
-    <ng-template #fusionCard let-node>
-      <article
-        class="skill-node"
-        [class.locked]="!isUnlocked(node)"
-        [class.active]="isSelected(node)"
-      >
-        <div class="skill-art">
-          <app-kenny-fusion-preview
-            [skin]="skin"
-            [offense]="node.slots.offense"
-            [defense]="node.slots.defense"
-          ></app-kenny-fusion-preview>
-        </div>
-        <div class="skill-node-body">
-          <small>STUFE {{ node.tier }} · {{ isUnlocked(node) ? 'FREIGESCHALTET' : 'GESPERRT' }}</small>
-          <h4>{{ node.title }}</h4>
-          <p>{{ node.subtitle }}</p>
-          <ng-container *ngIf="node.tier === 1">
-            <label *ngFor="let item of node.needs">
-              {{ count(item) }} / 50 ·
-              {{ item === 'stegosaurus-plates' ? 'Platten' :
-                 item === 'stegosaurus-spikes' ? 'Stacheln' :
-                 item === 'triceratops-horns' ? 'Hörner' : 'Nackenschild' }}
-              <progress [value]="count(item)" max="50"></progress>
+      <ng-template #fusionCard let-node>
+        <article
+          class="skill-node"
+          [class.locked]="!isUnlocked(node)"
+          [class.active]="isSelected(node)"
+        >
+          <div class="skill-art">
+            <app-kenny-fusion-preview
+              [skin]="skin"
+              [offense]="node.slots.offense"
+              [defense]="node.slots.defense"
+            ></app-kenny-fusion-preview>
+          </div>
+          <div class="skill-node-body">
+            <small
+              >STUFE {{ node.tier }} · {{ isUnlocked(node) ? 'FREIGESCHALTET' : 'GESPERRT' }}</small
+            >
+            <h4>{{ node.title }}</h4>
+            <p>{{ node.subtitle }}</p>
+            <ng-container *ngIf="node.tier === 1">
+              <label *ngFor="let item of node.needs">
+                {{ count(item) }} / 50 ·
+                {{
+                  item === 'stegosaurus-plates'
+                    ? 'Platten'
+                    : item === 'stegosaurus-spikes'
+                      ? 'Stacheln'
+                      : item === 'triceratops-horns'
+                        ? 'Hörner'
+                        : 'Nackenschild'
+                }}
+                <progress [value]="count(item)" max="50"></progress>
+              </label>
+            </ng-container>
+            <label *ngIf="node.tier > 1">
+              {{ fusionProgress(node) }} / {{ fusionTarget(node) }} Runs · Beide Items ausgerüstet
+              <progress [value]="fusionProgress(node)" [max]="fusionTarget(node)"></progress>
             </label>
-          </ng-container>
-          <label *ngIf="node.tier > 1">
-            {{ fusionProgress(node) }} / {{ fusionTarget(node) }} Runs · Beide Items ausgerüstet
-            <progress [value]="fusionProgress(node)" [max]="fusionTarget(node)"></progress>
-          </label>
-          <button type="button" [disabled]="!isUnlocked(node)" (click)="chooseKit(node)">
-            {{ isSelected(node) ? '✓ Ausgerüstet' : isUnlocked(node) ? 'Als Starter wählen' : '🔒 Achievement nötig' }}
-          </button>
-        </div>
-      </article>
-    </ng-template>
+            <button type="button" [disabled]="!isUnlocked(node)" (click)="chooseKit(node)">
+              {{
+                isSelected(node)
+                  ? '✓ Ausgerüstet'
+                  : isUnlocked(node)
+                    ? 'Als Starter wählen'
+                    : '🔒 Achievement nötig'
+              }}
+            </button>
+          </div>
+        </article>
+      </ng-template>
       <div class="skill-root">
         <img [src]="skinPortrait()" alt="Kenny (Basis)" />
         <strong>🦖 Kenny</strong><small>Ursprung aller Fusionen</small>
@@ -69,21 +83,29 @@
           <h3>🛡️ Stegosaurus-Pfad</h3>
           <div class="skill-item-pair">
             <ng-container *ngFor="let node of stegoNodes">
-              <ng-container *ngTemplateOutlet="fusionCard; context: { $implicit: node }"></ng-container>
+              <ng-container
+                *ngTemplateOutlet="fusionCard; context: { $implicit: node }"
+              ></ng-container>
             </ng-container>
           </div>
           <div class="species-merge" aria-hidden="true"></div>
-          <ng-container *ngTemplateOutlet="fusionCard; context: { $implicit: fullStego }"></ng-container>
+          <ng-container
+            *ngTemplateOutlet="fusionCard; context: { $implicit: fullStego }"
+          ></ng-container>
         </section>
         <section class="skill-branch trike" aria-label="Triceratops-Fusionen">
           <h3>🦏 Triceratops-Pfad</h3>
           <div class="skill-item-pair">
             <ng-container *ngFor="let node of trikeNodes">
-              <ng-container *ngTemplateOutlet="fusionCard; context: { $implicit: node }"></ng-container>
+              <ng-container
+                *ngTemplateOutlet="fusionCard; context: { $implicit: node }"
+              ></ng-container>
             </ng-container>
           </div>
           <div class="species-merge" aria-hidden="true"></div>
-          <ng-container *ngTemplateOutlet="fusionCard; context: { $implicit: fullTrike }"></ng-container>
+          <ng-container
+            *ngTemplateOutlet="fusionCard; context: { $implicit: fullTrike }"
+          ></ng-container>
         </section>
       </div>
       <div class="hybrid-bridge" aria-hidden="true"></div>
@@ -117,11 +139,7 @@
       <span>🏆 ACHIEVEMENT FREIGESCHALTET!</span>
       <h2 id="companion-reward-title">{{ item.achievement }}</h2>
       <p>{{ item.quip }}</p>
-      <img
-        class="reward-art"
-        [src]="dropArt(item.id)"
-        [alt]="item.name"
-      />
+      <img class="reward-art" [src]="dropArt(item.id)" [alt]="item.name" />
       <p>
         Neue Begleiter-Ausrüstung freigeschaltet: <strong>{{ item.name }}</strong>
       </p>

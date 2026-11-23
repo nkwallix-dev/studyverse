@@ -118,15 +118,16 @@ assert(html.includes('<app-kenny-reward-overview')&&html.includes('[kennyRegular
  poolDialog.includes('(click)="closeRequested.emit()"'), 'Reward tiles and popup must retain parent data and close events');
 assert(css.includes('.universe.kenny-mode.kenny-mode{height:100dvh;min-height:0;overflow:hidden}'));
 for(const skin of ['blue','pink','green','red','zebra']){
- for(const action of ['idle','feed']){
-  const name='kenny-'+skin+'-'+action+'-strip.png';
-  assert(css.includes(name),'CSS must load the dedicated '+skin+' '+action+' sprite sheet');
-  assert(fs.existsSync('src/assets/kenny/skins/'+name),'Missing actual '+name+' PNG');
- }
+ const atlasSkin=skin==='zebra'?'white':skin;
+ const name='kenny-'+atlasSkin+'-30fps.png';
+ assert(css.includes(name),'CSS must load the dedicated '+atlasSkin+' 30 FPS atlas');
+ assert(fs.existsSync('public/kenny/atlases/'+name),'Missing actual '+name+' PNG');
  assert(fs.existsSync('public/kenny/skins/kenny-'+skin+'-portrait.png'),'Missing '+skin+' skin portrait');
 }
 assert(!css.includes('kenny-zebra-mask')&&!css.includes('.kenny-sprite[data-skin="zebra"]::after'),
  'No zebra overlay is allowed on the live sprite');
-assert(css.includes('kenny-drone-flight')&&css.includes('kenny-meat-drop'),
- 'Feeding drone and meat animation must keep working');
+assert(!html.includes('kenny-drone')&&!html.includes('kenny-meat'),
+ 'Legacy drone and meat markup must not cover the atlas-authored feeding animation');
+assert(d.KENNY_ZEBRA_SKIN.name==='Kenny Weiß'&&d.KENNY_ZEBRA_SKIN.equip==='zebra',
+ 'The white skin must keep the saved zebra id compatible');
 console.log('PASS: Kenny odds, professor exclusions, unique items, levels, cashback and one-time finale.');

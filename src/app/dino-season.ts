@@ -18,8 +18,8 @@ export const KENNY_ODDS:ReadonlyArray<Readonly<Record<DinoTier,number>>>=[
   {small:22.5,medium:26,large:9,event:9,zebra:0.5,token100:26,token500:5,token1000:2}
 ];
 export const KENNY_ZEBRA_SKIN:ShopItem={
-  id:'kenny_skin_zebra',kind:'dinoSkin',icon:'🦓',name:'Kenny Zebra',cost:0,
-  desc:'ULTRA RARE: weiß mit schwarzen Zebrastreifen. Erst ab Level 4 mit genau 0,5 % Dropchance.',
+  id:'kenny_skin_zebra',kind:'dinoSkin',icon:'🤍',name:'Kenny Weiß',cost:0,
+  desc:'ULTRA RARE: weiß mit schwarzen Streifen. Erst ab Level 4 mit genau 0,5 % Dropchance.',
   group:'dinoSkin',equip:'zebra',drop:KENNY_SEASON.id
 };
 export const KENNY_EVENT_ITEMS:ShopItem[]=[
@@ -43,7 +43,7 @@ export const KENNY_SKIN_AVATARS:ShopItem[]=[
   {id:'kenny_avatar_pink',kind:'avatar',icon:'🦖',name:'Kenny Pink',cost:0,desc:'Dein pinker Kenny-Avatar zum pinken Dino-Skin.',group:'avatar',drop:KENNY_SEASON.id},
   {id:'kenny_avatar_green',kind:'avatar',icon:'🦖',name:'Kenny Grün',cost:0,desc:'Dein grüner Kenny-Avatar zum grünen Dino-Skin.',group:'avatar',drop:KENNY_SEASON.id},
   {id:'kenny_avatar_red',kind:'avatar',icon:'🦖',name:'Kenny Rot',cost:0,desc:'Dein roter Kenny-Avatar zum roten Dino-Skin.',group:'avatar',drop:KENNY_SEASON.id},
-  {id:'kenny_avatar_zebra',kind:'avatar',icon:'🦓',name:'Kenny Zebra',cost:0,desc:'Dein exklusiver Zebra-Avatar, getrennt vom Zebra-Skin.',group:'avatar',drop:KENNY_SEASON.id}
+  {id:'kenny_avatar_zebra',kind:'avatar',icon:'🤍',name:'Kenny Weiß',cost:0,desc:'Dein exklusiver weißer Kenny-Avatar, getrennt vom weißen Skin.',group:'avatar',drop:KENNY_SEASON.id}
 ];
 export function kennyAvatarForSkin(id:string|undefined):ShopItem|undefined{
   return KENNY_SKIN_AVATARS.find(item=>id==='kenny_skin_'+item.id.slice('kenny_avatar_'.length));
