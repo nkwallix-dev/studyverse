@@ -1,0 +1,358 @@
+{
+  "version": 2,
+  "batch": "02-body-limbs",
+  "sourcePath": "public/kenny/rig/v1/source/kenny-approved-master.png",
+  "sourceSHA256": "11440b14fa46df978bab203e1feebdd3f93f1cbb240931b8658061e7016529a0",
+  "connectsBatch": "kenny-rig-v2/batch-01/manifest.json",
+  "canvas": {
+    "width": 1205,
+    "height": 1305,
+    "coordinateSystem": "pixels, top-left origin"
+  },
+  "files": [
+    {
+      "file": "torso_core.png",
+      "id": "torso_core",
+      "x": 425,
+      "y": 592,
+      "width": 435,
+      "height": 349,
+      "pivot": {
+        "global": [
+          632,
+          757
+        ],
+        "local": [
+          207,
+          165
+        ]
+      },
+      "parent": "root",
+      "attachments": {
+        "back": [
+          535,
+          655
+        ],
+        "belly": [
+          727,
+          853
+        ],
+        "hips": [
+          [
+            486,
+            770
+          ],
+          [
+            757,
+            828
+          ]
+        ]
+      },
+      "pngSHA256": "0864c933e2ad1c96dd6ef6899b09a4af595d0062abfdc1fa36d1d5a8ba9ba7fc",
+      "artwork": "original visible colors plus obscured-area blue/cyan backpaint"
+    },
+    {
+      "file": "neck.png",
+      "id": "neck",
+      "x": 612,
+      "y": 419,
+      "width": 257,
+      "height": 360,
+      "pivot": {
+        "global": [
+          730,
+          620
+        ],
+        "local": [
+          118,
+          201
+        ]
+      },
+      "parent": "torso_core",
+      "attachments": {
+        "head": [
+          690,
+          433
+        ],
+        "torso": [
+          730,
+          620
+        ]
+      },
+      "pngSHA256": "f3e51dd6882e24ba339e78a731790f4a94c37501d7ae4bb003a508a93c9f1475",
+      "artwork": "original visible colors plus obscured-area blue/cyan backpaint"
+    },
+    {
+      "file": "arm_near_upper.png",
+      "id": "arm_near_upper",
+      "x": 587,
+      "y": 600,
+      "width": 166,
+      "height": 182,
+      "pivot": {
+        "global": [
+          703,
+          648
+        ],
+        "local": [
+          116,
+          48
+        ]
+      },
+      "parent": "torso_core",
+      "attachments": {
+        "shoulder": [
+          703,
+          648
+        ],
+        "elbow": [
+          626,
+          748
+        ]
+      },
+      "pngSHA256": "d90209c6ec58aa8f301aa77599eac4d47ed87c8b136d003a6a6a436d3ac36310",
+      "artwork": "original pixels with hidden joint-surface reconstruction"
+    },
+    {
+      "file": "arm_near_forearm.png",
+      "id": "arm_near_forearm",
+      "x": 601,
+      "y": 693,
+      "width": 206,
+      "height": 111,
+      "pivot": {
+        "global": [
+          626,
+          748
+        ],
+        "local": [
+          25,
+          55
+        ]
+      },
+      "parent": "arm_near_upper",
+      "attachments": {
+        "elbow": [
+          626,
+          748
+        ],
+        "wrist": [
+          732,
+          739
+        ]
+      },
+      "pngSHA256": "6ac76eb083af34c9695351b7c4299f3638d5f303e48e5835f37615f7a6cdee0c",
+      "artwork": "original pixels with hidden joint-surface reconstruction"
+    },
+    {
+      "file": "hand_near.png",
+      "id": "hand_near",
+      "x": 700,
+      "y": 688,
+      "width": 169,
+      "height": 180,
+      "pivot": {
+        "global": [
+          732,
+          739
+        ],
+        "local": [
+          32,
+          51
+        ]
+      },
+      "parent": "arm_near_forearm",
+      "attachments": {
+        "wrist": [
+          732,
+          739
+        ],
+        "fingers": 3
+      },
+      "pngSHA256": "ac89aa2c3d641db43f6b8b3a707421eed9e6bea61251eb59ca4ec68b6cbfea68",
+      "artwork": "original pixels with hidden joint-surface reconstruction"
+    },
+    {
+      "file": "arm_far_upper.png",
+      "id": "arm_far_upper",
+      "x": 791,
+      "y": 657,
+      "width": 150,
+      "height": 132,
+      "pivot": {
+        "global": [
+          845,
+          699
+        ],
+        "local": [
+          54,
+          42
+        ]
+      },
+      "parent": "torso_core",
+      "attachments": {
+        "shoulder": [
+          845,
+          699
+        ],
+        "elbow": [
+          885,
+          745
+        ]
+      },
+      "pngSHA256": "266fa71a79646f721bf8177bc6cc2ac58eb01a73806104b01cb6f41965d0f3a1",
+      "artwork": "original pixels with hidden joint-surface reconstruction"
+    },
+    {
+      "file": "arm_far_forearm.png",
+      "id": "arm_far_forearm",
+      "x": 832,
+      "y": 690,
+      "width": 135,
+      "height": 106,
+      "pivot": {
+        "global": [
+          885,
+          745
+        ],
+        "local": [
+          53,
+          55
+        ]
+      },
+      "parent": "arm_far_upper",
+      "attachments": {
+        "elbow": [
+          885,
+          745
+        ],
+        "wrist": [
+          897,
+          739
+        ]
+      },
+      "pngSHA256": "f88bc63d0fd8930a89ee2178c09b8ff406123bf332d0ac77c8993ae74e60b7d9",
+      "artwork": "original pixels with hidden joint-surface reconstruction"
+    },
+    {
+      "file": "hand_far.png",
+      "id": "hand_far",
+      "x": 875,
+      "y": 672,
+      "width": 174,
+      "height": 193,
+      "pivot": {
+        "global": [
+          897,
+          739
+        ],
+        "local": [
+          22,
+          67
+        ]
+      },
+      "parent": "arm_far_forearm",
+      "attachments": {
+        "wrist": [
+          897,
+          739
+        ],
+        "fingers": 3
+      },
+      "pngSHA256": "64e62e2214dbd44fef47ef2fe06d811f857df5ceb0b92013984332154452e415",
+      "artwork": "original pixels with hidden joint-surface reconstruction"
+    },
+    {
+      "file": "thigh_near.png",
+      "id": "thigh_near",
+      "x": 369,
+      "y": 699,
+      "width": 276,
+      "height": 314,
+      "pivot": {
+        "global": [
+          486,
+          770
+        ],
+        "local": [
+          117,
+          71
+        ]
+      },
+      "parent": "torso_core",
+      "attachments": {
+        "hip": [
+          486,
+          770
+        ],
+        "knee": [
+          408,
+          982
+        ]
+      },
+      "pngSHA256": "08a53df68417a45638b08ec7b02212fd9d09184cf830cb0f366e7739103e3cbe",
+      "artwork": "original pixels with hidden joint-surface reconstruction"
+    },
+    {
+      "file": "thigh_far.png",
+      "id": "thigh_far",
+      "x": 644,
+      "y": 781,
+      "width": 244,
+      "height": 221,
+      "pivot": {
+        "global": [
+          757,
+          828
+        ],
+        "local": [
+          113,
+          47
+        ]
+      },
+      "parent": "torso_core",
+      "attachments": {
+        "hip": [
+          757,
+          828
+        ],
+        "knee": [
+          745,
+          975
+        ]
+      },
+      "pngSHA256": "f79c8ef0a70783e58396e70a4f0bbc3a35a4e413c3bf8d003cb25ddc312bbd53",
+      "artwork": "original pixels with hidden joint-surface reconstruction"
+    }
+  ],
+  "drawOrder": [
+    "thigh_far",
+    "arm_far_upper",
+    "arm_far_forearm",
+    "hand_far",
+    "torso_core",
+    "neck",
+    "thigh_near",
+    "arm_near_upper",
+    "arm_near_forearm",
+    "hand_near"
+  ],
+  "referenceHeadPivot": {
+    "global": [
+      690,
+      433
+    ]
+  },
+  "referenceJawPivot": {
+    "global": [
+      771,
+      376
+    ]
+  },
+  "limitations": [
+    "Only upper thighs were requested; the knees, shins, feet and tail are deliberately reserved for batch 03.",
+    "Hidden geometry under upper arms/hips was reconstructed from real blue/cyan material gradients, not independently AI-generated.",
+    "Spline borders and anatomical occlusion require human review before animation or merge.",
+    "No runtime renderer changed."
+  ]
+}
