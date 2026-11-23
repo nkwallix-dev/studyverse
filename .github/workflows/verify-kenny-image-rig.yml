@@ -1,0 +1,39 @@
+name: Verify Kenny image-parts rig
+on:
+  pull_request:
+    paths:
+      - 'public/kenny/rig/v1/**'
+      - 'src/app/features/dinoverse/dino-designer/**'
+      - 'scripts/kenny/**'
+      - '.github/workflows/verify-kenny-image-rig.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: PNG images and geometry contract
+        run: node scripts/kenny/test-rig-parts.mjs
+      - name: Check feature formatting
+        run: npm run format:check
+      - name: Angular production build with GitHub Pages base path
+        run: npm run build -- --base-href /studyverse/ --output-path dist/site
+      - name: Install Chromium browser driver
+        run: npm install --no-save --package-lock=false playwright
+      - name: Exercise Kenny image rig in Dino Designer
+        run: node scripts/kenny/test-rig-browser.cjs
+      - name: Save screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kenny-image-rig-previews
+          path: mobile-screenshots/kenny-rig-approved-master-*.png
+          if-no-files-found: ignore
+          retention-days: 7
