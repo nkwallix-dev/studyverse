@@ -7,7 +7,7 @@
 'use strict';
 const BOOK=window.MATHS_BOOK_BANK||[];
 const POOL=window.MATHS_POOL_BANK||[];
-const ui={bookId:BOOK[0]?.id,poolId:POOL[0]?.id,mode:null,filter:'',topic:'all',shown:false,submitted:false,correct:null,answer:'',run:null,complete:null};
+const ui={bookId:BOOK[0]?.id,poolId:POOL[0]?.id,mode:null,filter:'',topic:'all',shown:false,submitted:false,correct:null,answer:'',run:null,complete:null,listScroll:{book:0,pool:0}};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const select=(arr)=>arr[Math.floor(Math.random()*arr.length)];
 function shuffle(items){let a=[...items];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -75,7 +75,7 @@ function details(q,mode){
  '<div class="source-actions"><button class="btn secondary" data-action="source:reveal">'+(ui.shown?'Lösung wieder ausblenden':'Lösung anzeigen')+'</button><button class="btn secondary" data-action="source:next">Nächstes Beispiel →</button></div>'+
  (ui.shown?'<section class="source-solution"><h3>Schritt-für-Schritt-Erklärung</h3><p>'+esc(q.guide||q.steps)+'</p><div class="formula">'+esc(q.solution)+'</div>'+
  (isPool?'<p class="source-credit">'+esc(q.credit||'Datenquelle: Bundesministerium für Bildung (CC BY 4.0)')+'</p><a target="_blank" rel="noopener noreferrer" href="'+esc(q.source)+'">Vollständige offizielle Lösungserwartung öffnen ↗</a>':'')+
- '<div class="source-actions"><button class="btn primary" data-action="source:self-right">✓ Ich hatte es richtig</button><button class="btn secondary" data-action="source:self-wrong">✕ Noch üben</button></div></section>':'')+
+ '<div class="source-actions"><button class="btn secondary" data-action="source:reveal">Okay, verstanden · Lösung schließen</button><button class="btn primary" data-action="source:self-right">✓ Ich hatte es richtig</button><button class="btn secondary" data-action="source:self-wrong">✕ Noch üben</button></div></section>':'')+
  (needsExternal?'<p class="source-credit">Bei dieser Aufgabe können Antworten eine Zeichnung, Formel oder Begründung sein. Ohne eindeutigen Zahlenwert erfolgt eine transparente Selbstkontrolle statt erfundener automatischer Bewertung.</p>':'')+
  '</div>';
 }
@@ -90,9 +90,12 @@ function browser(mode,state){
  return '<div class="eyebrow">'+(mode==='book'?'ECHTE SCHULBUCH-AUFGABEN':'ORIGINAL-SRDP · 4. DESKRIPTOR')+'</div><h1>'+(mode==='book'?'Buchbeispiele':'4. Deskriptor')+'</h1><p>'+(mode==='book'?'Die nummerierten Beispiele aus deinem Schulbuch – an Papier rechnen, Lösung bei Bedarf ausklappen.':'50 echte veröffentlichte SRDP-Teilaufgaben mit offiziellen PDFs/Quellen und Originalgrafiken, statt erfundener Ersatzfragen.')+'</p>'+
  '<div class="source-count"><strong>'+done+'/'+bank.length+'</strong> bearbeitet · '+(mode==='book'?'Buchnummern aus der ZIP':'Datenquelle: Bundesministerium für Bildung · CC BY 4.0')+'</div>'+
  '<div class="source-filters"><label>Suche <input id="sourceSearch" placeholder="z. B. '+(mode==='book'?'1.66 a':'B_405')+'" value="'+esc(ui.filter)+'"></label><label>Thema <select id="sourceTopic"><option value="all">Alle Bereiche</option>'+categories.map(c=>'<option value="'+esc(c)+'" '+(ui.topic===c?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select></label></div>'+
- '<div class="source-workspace"><aside class="source-list" aria-label="Aufgabenliste">'+rows.map(x=>'<button class="source-task '+(x.id===active?.id?'active':'')+'" data-action="source:open:'+esc(x.id)+'"><span>'+esc(x.number)+'</span><small>'+esc(x.title||x.category)+'</small>'+(state.solved[solvedKey(x,mode)]?' ✓':'')+'</button>').join('')+'</aside>'+details(active,mode)+'</div>';
+ '<div class="source-workspace" data-mode="'+mode+'"><aside class="source-list" aria-label="Aufgabenliste">'+rows.map(x=>'<button class="source-task '+(x.id===active?.id?'active':'')+'" data-action="source:open:'+esc(x.id)+'"><span>'+esc(x.number)+'</span><small>'+esc(x.title||x.category)+'</small>'+(state.solved[solvedKey(x,mode)]?' ✓':'')+'</button>').join('')+'</aside>'+details(active,mode)+'</div>';
 }
 function reset(){ui.shown=false;ui.submitted=false;ui.correct=null;ui.answer=''}
+function captureList(mode,scroll){if(mode==='book'||mode==='pool')ui.listScroll[mode]=Math.max(0,scroll||0)}
+function restoreList(mode,el){if(el&&ui.listScroll[mode]!=null)el.scrollTop=ui.listScroll[mode]}
+function isSolutionOpen(){return !!ui.shown}
 function current(mode){return cards(mode).find(x=>x.id===(mode==='book'?ui.bookId:ui.poolId))}
 function next(mode,state){let list=cards(mode),idx=list.findIndex(x=>x.id===current(mode)?.id);
  if(idx<0)return;let fresh=list.find((x,i)=>i>idx&&!state.solved[solvedKey(x,mode)])||list.find(x=>!state.solved[solvedKey(x,mode)])||list[(idx+1)%list.length];
@@ -178,5 +181,5 @@ function refreshFilters(){
  const q=document.getElementById('sourceSearch'),t=document.getElementById('sourceTopic');
  ui.filter=q?.value||'';ui.topic=t?.value||'all';reset();
 }
-window.MATHS_SOURCE_TRAINER={BOOK,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot};
+window.MATHS_SOURCE_TRAINER={BOOK,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot,captureList,restoreList,isSolutionOpen};
 })();

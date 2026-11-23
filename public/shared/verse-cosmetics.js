@@ -30,6 +30,8 @@ const AVATAR_FILES = new Map(Object.entries({
   kenny_avatar_zebra: 'kenny_zebra_avatar.png',
 }));
 const LEGACY_AVATARS = new Map(Object.entries({
+  '🦊': 'maths_avatar_pi',
+  '🦉': 'maths_owl',
   '🧪': 'default',
   '🍕': 'avatar_pizza',
   '👽': 'avatar_alien',

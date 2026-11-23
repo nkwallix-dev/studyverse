@@ -1411,7 +1411,7 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
  kennyAvatarSkin(value:string):ReturnType<typeof kennyAvatarSkin>{return kennyAvatarSkin(value);}
  kennyAvatarForSkin(id:string|undefined){return kennyAvatarForSkin(id);}
  kennyRewardSkin(id:string|undefined){return id===KENNY_BLUE_SKIN.id?'blue':kennyAvatarSkin(kennyAvatarForSkin(id)?.id||id||'');}
- avatarEquipValue(item:ShopItem):string{return item.group==='avatar'?(kennyAvatarSkin(item.id)?item.id:item.icon):(item.equip||item.id);}
+ avatarEquipValue(item:ShopItem):string{return item.group==='avatar'?(kennyAvatarSkin(item.id)||item.id==='maths_avatar_pi'||item.id==='maths_owl'?item.id:item.icon):(item.equip||item.id);}
  avatarSelected(item:ShopItem):boolean{return item.group==='avatar'&&this.active(item);}
  get unlockedAvatars(){return this.ownedCatalogItems.filter(item=>item.group==='avatar');}
  get unlockedTitles(){return this.ownedCatalogItems.filter(item=>item.group==='title');}
@@ -1606,6 +1606,7 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
    if(item.group==='dinoSkin')return this.kennySkin===item.equip;
    const key=item.group,value=this.avatarEquipValue(item);
    return this.profile.equipped[key]===value ||
+     (item.group==='avatar'&&(item.id==='maths_avatar_pi'||item.id==='maths_owl')&&this.profile.equipped[key]===item.icon) ||
      item.id==='kenny_avatar'&&this.profile.equipped[key]==='🦖';
  }
  priceLabel(item:ShopItem){
