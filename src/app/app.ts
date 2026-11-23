@@ -2,7 +2,7 @@ import { CompanionEquipmentComponent } from './features/dinoverse/equipment/comp
 import { COMPANION_SKILL_TREE } from './features/dinoverse/equipment/companion-skill-tree';
 import { CompanionState, EquipmentSlots, FusionId, FUSION_GOALS, ItemId, ItemSlot, COMPANION_ITEMS, amberTotal, recordAmber, normalizeCompanions, mergeCompanions, countItem, countFusionRuns, recordPickup, recordFusionRun, equipCompanion, equipCompanionKit } from './features/dinoverse/equipment/companion-equipment.model';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DinoDesignerComponent } from './features/dinoverse/dino-designer/dino-designer.component';
 import { KennyPlatformerComponent } from './features/dinoverse/platformer/kenny-platformer.component';
@@ -21,7 +21,6 @@ import { StudyverseCloud, CloudSnapshot, PublicPlayer, PublicShowcase, PublicCou
 import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, KENNY_ZEBRA_SKIN, KENNY_BLUE_SKIN, KENNY_BLUE_AVATAR, KENNY_SKIN_AVATARS, DinoSeasonState, DinoDrop,
   freshDinoState, normalizeDinoState, dinoLevel, nextDinoLevel, isKennyActive, cashbackDue, kennyCountdown,
   eligibleDinoItems, actualDinoOdds, drawDinoReward, settleDinoSeason, hasKennyCompanion, kennyStaysAfterSeason, kennyAvatarForSkin, kennyAvatarSkin, kennyPortrait } from './dino-season';
-import { atlasAsset, atlasBackgroundPosition, feedAtlasCell } from './features/dinoverse/kenny-atlas.animation';
 
 type View =
   | 'dashboard'
@@ -102,9 +101,8 @@ export const SUBJECTS:Subject[]=[
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App implements OnInit,AfterViewInit,OnDestroy {
+export class App implements OnInit,OnDestroy {
  @ViewChild(KennyPlatformerComponent) private platformer?: KennyPlatformerComponent;
- @ViewChild('kennyStageSprite') private kennyStageSprite?: ElementRef<HTMLElement>;
  private readonly changeDetector=inject(ChangeDetectorRef);
  readonly subjects=SUBJECTS;
  readonly items=[...SHOP_ITEMS,...KENNY_ITEMS];
@@ -114,11 +112,6 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
   kennyClock=Date.now();kennyBusy=false;kennyFeeding=false;kennyVisibleFeeds:number|null=null;kennyError='';kennyCustomizeOpen=false;kennyPoolOpen=false;
  kennyReveals: KennyReveal[] = [];
  private kennyTimer:ReturnType<typeof setInterval>|null=null;
- private kennyAnimationFrame:number|null=null;
- private kennyFeedStartedAt=0;
- private readonly kennyReducedMotion=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
- /** Resolve public sprite URLs against the deployed app base, including /studyverse/. */
- kennyAtlasBackground(skin:string):string{return `url("${new URL(atlasAsset(skin)+'?v=8',document.baseURI).href}")`;}
  intro=!read(INTRO); importOpen=false; info=''; nicknameEdit='';
  readonly cloud=new StudyverseCloud();
  cloudReady=false; cloudConfigured=false; cloudBusy=false; cloudHydrating=false; cloudMaySave=false;
@@ -218,27 +211,7 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
    window.addEventListener('pageshow',this.onReturn);
    void this.startCloud();
  }
- ngAfterViewInit(){
-   if(typeof requestAnimationFrame!=='function')return;
-   const animate=(timestamp:number)=>{
-     const sprite=this.kennyStageSprite?.nativeElement;
-     if(sprite){
-       const logicalFeedFrame=Math.max(0,Math.min(95,Math.floor((timestamp-this.kennyFeedStartedAt)*30/1000)));
-       const idleTick=Math.floor(timestamp*30/1000)%192;
-       const cell=this.kennyFeeding
-         ?feedAtlasCell(logicalFeedFrame)
-         :{column:this.kennyReducedMotion||idleTick<183?0:idleTick-183,row:0};
-       sprite.style.backgroundPosition=atlasBackgroundPosition(cell);
-     }
-     this.kennyAnimationFrame=requestAnimationFrame(animate);
-   };
-   this.kennyAnimationFrame=requestAnimationFrame(animate);
- }
- ngOnDestroy(){
-   window.removeEventListener('message',this.onKennyTab);window.removeEventListener('pageshow',this.onReturn);
-   if(this.kennyTimer)clearInterval(this.kennyTimer);
-   if(this.kennyAnimationFrame!==null)cancelAnimationFrame(this.kennyAnimationFrame);
- }
+ ngOnDestroy(){window.removeEventListener('message',this.onKennyTab);window.removeEventListener('pageshow',this.onReturn);if(this.kennyTimer)clearInterval(this.kennyTimer);}
  private load():Profile {
    const raw=parse(read(KEY));const fresh=initial();
    if(!isObj(raw))return fresh;
@@ -1175,10 +1148,9 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
    const next={...before,feeds:before.feeds+1};
    const reachedLevelFive=priorLevel<5&&dinoLevel(next.feeds)===5;
    if(priorLevel===5){next.overfeeds++;next.overTokenWins+=prize.tokens;}
-   this.kennyFeedStartedAt=performance.now();
    this.kennyBusy=true;this.kennyFeeding=true;this.kennyVisibleFeeds=before.feeds;this.changeDetector.markForCheck();
    const feedingAnimation=new Promise<void>(resolve=>window.setTimeout(resolve,3200));
-   const flavor=['Kenny hat die Ratte verputzt.','Kenny schnappt zufrieden zu.','Kenny hat sich seinen Snack schmecken lassen.','Kenny schaut dich erwartungsvoll an.'];
+   const flavor=['Kenny hat das Futter verputzt.','Kenny schnappt zufrieden zu.','Kenny hat sich das Fleisch schmecken lassen.','Kenny schaut dich erwartungsvoll an.'];
    const line=flavor[Math.floor(this.randomDino()*flavor.length)];
    this.profile.tokens=this.profile.tokens-KENNY_SEASON.price+prize.tokens;
    this.profile.dinoSeasons={...(this.profile.dinoSeasons||{}),[KENNY_SEASON.id]:next};

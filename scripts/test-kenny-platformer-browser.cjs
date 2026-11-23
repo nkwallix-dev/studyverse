@@ -183,16 +183,14 @@ async function initialize(context, retained = true, companions = undefined) {
     await page.clock.runFor(32);
 
     assert.equal(await page.locator('.platformer-player').getAttribute('data-skin'), 'green');
-    const playerStyle = await page.locator('.platformer-player').evaluate((element) => {
-      const style = getComputedStyle(element);
-      return { image: style.backgroundImage, size: style.backgroundSize };
-    });
+    const image = await page
+      .locator('.platformer-player')
+      .evaluate((element) => getComputedStyle(element).backgroundImage);
     assert(
-      playerStyle.image.includes('kenny-green-30fps'),
-      'Equipped Kenny skins must use the normalized 30 FPS atlas',
+      image.includes('kenny-green-idle-strip'),
+      'Equipped Kenny skins must use the actual sprite strip',
     );
-    assert.equal(playerStyle.size, '900% 600%', 'The 9×6 atlas grid must be selected exactly');
-    const spriteUrl = /url\("?([^"\)]+)/.exec(playerStyle.image)[1];
+    const spriteUrl = /url\("?([^"\)]+)/.exec(image)[1];
     assert((await page.request.get(spriteUrl)).ok(), 'The sprite image must load');
     const baselines = await page.evaluate(async () => {
       const names = [

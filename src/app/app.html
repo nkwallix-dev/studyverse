@@ -170,7 +170,7 @@
                   <div class="kenny-sun"></div><div class="kenny-mountain left"></div><div class="kenny-mountain right"></div>
                   <div class="kenny-volcano"><i></i></div><div class="kenny-ground"></div>
                   <span class="kenny-stage-label">🦖 SEASON 01 · KENNY</span>
-                  <div class="kenny-sprite" role="img" aria-label="Kenny mit deinem Skin" [attr.data-skin]="kennySkin" [style.background-image]="kennyAtlasBackground(kennySkin)" [style.--kenny-scale]="1+(kennyLevel-1)*0.07"></div>
+                  <div class="kenny-sprite" role="img" aria-label="Kenny mit deinem Skin" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyLevel-1)*0.07"></div>
                   <div class="kenny-stage-name"><strong>KENNY</strong><span>Level {{kennyLevel}} / 5</span></div><button type="button" class="companion-banner-brush" (click)="openDinoDesigner()" aria-label="Kenny gestalten" title="Designe deinen Dino">🖌️</button>
                 </div>
                 <div class="companion-card-body">
@@ -387,7 +387,10 @@
                 <div class="kenny-volcano"><i></i></div><div class="kenny-lava"></div>
                 <div class="kenny-ground"></div><div class="kenny-fern fern-left">🌿</div><div class="kenny-fern fern-right">🌿</div>
                 <span class="kenny-stage-label">🦖 DINO-VERSE · SEASON 01</span>
-                <div #kennyStageSprite class="kenny-sprite" role="img" aria-label="Kenny, der Raptor" [attr.data-skin]="kennySkin" [style.background-image]="kennyAtlasBackground(kennySkin)" [style.--kenny-scale]="1+(kennyVisualLevel-1)*0.07"></div>
+                <div class="kenny-landing-pad" aria-hidden="true"></div>
+                <div class="kenny-drone" aria-hidden="true"><span class="kenny-drone-rotor left"></span><span class="kenny-drone-rotor right"></span><span class="kenny-drone-body">✦</span><span class="kenny-drone-crate">🥩</span></div>
+                <span class="kenny-meat" aria-hidden="true">🥩</span>
+                <div class="kenny-sprite" role="img" aria-label="Kenny, der blaue Raptor" [attr.data-skin]="kennySkin" [style.--kenny-scale]="1+(kennyVisualLevel-1)*0.07"></div>
                 <div class="kenny-stage-name"><strong>KENNY</strong><span>Dein Begleiter für Chemie und Data Science</span></div>
                 <div class="kenny-level-medal"><small>LEVEL</small><strong>{{kennyVisualLevel}}</strong><span>/ 5</span></div>
               </div>
@@ -396,7 +399,7 @@
                 <div class="kenny-progress-track" role="progressbar" [attr.aria-valuenow]="kennyProgress" aria-valuemin="0" aria-valuemax="100" aria-label="Kenny-Level-Fortschritt"><i [style.width.%]="kennyProgress"></i></div>
                 <div class="kenny-action-row">
                   <div class="kenny-wallet"><small>DEIN GUTHABEN</small><strong><app-cosmetic-icon id="tasty_token" fallback="◉" class="token-icon"/> {{profile.tokens | number}} TT</strong></div>
-                  <button type="button" class="kenny-feed-btn" [disabled]="!kennyCanFeed" (click)="feedKenny()"><ng-container *ngIf="kennyActive && !kennyBusy;else feedInactive"><app-cosmetic-icon id="kenny_feed_rat" fallback="🐀" class="feed-icon"/> <span>Füttern · <app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/> 300 TT</span></ng-container><ng-template #feedInactive>{{kennyBusy?'Kenny mampft …':'Season beendet'}}</ng-template></button>
+                  <button type="button" class="kenny-feed-btn" [disabled]="!kennyCanFeed" (click)="feedKenny()"><ng-container *ngIf="kennyActive && !kennyBusy;else feedInactive"><app-cosmetic-icon id="kenny_feed_button" fallback="🥩" class="feed-icon"/> <span>Füttern · <app-cosmetic-icon id="tasty_token" fallback="🪙" class="token-icon"/> 300 TT</span></ng-container><ng-template #feedInactive>{{kennyBusy?'Kenny mampft …':'Season beendet'}}</ng-template></button>
                   <button type="button" class="kenny-style-btn" (click)="openDinoDesigner()" aria-label="Designe deinen Dino" title="Designe deinen Dino">🖌️</button>
                 </div>
                 <p class="kenny-last-feed" *ngIf="kennyRemainingFeeds===1 && kennyLevel<5 && !kennyFeeding">Bravo! Noch einmal füttern, dann ist Kenny Level {{kennyLevel+1}}.</p>

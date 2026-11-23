@@ -799,14 +799,15 @@ async function main(){
     await dinoPage.waitForTimeout(1100);
     assert.equal(await dinoPage.locator('.kenny-reveal-modal').count(),0,
      'Feeding animation must remain visible for more than a brief flash');
-    const feedingAtlas=await dinoPage.evaluate(()=>{
-     const sprite=document.querySelector('.kenny-stage.kenny-feeding .kenny-sprite');
-     const style=getComputedStyle(sprite);
-     return {image:style.backgroundImage,position:style.backgroundPosition,size:style.backgroundSize};
+    const delivery=await dinoPage.evaluate(()=>{
+     const stage=document.querySelector('.kenny-stage').getBoundingClientRect();
+     const drone=document.querySelector('.kenny-drone');
+     const meat=document.querySelector('.kenny-meat');
+     return {stageRight:stage.right,droneLeft:drone.getBoundingClientRect().left,
+      droneOpacity:Number(getComputedStyle(drone).opacity),meatOpacity:Number(getComputedStyle(meat).opacity)};
     });
-    assert(feedingAtlas.image.includes('kenny-blue-30fps.png')&&feedingAtlas.size==='900% 600%'&&
-     feedingAtlas.position!=='0% 0%',
-     'Feeding must advance through the authored 30 FPS atlas before Kenny eats: '+JSON.stringify(feedingAtlas));
+    assert(delivery.droneLeft<delivery.stageRight&&delivery.droneOpacity>.3&&delivery.meatOpacity>.3,
+     'The drone must fly into the stage and release the meat before Kenny eats: '+JSON.stringify(delivery));
     await dinoPage.screenshot({path:path.join(screenshots,'kenny-feeding-390.png')});
     await dinoPage.waitForTimeout(900);
     await dinoPage.screenshot({path:path.join(screenshots,'kenny-eating-390.png')});

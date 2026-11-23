@@ -1031,11 +1031,11 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .kenny-fern{position:absolute;z-index:5;bottom:-14px;font-size:clamp(70px,11vw,135px);filter:brightness(.37) saturate(.8) drop-shadow(0 0 14px #080f13)}
 .kenny-fern.fern-left{left:-24px;transform:rotate(-22deg)}.kenny-fern.fern-right{right:-24px;transform:scaleX(-1) rotate(-22deg)}
 .kenny-stage-label{position:absolute;z-index:7;left:22px;top:17px;font-weight:950;font-size:10px;letter-spacing:2px;color:#ffdfba;text-shadow:0 2px 12px #1c1725}
-.kenny-sprite{position:absolute;z-index:6;left:50%;bottom:4%;height:min(72%,400px);width:auto;aspect-ratio:1;max-width:62%;background:url('/kenny/atlases/kenny-blue-30fps.png?v=8') 0 0 / 900% 600% no-repeat;transform:translateX(-50%) scale(var(--kenny-scale,1));transform-origin:center bottom;filter:drop-shadow(0 15px 16px #080d1d8c);animation:none}
+.kenny-sprite{position:absolute;z-index:6;left:50%;bottom:4%;height:min(72%,400px);width:auto;aspect-ratio:541 / 727;max-width:62%;background:url('assets/kenny/skins/kenny-blue-idle-strip.png') left center / 400% 100% no-repeat;transform:translateX(-50%) scale(var(--kenny-scale,1));transform-origin:center bottom;filter:drop-shadow(0 15px 16px #080d1d8c);animation:kenny-look 6.4s steps(1) infinite}
 @keyframes kenny-look{0%,26%{background-position:0% 0}27%,48%{background-position:33.333% 0}49%,67%{background-position:66.667% 0}68%,100%{background-position:100% 0}}
 @keyframes kenny-feed-frames{0%,37%{background-position:0% 0}38%,55%{background-position:33.333% 0}56%,80%{background-position:66.667% 0}81%,100%{background-position:100% 0}}
 @keyframes kenny-feed-step{0%,38%,100%{transform:translateX(-50%) scale(var(--kenny-scale,1))}56%,81%{transform:translateX(calc(-50% + clamp(42px,13vw,170px))) scale(var(--kenny-scale,1))}}
-.kenny-stage.kenny-feeding .kenny-sprite{animation:none}
+.kenny-stage.kenny-feeding .kenny-sprite{background-image:url('assets/kenny/skins/kenny-blue-feed-strip.png');animation:kenny-feed-frames 3.2s steps(1) both,kenny-feed-step 3.2s ease-in-out both}
 .kenny-landing-pad{position:absolute;z-index:5;left:80%;bottom:14%;width:72px;height:13px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#c39669,#413b40);box-shadow:0 8px 12px #0008;opacity:0;pointer-events:none}
 .kenny-drone{position:absolute;z-index:9;top:9%;left:calc(100% + 90px);width:82px;height:34px;transform:translateX(-50%);opacity:0;pointer-events:none;filter:drop-shadow(0 8px 8px #12152588)}
 .kenny-drone-body{position:absolute;inset:4px 16px 0;display:grid;place-items:center;border:2px solid #b7d8dc;border-radius:13px 13px 9px 9px;background:linear-gradient(135deg,#7189a0,#303e60);color:#ffe6a2;font-size:15px;box-shadow:inset 0 -6px 0 #17243b}
@@ -1055,18 +1055,18 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 
 
 
-/* Shared 10×6 atlases: saved `zebra` profiles intentionally map to the white skin. */
-.kenny-sprite[data-skin="blue"]{background-image:url('/kenny/atlases/kenny-blue-30fps.png?v=8')}
-.kenny-sprite[data-skin="pink"]{background-image:url('/kenny/atlases/kenny-pink-30fps.png?v=8')}
-.kenny-sprite[data-skin="green"]{background-image:url('/kenny/atlases/kenny-green-30fps.png?v=8')}
-.kenny-sprite[data-skin="red"]{background-image:url('/kenny/atlases/kenny-red-30fps.png?v=8')}
-.kenny-sprite[data-skin="zebra"],.kenny-sprite[data-skin="white"]{background-image:url('/kenny/atlases/kenny-white-30fps.png?v=8')}
-.kenny-mini-sprite[data-skin="blue"]{background-image:url('assets/kenny/skins/kenny-blue-idle-strip.png')}
-.kenny-mini-sprite[data-skin="pink"]{background-image:url('assets/kenny/skins/kenny-pink-idle-strip.png')}
-.kenny-mini-sprite[data-skin="green"]{background-image:url('assets/kenny/skins/kenny-green-idle-strip.png')}
-.kenny-mini-sprite[data-skin="red"]{background-image:url('assets/kenny/skins/kenny-red-idle-strip.png')}
-.kenny-mini-sprite[data-skin="zebra"]{background-image:url('assets/kenny/skins/kenny-zebra-idle-strip.png')}
-@media(prefers-reduced-motion:reduce){.kenny-sprite,.kenny-mini-sprite{animation:none}}
+/* Dedicated four-frame sprite sheets: each skin has its own genuine idle and feed art. */
+.kenny-sprite[data-skin="blue"],.kenny-mini-sprite[data-skin="blue"]{background-image:url('assets/kenny/skins/kenny-blue-idle-strip.png')}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="blue"]{background-image:url('assets/kenny/skins/kenny-blue-feed-strip.png')}
+.kenny-sprite[data-skin="pink"],.kenny-mini-sprite[data-skin="pink"]{background-image:url('assets/kenny/skins/kenny-pink-idle-strip.png')}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="pink"]{background-image:url('assets/kenny/skins/kenny-pink-feed-strip.png')}
+.kenny-sprite[data-skin="green"],.kenny-mini-sprite[data-skin="green"]{background-image:url('assets/kenny/skins/kenny-green-idle-strip.png')}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="green"]{background-image:url('assets/kenny/skins/kenny-green-feed-strip.png')}
+.kenny-sprite[data-skin="red"],.kenny-mini-sprite[data-skin="red"]{background-image:url('assets/kenny/skins/kenny-red-idle-strip.png')}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="red"]{background-image:url('assets/kenny/skins/kenny-red-feed-strip.png')}
+.kenny-sprite[data-skin="zebra"],.kenny-mini-sprite[data-skin="zebra"]{background-image:url('assets/kenny/skins/kenny-zebra-idle-strip.png')}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="zebra"]{background-image:url('assets/kenny/skins/kenny-zebra-feed-strip.png')}
+@media(prefers-reduced-motion:reduce){.kenny-sprite{animation:none}.kenny-stage.kenny-feeding .kenny-sprite{animation:kenny-feed-frames 3.2s steps(1) both}.kenny-stage.kenny-feeding .kenny-drone,.kenny-stage.kenny-feeding .kenny-meat{animation:none}.kenny-stage.kenny-feeding .kenny-landing-pad{animation:none;opacity:1}}
 .kenny-stage-name{position:absolute;z-index:7;left:24px;right:145px;bottom:23px;display:grid;line-height:1.06;text-shadow:0 3px 14px #0a1019}
 .kenny-stage-name strong{font-size:clamp(26px,3vw,42px);letter-spacing:2px}.kenny-stage-name span{font-size:10px;line-height:1.25;letter-spacing:.2px;font-weight:900;color:#c9e7e7}
 .kenny-level-medal{position:absolute;z-index:7;right:22px;bottom:18px;background:#101b2bc9;border:1px solid #d5e7e784;border-radius:16px;padding:7px 15px;display:flex;align-items:baseline;gap:5px;backdrop-filter:blur(12px)}
