@@ -49,7 +49,7 @@ assert(!fs.existsSync('public/maths/hw-02/index.html'),'retired homework still a
 const appHtml=read('src/app/app.html');
 const trainerRegistry=read('src/app/trainer-registry.ts');
 const sharedCosmetics=read('public/shared/verse-cosmetics.js');
-assert(mjs.includes('boss:bossIntro,bossrun:bossRun'),'Boss navigation must call bossIntro instead of the mutable run object');
+assert(mjs.includes('boss:()=>SOURCE.intro(state)')&&mjs.includes('bossrun:()=>SOURCE.run()'),'Exam route uses source-first 10+10 simulation');
 assert(mjs.includes('Stift und Papier bereitlegen'),'Handwork must instruct users to calculate on paper');
 assert(mjs.includes("['hand','✎ Nur Handrechnen']"),'Hand calculation questions must be directly selectable');
 assert(mjs.includes('id="topicSelect"'),'Compact practice topic selector must be present');
@@ -63,4 +63,61 @@ assert(appHtml.includes('previewDropLabel(item.drop)'),'Drops must be labeled by
 assert(app.includes("'maths-sa-01':'MATHSVERSE DROP'"),'MathsVerse previews must display their own collection name');
 assert(read('src/styles.scss').includes('linear-gradient(125deg,#351157'),'Toxic Neon global theme must use purple and green');
 assert(read('public/shared/verse-cosmetics.css').includes('linear-gradient(130deg,#31164f'),'Toxic Neon in trainers must use purple and green');
-console.log('PASS: MathsVerse SA1 source content, boss routing, paper practice, green skin, previews and compatibility.');
+const bookJs=read('public/maths/sa-01/book-bank.js');
+const poolJs=read('public/maths/sa-01/pool-bank.js');
+const sourceJs=read('public/maths/sa-01/source-trainer.js');
+vm.runInNewContext(bookJs,sandbox);vm.runInNewContext(poolJs,sandbox);
+const book=sandbox.window.MATHS_BOOK_BANK,pool=sandbox.window.MATHS_POOL_BANK;
+assert(book.length>=80,'Textbook ZIP must produce >80 specific sourced tasks');
+assert.equal(pool.length,50,'Descriptor 4 bank must contain 50 real source IDs');
+assert.equal(new Set(book.map(q=>q.number)).size,book.length,'Do not repeat textbook tasks');
+assert.equal(new Set(pool.map(q=>q.number)).size,pool.length,'Do not repeat official task IDs');
+for(const q of book){assert(q.prompt&&q.solution&&q.steps,'Book tasks need exact prompt and explained answer');if(q.expected!=null)assert(Number.isFinite(q.expected),'Book numeric result must be finite')}
+for(const q of pool){assert(q.source.startsWith('https://')&&q.number,'Every pool task must link to its original source');assert(!/^4[.]7(?:\\D|$)/.test(q.descriptor),'Excluded descriptor 4.7 must not appear');if(q.expected!=null)assert(Number.isFinite(q.expected))}
+assert(sourceJs.includes('shuffle(BOOK).slice(0,10)'),'Book half of boss is random 10');
+assert(sourceJs.includes('shuffle(POOL).slice(0,10)'),'Official half of boss is random 10');
+assert(sourceJs.includes('api.reward')||sourceJs.includes('api.state.bestBoss'),'Exam result must be recorded');
+assert(mhtml.includes('data-nav="book"')&&mhtml.includes('data-nav="pool"'),'There must be two separate catalog tabs');
+assert(!mhtml.includes('data-nav="practice"'),'Synthetic practice must not be in the navigation');
+for(const name of ['book-bank.js','pool-bank.js','source-trainer.js','source-trainer.css'])assert(mhtml.includes(name),'Missing source trainer asset '+name);
+assert(mjs.includes('SOURCE.browser(\'book\',state)')&&mjs.includes('SOURCE.browser(\'pool\',state)'),'Original catalogs must render via app');
+assert(sourceJs.includes('Stift und Papier')&&sourceJs.includes('Lösung anzeigen'),'Paper instructions and reveal button required');
+
+const original=new Map(book.map(q=>[q.number,q]));
+const approx=(actual,expected,id)=>assert(Math.abs(actual-expected)<1e-8,id+' value incorrect: '+actual+' expected '+expected);
+for(const [number,page] of [['1.1a',1],['1.11a',2],['1.18a',3],['1.21',4],['1.31',6],['1.55a',7],['1.57c',7],['1.67c',8],['1.73b',9],['1.82d',11],['1.98d',13],['2.24a',14],['2.36a',15]]){
+ assert.equal(original.get(number)?.originalScreenshot,page,number+' must cite the actual screenshot in the provided ZIP');
+}
+assert(original.get('1.18a').prompt.includes('110 GE'),'Sessel variable costs are part of original 1.18');
+assert(original.get('1.21').prompt.includes('W(−1|0,5)'),'Wendepunkt must use original ordinate 0.5');
+assert(original.get('1.55a').prompt.includes('4x³'),'1.55a contains a cubic power');
+assert(original.get('1.55c').prompt.includes('2/x'),'1.55c is 2/x, not x/2');
+assert(original.get('1.56a').prompt.includes('3/x³')&&original.get('1.56a').prompt.includes('³√x'),'1.56a has original fraction and cube root');
+assert(original.get('1.58b').prompt.includes('π/2'),'1.58b angle is pi/2');
+assert(original.get('1.60c').prompt.includes('3π/2'),'1.60c upper integration limit is 3pi/2');
+approx(original.get('1.57c').expected,16/3,'1.57c');
+approx(original.get('1.60c').expected,2,'1.60c');
+approx(original.get('1.67c').expected,1/24,'1.67c');
+approx(original.get('1.31').expected,15,'1.31');
+approx(original.get('1.32a').expected,100/Math.PI,'1.32a');
+approx(original.get('1.73b').expected,17.64,'1.73b');
+approx(original.get('1.76a').expected,96/(Math.PI*Math.PI),'1.76a');
+assert(original.get('2.37').solution.includes('Anna hat recht'),'2.37 must match calculator screenshot analysis');
+assert(book.length>=160,'Book task bank should retain the verified expansions from screenshots');
+
+assert(book.length>=210,'Book bank must include the full handwritten core and further numbered source subparts');
+approx(original.get('1.19b').expected,2,'1.19b');
+approx(original.get('1.98a').expected,48,'1.98a');
+assert(original.get('1.98c').prompt.includes('³√(x²)'),'1.98c has the original root and power');
+approx(original.get('1.98c').expected,(3/5)*(Math.pow(5,5/3)-Math.pow(2,5/3)),'1.98c');
+approx(original.get('1.99').expected,300/Math.PI,'1.99');
+approx(original.get('1.100d').expected,14.4098445789603,'1.100d');
+assert(original.get('1.79a').graph?.curves?.[1]?.domain?.[0]===10,'Composite rod plot must begin the parabola only at x=10');
+for(const comp of ['4.2','4.4','4.5','4.8']){
+ const hits=pool.filter(q=>q.descriptor.split(',').map(x=>x.trim()).includes(comp));
+ assert(hits.length>=5,'Official pool must cover highlighted descriptor '+comp+' (got '+hits.length+')');
+}
+
+console.log('PASS: Source-screenshot cross-checks, numeric golden values, and original 10+10 MathsVerse training.');
+
+console.log('PASS: MathsVerse original textbook, 50 sourced SRDP tasks, 10+10 exam, safe progress and cosmetics.');

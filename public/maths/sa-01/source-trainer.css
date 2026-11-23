@@ -1,0 +1,61 @@
+/* MathsVerse sourced exercise studio, all scoped to the existing learning world. */
+.source-count{display:inline-flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:9px 13px;margin:7px 0 13px;color:var(--muted);font-size:12px;font-weight:700}
+.source-count strong{color:var(--accent);font-size:17px}
+.source-filters{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap}
+.source-filters label{display:grid;gap:4px;flex:1;min-width:min(190px,100%);font-size:11px;font-weight:800;color:var(--muted)}
+.source-filters :is(input,select){padding:10px 12px;border:1px solid var(--border);border-radius:10px;color:var(--ink);background:var(--card);font:inherit;font-size:13px;width:100%}
+.source-workspace{display:grid;grid-template-columns:minmax(160px,260px) minmax(0,1fr);gap:14px;align-items:start;margin-top:12px}
+.source-list{position:sticky;top:74px;max-height:calc(100dvh - 100px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;display:grid;align-content:start;gap:6px;padding:6px;background:var(--card2);border:1px solid var(--border);border-radius:15px}
+.source-task{border:1px solid transparent;background:transparent;color:var(--ink);border-radius:10px;text-align:left;padding:10px 11px;display:grid;gap:2px;line-height:1.3;font-weight:800;font-size:13px}
+.source-task small{font-weight:600;font-size:10px;color:var(--muted)}
+.source-task.active{background:color-mix(in srgb,var(--accent) 19%,var(--card));border-color:color-mix(in srgb,var(--accent) 53%,transparent)}
+.source-task:hover{border-color:var(--accent)}
+.source-detail{background:var(--card);border:1px solid var(--border);border-radius:17px;padding:19px 21px;min-width:0}
+.source-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.source-meta .eyebrow{max-width:100%}
+.source-detail h2{margin:12px 0 4px;font-size:clamp(20px,2vw,27px)}
+.source-number{font-size:10px;line-height:1.4;color:var(--muted);margin-bottom:14px}
+.source-question{font-size:clamp(14px,1.3vw,17px);color:var(--ink);line-height:1.7;white-space:pre-wrap;background:var(--card2);border:1px solid var(--border);padding:16px;border-radius:12px;margin:12px 0}
+.source-graph{margin:12px 0;background:#0c2f21;border:1px solid #3c8058;border-radius:13px;padding:10px}
+.source-graph svg{display:block;width:100%;height:auto;max-height:250px;color:#e0f3d0}
+.source-graph figcaption{font-size:11px;color:#cee1cd;margin:7px 3px 3px}
+.source-external{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin:14px 0}
+.source-external b{font-size:12px;color:var(--accent)}
+.source-external p{font-size:12px;margin:5px 0 11px}
+.source-external iframe{display:block;background:#fff;width:100%;height:320px;border:0;border-radius:8px;margin-top:11px}
+.source-open-link{font-size:11px}
+.source-credit{font-size:11px;color:var(--muted);margin:10px 0}
+.source-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:13px}
+.source-detail .answer-field{margin:12px 0}
+.source-detail .answer-field :is(input,textarea),.source-exam-input{background:var(--card2);border:1px solid var(--border);border-radius:11px;color:var(--ink);padding:13px 14px;font:inherit;min-width:0}
+.source-detail .answer-field textarea{resize:vertical;width:100%}
+.source-solution{margin-top:16px;padding:19px;background:color-mix(in srgb,var(--accent) 9%,var(--card2));border:1px solid color-mix(in srgb,var(--accent) 43%,var(--border));border-radius:14px}
+.source-solution h3{font-size:18px;margin:0 0 10px}
+.source-solution p{font-size:14px}
+.source-solution .formula{font-size:clamp(14px,1.5vw,18px);white-space:pre-wrap;overflow-wrap:anywhere}
+.source-solution a{color:var(--accent);font-weight:800}
+.source-done{font-size:11px;color:var(--accent);font-weight:800}
+.source-empty{padding:25px;color:var(--muted)}
+.source-exam-card{max-width:900px;margin:17px auto;display:grid;gap:12px}
+.source-exam-card .source-external iframe{height:280px}
+.source-exam-card .source-exam-input{width:100%;min-height:46px}
+.source-exam-card textarea.source-exam-input{min-height:95px;resize:vertical}
+.source-exam-card .source-question{margin:0}
+.source-exam-card .handwrite-note{margin:0}
+.source-exam-card .source-graph{margin:0}
+@media(max-width:850px){
+ .source-workspace{grid-template-columns:1fr}
+ .source-list{position:relative;top:auto;max-height:118px;grid-template-columns:repeat(3,minmax(0,1fr))}
+ .source-task{padding:8px}
+ .source-detail{padding:16px}
+}
+@media(max-width:520px){
+ .source-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:165px}
+ .source-workspace{gap:9px}
+ .source-detail{padding:13px}
+ .source-question{font-size:14px;padding:12px;line-height:1.6}
+ .source-external iframe{height:255px}
+ .source-filters{gap:7px}
+ .source-solution{padding:13px}
+}
+@media(prefers-reduced-motion:reduce){.source-list{scroll-behavior:auto}}
