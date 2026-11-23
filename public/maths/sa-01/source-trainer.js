@@ -199,7 +199,7 @@ function handle(action,api){
  const mode=api.view==='pool'?'pool':'book';
  if(action.startsWith('source:open:')){let x=action.slice(12),q=cards(mode).find(q=>q.id===x);if(q){mode==='book'?ui.bookId=x:ui.poolId=x;reset()}return}
  if(action==='source:next'){next(mode,api.state);return}
- if(action==='source:reveal'){ui.shown=!ui.shown;return}
+ if(action==='source:reveal'){ui.answer=document.getElementById('sourceAnswer')?.value??ui.answer;ui.shown=!ui.shown;return}
  if(action==='source:submit'){let q=current(mode);if(!q)return;const v=document.getElementById('sourceAnswer')?.value||'';ui.answer=v;ui.submitted=true;ui.correct=answerNumeric(q,v);if(ui.correct===true)mark(q,mode,true,api);if(ui.correct===false)ui.shown=true;if(ui.correct===null)ui.shown=true;return}
  if(action==='source:self-right'){let q=current(mode);if(q)mark(q,mode,true,api);ui.correct=true;ui.submitted=true;return}
  if(action==='source:self-wrong'){ui.correct=false;ui.submitted=true;return}
