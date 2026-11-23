@@ -17,7 +17,7 @@
   overflow: hidden;
 }
 .preview-stage {
-  padding: 14px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
 }
@@ -37,30 +37,31 @@
 }
 svg {
   width: 100%;
-  height: min(300px, 36vh);
-  max-height: 300px;
-  min-height: 220px;
+  height: min(250px, 30vh);
+  max-height: 250px;
+  min-height: 155px;
   display: block;
   margin: auto;
   overflow: visible;
 }
 .settings {
-  padding: 20px;
+  padding: 11px 14px;
 }
 .settings h3 {
-  margin: 0 0 10px;
-  font-size: 20px;
+  margin: 0 0 5px;
+  font-size: 17px;
 }
 .settings p {
-  font-size: 13px;
-  opacity: 0.8;
-  line-height: 1.55;
+  font-size: 11px;
+  opacity: 0.82;
+  line-height: 1.35;
+  margin: 5px 0;
 }
 .controls {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 16px;
+  margin-top: 7px;
 }
 button {
   cursor: pointer;
@@ -68,7 +69,8 @@ button {
   background: #ffffff11;
   color: inherit;
   border-radius: 11px;
-  padding: 10px 12px;
+  padding: 6px 9px;
+  font-size: 12px;
   font-weight: 800;
 }
 button:hover {
@@ -89,13 +91,14 @@ button[aria-pressed='true'] {
 .frame-meta {
   font-family: monospace;
   opacity: 0.7;
-  margin-top: 8px;
-  line-height: 1.7;
+  margin-top: 5px;
+  line-height: 1.4;
+  font-size: 11px;
 }
 .rig-legend {
-  font-size: 12px;
+  font-size: 11px;
   opacity: 0.77;
-  margin-top: 13px;
+  margin-top: 6px;
 }
 .rig-joint {
   fill: #e7e4ff;
@@ -110,8 +113,8 @@ button[aria-pressed='true'] {
     padding: 14px;
   }
   svg {
-    height: min(260px, 34vh);
-    max-height: 260px;
-    min-height: 180px;
+    height: min(225px, 32vh);
+    max-height: 225px;
+    min-height: 150px;
   }
 }
