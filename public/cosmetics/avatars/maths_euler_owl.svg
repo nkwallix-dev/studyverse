@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Euler-Eule mit grüner Mathekreidetafel">
+<defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#153b2a"/><stop offset="1" stop-color="#4a8754"/></linearGradient><linearGradient id="feather" x2="1" y2="1"><stop stop-color="#8cc17a"/><stop offset="1" stop-color="#3f8d5a"/></linearGradient></defs><circle cx="256" cy="256" r="250" fill="url(#g)"/>
+<g fill="none" stroke="#d7efab" stroke-width="2" opacity=".18"><path d="M58 145H455M58 242H455M58 340H455M145 52V455M242 52V455M340 52V455"/></g>
+<path d="M151 177L116 91Q186 111 213 130L305 130Q341 111 397 91L363 187Q430 243 396 355Q376 424 256 442Q139 421 116 356Q89 246 151 177Z" fill="url(#feather)" stroke="#d1eea7" stroke-width="8"/>
+<path d="M135 184Q191 150 254 206Q320 153 376 184Q384 277 314 323Q278 339 256 311Q233 339 199 322Q125 275 135 184Z" fill="#e4edc3"/>
+<ellipse cx="194" cy="234" rx="54" ry="60" fill="#fff7d5"/><ellipse cx="315" cy="234" rx="54" ry="60" fill="#fff7d5"/>
+<ellipse cx="200" cy="240" rx="24" ry="31" fill="#284838"/><ellipse cx="309" cy="240" rx="24" ry="31" fill="#284838"/>
+<circle cx="207" cy="232" r="9" fill="#fff"/><circle cx="317" cy="231" r="9" fill="#fff"/>
+<path d="M239 285L257 322L275 285Z" fill="#e5a33d" stroke="#9d7a36" stroke-width="3"/>
+<path d="M186 350Q257 389 328 350" fill="none" stroke="#1b5944" stroke-width="10" stroke-linecap="round"/>
+<rect x="115" y="377" width="280" height="74" rx="15" fill="#133e2c" stroke="#c6ea94" stroke-width="8"/>
+<text x="255" y="426" text-anchor="middle" fill="#e2f5b2" font-family="Georgia,serif" font-weight="bold" font-size="41">e^(iπ)+1=0</text>
+<path d="M143 405Q112 370 95 393M364 405Q395 366 415 392" fill="none" stroke="#80ba71" stroke-width="19" stroke-linecap="round"/>
+</svg>

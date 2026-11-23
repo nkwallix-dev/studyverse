@@ -41,7 +41,7 @@
               *ngFor="let trainer of trainers" (click)="openTrainer(trainer.id)">
         <span class="course-icon">{{trainer.subjectId==='nawi'?'🧪':trainer.subjectId==='dsai'?'🤖':trainer.subjectId==='mat'?'🧮':'♯'}}</span>
         <span class="course-text"><strong>{{trainer.subjectId==='nawi'?'Chemverse':trainer.subjectId==='dsai'?'Dsaiverse':trainer.subjectId==='mat'?'MathsVerse':'Sharpverse'}}</strong>
-        <small>{{trainer.subjectId==='mat'?'2. HAUSÜBUNGSWIEDERHOLUNG':trainer.subjectId==='pos'?'1. PA · C#':trainer.subjectId==='nawi'?'1. TEST · CHEMIE':'1. TEST · DATA SCIENCE'}}</small></span><span class="course-arrow">↗</span>
+        <small>{{trainer.subjectId==='mat'?'1. SCHULARBEIT · AM':trainer.subjectId==='pos'?'1. PA · C#':trainer.subjectId==='nawi'?'1. TEST · CHEMIE':'1. TEST · DATA SCIENCE'}}</small></span><span class="course-arrow">↗</span>
       </button>
     </div>
     <div class="menu-label">DEIN UNIVERSUM</div>

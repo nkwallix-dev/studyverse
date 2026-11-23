@@ -26,7 +26,8 @@ export const SHOP_DROPS:ShopDrop[]=[
   {id:'global',icon:'🌐',title:'STUDYVERSE Essentials',subtitle:'Profil-Level',description:'Globale Cosmetics, freigeschaltet durch dein Profil-Level.',status:'live'},
   {id:'nawi-test-01',icon:'🧪',title:'Chemverse 1. Test',subtitle:'Lernfortschritt',description:'Chemverse-Cosmetics durch Lernziele freischalten.',status:'live'},
   {id:'dsai-test-01',icon:'🤖',title:'Dsaiverse · 1. Test',subtitle:'Lernfortschritt',description:'Dsaiverse-Cosmetics durch Lernziele freischalten.',status:'live'},
-  {id:'pos-pa-01',icon:'♯',title:'Sharpverse · 1. PA',subtitle:'C# · Threads · WPF',description:'Sharpverse-Cosmetics durch Lernziele freischalten.',status:'live'}
+  {id:'pos-pa-01',icon:'♯',title:'Sharpverse · 1. PA',subtitle:'C# · Threads · WPF',description:'Sharpverse-Cosmetics durch Lernziele freischalten.',status:'live'},
+  {id:'maths-sa-01',icon:'∫',title:'MathsVerse · 1. SA',subtitle:'AM · Ableitungen & Integrale',description:'MathsVerse-Cosmetics mit Mathematik statt Galaxy: grüne Designs und händische Aufgaben.',status:'live'}
 ];
 export const SHOP_ITEMS:ShopItem[]=([
 {id:'neon',kind:'theme',icon:'🟢',name:'Toxic Neon',desc:'Grün-violette Labornacht. Leuchtet schon beim Anschauen.',group:'theme',bg:'linear-gradient(125deg,#2f104d,#85ff50)',drop:'nawi-test-01',requirement:{metric:'academy',value:3}},
@@ -99,6 +100,23 @@ export const SHOP_ITEMS:ShopItem[]=([
 {id:'g_font_compact',kind:'font',icon:'🔠',name:'Compact UI',desc:'Platzsparender Font für lange Lernsessionen.',group:'font',equip:'compact',drop:'global',level:11},
 {id:'g_cloud_banner',kind:'banner',icon:'☁️',name:'Cloudy Sky',desc:'Dein erstes entspanntes Himmel-Banner – schon ab Profil-Level 5.',group:'banner',equip:'cloud',drop:'global',level:5},
 {id:'g_dotted_atm',kind:'atm',icon:'🔹',name:'Dots & Lines',desc:'Ein dezentes Punkte-Raster auf allen Seiten.',group:'atm',equip:'dots',drop:'global',level:13},
+
+
+ // MATHSVERSE · GREEN MATHEMATICS. Keep the original Pi-Fuchs ID for old purchasers.
+ {id:'maths_avatar_pi',kind:'avatar',icon:'🦊',name:'Pi-Fuchs',desc:'Der originale Pi-Fuchs kehrt zurück – als cleverer Mathebegleiter in sattem Grün.',group:'avatar',drop:'maths-sa-01',requirement:{metric:'academy',value:2}},
+ {id:'maths_owl',kind:'avatar',icon:'🦉',name:'Euler-Eule',desc:'Eule mit grüner Kreidetafel und Euler-Blick – Mathe statt Roboterschrott.',group:'avatar',drop:'maths-sa-01',requirement:{metric:'draw',value:8}},
+ {id:'maths_chalk',kind:'theme',icon:'∫',name:'Emerald Chalk',desc:'Kreidetafelgrün, frisches Salbei, feine Formellinien. Kein Galaxy.',group:'theme',bg:'linear-gradient(130deg,#102f26,#28754c 65%,#a9d575)',drop:'maths-sa-01',requirement:{metric:'academy',value:8}},
+ {id:'maths_graph',kind:'atm',icon:'⌁',name:'Funktionspapier',desc:'Ein maßstäblich wirkendes grünes Koordinatenraster mit präzisen Kurven statt Sternen.',group:'atm',equip:'maths_graph',drop:'maths-sa-01',requirement:{metric:'academy',value:3}},
+ {id:'maths_formula',kind:'atm',icon:'∑',name:'Kreideformeln',desc:'Wirkliche Integrale, Ableitungen und Funktionsgleichungen als dezente Kulisse.',group:'atm',equip:'maths_formula',drop:'maths-sa-01',requirement:{metric:'academy',value:6}},
+ {id:'maths_axes',kind:'frame',icon:'⊞',name:'Koordinaten-Rahmen',desc:'Vier echte Koordinaten-Ecken mit X- und Y-Achsen, keine Tangenten-Behauptung.',group:'frame',equip:'maths_axes',drop:'maths-sa-01',requirement:{metric:'quiz',value:12}},
+ {id:'maths_fibonacci',kind:'frame',icon:'φ',name:'Fibonacci-Spirale',desc:'Feine goldgrüne Fibonacci-Eckbögen am Profil und an Karten.',group:'frame',equip:'maths_fibonacci',drop:'maths-sa-01',requirement:{metric:'draw',value:12}},
+ {id:'maths_notebook',kind:'font',icon:'ƒ',name:'Mathe-Notizbuch',desc:'Eine klare, lehrbuchartige mathematische Schrift – gut lesbar und grün akzentuiert.',group:'font',equip:'maths_notebook',drop:'maths-sa-01',requirement:{metric:'academy',value:5}},
+ {id:'maths_curve_banner',kind:'banner',icon:'∿',name:'Kurvenwerkstatt',desc:'Eine grüne Tafel mit echten Ableitungskurven und Koordinatenachsen.',group:'banner',equip:'maths_curve',drop:'maths-sa-01',requirement:{metric:'quiz',value:20}},
+ {id:'maths_integral_banner',kind:'banner',icon:'∫',name:'Integral-Landschaft',desc:'Schraffierte Fläche unter einem Funktionsgraphen – ganz ohne Sternennebel.',group:'banner',equip:'maths_integral',drop:'maths-sa-01',requirement:{metric:'draw',value:5}},
+ {id:'maths_chalk_fx',kind:'extra',icon:'∂',name:'Kreidestaub',desc:'Dezente grüne Kreidestriche und Mathezeichen in deiner Studyverse-Ansicht.',group:'fx',equip:'maths_chalk_fx',drop:'maths-sa-01',requirement:{metric:'academy',value:4}},
+ {id:'maths_delta_fx',kind:'extra',icon:'Δ',name:'Delta-Pulse',desc:'Sanfte Δ- und ∫-Impulse statt der üblichen Sternenpartikel.',group:'fx',equip:'maths_delta_fx',drop:'maths-sa-01',requirement:{metric:'quiz',value:30}},
+ {id:'maths_title_integral',kind:'title',icon:'∑',name:'Integral-Genie',desc:'Der ursprüngliche MathsVerse-Titel bleibt erhalten und ist wieder freischaltbar.',group:'title',drop:'maths-sa-01',requirement:{metric:'academy',value:4}},
+ {id:'maths_boss_title',kind:'title',icon:'♛',name:'Herr der Unendlichkeit',desc:'Exklusiver Prestige-Titel nur nach 100 % im MathsVerse-SA-Bosskampf.',group:'title',drop:'maths-sa-01',requirement:{metric:'boss',value:100}},
 
 // SHARPVERSE DROP · first practical assessment
 {id:'sharp_sheep',kind:'avatar',icon:'🐑',name:'Scharfes Schaf',desc:'Mäh. Das schärfste Schaf in C#.',group:'avatar',drop:'pos-pa-01',requirement:{metric:'academy',value:1}},

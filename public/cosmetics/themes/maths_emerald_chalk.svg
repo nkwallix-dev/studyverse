@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Emerald Chalk: grüne Kreidetafel mit Koordinaten und Sinuskurve">
+<defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#0c2d22"/><stop offset=".55" stop-color="#216b48"/><stop offset="1" stop-color="#8fc366"/></linearGradient><pattern id="p" width="44" height="44" patternUnits="userSpaceOnUse"><path d="M44 0H0V44" fill="none" stroke="#d4e8bb" stroke-opacity=".16"/></pattern></defs><rect width="512" height="512" rx="60" fill="url(#g)"/><rect width="512" height="512" rx="60" fill="url(#p)"/>
+<path d="M45 302H470M123 54V465" stroke="#e3f5c4" stroke-width="5" opacity=".7"/>
+<path d="M42 370Q98 360 145 257T248 190T350 296T468 130" fill="none" stroke="#d5f69e" stroke-width="12" stroke-linecap="round"/>
+<text x="179" y="109" font-size="74" fill="#fff4cf" font-family="Georgia,serif">f′(x)</text><text x="212" y="427" font-size="50" fill="#fff4cf" font-family="Georgia,serif">∫ f(x) dx</text>
+<circle cx="248" cy="190" r="12" fill="#fff"/><rect x="26" y="26" width="460" height="460" rx="40" stroke="#a4e685" stroke-width="7" fill="none" opacity=".8"/></svg>

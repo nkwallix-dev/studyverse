@@ -74,7 +74,7 @@ export const SUBJECTS:Subject[]=[
   {id:'bwm',short:'BWM',name:'Betriebswirtschaft',icon:'📊',group:'Wirtschaft',color:'#ffd18d',desc:'Unternehmen, Märkte und wirtschaftliche Entscheidungen.'},
   {id:'ggp',short:'GGP',name:'Geschichte',icon:'🏛️',group:'Gesellschaft',color:'#ffbca9',desc:'Geschichte, Politik und Gesellschaft.'},
   {id:'pos',short:'POS',name:'C# Programmieren',icon:'💻',group:'Informatik',color:'#9dc3ff',desc:'C#, WPF, Algorithmen und Softwareentwicklung.'},
-  {id:'mat',short:'AM',name:'Mathematik',icon:'🧮',group:'Naturwissenschaften',color:'#d7abff',desc:'Neue Mathematik-Schularbeit in Vorbereitung · Inhalte folgen in Kürze.'},
+  {id:'mat',short:'AM',name:'Mathematik',icon:'🧮',group:'Naturwissenschaften',color:'#51b879',desc:'1. Schularbeit · Differential- und Integralrechnung, Graphen und Handrechnen.'},
   {id:'dbi',short:'DBI',name:'Datenbanken',icon:'🗄️',group:'Informatik',color:'#88e4eb',desc:'SQL, T-SQL, Datenmodelle und Abfragen.'},
   {id:'nscs',short:'NSCS',name:'Netzwerktechnik',icon:'🌐',group:'Informatik',color:'#a9dcff',desc:'Netzwerke, Routing, Firewall und Security.'},
   {id:'dsai',short:'DSAI',name:'Data Science & AI',icon:'🤖',group:'Informatik',color:'#c5a2ff',desc:'Data Science, künstliche Intelligenz und Machine Learning.'},
@@ -848,7 +848,7 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
  // retain their intended positions; newly registered trainers become visible automatically.
  get orderedSubjects():Subject[]{
    const all=this.subjectsAll;
-   const pinned:Record<string,number>={nawi:0,dsai:1,pos:2};
+   const pinned:Record<string,number>={nawi:0,dsai:1,pos:2,mat:3};
    const position=(s:Subject)=>pinned[s.id]??(100+all.indexOf(s));
    return [...all].sort((a,b)=>
      Number(this.subjectHasTrainer(b.id))-Number(this.subjectHasTrainer(a.id))
@@ -909,7 +909,7 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
    const save=this.snapshot(trainer),solved=isObj(save['solved'])?save['solved']:{};
    if(metric==='academy')return Object.values(isObj(save['courseDone'])?save['courseDone']:{}).filter(Boolean).length;
    if(metric==='boss')return safe(save['bestBoss']);
-   const prefix=({quiz:'q',draw:'d',reaction:'r',sorter:'s',pipeline:'p',forecast:'f'} as Record<ShopRequirement['metric'],string>)[metric]||'';
+   const prefix=({quiz:'q',draw:drop==='maths-sa-01'?'n':'d',reaction:'r',sorter:'s',pipeline:'p',forecast:'f'} as Record<ShopRequirement['metric'],string>)[metric]||'';
    return Object.keys(solved).filter(k=>k.startsWith(prefix)&&!!solved[k]).length;
  }
  isUnlocked(item:ShopItem):boolean{
@@ -923,7 +923,7 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
    if(item.drop==='global')return 'Ab Profil-Level '+(item.level||1);
    const r=item.requirement;if(!r)return 'Drop noch nicht verfügbar';
    const value=this.metricProgress(item.drop,r.metric);
-   const captions={academy:'Lernlektionen',quiz:'Quizfragen',draw:'Code- oder Zeichenaufgaben',reaction:'Reaktionsaufgaben',sorter:'Data-Sorter-Aufgaben',pipeline:'Prozess-Puzzles',forecast:'Festival-Prognosen',boss:'Boss-Ergebnis'};
+   const captions={academy:'Lernlektionen',quiz:'Quizfragen',draw:item.drop==='maths-sa-01'?'Handrechenaufgaben':'Code- oder Zeichenaufgaben',reaction:'Reaktionsaufgaben',sorter:'Data-Sorter-Aufgaben',pipeline:'Prozess-Puzzles',forecast:'Festival-Prognosen',boss:'Boss-Ergebnis'};
    const proof=r.metric==='boss'?'Boss: '+value+'% / '+r.value+'%':value+'/'+r.value+' '+captions[r.metric];
    return proof;
  }
@@ -1027,7 +1027,7 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
      [KENNY_SEASON.id]:`Dinoverse – Season ${KENNY_SEASON.season}`
    };
    return names[id]||this.drops.find(drop=>drop.id===id)?.title||
-     (id==='maths-hw-02'?'MathsVerse · Archiv':id==='exclusive'?'Exklusiv':id);
+     (id==='maths-hw-02'?'MathsVerse · Archiv':id==='maths-sa-01'?'MathsVerse · 1. SA':id==='exclusive'?'Exklusiv':id);
  }
  changeInventoryDrop(id:string){this.inventoryDrop=id;this.inventoryGroup='Alle';}
  setShopTab(tab:'catalog'|'inventory'|'kenny'|'designer'){
