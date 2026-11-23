@@ -49,12 +49,12 @@ B('1.14',K,'Diskutiere f(x)=0,2x³−x² und bestimme die Wendetangente.','f′=
  null,{curves:[{label:'f',poly:[0.2,-1,0,0]}],x:[-1,5],y:[-4,3]});
 B('1.17',K,'Eine Körpertemperatur wird beschrieben durch T(t)=−0,16t³+0,82t²+0,8t+36,5 mit 0≤t≤6. Bestimme die maximale Körpertemperatur und wann sie auftritt.','T′(t)=−0,48t²+1,64t+0,8. Maximum im Intervall bei t≈3,85 h, mit T≈42,60 °C (gerundet).',
  'Ableitung gleich Null setzen. Positive kritische Stelle und beide Intervallenden prüfen, dann T einsetzen.');
-B('1.18a',K,'Die Firma hat Fixkosten 1200 GE und Erlös E(x)=−4x²+450x. Stelle die Gewinnfunktion auf.','G(x)=E(x)−1200=−4x²+450x−1200.',
- 'Gewinn ist Erlös minus Kosten. Die Fixkosten sind unabhängig von x.');
+B('1.18a',K,'Eine Firma hat Fixkosten von 1200 GE und Herstellungskosten von 110 GE pro Sessel. Bei E(x)=−4x²+450x stelle Kosten- und Gewinnfunktion auf.','K(x)=110x+1200; G(x)=E(x)−K(x)=−4x²+340x−1200.',
+ 'Die 110 GE je Sessel sind variable Kosten und müssen zur Fixkostenpauschale addiert werden. Gewinn = Erlös minus Gesamtkosten.');
 B('1.19a',K,'Ein Ball folgt h(t)=−5t²+10t+7 (h in m, t in s). Bestimme seine Abwurfhöhe.','h(0)=7 m.','Abwurfzeit t=0 einsetzen.',7);
 B('1.19b',K,'Der Ball hat h(t)=−5t²+10t+7. Wann erreicht er seine maximale Höhe?','t=1 s; Höhe h(1)=12 m.',
  'Scheitel einer quadratischen Funktion: h′=−10t+10=0 ⇒ t=1. Zweite Ableitung negativ.',1);
-B('1.21',K,'Ein kubisches Polynom hat E(2|4) als Extrempunkt und W(−1|0) als Wendepunkt. Bestimme seine Funktionsgleichung.','f(x)=a x³+b x²+c x+d; Bedingungen f(2)=4, f′(2)=0, f(−1)=0, f″(−1)=0. Daraus folgt f(x)=−2x³/27−2x²/9+16x/9+52/27.',
+B('1.21',K,'Ein kubisches Polynom hat E(2|4) als Extrempunkt und W(−1|0,5) als Wendepunkt. Bestimme die Funktionsgleichung.','Bedingungen: f(2)=4, f′(2)=0, f(−1)=0,5 und f″(−1)=0. Daraus folgt f(x)=−7x³/108−7x²/36+14x/9+59/27.',
  'Vier Bedingungen für die vier Koeffizienten aufstellen und ein lineares Gleichungssystem lösen.');
 B('1.28',K,'Zerlege 40 in zwei natürliche Summanden, sodass die Summe ihrer Quadrate minimal ist.','20 und 20; Minimalwert 20²+20²=800.',
  'Sei x der erste Teil und 40−x der zweite. S(x)=x²+(40−x)². S′=4x−80=0 ⇒ x=20.',20);
@@ -68,17 +68,17 @@ B('1.55a',I,'Berechne ∫(4x²−3x+1) dx.','F(x)=4x³/3−3x²/2+x+C.',
  'Potenzregel rückwärts auf alle Summanden anwenden. Jede Stammfunktion hat +C.');
 B('1.55b',I,'Berechne ∫(a·t+b) dt (a,b sind Konstanten).','F(t)=a·t²/2+b·t+C.',
  'Konstante Faktoren stehen lassen; t bekommt beim Integrieren Exponent 2.');
-B('1.55c',I,'Berechne ∫(2sin(x)+3eˣ+x/2) dx.','F(x)=−2cos(x)+3eˣ+x²/4+C.',
- 'Sinus wird zu −Cosinus; eˣ bleibt eˣ; Potenzregel bei x/2.');
+B('1.55c',I,'Berechne ∫(2sin(x)+3eˣ+2/x) dx.','F(x)=−2cos(x)+3eˣ+2ln|x|+C.',
+ 'Sinus wird zu −Cosinus; eˣ bleibt eˣ und ∫(2/x)dx=2ln|x| (x≠0).');
 B('1.57a',F,'Berechne das bestimmte Integral ∫₀^π sin(t) dt.','[−cos(t)]₀^π=−(−1)−(−1)=2.',
  'Stammfunktion −cos t. Obere Grenze minus untere Grenze einsetzen.',2);
 B('1.57b',F,'Berechne ∫₀^(2π) cos(x) dx.','[sin(x)]₀^(2π)=0.',
  'Nach einer ganzen Periode heben sich positive und negative orientierte Flächen auf.',0);
-B('1.57c',F,'Berechne ∫₁⁴ √t dt.','[2t^(3/2)/3]₁⁴ = (2/3)(8−1)=14/3≈4,6667.',
- 'Wurzel als t^(1/2) schreiben, integrieren und Grenzen einsetzen.',14/3);
+B('1.57c',F,'Berechne ∫₀⁴ √t dt.','[2t^(3/2)/3]₀⁴ = (2/3)·8=16/3≈5,3333.',
+ 'Wurzel als t^(1/2) schreiben, integrieren und die tatsächlichen Originalgrenzen 0 und 4 einsetzen.',16/3);
 B('1.58a',I,'Berechne ∫5e^(2x) dx.','F(x)=(5/2)e^(2x)+C.',
  'Bei e^(kx) durch die innere Ableitung k teilen, hier 2.');
-B('1.58b',I,'Berechne ∫sin(0,5t+π/3) dt.','F(t)=−2cos(0,5t+π/3)+C.',
+B('1.58b',I,'Berechne ∫sin(0,5t+π/2) dt.','F(t)=−2cos(0,5t+π/2)+C.',
  'Cosinus wird zu Sinus beim Ableiten; wegen innerer Steigung 0,5 beim Integrieren durch 0,5 teilen.');
 B('1.58c',I,'Berechne ∫1/(1−x) dx.','F(x)=−ln|1−x|+C.',
  'Substitution u=1−x, du=−dx. Minuszeichen nicht vergessen.');
@@ -92,8 +92,8 @@ B('1.60a',F,'Berechne ∫₀³ 4/(x−6) dx.','4[ln|x−6|]₀³ = 4ln(3/6)=−4
  'Logarithmus integrieren; die negative Fläche ist als orientiertes Integral negativ.',-4*Math.log(2));
 B('1.60b',F,'Berechne ∫₀² sin((π/2)t−π) dt.','[−2/π·cos((π/2)t−π)]₀²=−4/π≈−1,2732.',
  'Sinus integrieren und durch π/2 teilen, dann t=2 und t=0 einsetzen.',-4/Math.PI);
-B('1.60c',F,'Berechne ∫₀^(π/2) cos(x−π) dx.','[sin(x−π)]₀^(π/2)=−1.',
- 'Cosinus integrieren, dann obere minus untere Grenze.',-1);
+B('1.60c',F,'Berechne ∫_(π/2)^(3π/2) cos(x−π) dx.','[sin(x−π)]_(π/2)^(3π/2)=1−(−1)=2.',
+ 'Cosinus integrieren; bei 3π/2 ist sin(π/2)=1, bei π/2 ist sin(−π/2)=−1.',2);
 B('1.61b',I,'Berechne ∫x/(x²+1) dx.','F(x)=(1/2)ln(x²+1)+C.',
  'Substitution u=x²+1; du=2x dx. Der Faktor 1/2 gleicht die innere Ableitung aus.');
 B('1.62a',I,'Berechne ∫t·cos(t) dt.','F(t)=t·sin(t)+cos(t)+C.',
@@ -122,8 +122,8 @@ B('1.67a',F,'Berechne die Fläche zwischen f(x)=x²−3x−2 und g(x)=3x−1.','
  {curves:[{poly:[1,-3,-2],label:'f'},{poly:[3,-1],label:'g'}],area:{a:3-Math.sqrt(10),b:3+Math.sqrt(10),between:true},x:[-.5,7],y:[-8,31]});
 B('1.67b',F,'Berechne die Fläche zwischen f(x)=x²+5x−1 und g(x)=2x+3.','A=125/6≈20,8333 Flächeneinheiten.',
  'Schnittpunkte über f=g: x=−4 und x=1. g liegt dazwischen über f. ∫₋₄¹(g−f)dx=125/6.',125/6);
-B('1.67c',F,'Berechne die Fläche zwischen f(x)=−x²−4x+2 und g(x)=x²−x+3.','A=17√17/24≈2,9205 Flächeneinheiten.',
- 'Schnittpunkte von f=g: x=(−5±√17)/4. Die Differenz f−g=−2x²−5x−1 ist dazwischen positiv. Integrationsgrenzen sind die beiden Schnittpunkte.',17*Math.sqrt(17)/24);
+B('1.67c',F,'Berechne die Fläche zwischen f(x)=−x²−4x+2 und g(x)=x²−x+3.','A=1/24≈0,04167 Flächeneinheiten.',
+ 'f−g=−2x²−3x−1. Schnittstellen durch f=g: x=−1 und x=−0,5. Dazwischen ist f−g positiv; A=∫₋₁^(−0,5)(f−g)dx=1/24.',1/24);
 B('1.70a',F,'Berechne den Flächeninhalt zwischen f(x)=5/(6x−3) und der x-Achse auf [1;6].','A=(5/6)ln(11)≈1,9982 Flächeneinheiten.',
  'Stammfunktion F=(5/6)ln|6x−3|. Das Intervall ist positiv, daher A=F(6)−F(1).',(5/6)*Math.log(11));
 B('1.71a',K,'Von f ist f′(x)=x²−4x bekannt. Der Graph schneidet die y-Achse bei 4. Bestimme f(x).','f(x)=x³/3−2x²+4.',
@@ -222,9 +222,9 @@ B('1.9c',A,'Gegeben v=−ωcos(ωt−φ). Bestimme ∂v/∂t und ∂v/∂ω.',
 B('1.9d',A,'Gegeben η=(T₂−T₁)/T₁. Bestimme ∂η/∂T₁ und ∂η/∂T₂.',
  'η_T₁=−T₂/T₁²; η_T₂=1/T₁.',
  'Schreibe zuerst η=T₂/T₁−1. Bei jeder partiellen Ableitung bleibt die andere Temperatur konstant.');
-B('1.56a',I,'Berechne ∫(−5x²+3/2−√x)dx.',
- 'F(x)=−5x³/3+3x/2−2x^(3/2)/3+C.',
- 'Die Wurzel ist x^(1/2). Potenzregel rückwärts für alle drei Summanden.');
+B('1.56a',I,'Berechne ∫(−5x²+3/x³−√x)dx.',
+ 'F(x)=−5x³/3−3/(2x²)−(2/3)x^(3/2)+C.',
+ '3/x³ als 3x⁻³ schreiben: Integral ist −(3/2)x⁻². √x=x^(1/2) wird zu (2/3)x^(3/2).');
 B('1.61a',I,'Berechne ∫3x·e^(2x)dx mittels partieller Integration.',
  'F(x)=(3/2)x·e^(2x)−(3/4)e^(2x)+C.',
  'u=3x und dv=e^(2x)dx; damit du=3dx und v=e^(2x)/2. Verwende ∫u dv=uv−∫vdu.');
@@ -239,16 +239,16 @@ B('1.68b',F,'Die grafisch markierte Fläche hat die Eckpunkte (0|0),(2|4),(4|4),
 B('1.69a',F,'Stelle eine Integralformel für die blau markierte Fläche zwischen einer steigenden Funktion f, x=0, x=a und der Höhe y=f(a) auf.',
  'A=∫₀ᵃ[f(a)−f(x)]dx=a·f(a)−∫₀ᵃf(x)dx.',
  'Die markierte Fläche ist Rechteck minus Fläche unter f.');
-B('1.69b',F,'Die blau markierte Fläche liegt im Rechteck von x=a bis x=b über einer positiven Funktion f und unter y=c. Stelle eine Integralformel auf.',
- 'A=∫ₐᵇ[c−f(x)]dx.',
+B('1.69b',F,'Die blau markierte Fläche liegt im Rechteck von x=0 bis x=b oberhalb des Graphen einer positiven Funktion f und unter y=c. Stelle eine Integralformel auf.',
+ 'A=∫₀ᵇ[c−f(x)]dx.',
  'Obere Begrenzungsfunktion minus untere Begrenzungsfunktion integrieren.');
 
 
 /* Graph interpretation, optimization and context exercises transcribed from the ZIP. */
-B('1.11a',K,'Zeichne den Graphen von f′ zu einer stückweise linearen Funktion f durch (0|0),(2|3),(3,5|3),(5|0),(7|0),(9|2).',
- 'f′ ist stückweise konstant: 1,5 auf (0;2), 0 auf (2;3,5), −2 auf (3,5;5), 0 auf (5;7), 1 auf (7;9). An den Knicken existiert keine eindeutige Ableitung.',
+B('1.11a',K,'Zeichne den Graphen von f′ zum originalen Linienzug durch (0|0),(2|3),(3|3),(5|0),(7|0),(9|2).',
+ 'f′ ist stückweise konstant: 1,5 auf (0;2), 0 auf (2;3), −1,5 auf (3;5), 0 auf (5;7), 1 auf (7;9). An den Knicken existiert keine eindeutige Ableitung.',
  'Die Ableitung entspricht den Steigungen der fünf Geradenabschnitte. An echten Knickstellen ist sie nicht definiert.',
- null,{curves:[{label:'f',points:[[0,0],[2,3],[3.5,3],[5,0],[7,0],[9,2]]}],x:[-0.5,9.5],y:[-0.5,4]});
+ null,{curves:[{label:'f',points:[[0,0],[2,3],[3,3],[5,0],[7,0],[9,2]]}],x:[-0.5,9.5],y:[-0.5,4]});
 B('1.11b',K,'Der Graph von f ist eine Parabel mit Nullstellen 1 und 3 sowie Scheitel (2|−1). Skizziere den Graphen ihrer Ableitung.',
  'f(x)=(x−2)²−1 ⇒ f′(x)=2x−4, eine Gerade mit Nullstelle bei x=2.',
  'Die Ableitung einer quadratischen Funktion ist eine Gerade. Links des Scheitels negativ, rechts positiv.',
@@ -270,10 +270,10 @@ B('1.15c',K,'Diskutiere f(x)=⅓x⁴−2x²: Extremwerte und Wendestellen.',
 B('1.16',K,'Diskutiere f(x)=(x−4)/(x²−4) mit Definitionsmenge, Polstellen und erster Ableitung.',
  'D=ℝ∖{−2,2}; Pole bei x=±2; Nullstelle x=4. f′(x)=(−x²+8x−4)/(x²−4)².',
  'Nenner darf nicht 0 sein. Nullstellen durch Zähler=0. Für f′ die Quotientenregel verwenden.');
-B('1.18b',K,'Bei E(x)=−4x²+450x und Fixkosten 1200 GE berechne die Gewinnschwelle, Gewinngrenze und die Höhe des maximalen Gewinns.',
- 'G(x)=−4x²+450x−1200. Nullstellen ungefähr x≈2,73 und x≈109,77, Gewinnmaximum bei x=56,25 mit G=11 456,25 GE.',
- 'G(x)=0 mit Mitternachtsformel lösen. Gewinnmaximum am Scheitel x=−b/(2a)=450/8=56,25.',
- null,{curves:[{label:'G(x)',poly:[-4,450,-1200]}],x:[0,115],y:[-2500,12500]});
+B('1.18b',K,'E(x)=−4x²+450x, variable Kosten 110 GE je Sessel, Fixkosten 1200 GE. Berechne Gewinnschwelle und Gewinngrenze sowie den maximalen Gewinn.',
+ 'G(x)=−4x²+340x−1200. Gewinnschwelle x≈3,69, Gewinngrenze x≈81,31. Gewinnmaximum bei x=42,5 mit G=6025 GE.',
+ 'G(x)=0 löst −4x²+340x−1200=0, also x=(85±5√241)/2. Das Maximum liegt am Scheitel x=340/8=42,5; G(42,5)=6025.',
+ null,{curves:[{label:'G(x)',poly:[-4,340,-1200]}],x:[0,90],y:[-2200,6700]});
 B('1.19c',K,'Ein Ball folgt h(t)=−5t²+10t+7. Berechne die maximale Höhe.',
  'Maximalhöhe 12 m bei t=1 s.',
  'Ableitung h′(t)=−10t+10=0 führt zu t=1. In h einsetzen: −5+10+7=12.',12);
