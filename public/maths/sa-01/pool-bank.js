@@ -1,7 +1,5 @@
 /* Official SRDP/BRP Angewandte Mathematik descriptor-4 source index.
- * 39 numbered B tasks were collected by filtering www.aufgabenpool.at/amn
- * on 23 Nov 2026. Eleven A tasks (descriptor 4.8) were cross-checked
- * against an openly published BMB exercise mirror on maths2mind.com.
+ * Only PDFs directly hosted by www.aufgabenpool.at are published in the trainer.
  * Actual examination prompt and its original figures are served through
  * the public source PDF/page; no task text or graphics are fabricated.
  *
@@ -144,7 +142,12 @@ P('A_261 a','Fallschirmsprung','a','4.5',aLink(4066),'page',{
  expected:14.715
 });
 
-if(Q.length!==50)throw Error('Expected exactly 50 genuinely sourced pool tasks, got '+Q.length);
-if(new Set(Q.map(q=>q.id)).size!==Q.length)throw Error('Duplicate pool tasks');
-window.MATHS_POOL_BANK=Object.freeze(Q);
+// This screen intentionally excludes all tasks from third-party mirrors.
+ // Only original PDFs directly hosted by the Federal Ministry's Aufgabenpool
+ // may enter the fourth-descriptor trainer and the SA simulation.
+ const official=Q.filter(q=>q.kind==='pdf' && /^https:\/\/(?:www\.)?aufgabenpool\.at\/amn\//i.test(q.source));
+ if(official.length<25)throw Error('Official descriptor source bank unexpectedly small: '+official.length);
+ if(new Set(official.map(q=>q.id)).size!==official.length)throw Error('Duplicate official pool IDs');
+ window.MATHS_POOL_BANK=Object.freeze(official);
+ window.MATHS_UNVERIFIED_POOL_COUNT=Q.length-official.length;
 })();
