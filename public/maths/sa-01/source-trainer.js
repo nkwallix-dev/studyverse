@@ -6,8 +6,9 @@
 (function(){
 'use strict';
 const BOOK=window.MATHS_BOOK_BANK||[];
+const GROUPS=window.MATHS_BOOK_GROUPS||[];
 const POOL=window.MATHS_POOL_BANK||[];
-const ui={bookId:BOOK[0]?.id,poolId:POOL[0]?.id,mode:null,filter:'',topic:'all',shown:false,submitted:false,correct:null,answer:'',run:null,complete:null,listScroll:{book:0,pool:0}};
+const ui={bookId:GROUPS[0]?.id,bookStepId:GROUPS[0]?.steps[0]?.id,poolId:POOL[0]?.id,mode:null,filter:'',topic:'all',shown:false,submitted:false,correct:null,answer:'',run:null,complete:null,listScroll:{book:0,pool:0}};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const select=(arr)=>arr[Math.floor(Math.random()*arr.length)];
 function shuffle(items){let a=[...items];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -102,6 +103,32 @@ function officialStatement(q){
  const src=esc(encodeURI(q.source))+'#view=FitH&zoom=page-width&toolbar=0&navpanes=0';
  return '<div class="source-external source-pdf-sheet"><b>Original-Aufgabenblatt · in Seitenbreite</b><iframe loading="eager" title="Original-SRDP-Aufgabe '+esc(q.number)+'" src="'+src+'" referrerpolicy="no-referrer" aria-label="Original-PDF mit Aufgabenstellung und Grafik in lesbarer Seitenbreite"></iframe><p class="source-pdf-help">Im Aufgabenblatt scrollen, um alle Seiten zu lesen.</p></div>';
 }
+function activeGroup(){return GROUPS.find(g=>g.id===ui.bookId)||GROUPS[0]}
+function activeStep(){const group=activeGroup();return group?.steps.find(q=>q.id===ui.bookStepId)||group?.steps[0]}
+function bookDetails(group){
+ if(!group)return '<p>Keine Buchaufgabe ausgewählt.</p>';
+ const q=activeStep(),stepIndex=Math.max(0,group.steps.findIndex(x=>x.id===q.id));
+ const solved=window.__mathSourceState?.solved||{};
+ const nDone=group.steps.filter(x=>solved[solvedKey(x,'book')]).length;
+ const sheet=group.pages.map(page=>'<figure class="book-original-sheet"><img loading="lazy" src="original-figures/book-page-'+page+'.webp" alt="Original-Buchseite '+page+' mit originalen Abbildungen, Beschriftungen und Farben" onerror="this.closest(&quot;figure&quot;).classList.add(&quot;book-scan-missing&quot;)"><figcaption>Original-Buchseite '+String(page).padStart(2,'0')+' · Schulbuch-Screenshot</figcaption></figure>').join('');
+ const stepMenu=group.steps.map((x,i)=>'<button class="book-step-pick '+(x.id===q.id?'active':'')+'" data-action="source:step:'+esc(x.id)+'" aria-current="'+(x.id===q.id?'step':'false')+'">Schritt '+(i+1)+(solved[solvedKey(x,'book')]?' ✓':'')+'</button>').join('');
+ const solution=ui.shown?'<section class="source-solution" id="sourceSolution"><h3>Lösung · Schritt '+(stepIndex+1)+'</h3><p>'+esc(q.steps)+'</p><div class="formula">'+esc(q.solution)+'</div></section>':'';
+ const expected=Number.isFinite(q.expected);
+ const result=ui.submitted?'<p class="answer-feedback '+(ui.correct?'good':ui.correct===false?'bad':'')+'">'+(ui.correct===true?'✓ Ergebnis richtig':ui.correct===false?'Noch nicht korrekt. Vergleiche den Lösungsweg.':'Vergleiche deine Begründung mit der Erklärung.')+'</p>':'';
+ return '<section class="source-detail" data-source-id="'+esc(group.id)+'"><header class="source-detail-header"><div class="source-meta"><span class="eyebrow">BUCHBEISPIEL · '+esc(group.category)+'</span><span class="source-done">'+nDone+'/'+group.steps.length+' Schritte</span></div><h2>Aufgabe '+esc(group.number)+'</h2><p class="source-number">Original · '+esc(group.source)+'</p></header>'+
+ '<div class="source-reading" role="region" tabindex="0" aria-label="Buchangabe, Originalgrafiken und Lösungswege">'+
+ '<details class="book-original-toggle" open><summary>Originalangabe & Abbildungen · '+esc(group.number)+'</summary><div class="book-original-body">'+sheet+
+ '<p class="source-credit">Lies die vollständige Aufgabenstellung in der Originalabbildung. Die einzelnen Rechenschritte findest du darunter.</p></div></details>'+
+ '<nav class="book-step-tabs" aria-label="Teilaufgaben wählen">'+stepMenu+'</nav>'+
+ '<section class="book-active-step"><h3>Schritt '+(stepIndex+1)+' von '+group.steps.length+(group.steps.length===1?'':' · '+esc(q.number))+'</h3><div class="source-question">'+esc(q.prompt)+'</div>'+
+ (!sheet&&q.graph?plot(q.graph):'')+'</section>'+solution+'</div>'+
+ '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Rechne Schritt '+(stepIndex+1)+' eigenständig. Ergebnis erst danach überprüfen.</div>'+
+ '<div class="answer-field"><input id="sourceAnswer" aria-label="Ergebnis für Schritt '+(stepIndex+1)+'" inputmode="'+(expected?'decimal':'text')+'" placeholder="'+(expected?'Deine Zahl':'Dein Ergebnis oder Lösungsweg')+'" value="'+esc(ui.answer)+'">'+(expected?'<button class="btn primary" data-action="source:submit">Überprüfen</button>':'')+'</div>'+result+
+ '<div class="source-actions"><button class="btn secondary" data-action="source:reveal">'+(ui.shown?'Lösung schließen':'Lösung anzeigen')+'</button>'+
+ (ui.shown?'<button class="btn primary" data-action="source:self-right">✓ Richtig gelöst</button><button class="btn secondary" data-action="source:self-wrong">Noch üben</button>':'')+
+ '<button class="btn secondary" data-action="source:next">'+(stepIndex+1<group.steps.length?'Nächster Schritt →':'Nächstes Buchbeispiel →')+'</button></div></div></section>';
+}
+
 function details(q,mode){
  if(!q)return '<div class="source-empty">Kein Beispiel gefunden.</div>';
  const solved=!!window.__mathSourceState?.solved?.[solvedKey(q,mode)];
@@ -133,25 +160,48 @@ function details(q,mode){
 function browser(mode,state){
  if(ui.mode!==mode){ui.mode=mode;ui.filter='';ui.topic='all';reset()}
  window.__mathSourceState=state;
- const bank=cards(mode),value=mode==='book'?ui.bookId:ui.poolId;
- let categories=[...new Set(bank.map(x=>x.category))];
- const rows=bank.filter(x=>(ui.topic==='all'||x.category===ui.topic)&&(!ui.filter||(x.number+' '+(x.title||'')+' '+x.prompt).toLowerCase().includes(ui.filter.toLowerCase())));
- let active=rows.find(x=>x.id===value)||rows[0];if(active&&active.id!==value){mode==='book'?ui.bookId=active.id:ui.poolId=active.id;reset()}
- const done=bank.filter(x=>state.solved[solvedKey(x,mode)]).length;
- return '<div class="eyebrow">'+(mode==='book'?'ECHTE SCHULBUCH-AUFGABEN':'ORIGINAL-SRDP · 4. DESKRIPTOR')+'</div><h1>'+(mode==='book'?'Buchbeispiele':'4. Deskriptor')+'</h1><p>'+(mode==='book'?'Die nummerierten Beispiele aus deinem Schulbuch – an Papier rechnen, Lösung bei Bedarf ausklappen.':'50 echte veröffentlichte SRDP-Teilaufgaben mit offiziellen PDFs/Quellen und Originalgrafiken, statt erfundener Ersatzfragen.')+'</p>'+
- '<div class="source-count"><strong>'+done+'/'+bank.length+'</strong> bearbeitet · '+(mode==='book'?'Buchnummern aus der ZIP':'Datenquelle: Bundesministerium für Bildung · CC BY 4.0')+'</div>'+
- '<div class="source-filters"><label>Suche <input id="sourceSearch" placeholder="z. B. '+(mode==='book'?'1.66 a':'B_405')+'" value="'+esc(ui.filter)+'"></label><label>Thema <select id="sourceTopic"><option value="all">Alle Bereiche</option>'+categories.map(c=>'<option value="'+esc(c)+'" '+(ui.topic===c?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select></label></div>'+
- '<div class="source-workspace" data-mode="'+mode+'"><aside class="source-list" aria-label="Aufgabenliste">'+rows.map(x=>'<button class="source-task '+(x.id===active?.id?'active':'')+'" data-action="source:open:'+esc(x.id)+'"><span class="source-task-number">'+esc(x.number)+(state.solved[solvedKey(x,mode)]?' ✓':'')+'</span><small class="source-task-title">'+esc(x.title||x.category)+'</small></button>').join('')+'</aside>'+details(active,mode)+'</div>';
+ const groups=mode==='book',bank=groups?GROUPS:POOL;
+ const value=groups?ui.bookId:ui.poolId;
+ const categories=[...new Set(bank.map(x=>x.category))];
+ const rows=bank.filter(x=>(ui.topic==='all'||x.category===ui.topic)&&
+  (!ui.filter||(x.number+' '+(x.title||'')+' '+x.prompt).toLowerCase().includes(ui.filter.toLowerCase())));
+ const active=rows.find(x=>x.id===value)||rows[0];
+ if(active&&active.id!==value){
+  if(groups){ui.bookId=active.id;ui.bookStepId=active.steps[0].id}else ui.poolId=active.id;
+  reset();
+ }
+ const done=groups?BOOK.filter(q=>state.solved[solvedKey(q,'book')]).length:POOL.filter(q=>state.solved[solvedKey(q,'pool')]).length;
+ const total=groups?BOOK.length:POOL.length;
+ return '<div class="eyebrow">'+(groups?'ECHTE SCHULBUCH-AUFGABEN':'ORIGINAL-SRDP · 4. DESKRIPTOR')+'</div>'+
+ '<h1>'+(groups?'Buchbeispiele':'4. Deskriptor')+'</h1><p>'+(groups?
+ 'Buchaufgaben mit gemeinsamer Originalangabe und einzelnen überprüfbaren Schritten.':
+ 'Offizielle Prüfungsaufgaben als PDF, inklusive der vom Bundesministerium veröffentlichten Lösungserwartungen.')+'</p>'+
+ '<div class="source-count"><strong>'+done+'/'+total+'</strong> Schritte bearbeitet · '+(groups?GROUPS.length+' zusammengehörende Buchbeispiele':'Datenquelle: Bundesministerium für Bildung · CC BY 4.0')+'</div>'+
+ '<div class="source-filters"><label>Suche <input id="sourceSearch" placeholder="z. B. '+(groups?'1.80':'B_405')+'" value="'+esc(ui.filter)+'"></label><label>Thema <select id="sourceTopic"><option value="all">Alle Bereiche</option>'+categories.map(c=>'<option value="'+esc(c)+'" '+(ui.topic===c?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select></label></div>'+
+ '<div class="source-workspace" data-mode="'+mode+'"><aside class="source-list" aria-label="Aufgabenliste">'+rows.map(x=>{
+  const doneSteps=groups?x.steps.filter(q=>state.solved[solvedKey(q,'book')]).length:0;
+  return '<button class="source-task '+(x.id===active?.id?'active':'')+'" data-action="source:open:'+esc(x.id)+'"><span class="source-task-number">'+esc(x.number)+(groups&&doneSteps===x.steps.length?' ✓':!groups&&state.solved[solvedKey(x,'pool')]?' ✓':'')+'</span><small class="source-task-title">'+esc(x.category)+(groups?' · '+doneSteps+'/'+x.steps.length+' Schritte':'')+'</small></button>'
+ }).join('')+'</aside>'+(groups?bookDetails(active):details(active,'pool'))+'</div>';
 }
+
 function reset(){ui.shown=false;ui.submitted=false;ui.correct=null;ui.answer=''}
 function captureList(mode,scroll){if(mode==='book'||mode==='pool')ui.listScroll[mode]=Math.max(0,scroll||0)}
 function restoreList(mode,el){if(el&&ui.listScroll[mode]!=null)el.scrollTop=ui.listScroll[mode]}
 function focusSolution(root){const reader=root?.querySelector('.source-reading');if(reader&&ui.shown)reader.scrollTop=reader.scrollHeight;}
-function current(mode){return cards(mode).find(x=>x.id===(mode==='book'?ui.bookId:ui.poolId))}
-function next(mode,state){let list=cards(mode),idx=list.findIndex(x=>x.id===current(mode)?.id);
- if(idx<0)return;let fresh=list.find((x,i)=>i>idx&&!state.solved[solvedKey(x,mode)])||list.find(x=>!state.solved[solvedKey(x,mode)])||list[(idx+1)%list.length];
- if(mode==='book')ui.bookId=fresh.id;else ui.poolId=fresh.id;reset();
+function current(mode){return mode==='book'?activeStep():POOL.find(x=>x.id===ui.poolId)}
+function next(mode,state){
+ if(mode==='book'){
+  const group=activeGroup(),step=activeStep(),index=group.steps.findIndex(x=>x.id===step.id);
+  if(index+1<group.steps.length)ui.bookStepId=group.steps[index+1].id;
+  else{const idx=GROUPS.findIndex(g=>g.id===group.id),upcoming=GROUPS[(idx+1)%GROUPS.length];
+   ui.bookId=upcoming.id;ui.bookStepId=upcoming.steps[0].id}
+  reset();return;
+ }
+ const idx=POOL.findIndex(x=>x.id===ui.poolId),fresh=POOL.find((x,i)=>i>idx&&!state.solved[solvedKey(x,'pool')])||
+  POOL.find(x=>!state.solved[solvedKey(x,'pool')])||POOL[(idx+1)%POOL.length];
+ if(fresh)ui.poolId=fresh.id;reset();
 }
+
 function mark(q,mode,correct,api){if(!correct)return;
  const id=solvedKey(q,mode);
  api.state.solved[id]=true;
@@ -197,7 +247,8 @@ function result(){
 }
 function handle(action,api){
  const mode=api.view==='pool'?'pool':'book';
- if(action.startsWith('source:open:')){let x=action.slice(12),q=cards(mode).find(q=>q.id===x);if(q){mode==='book'?ui.bookId=x:ui.poolId=x;reset()}return}
+ if(action.startsWith('source:open:')){let x=action.slice(12),q=(mode==='book'?GROUPS:POOL).find(q=>q.id===x);if(q){if(mode==='book'){ui.bookId=x;ui.bookStepId=q.steps[0].id}else ui.poolId=x;reset()}return}
+ if(action.startsWith('source:step:')&&mode==='book'){const id=action.slice(12);if(activeGroup().steps.some(q=>q.id===id)){ui.bookStepId=id;reset()}return}
  if(action==='source:next'){next(mode,api.state);return}
  if(action==='source:reveal'){ui.answer=document.getElementById('sourceAnswer')?.value??ui.answer;ui.shown=!ui.shown;return}
  if(action==='source:submit'){let q=current(mode);if(!q)return;const v=document.getElementById('sourceAnswer')?.value||'';ui.answer=v;ui.submitted=true;ui.correct=answerNumeric(q,v);if(ui.correct===true)mark(q,mode,true,api);if(ui.correct===false)ui.shown=true;if(ui.correct===null)ui.shown=true;return}
@@ -232,5 +283,5 @@ function refreshFilters(){
  const q=document.getElementById('sourceSearch'),t=document.getElementById('sourceTopic');
  ui.filter=q?.value||'';ui.topic=t?.value||'all';reset();
 }
-window.MATHS_SOURCE_TRAINER={BOOK,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot,captureList,restoreList,focusSolution};
+window.MATHS_SOURCE_TRAINER={BOOK,GROUPS,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot,captureList,restoreList,focusSolution};
 })();
