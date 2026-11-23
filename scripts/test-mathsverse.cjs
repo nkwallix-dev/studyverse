@@ -61,6 +61,6 @@ assert(shop.includes("name:'Integral-Genie',desc:'Für alle"),'Integral title de
 assert(appHtml.includes("item.group !== 'avatar' && item.group !== 'title'"),'Avatar and title previews must not use before/after slider');
 assert(appHtml.includes('previewDropLabel(item.drop)'),'Drops must be labeled by universe');
 assert(app.includes("'maths-sa-01':'MATHSVERSE DROP'"),'MathsVerse previews must display their own collection name');
-assert(read('src/app/app.scss').includes('linear-gradient(125deg,#351157'),'Toxic Neon global theme must use purple and green');
+assert(read('src/styles.scss').includes('linear-gradient(125deg,#351157'),'Toxic Neon global theme must use purple and green');
 assert(read('public/shared/verse-cosmetics.css').includes('linear-gradient(130deg,#31164f'),'Toxic Neon in trainers must use purple and green');
 console.log('PASS: MathsVerse SA1 source content, boss routing, paper practice, green skin, previews and compatibility.');
