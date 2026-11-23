@@ -18,6 +18,9 @@ for(const group of groups){
  if(group.number==='1.79'){group.pages.add(10);group.pages.add(11)}
  if(group.number==='1.100')group.pages.add(13);
  group.pages=[...group.pages].sort((a,b)=>a-b);
+ group.artwork=group.number==='1.80'?['book-1-80-a.webp','book-1-80-b.webp']:
+  group.number==='1.100'?['book-1-100.webp']:
+  group.pages.map(n=>'book-page-'+n+'.webp');
  group.source='Buchbeispiele laut SchularbeitsStoff(1).zip';
  group.title=group.category;
  group.prompt=group.steps.map(q=>q.prompt).join(' ');
