@@ -425,12 +425,19 @@ B('2.35b',P,'Gegeben z=cos(4xy²). Bestimme zₓₓ und zᵧᵧ.',
 B('2.35c',P,'Gegeben z=tan(5x³y). Ermittle zₓₓ und zᵧᵧ.',
  'Mit u=5x³y: zₓₓ=30xy·sec²(u)+450x⁴y²sec²(u)tan(u); zᵧᵧ=50x⁶sec²(u)tan(u).',
  'Zuerst Ableitung von tan als sec², danach erneute Produkt- und Kettenregel. sec²(u)=1/cos²(u).');
+
+B('2.36a',P,'Gegeben f(x,y)=e^(3xy)cos(2xy²). Bestimme fₓₓ und fᵧᵧ.',
+ 'Setze v=2xy². fₓₓ=e^(3xy)[(9y²−4y⁴)cos(v)−12y³sin(v)]. fᵧᵧ=e^(3xy)[(9x²−16x²y²)cos(v)+(6x−24x²y)sin(v)−4xsin(v)].',
+ 'Erste Ableitungen: fₓ=e^(3xy)[3ycos(v)−2y²sin(v)], fᵧ=e^(3xy)[3xcos(v)−4xy sin(v)]. Beim zweiten Ableiten Produkt- und Kettenregel.');
+B('2.36b',P,'Gegeben f(x,y)=7e^(−2y)sin(4x²+y²). Bestimme fₓₓ und fᵧᵧ.',
+ 'Mit v=4x²+y²: fₓₓ=7e^(−2y)[8cos(v)−64x²sin(v)]; fᵧᵧ=7e^(−2y)[(4−4y²)sin(v)+(2−8y)cos(v)].',
+ 'Für fₓₓ ist e^(−2y) konstant. Für fᵧᵧ müssen exponentieller Faktor und Sinus beide nach y abgeleitet werden.');
 B('2.36c',P,'Gegeben f(x,y)=4x²cos(x+y). Bestimme fₓₓ und fᵧᵧ.',
  'fₓₓ=8cos(x+y)−16xsin(x+y)−4x²cos(x+y); fᵧᵧ=−4x²cos(x+y).',
  'Beim zweimaligen Ableiten nach x entsteht aus dem Produkt 4x²·cos(x+y) ein zusätzlicher Term; nach y ist 4x² konstant.');
 B('2.37',P,'Gegeben f(x,y)=3x⁴y²−4xy²+x²y³. Anna und Sebastian berechnen fᵧᵧ am Rechner und erhalten verschiedene Ergebnisse. Berechne fᵧᵧ selbst und prüfe den Fehler.',
- 'fᵧ=6x⁴y−8xy+3x²y²; fᵧᵧ=6x⁴−8x+6x²y. Prüfe, ob die Geräteausgaben zu dieser Form äquivalent sind.',
- 'Halte x konstant. Differenziere 3x⁴y² zweimal nach y ⇒6x⁴; −4xy² ⇒−8x; x²y³⇒6x²y. Auf den Rechnern wurde die Ableitungsvariable vermutlich falsch gewählt.');
+ 'fᵧ=6x⁴y−8xy+3x²y²; fᵧᵧ=6x⁴−8x+6x²y. Anna hat recht. Sebastian hat in seiner Ausgabe den Term −8x ausgelassen.',
+ 'Halte x konstant. Differenziere 3x⁴y² zweimal nach y ⇒6x⁴; −4xy² ⇒−8x; x²y³⇒6x²y. Sebastians Ergebnis enthält keinen Beitrag des Terms −4xy², denn seine zweite Ableitung nach y ist −8x.');
 B('2.38b',P,'Gegeben z=2sin(4x)+5cos(6y), Q(π/6|π/4|z₀). Bestimme zₓₓ, zᵧᵧ und zₓᵧ in Q.',
  'zₓₓ=−32sin(4x), zᵧᵧ=−180cos(6y), zₓᵧ=0. In Q: zₓₓ=−16√3, zᵧᵧ=0, zₓᵧ=0.',
  'Die beiden Summanden hängen jeweils nur von einer Variablen ab. Das gemischte Ableiten liefert 0; in die zweiten Ableitungen danach π/6 bzw. π/4 einsetzen.');
