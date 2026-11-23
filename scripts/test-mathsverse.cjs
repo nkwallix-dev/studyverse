@@ -49,7 +49,7 @@ assert(!fs.existsSync('public/maths/hw-02/index.html'),'retired homework still a
 const appHtml=read('src/app/app.html');
 const trainerRegistry=read('src/app/trainer-registry.ts');
 const sharedCosmetics=read('public/shared/verse-cosmetics.js');
-assert(mjs.includes('boss:bossIntro,bossrun:bossRun'),'Boss navigation must call bossIntro instead of the mutable run object');
+assert(mjs.includes('boss:()=>SOURCE.intro(state)')&&mjs.includes('bossrun:()=>SOURCE.run()'),'Exam route uses source-first 10+10 simulation');
 assert(mjs.includes('Stift und Papier bereitlegen'),'Handwork must instruct users to calculate on paper');
 assert(mjs.includes("['hand','✎ Nur Handrechnen']"),'Hand calculation questions must be directly selectable');
 assert(mjs.includes('id="topicSelect"'),'Compact practice topic selector must be present');
@@ -63,4 +63,23 @@ assert(appHtml.includes('previewDropLabel(item.drop)'),'Drops must be labeled by
 assert(app.includes("'maths-sa-01':'MATHSVERSE DROP'"),'MathsVerse previews must display their own collection name');
 assert(read('src/styles.scss').includes('linear-gradient(125deg,#351157'),'Toxic Neon global theme must use purple and green');
 assert(read('public/shared/verse-cosmetics.css').includes('linear-gradient(130deg,#31164f'),'Toxic Neon in trainers must use purple and green');
-console.log('PASS: MathsVerse SA1 source content, boss routing, paper practice, green skin, previews and compatibility.');
+const bookJs=read('public/maths/sa-01/book-bank.js');
+const poolJs=read('public/maths/sa-01/pool-bank.js');
+const sourceJs=read('public/maths/sa-01/source-trainer.js');
+vm.runInNewContext(bookJs,sandbox);vm.runInNewContext(poolJs,sandbox);
+const book=sandbox.window.MATHS_BOOK_BANK,pool=sandbox.window.MATHS_POOL_BANK;
+assert(book.length>=80,'Textbook ZIP must produce >80 specific sourced tasks');
+assert.equal(pool.length,50,'Descriptor 4 bank must contain 50 real source IDs');
+assert.equal(new Set(book.map(q=>q.number)).size,book.length,'Do not repeat textbook tasks');
+assert.equal(new Set(pool.map(q=>q.number)).size,pool.length,'Do not repeat official task IDs');
+for(const q of book){assert(q.prompt&&q.solution&&q.steps,'Book tasks need exact prompt and explained answer');if(q.expected!=null)assert(Number.isFinite(q.expected),'Book numeric result must be finite')}
+for(const q of pool){assert(q.source.startsWith('https://')&&q.number,'Every pool task must link to its original source');assert(!/^4[.]7(?:\\D|$)/.test(q.descriptor),'Excluded descriptor 4.7 must not appear');if(q.expected!=null)assert(Number.isFinite(q.expected))}
+assert(sourceJs.includes('shuffle(BOOK).slice(0,10)'),'Book half of boss is random 10');
+assert(sourceJs.includes('shuffle(POOL).slice(0,10)'),'Official half of boss is random 10');
+assert(sourceJs.includes('api.reward')||sourceJs.includes('api.state.bestBoss'),'Exam result must be recorded');
+assert(mhtml.includes('data-nav="book"')&&mhtml.includes('data-nav="pool"'),'There must be two separate catalog tabs');
+assert(!mhtml.includes('data-nav="practice"'),'Synthetic practice must not be in the navigation');
+for(const name of ['book-bank.js','pool-bank.js','source-trainer.js','source-trainer.css'])assert(mhtml.includes(name),'Missing source trainer asset '+name);
+assert(mjs.includes('SOURCE.browser(\'book\',state)')&&mjs.includes('SOURCE.browser(\'pool\',state)'),'Original catalogs must render via app');
+assert(sourceJs.includes('Stift und Papier')&&sourceJs.includes('Lösung anzeigen'),'Paper instructions and reveal button required');
+console.log('PASS: MathsVerse 84 original book tasks, 50 sourced SRDP tasks, 10+10 exam, safe progress and cosmetics.');

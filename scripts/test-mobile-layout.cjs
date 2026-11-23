@@ -1768,19 +1768,30 @@ async function main(){
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-emerald-default-390.png'),fullPage:true});
      // Verify the actual boss screen, not just its breadcrumb.
      await cosmeticPage.evaluate(()=>document.querySelector('.verse-endgame [data-nav="boss"]').click());
-     await cosmeticPage.locator('[data-action="start-boss"]').waitFor({timeout:5000});
-     assert.equal((await cosmeticPage.locator('#main h1').innerText()).trim(),'SA-Bosskampf.','MathsVerse Boss intro must not render the overview');
-     await cosmeticPage.locator('[data-action="start-boss"]').click();
-     assert(await cosmeticPage.locator('#main .question-card .option').count()>=4,'Boss run must show answer options');
-     await cosmeticPage.locator('#main .question-card .option').first().click();
-     await cosmeticPage.locator('[data-action="boss-next"]').click();
-     assert((await cosmeticPage.locator('#main').innerText()).includes('FRAGE 2 / 20'),'Boss must progress to its second question');
-     await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="practice"]').click());
-     await cosmeticPage.locator('#topicSelect').selectOption('hand');
+     await cosmeticPage.locator('[data-action="source:exam-start"]').waitFor({timeout:5000});
+     assert.equal((await cosmeticPage.locator('#main h1').innerText()).trim(),'Schularbeitssimulation.','Boss must show source-first exam intro');
+     assert((await cosmeticPage.locator('#main').innerText()).includes('10 Buch + 10 Deskriptor 4'),'Exam must draw from both genuine source banks');
+     await cosmeticPage.locator('[data-action="source:exam-start"]').click();
+     await cosmeticPage.locator('.source-exam-input').waitFor();
+     const examField=cosmeticPage.locator('.source-exam-input');
+     await examField.fill('0');
+     await cosmeticPage.locator('[data-action="source:exam-submit"]').click();
+     if(await cosmeticPage.locator('[data-action="source:exam-self-wrong"]').count()){
+       await cosmeticPage.locator('[data-action="source:exam-self-wrong"]').click();
+     }else{
+       await cosmeticPage.locator('[data-action="source:exam-next"]').click();
+     }
+     assert((await cosmeticPage.locator('#main').innerText()).includes('FRAGE 2 / 20'),'Exam must progress to a second sourced problem');
+     await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="book"]').click());
+     await cosmeticPage.locator('[data-action="source:open:book-1-19a"]').click();
      await cosmeticPage.locator('.handwrite-note').waitFor({timeout:5000});
-     assert((await cosmeticPage.locator('.handwrite-note').innerText()).includes('Stift und Papier'),'Hand calculations must require paper');
-     assert.equal(await cosmeticPage.locator('#numericAnswer').count(),1,'Handwork must have numeric input');
-     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-handwritten-390.png'),fullPage:true});
+     assert((await cosmeticPage.locator('.handwrite-note').innerText()).includes('Stift und Papier'),'Real textbook tasks must prompt for paper');
+     assert.equal(await cosmeticPage.locator('#sourceAnswer').count(),1,'Textbook tasks must allow an answer');
+     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-original-390.png'),fullPage:true});
+     await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="pool"]').click());
+     await cosmeticPage.locator('.source-external').first().waitFor({timeout:5000});
+     assert.equal(await cosmeticPage.locator('.source-list .source-task').count(),50,'SRDP bank must contain 50 sourced tasks');
+     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-50-official-390.png'),fullPage:true});
    }
    await equipped.close();
   }
