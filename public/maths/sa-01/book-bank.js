@@ -549,6 +549,35 @@ B('1.92c',A,'Leite h(x)=ln(³√(2x−1)) ab.',
  'h′(x)=2/[3(2x−1)], gültig für 2x−1>0.',
  'Logarithmengesetz h=(1/3)ln(2x−1), danach Kettenregel.');
 
+
+/* Volume chapter screenshot 11: curves and solutions reconstructed from the printed parameters. */
+B('1.79a',V,'Das Endstück einer Vorhangstange entsteht durch Drehung eines Linienzuges um die x-Achse. Die Gerade g geht von (0|0) nach P(10|5); die Parabel p geht durch P, hat dort dieselbe Steigung und trifft die x-Achse bei x=50 (Maße in mm). Bestimme g und p.',
+ 'g(x)=x/2 für 0≤x≤10; p(x)=−(x−50)(x−2)/64 für 10≤x≤50.',
+ 'Gerade durch Ursprung und P: g(x)=0,5x. Für p=ax²+bx+c die drei Bedingungen p(10)=5, p′(10)=0,5 und p(50)=0 lösen.',
+ null,{curves:[{label:'g',points:[[0,0],[10,5]]},{label:'p',poly:[-1/64,13/16,-25/16]}],x:[0,52],y:[0,12]});
+B('1.79b',V,'Das Endstück wird aus g=x/2 auf [0;10] und p=−(x−50)(x−2)/64 auf [10;50] um die x-Achse rotiert (mm). Bei Dichte ρ=8,4 g/cm³ berechne die Masse.',
+ 'V=π(∫₀¹⁰g²dx+∫₁₀⁵⁰p²dx)=6250π/3 mm³≈6,545 cm³; Masse≈54,98 g.',
+ 'Rotationsvolumen in mm³ berechnen, dann durch 1000 in cm³ umrechnen. Masse =ρ·V.',8.4*6250*Math.PI/3000);
+B('1.80a',V,'Der Halbquerschnitt eines Kreisels ist durch eine Gerade g von (0|3) nach (4|0) und die Kurve f(x)=−√[0,5·(4−x)] beschrieben. Bestimme g.',
+ 'g(x)=3−(3/4)x.',
+ 'Geradengleichung y=mx+b. Aus den Punkten m=(0−3)/(4−0)=−3/4 und b=3.');
+B('1.80b',V,'Ein Kreisel entsteht durch Rotation von g(x)=3−3x/4 (0≤x≤4) und f(x)=−√[0,5·(4−x)] um die y-Achse. Dichte ρ=8,7 g/cm³. Berechne die Masse.',
+ 'Rotationsvolumen ≈88,178 cm³; Masse ≈767,15 g.',
+ 'Nach x umstellen: x_g(y)=4−4y/3 für y∈[0;3], x_f(y)=4−2y² für y∈[−√2;0]. V=π∫₀³x_g(y)²dy+π∫₋√₂⁰x_f(y)²dy.',8.7*16*Math.PI*(8*Math.sqrt(2)+15)/15);
+B('1.81a',V,'Die Glasinnenseite ist durch y=0,2(x²+1)²+0,8 beschrieben. Forme die Gleichung nach x² um.',
+ 'x²=√[(y−0,8)/0,2]−1.',
+ 'Erst 0,8 abziehen und durch 0,2 teilen, dann die positive Quadratwurzel ziehen und 1 abziehen.');
+B('1.81b',V,'Die Glasinnenseite ist y=0,2(x²+1)²+0,8 (cm). Wie viele Milliliter entsprechen einer Fülloberfläche bei y=4 cm, wenn der Glasboden bei y=1 cm liegt?',
+ 'V=π∫₁⁴[√(5y−4)−1]dy=27π/5≈16,965 ml.',
+ 'Forme x²=√(5y−4)−1 um. Rotationsvolumen um y-Achse ist V=π∫x²dy. 1 cm³=1 ml.',27*Math.PI/5);
+B('1.81c',V,'Ist es möglich, das Glas mit Innenprofil y=0,2(x²+1)²+0,8 und Höhe 5,8 cm mit 40 ml zu befüllen?',
+ 'Nein. Die Modellkapazität bis y=5,8 cm beträgt etwa 36,86 ml und damit weniger als 40 ml.',
+ 'V_max=π∫₁^5,8[√(5y−4)−1]dy. Vergleiche das Ergebnis in cm³=ml mit 40 ml.');
+B('1.82b',K,'Zeichne f(x)=x³/8−3x²/2+9x/2+1 im Intervall [1;7], markiere Maximum H(2|5) und Wendepunkt W(4|3).',
+ 'f(2)=5 mit f′(2)=0 und f″(2)<0. Bei x=4 ist f″(4)=0 und f′(4)=−3/2.',
+ 'Berechne eine kleine Wertetabelle und markiere die beiden besonderen Punkte. Die Kurve ist kubisch.',
+ null,{curves:[{label:'f',poly:[1/8,-3/2,9/2,1]}],x:[1,7],y:[0,6]});
+
 if(new Set(R.map(x=>x.id)).size!==R.length)throw Error('Duplicate book IDs');
 window.MATHS_BOOK_BANK=Object.freeze(R);
 })();
