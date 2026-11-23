@@ -39,15 +39,8 @@ P('B_405 a','Bodenunebenheiten','a','4.2, 4.4',base+'539/Bodenunebenheiten.pdf',
  solution:'Aussage 2 ist falsch: p′(x₁)=0 lässt sich aus der Skizze nicht ableiten. Da die Messlatte an den Kontaktpunkten dieselbe Tangentensteigung hat, ist dort p′(x₁)=p′(x₂)=k.',
  guide:'Unterscheide Sekantensteigung und Tangentensteigung. Die Steigung k der Messlatte ist nicht notwendigerweise 0.',expected:2
 });
-P('B_636 b','Trinkflasche','b','4.4, 3.9',base+'1074/B_636 Trinkflasche (PT3_2024).pdf');
-P('B_512 b','Ressourcen','b','4.4',base+'877/B_512 Ressourcen (PT1_2021).pdf');
-P('B_512 c','Ressourcen','c','4.4',base+'877/B_512 Ressourcen (PT1_2021).pdf');
-P('B_503 c','Scharniere','c','4.4',base+'853/Scharniere (PT3_2020).pdf');
 P('B_475 d','W-LAN','d','4.4, 4.5',base+'807/W-LAN.pdf');
 P('B_444 a','Boule','a','4.4, 3.4',base+'725/Boule (PT1_2019).pdf');
-P('B_440 c','Werbung','c','4.4',base+'699/Werbung.pdf');
-P('B_432 a','Elektrische Bauteile','a','4.4, 3.2',base+'589/Elektrische Bauteile.pdf');
-P('B_432 b','Elektrische Bauteile','b','4.4',base+'589/Elektrische Bauteile.pdf');
 P('B_427 a','Im Möbelhaus','a','4.4, 4.8',base+'584/Im Moebelhaus.pdf');
 P('B_417 a','Leistungsdiagnostik im Sport','a','4.4, 2.11',base+'550/Leistungsdiagnostik im Sport.pdf');
 P('B_408 a','Straßenbau (2)','a','4.4, 2.8',base+'542/Strassenbau (2).pdf');
@@ -63,13 +56,10 @@ P('B_391 a','Seile','a','4.4, 4.2',base+'515/Seile.pdf');
 P('B_391 b','Seile','b','4.4, 3.4',base+'515/Seile.pdf');
 P('B_377 b','Angry Birds (1)','b','4.4, 3.2',base+'482/AngryBirds_1.pdf');
 P('B_377 c','Angry Birds (1)','c','4.4, 2.8',base+'482/AngryBirds_1.pdf');
-P('B_373 b','Puppenrutsche','b','4.4, 3.4',base+'710/Puppenrutsche.pdf');
 P('B_364 b','Nemo','b','4.4, 4.3',base+'765/Nemo.pdf');
 P('B_364 c','Nemo','c','4.4, 4.8',base+'765/Nemo.pdf');
 P('B_352 c','Staatseinnahmen und -ausgaben','c','4.4, 4.5, 4.8',base+'449/Staatseinnahmen_ausgaben.pdf');
 P('B_347 d','Vektorgrafiken','d','4.4',base+'427/Vektorgrafiken.pdf');
-P('B_336 c','Bastelarbeit im Kindergarten','c','4.4',base+'709/Bastelarbeit im Kindergarten.pdf');
-P('B_322 b','Schwangerschaft','b','4.4, 3.2',base+'375/Schwangerschaft.pdf');
 P('B_308 b','Stromversorgung einer Baustelle','b','4.4, 2.12',base+'361/Stromversorgung_e_Baustelle.pdf');
 P('B_261 b','Verkehrszeichen','b','4.4, 2.5',base+'457/Verkehrszeichen.pdf');
 P('B_260 a','Gebäudetechnik','a','4.4, 2.8',base+'663/Gebaeudetechnik.pdf');
@@ -114,6 +104,46 @@ P('A_318 a','Kleingartensiedlung','a','4.8',aLink(4553),'page',{
  solution:'Berechne die Gesamtfläche und halbiere sie. Setze F(a) auf die Hälfte und löse numerisch. Die Teilstelle liegt bei ungefähr a≈10,612 m.',
  expected:10.611692948
 });
+
+/* Balanced, source-identified tasks for 4.2 and 4.5, not just 4.4. */
+P('A_253 b','Der Bodensee','b','4.2',aLink(4014),'page');
+P('A_262 c','Altenpflege','c','4.2',aLink(4071),'page',{
+ prompt:'A_262 c — Hausbesuche in Oberösterreich: 1994 waren es 498 086, 2004 waren es 1 360 543. Interpretiere (1 360 543−498 086)/(2004−1994)≈86 246 im Sachzusammenhang; erkläre, warum derselbe prozentuale Anstieg in zwei Zeiträumen unterschiedliche absolute Zuwächse erzeugt.',
+ guide:'Differenzenquotient ist die mittlere jährliche Zunahme. 15,6 % von größeren Ausgangsbeständen ergeben absolut mehr Besuche.',
+ solution:'Im Mittel stieg die Anzahl um rund 86 246 Hausbesuche pro Jahr von 1994 bis 2004. Gleiche Prozentsätze auf unterschiedlichen Grundwerten ergeben unterschiedliche absolute Werte.'
+});
+P('A_263 b','Die Genussformel','b','4.2',aLink(4074),'page',{
+ prompt:'A_263 b — Für eine Gans werden folgende Richtwerte angegeben: 2,0 kg → 104 min, 3,0 kg → 136 min, 3,8 kg → 159 min. Zeige mithilfe von Differenzenquotienten, dass Bratdauer und Masse keinen exakten linearen Zusammenhang haben.',
+ guide:'Zuerst Steigung zwischen den ersten beiden Messpunkten berechnen, dann zwischen den nächsten beiden. Für exakte Linearität müssen die Steigungen gleich sein.',
+ solution:'(136−104)/(3−2)=32 min/kg; (159−136)/(3,8−3)=28,75 min/kg. Da die Steigungen nicht gleich sind, ist der Zusammenhang nicht exakt linear.'
+});
+P('A_141 c','Kühe auf der Weide','c','4.2',aLink(4242),'page',{
+ prompt:'A_141 c — Widerristhöhe h(t)=0,0024t³−0,19t²+5,73t+73 für Alter 1≤t≤24 Monate. Berechne das Alter bei 115 cm. Zeige mit h″, dass der Graph im gesamten Bereich negativ gekrümmt ist. Interpretiere h′(12)≈2,2.',
+ guide:'Gleichung h(t)=115 numerisch auf [1;24] lösen. h″=0,0144t−0,38<0. h′(12) ist die momentane Wachstumsrate in cm/Monat.',
+ solution:'115 cm bei t≈10,502 Monaten. h″(24)=−0,0344 und ist auf [1;24] stets negativ. Bei 12 Monaten wächst das Rind momentan ungefähr 2,2 cm pro Monat.'
+});
+P('A_292 a','Pflanzenwachstum','a','4.2',aLink(4245),'page');
+P('A_117 c','Kontrolle der Geschwindigkeit','c','4.5',aLink(4205),'page');
+P('B_407 c','Sinkende Kugeln','c','4.5',aLink(4039,CLUSTER),'page',{
+ prompt:'B_407 c — Die Sinkgeschwindigkeit einer Kugel ist v(t)=0,25g·(1−e^(−4t)), t≥0, mit g=9,81 m/s². Berechne den in der ersten Sekunde zurückgelegten Weg.',
+ guide:'Die zurückgelegte Strecke ist das Integral der Geschwindigkeit: s=∫₀¹v(t)dt. Exponentialfunktion gliedweise integrieren.',
+ solution:'s=0,25g·[t+e^(−4t)/4]₀¹=g(3+e^(−4))/16≈1,851 m.',
+ expected:9.81*(3+Math.exp(-4))/16
+});
+P('A_222 b','Der Genfer See','b','4.5',aLink(4234),'page');
+P('B_406 c','Kräfte','c','4.5',aLink(4042,CLUSTER),'page',{
+ prompt:'B_406 c — Gegeben v(t)=2t−t²/2 (m/s) auf [0;4]. Begründe v(t)≥0 und skizziere die Beschleunigungsfunktion a(t).',
+ guide:'Faktorisiere v(t)=t(4−t)/2≥0 im Intervall. Für die Beschleunigung ist a(t)=v′(t).',
+ solution:'v(t)=t(4−t)/2, daher nicht negativ auf [0;4]. a(t)=2−t ist eine fallende Gerade von (0|2) bis (4|−2).',
+ graph:{curves:[{label:'a(t)',poly:[-1,2]}],x:[0,4],y:[-3,3]}
+});
+P('A_261 a','Fallschirmsprung','a','4.5',aLink(4066),'page',{
+ prompt:'A_261 a — In den ersten Sekunden gilt für die Fallstrecke s(t)=(g/2)t² mit g=9,81 m/s². Berechne die Geschwindigkeit 1,5 s nach dem Absprung.',
+ guide:'Geschwindigkeit ist Ableitung des Weges: v(t)=s′(t)=gt. Setze t=1,5 s ein.',
+ solution:'v(1,5)=9,81·1,5=14,715 m/s.',
+ expected:14.715
+});
+
 if(Q.length!==50)throw Error('Expected exactly 50 genuinely sourced pool tasks, got '+Q.length);
 if(new Set(Q.map(q=>q.id)).size!==Q.length)throw Error('Duplicate pool tasks');
 window.MATHS_POOL_BANK=Object.freeze(Q);
