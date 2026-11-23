@@ -1787,10 +1787,43 @@ async function main(){
      await cosmeticPage.locator('.handwrite-note').waitFor({timeout:5000});
      assert((await cosmeticPage.locator('.handwrite-note').innerText()).includes('Stift und Papier'),'Real textbook tasks must prompt for paper');
      assert.equal(await cosmeticPage.locator('#sourceAnswer').count(),1,'Textbook tasks must allow an answer');
+     const retainedListScroll=await cosmeticPage.evaluate(()=>{
+       const list=document.querySelector('.source-list');
+       list.scrollTop=Math.min(460,list.scrollHeight-list.clientHeight);
+       const previous=list.scrollTop;
+       const buttons=list.querySelectorAll('.source-task');
+       buttons[Math.min(31,buttons.length-1)].click();
+       return previous;
+     });
+     assert(retainedListScroll>0,'Nested catalog needs a real independent scrollbar');
+     const restoredScroll=await cosmeticPage.locator('.source-list').evaluate(el=>el.scrollTop);
+     assert(Math.abs(restoredScroll-retainedListScroll)<=2,
+       'Selecting a numbered book example must not return catalog to the first entry');
+     assert(await cosmeticPage.evaluate(()=>document.body.classList.contains('source-screen')),'Book workspace must be fixed');
+     assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,'Book page itself must not scroll');
+     await cosmeticPage.locator('[data-action="source:reveal"]').first().click();
+     assert(await cosmeticPage.evaluate(()=>document.body.classList.contains('source-solution-open')),'Solution should switch to expandable reading layout');
+     await cosmeticPage.locator('[data-action="source:next"]').click();
+     assert(!await cosmeticPage.evaluate(()=>document.body.classList.contains('source-solution-open')),'Selecting the next exercise closes solution mode');
+     assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,'Page must be fixed again after next exercise');
+     assert.equal(await cosmeticPage.locator('#nav [data-nav="graphs"]').count(),0,'Graphenlabor removed from MathsVerse');
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-original-390.png'),fullPage:true});
      await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="pool"]').click());
      await cosmeticPage.locator('.source-external').first().waitFor({timeout:5000});
      assert.equal(await cosmeticPage.locator('.source-list .source-task').count(),50,'SRDP bank must contain 50 sourced tasks');
+     await cosmeticPage.locator('[data-action="source:open:pool-a-117-c"]').evaluate(el=>el.click());
+     await cosmeticPage.locator('.source-inline-original').waitFor({timeout:5000});
+     assert((await cosmeticPage.locator('.source-original-text').innerText()).includes('Geschwindigkeitsverlauf'),
+       'Descriptor page must render complete source exercise text directly, not a generic link-only prompt');
+     await cosmeticPage.locator('.source-original-figures img').first().waitFor({state:'visible',timeout:5000});
+     await cosmeticPage.waitForFunction(()=>document.querySelector('.source-original-figures img')?.naturalWidth>0,{timeout:10000});
+     assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,
+       'Descriptor original statement must not re-enable outer page scrolling');
+     const fitted=await cosmeticPage.locator('.source-detail').evaluate(el=>({
+       outer:el.getBoundingClientRect().bottom,
+       inner:el.querySelector('.source-detail-inner').getBoundingClientRect().bottom
+     }));
+     assert(fitted.inner<=fitted.outer+8,'Original task content must be visually fitted into the fixed card: '+JSON.stringify(fitted));
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-50-official-390.png'),fullPage:true});
    }
    await equipped.close();

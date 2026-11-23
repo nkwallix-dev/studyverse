@@ -43,7 +43,7 @@ export const COSMETIC_IMAGES: Readonly<Record<string,string>> = {
 };
 
 const LEGACY_AVATARS: Readonly<Record<string,string>> = {
-  '🧪':'default', '🍕':'avatar_pizza', '👽':'avatar_alien', '🐟':'avatar_frog',
+  '🦊':'maths_avatar_pi', '🦉':'maths_owl', '🧪':'default', '🍕':'avatar_pizza', '👽':'avatar_alien', '🐟':'avatar_frog',
   '🧠':'avatar_brain', '👑':'avatar_crown', '⚗️':'chem_flask', '🤖':'dsai_bot',
   '🐼':'dsai_panda', '🕷️':'dsai_spider', '🐍':'dsai_python', '🐑':'sharp_sheep',
   '✂️':'sharp_scissors', '🐏':'sharp_ram', '🦖':'kenny_avatar'

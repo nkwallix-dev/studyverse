@@ -7,13 +7,33 @@
 'use strict';
 const BOOK=window.MATHS_BOOK_BANK||[];
 const POOL=window.MATHS_POOL_BANK||[];
-const ui={bookId:BOOK[0]?.id,poolId:POOL[0]?.id,mode:null,filter:'',topic:'all',shown:false,submitted:false,correct:null,answer:'',run:null,complete:null};
+const ui={bookId:BOOK[0]?.id,poolId:POOL[0]?.id,mode:null,filter:'',topic:'all',shown:false,submitted:false,correct:null,answer:'',run:null,complete:null,listScroll:{book:0,pool:0}};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const select=(arr)=>arr[Math.floor(Math.random()*arr.length)];
 function shuffle(items){let a=[...items];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 const key=q=>q.id.replace(/[^a-z0-9-]/gi,'_');
 const solvedKey=(q,mode)=>mode==='book'?'n'+key(q):'q'+key(q);
 function plot(graph){
+ if(graph?.kind==='book-velocity'){
+  const ticks=[0,1,2,3,4,5,6,7,8].map(n=>'<text x="'+(50+68*n)+'" y="225" font-size="12" text-anchor="middle" fill="#e6f6df">'+n+'</text>').join('');
+  return '<figure class="source-graph book-original-graph"><svg viewBox="0 0 660 270" role="img" aria-label="Original-Geschwindigkeits-Zeit-Grafik aus Buchaufgabe 1.13">'+
+  '<path d="M50 18V209H635" fill="none" stroke="#d3edc7" stroke-width="2"/><path d="M50 209L254 97L390 97L594 23" stroke="#a4edb4" stroke-width="5" fill="none" stroke-linecap="round"/>'+
+  '<text x="15" y="13" font-size="13" fill="#e6f6df">Geschwindigkeit in m/s</text><text x="540" y="250" font-size="13" fill="#e6f6df">Zeit in s</text>'+
+  '<text x="28" y="101" font-size="12" fill="#e6f6df">6</text><text x="21" y="25" font-size="12" fill="#e6f6df">10</text>'+ticks+
+  '</svg><figcaption>Die Geschwindigkeit bleibt von t=3 bis t=5 konstant; die Beschleunigung dort ist null.</figcaption></figure>';
+ }
+ if(graph?.kind==='book-distance-time'){
+  const nums=[0,1,2,3,4,5,6,7,8].map(x=>'<text x="'+(48+68*x)+'" y="222" font-size="12" text-anchor="middle" fill="#e6f6df">'+x+'</text>').join('');
+  return '<figure class="source-graph book-original-graph"><svg viewBox="0 0 660 270" role="img" aria-label="Entfernungs-Zeit-Diagramm aus Buchbeispiel 1.12, nach der Originalabbildung gezeichnet">'+
+  '<path d="M48 18V205H639" stroke="#d3edc7" stroke-width="2" fill="none"/>'+
+  '<path d="M48 35H640M48 68H640M48 101H640M48 135H640M48 168H640" stroke="#b9d6b4" stroke-opacity=".16" fill="none"/>'+
+  '<path d="M48 205L252 35L388 35L592 205" fill="none" stroke="#a4edb4" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>'+
+  '<path d="M252 35V205M388 35V205" stroke="#e1f5db" stroke-opacity=".45" stroke-dasharray="6 5"/>'+
+  '<text x="22" y="38" fill="#e6f6df" font-size="13">50</text><text x="22" y="172" fill="#e6f6df" font-size="13">10</text>'+
+  '<text x="11" y="14" fill="#e6f6df" font-size="13">Entfernung in km</text><text x="513" y="253" fill="#e6f6df" font-size="13">Zeit in h</text>'+
+  '<text x="143" y="133" font-size="21" font-weight="bold" fill="#eff4ab">①</text><text x="317" y="25" font-size="21" font-weight="bold" fill="#eff4ab">②</text><text x="485" y="132" font-size="21" font-weight="bold" fill="#eff4ab">③</text>'+
+  nums+'</svg><figcaption>Entfernungs-Zeit-Diagramm aus dem Buch (nach Screenshot 02 rekonstruiert, keine Trapezflächen)</figcaption></figure>';
+ }
  if(!graph||!Array.isArray(graph.curves)||!graph.curves.length)return '';
  const W=640,H=280,xRange=graph.x||[-5,5],yRange=graph.y||[-5,5];
  const x0=Number(xRange[0]),x1=Number(xRange[1]),y0=Number(yRange[0]),y1=Number(yRange[1]);
@@ -55,30 +75,57 @@ function plot(graph){
  return '<figure class="source-graph"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Passender mathematischer Funktionsgraph zum Originalbuchbeispiel"><g>'+grid+fill+ax+paths+'</g></svg><figcaption>Rechnerisch rekonstruierter Funktionsgraph · dieselben Koordinaten wie in der Angabe</figcaption></figure>';
 }
 const cards=(mode)=>mode==='book'?BOOK:POOL;
+function officialRecord(q){
+ if(q.kind!=='page')return null;
+ const n=(q.source||'').match(/aufgabe-(\d+)/);
+ return n?window.MATHS_INLINE_ORIGINAL?.[n[1]]||null:null;
+}
+function officialId(q){return (q.source||'').match(/aufgabe-(\d+)/)?.[1]||''}
+function officialFigures(q){
+ const figs=window.MATHS_OFFICIAL_FIGURES?.[officialId(q)]||[];
+ if(!figs.length)return '';
+ return '<div class="source-original-figures">'+figs.map((s,i)=>{
+  const url=/^https:\/\//.test(s)?s:s.replace(/^/,'');
+  return '<img src="'+esc(url)+'" alt="Originalgrafik '+(i+1)+' zur Aufgabe '+esc(q.number)+'" loading="eager" decoding="async">';
+ }).join('')+'</div>';
+}
+function officialStatement(q){
+ const data=officialRecord(q);
+ if(data){
+  const original=data.text.replace(/\\\(/g,'').replace(/\\\)/g,'')
+   .replace(/\*\*/g,'').replace(/^####\s*/gm,'')
+   .replace(/xml version="[^"]*" encoding="[^"]*" standalone="[^"]*"\?/g,'')
+   .replace(/Schon den nächsten Urlaub geplant\?[\s\S]*?(?=\n(?:\*\*)?\d+\.\s*Teilaufgabe|$)/gi,'')
+   .replace(/\n{3,}/g,'\n\n').trim();
+  return '<div class="source-inline-original"><div class="source-inline-heading">Originalaufgabe · BHS Angewandte Mathematik</div><div class="source-original-body"><div class="source-original-text">'+esc(original)+'</div>'+officialFigures(q)+'</div></div>';
+ }
+ const src=esc(encodeURI(q.source))+'#page=1&view=Fit&toolbar=0&navpanes=0&scrollbar=0';
+ return '<div class="source-external source-pdf-sheet"><b>Vollständiges Original-Aufgabenblatt</b><iframe loading="eager" scrolling="no" tabindex="-1" title="Original-SRDP-Aufgabe '+esc(q.number)+'" src="'+src+'" referrerpolicy="no-referrer" aria-label="Original-PDF mit Aufgabenstellung und Grafik"></iframe></div>';
+}
 function details(q,mode){
  if(!q)return '<div class="source-empty">Kein Beispiel gefunden.</div>';
  const solved=!!window.__mathSourceState?.solved?.[solvedKey(q,mode)];
  const isPool=mode==='pool',needsExternal=isPool&&q.expected==null;
- const ref=isPool?(q.kind==='pdf'?'Offizielles PDF mit Originalgrafiken':'Originalaufgabe mit Grafiken'):'Aus der hochgeladenen Schulbuch-ZIP';
- let remote='';
- if(isPool){
-  const link='<a class="btn secondary source-open-link" href="'+esc(q.source)+'" target="_blank" rel="noopener noreferrer">Originalaufgabe öffnen ↗</a>';
-  remote='<div class="source-external"><b>'+esc(ref)+'</b><p>Die Angabe stammt aus der amtlichen Aufgabensammlung. Diagramme und Tabellen bleiben im Originaldokument, damit nichts verfälscht wird.</p>'+link+
-   (q.kind==='pdf'?'<iframe loading="lazy" title="Originalaufgabe '+esc(q.number)+'" src="'+esc(encodeURI(q.source))+'#page=1&toolbar=0&navpanes=0" referrerpolicy="no-referrer" aria-label="Original-PDF der Bundesministerium-Aufgabe"></iframe>':'')+'</div>';
- }
  const badge=solved?'<span class="source-done">✓ Bereits bearbeitet</span>':'<span class="pill">✎ Noch offen</span>';
- return '<div class="source-detail"><div class="source-meta"><span class="eyebrow">'+(isPool?'SRDP · '+esc(q.descriptor):'BUCHBEISPIEL · '+esc(q.category))+'</span>'+badge+'</div><h2>'+esc(isPool?q.title+' · '+q.part:q.number)+'</h2><p class="source-number">'+esc(isPool?q.number:q.source)+'</p><div class="source-question">'+esc(q.prompt)+'</div>'+plot(q.graph)+remote+
- '<div class="handwrite-note" role="note">✏️ <strong>Stift und Papier:</strong> Rechne die Originalaufgabe selbst. Wenn du fertig bist, trage dein Ergebnis ein. Falls du nicht weiterkommst: „Lösung anzeigen“.</div>'+
+ const statement=isPool?officialStatement(q):'<div class="source-question">'+esc(q.prompt)+'</div>'+plot(q.graph);
+ const sourceUrl=isPool?'<a class="source-original-link" href="'+esc(q.source)+'" target="_blank" rel="noopener noreferrer">Originalquelle ↗</a>':'';
+ return '<div class="source-detail" data-source-id="'+esc(q.id)+'"><div class="source-detail-inner">'+
+ '<div class="source-meta"><span class="eyebrow">'+(isPool?'SRDP · '+esc(q.descriptor):'BUCHBEISPIEL · '+esc(q.category))+'</span>'+badge+'</div>'+
+ '<h2>'+esc(isPool?q.title+' · '+q.part:q.number)+'</h2>'+
+ '<p class="source-number">'+esc(isPool?q.number:q.source)+' '+sourceUrl+'</p>'+
+ statement+
+ '<div class="handwrite-note" role="note">✏️ <strong>Stift und Papier:</strong> Löse zuerst die Aufgabe selbst. Trage danach dein Ergebnis ein.</div>'+
  (!needsExternal?'<div class="answer-field"><input id="sourceAnswer" autocomplete="off" placeholder="'+(q.expected==null?'Dein Rechenweg oder Ergebnis …':'Deine Zahl, z. B. 4,5')+'" value="'+esc(ui.answer)+'" aria-label="Deine Antwort"><button class="btn primary" data-action="source:submit">Überprüfen</button></div>':
  '<div class="answer-field"><textarea id="sourceAnswer" rows="2" placeholder="Deine Rechnung / Interpretation …" aria-label="Deine Rechnung">'+esc(ui.answer)+'</textarea></div>')+
  (ui.submitted&&ui.correct!==null?'<p class="answer-feedback '+(ui.correct?'good':'bad')+'">'+(ui.correct?'✓ Richtig!':'Noch nicht korrekt. Schau dir den Rechenweg an.')+'</p>':'')+
  '<div class="source-actions"><button class="btn secondary" data-action="source:reveal">'+(ui.shown?'Lösung wieder ausblenden':'Lösung anzeigen')+'</button><button class="btn secondary" data-action="source:next">Nächstes Beispiel →</button></div>'+
  (ui.shown?'<section class="source-solution"><h3>Schritt-für-Schritt-Erklärung</h3><p>'+esc(q.guide||q.steps)+'</p><div class="formula">'+esc(q.solution)+'</div>'+
  (isPool?'<p class="source-credit">'+esc(q.credit||'Datenquelle: Bundesministerium für Bildung (CC BY 4.0)')+'</p><a target="_blank" rel="noopener noreferrer" href="'+esc(q.source)+'">Vollständige offizielle Lösungserwartung öffnen ↗</a>':'')+
- '<div class="source-actions"><button class="btn primary" data-action="source:self-right">✓ Ich hatte es richtig</button><button class="btn secondary" data-action="source:self-wrong">✕ Noch üben</button></div></section>':'')+
- (needsExternal?'<p class="source-credit">Bei dieser Aufgabe können Antworten eine Zeichnung, Formel oder Begründung sein. Ohne eindeutigen Zahlenwert erfolgt eine transparente Selbstkontrolle statt erfundener automatischer Bewertung.</p>':'')+
- '</div>';
+ '<div class="source-actions"><button class="btn secondary" data-action="source:reveal">Okay, verstanden · Lösung schließen</button><button class="btn primary" data-action="source:self-right">✓ Ich hatte es richtig</button><button class="btn secondary" data-action="source:self-wrong">✕ Noch üben</button></div></section>':'')+
+ (needsExternal?'<p class="source-credit">Bei Zeichnungen und Begründungen: Vergleiche die Lösung und bewerte dich selbst.</p>':'')+
+ '</div></div>';
 }
+
 function browser(mode,state){
  if(ui.mode!==mode){ui.mode=mode;ui.filter='';ui.topic='all';reset()}
  window.__mathSourceState=state;
@@ -90,9 +137,23 @@ function browser(mode,state){
  return '<div class="eyebrow">'+(mode==='book'?'ECHTE SCHULBUCH-AUFGABEN':'ORIGINAL-SRDP · 4. DESKRIPTOR')+'</div><h1>'+(mode==='book'?'Buchbeispiele':'4. Deskriptor')+'</h1><p>'+(mode==='book'?'Die nummerierten Beispiele aus deinem Schulbuch – an Papier rechnen, Lösung bei Bedarf ausklappen.':'50 echte veröffentlichte SRDP-Teilaufgaben mit offiziellen PDFs/Quellen und Originalgrafiken, statt erfundener Ersatzfragen.')+'</p>'+
  '<div class="source-count"><strong>'+done+'/'+bank.length+'</strong> bearbeitet · '+(mode==='book'?'Buchnummern aus der ZIP':'Datenquelle: Bundesministerium für Bildung · CC BY 4.0')+'</div>'+
  '<div class="source-filters"><label>Suche <input id="sourceSearch" placeholder="z. B. '+(mode==='book'?'1.66 a':'B_405')+'" value="'+esc(ui.filter)+'"></label><label>Thema <select id="sourceTopic"><option value="all">Alle Bereiche</option>'+categories.map(c=>'<option value="'+esc(c)+'" '+(ui.topic===c?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select></label></div>'+
- '<div class="source-workspace"><aside class="source-list" aria-label="Aufgabenliste">'+rows.map(x=>'<button class="source-task '+(x.id===active?.id?'active':'')+'" data-action="source:open:'+esc(x.id)+'"><span>'+esc(x.number)+'</span><small>'+esc(x.title||x.category)+'</small>'+(state.solved[solvedKey(x,mode)]?' ✓':'')+'</button>').join('')+'</aside>'+details(active,mode)+'</div>';
+ '<div class="source-workspace" data-mode="'+mode+'"><aside class="source-list" aria-label="Aufgabenliste">'+rows.map(x=>'<button class="source-task '+(x.id===active?.id?'active':'')+'" data-action="source:open:'+esc(x.id)+'"><span>'+esc(x.number)+'</span><small>'+esc(x.title||x.category)+'</small>'+(state.solved[solvedKey(x,mode)]?' ✓':'')+'</button>').join('')+'</aside>'+details(active,mode)+'</div>';
 }
 function reset(){ui.shown=false;ui.submitted=false;ui.correct=null;ui.answer=''}
+function captureList(mode,scroll){if(mode==='book'||mode==='pool')ui.listScroll[mode]=Math.max(0,scroll||0)}
+function restoreList(mode,el){if(el&&ui.listScroll[mode]!=null)el.scrollTop=ui.listScroll[mode]}
+function isSolutionOpen(){return !!ui.shown}
+function fitDetail(root){
+ const detail=root?.querySelector('.source-detail');
+ if(!detail||!document.body.classList.contains('source-screen')||document.body.classList.contains('source-solution-open'))return;
+ const inner=detail.querySelector('.source-detail-inner');if(!inner)return;
+ inner.style.zoom='1';
+ inner.style.width='100%';
+ const available=Math.max(120,detail.clientHeight-18);
+ const natural=Math.max(1,inner.scrollHeight);
+ const factor=Math.min(1,available/natural);
+ if(factor<.995){const z=Math.max(.42,factor);inner.style.width=(100/z)+'%';inner.style.zoom=String(z)}
+}
 function current(mode){return cards(mode).find(x=>x.id===(mode==='book'?ui.bookId:ui.poolId))}
 function next(mode,state){let list=cards(mode),idx=list.findIndex(x=>x.id===current(mode)?.id);
  if(idx<0)return;let fresh=list.find((x,i)=>i>idx&&!state.solved[solvedKey(x,mode)])||list.find(x=>!state.solved[solvedKey(x,mode)])||list[(idx+1)%list.length];
@@ -178,5 +239,5 @@ function refreshFilters(){
  const q=document.getElementById('sourceSearch'),t=document.getElementById('sourceTopic');
  ui.filter=q?.value||'';ui.topic=t?.value||'all';reset();
 }
-window.MATHS_SOURCE_TRAINER={BOOK,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot};
+window.MATHS_SOURCE_TRAINER={BOOK,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot,captureList,restoreList,isSolutionOpen,fitDetail};
 })();

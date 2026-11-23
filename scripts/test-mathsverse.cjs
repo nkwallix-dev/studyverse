@@ -88,6 +88,9 @@ const approx=(actual,expected,id)=>assert(Math.abs(actual-expected)<1e-8,id+' va
 for(const [number,page] of [['1.1a',1],['1.11a',2],['1.18a',3],['1.21',4],['1.31',6],['1.55a',7],['1.57c',7],['1.67c',8],['1.73b',9],['1.82d',11],['1.98d',13],['2.24a',14],['2.36a',15]]){
  assert.equal(original.get(number)?.originalScreenshot,page,number+' must cite the actual screenshot in the provided ZIP');
 }
+assert(original.get('1.13').prompt.includes('Kreuze die zutreffende Aussage')&&original.get('1.13').solution.includes('C ist richtig'),'Real multiple-choice source 1.13 must not be reduced to a synthetic numeric question');
+assert(original.get('1.12a').graph.kind==='book-distance-time'&&original.get('1.12b').graph.kind==='book-distance-time'&&original.get('1.12d').graph.kind==='book-distance-time','1.12 variants use the real distance-time diagram instead of a made-up graph');
+assert(sourceJs.includes('book-original-graph'),'Source graph must be an accurately labelled diagram');
 assert(original.get('1.18a').prompt.includes('110 GE'),'Sessel variable costs are part of original 1.18');
 assert(original.get('1.21').prompt.includes('W(−1|0,5)'),'Wendepunkt must use original ordinate 0.5');
 assert(original.get('1.55a').prompt.includes('4x³'),'1.55a contains a cubic power');
@@ -117,6 +120,30 @@ for(const comp of ['4.2','4.4','4.5','4.8']){
  const hits=pool.filter(q=>q.descriptor.split(',').map(x=>x.trim()).includes(comp));
  assert(hits.length>=5,'Official pool must cover highlighted descriptor '+comp+' (got '+hits.length+')');
 }
+
+
+const fixedCss=read('public/maths/sa-01/source-trainer.css');
+const inlineJs=read('public/maths/sa-01/official-inline.js');
+const assetMap=read('src/app/cosmetic-assets.ts');
+const legacyBridge=read('public/shared/verse-cosmetics.js');
+const foxSvg=read('public/cosmetics/avatars/maths_pi_fox.svg');
+const owlSvg=read('public/cosmetics/avatars/maths_euler_owl.svg');
+vm.runInNewContext(inlineJs,sandbox);
+assert(!mhtml.includes('data-nav="graphs"')&&!mjs.includes('Graphenlabor'),'Unneeded graph lab removed from all visible MathsVerse destinations');
+assert(mjs.includes('SOURCE.captureList')&&mjs.includes('SOURCE.restoreList'),'Catalog position must survive changing selected tasks');
+assert(mjs.includes("source-screen")&&mjs.includes("source-solution-open"),'Page scrolling enabled only for a revealed solution');
+assert(fixedCss.includes('height:100dvh;max-height:100dvh;overflow:hidden'),'Catalog exercise pages must fit in viewport');
+assert(fixedCss.includes('source-list')&&fixedCss.includes('overflow-y:auto'),'Only the list scrolls in normal study mode');
+assert(sourceJs.includes('officialStatement(q)')&&sourceJs.includes('source-inline-original'),'SRDP should show complete sourced prompt inline');
+assert(sourceJs.includes('scrolling="no"')&&sourceJs.includes('view=Fit'),'Official PDF must fit without a nested scroll viewer');
+assert(mhtml.includes('official-inline.js'),'Full official inline material should load before source trainer');
+assert.equal(Object.keys(sandbox.window.MATHS_INLINE_ORIGINAL).length,21,'All source-page-based exams must be imported');
+assert(sandbox.window.MATHS_OFFICIAL_FIGURES['4205'].some(x=>x.endsWith('.svg')),'Real original graphs must be available as SVG');
+assert(assetMap.includes("'🦊':'maths_avatar_pi'")&&assetMap.includes("'🦉':'maths_owl'"),'Legacy equipped animal emojis must resolve to new art');
+assert(legacyBridge.includes("'🦊': 'maths_avatar_pi'")&&legacyBridge.includes("'🦉': 'maths_owl'"),'Standalone worlds must show same avatar art');
+assert(app.includes("item.id==='maths_avatar_pi'||item.id==='maths_owl'"),'MathsVerse equipped items must store ID, not emoji');
+assert(!/circle cx="256" cy="256" r="250" fill=/.test(foxSvg),'Fox image may not contain a background circle');
+assert(!/circle cx="256" cy="256" r="250" fill=/.test(owlSvg),'Owl image may not contain a background circle');
 
 console.log('PASS: Source-screenshot cross-checks, numeric golden values, and original 10+10 MathsVerse training.');
 
