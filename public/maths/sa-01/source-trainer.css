@@ -34,7 +34,7 @@
 .source-original-figures img{display:block;max-width:100%;width:100%;height:auto;max-height:none;object-fit:contain;background:white;border-radius:6px}
 .source-external{min-width:0;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px 12px}
 .source-external b{display:block;color:var(--accent);font-size:12px;margin:0 0 7px}
-.source-pdf-sheet{display:flex;flex-direction:column;gap:6px;margin:0}
+.source-pdf-sheet{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;border:0;background:transparent}
 .source-pdf-sheet iframe{display:block;flex:0 0 auto;width:100%;min-width:0;height:max(950px,130dvh);border:0;border-radius:7px;background:#f9fafb;pointer-events:auto}
 .source-pdf-help{font-size:11px;color:var(--muted);margin:3px 0 0}
 .source-answer-dock{display:flex;flex-direction:column;flex:0 0 auto;gap:8px;padding:11px 15px 12px;min-width:0;max-height:48dvh;overflow-y:auto;overscroll-behavior:contain;background:color-mix(in srgb,var(--card2) 87%,var(--card));border-top:1px solid var(--border);box-shadow:0 -5px 15px #091b1215}
