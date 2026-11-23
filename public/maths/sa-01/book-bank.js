@@ -122,8 +122,8 @@ B('1.67a',F,'Berechne die Fläche zwischen f(x)=x²−3x−2 und g(x)=3x−1.','
  {curves:[{poly:[1,-3,-2],label:'f'},{poly:[3,-1],label:'g'}],area:{a:3-Math.sqrt(10),b:3+Math.sqrt(10),between:true},x:[-.5,7],y:[-8,31]});
 B('1.67b',F,'Berechne die Fläche zwischen f(x)=x²+5x−1 und g(x)=2x+3.','A=125/6≈20,8333 Flächeneinheiten.',
  'Schnittpunkte über f=g: x=−4 und x=1. g liegt dazwischen über f. ∫₋₄¹(g−f)dx=125/6.',125/6);
-B('1.67c',F,'Berechne die Fläche zwischen f(x)=−x²−4x+2 und g(x)=x²−x+3.','A=1/24≈0,04167 Flächeneinheiten.',
- 'Schnittpunkte von f=g: x=−1 und x=−0,5. Die Differenz f−g=−2x²−3x−1 ist dazwischen positiv.',1/24);
+B('1.67c',F,'Berechne die Fläche zwischen f(x)=−x²−4x+2 und g(x)=x²−x+3.','A=17√17/24≈2,9205 Flächeneinheiten.',
+ 'Schnittpunkte von f=g: x=(−5±√17)/4. Die Differenz f−g=−2x²−5x−1 ist dazwischen positiv. Integrationsgrenzen sind die beiden Schnittpunkte.',17*Math.sqrt(17)/24);
 B('1.70a',F,'Berechne den Flächeninhalt zwischen f(x)=5/(6x−3) und der x-Achse auf [1;6].','A=(5/6)ln(11)≈1,9982 Flächeneinheiten.',
  'Stammfunktion F=(5/6)ln|6x−3|. Das Intervall ist positiv, daher A=F(6)−F(1).',(5/6)*Math.log(11));
 B('1.71a',K,'Von f ist f′(x)=x²−4x bekannt. Der Graph schneidet die y-Achse bei 4. Bestimme f(x).','f(x)=x³/3−2x²+4.',

@@ -7,7 +7,7 @@
 'use strict';
 const BOOK=window.MATHS_BOOK_BANK||[];
 const POOL=window.MATHS_POOL_BANK||[];
-const ui={bookId:BOOK[0]?.id,poolId:POOL[0]?.id,filter:'',topic:'all',shown:false,submitted:false,correct:null,answer:'',run:null,complete:null};
+const ui={bookId:BOOK[0]?.id,poolId:POOL[0]?.id,mode:null,filter:'',topic:'all',shown:false,submitted:false,correct:null,answer:'',run:null,complete:null};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const select=(arr)=>arr[Math.floor(Math.random()*arr.length)];
 function shuffle(items){let a=[...items];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -57,7 +57,7 @@ const cards=(mode)=>mode==='book'?BOOK:POOL;
 function details(q,mode){
  if(!q)return '<div class="source-empty">Kein Beispiel gefunden.</div>';
  const solved=!!window.__mathSourceState?.solved?.[solvedKey(q,mode)];
- const isPool=mode==='pool',needsExternal=isPool&&!q.expected;
+ const isPool=mode==='pool',needsExternal=isPool&&q.expected==null;
  const ref=isPool?(q.kind==='pdf'?'Offizielles PDF mit Originalgrafiken':'Originalaufgabe mit Grafiken'):'Aus der hochgeladenen Schulbuch-ZIP';
  let remote='';
  if(isPool){
@@ -79,6 +79,7 @@ function details(q,mode){
  '</div>';
 }
 function browser(mode,state){
+ if(ui.mode!==mode){ui.mode=mode;ui.filter='';ui.topic='all';reset()}
  window.__mathSourceState=state;
  const bank=cards(mode),value=mode==='book'?ui.bookId:ui.poolId;
  let categories=[...new Set(bank.map(x=>x.category))];
