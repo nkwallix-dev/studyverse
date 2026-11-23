@@ -148,7 +148,7 @@ B('1.98a',F,'Berechne ∫₁⁴(x²+4x−1)dx.','Bestimmtes Integral =48.',
  'Stammfunktion F(x)=x³/3+2x²−x. Es gilt F(4)=148/3 und F(1)=4/3; Differenz =144/3=48.',48);
 B('1.98b',F,'Berechne ∫₀¹ e^(2x) dx.','(e²−1)/2≈3,1945.',
  'Eine Stammfunktion ist ½e^(2x). Bei 1 und 0 einsetzen.',(Math.exp(2)-1)/2);
-B('1.98c',F,'Berechne ∫₂⁵ ³√(x²) dx.','(3/5)(5^(5/3)−2^(5/3))≈6,875.',
+B('1.98c',F,'Berechne ∫₂⁵ ³√(x²) dx.','(3/5)(5^(5/3)−2^(5/3))≈6,867.',
  'Schreibe ³√(x²)=x^(2/3) und verwende die Potenzregel für Stammfunktionen: 3x^(5/3)/5.',(3/5)*(Math.pow(5,5/3)-Math.pow(2,5/3)));
 B('1.98d',F,'Berechne ∫₀^(π/2) 3sin(x)dx.','Ergebnis =3.',
  'Stammfunktion −3cos x. Obere minus untere Grenze: −3cos(π/2)+3cos 0=3.',3);
@@ -596,8 +596,8 @@ B('1.100c',V,'Erkläre die Bedeutung des Integrals ∫₀²⁵a(t)dt bei der Dro
  'Das Integral ist die Geschwindigkeitsänderung in 25 s, hier 18,75 m/s.',
  'Da a=v′ gilt ∫₀²⁵a(t)dt=v(25)−v(0)=21,75−3.');
 B('1.100d',V,'Die Drohne startet mit v(0)=3 m/s und a(t)=0,0036t²−0,18t+2,25. Wann hat sie ab Messbeginn 200 m zurückgelegt?',
- 'Löse 0,0003t⁴−0,03t³+1,125t²+3t=200 im zulässigen Intervall 0≤t≤25.',
- 'Aus a erhält man v(t)=0,0012t³−0,09t²+2,25t+3. Nochmals integrieren und s(0)=0 setzen. Danach s(t)=200 numerisch lösen.');
+ 'Nach etwa t≈14,410 s hat die Drohne 200 m zurückgelegt.',
+ 'Aus a erhält man v(t)=0,0012t³−0,09t²+2,25t+3. Der Weg ist s(t)=0,0003t⁴−0,03t³+1,125t²+3t. Löse s(t)=200 numerisch auf [0;25].',14.40984457896);
 
 if(new Set(R.map(x=>x.id)).size!==R.length)throw Error('Duplicate book IDs');
 window.MATHS_BOOK_BANK=Object.freeze(R);
