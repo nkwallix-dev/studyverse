@@ -134,8 +134,8 @@ console.log('Full-scene banner previews, prestige teachers, hidden owned prices 
 // Dashboard and learning-world ordering regression checks.
 assert(t.includes("get activeSubjects(){return this.orderedSubjects.filter(s=>this.subjectHasTrainer(s.id));}"),
  'Dashboard must derive playable worlds dynamically from registered trainers');
-assert(t.includes("const pinned:Record<string,number>={nawi:0,dsai:1,pos:2};"),
- 'Pinned world priority: Chemverse, Dsaiverse, and next-up C#');
+assert(t.includes("const pinned:Record<string,number>={nawi:0,dsai:1,pos:2,mat:3};"),
+ 'Pinned world priority: Chemverse, Dsaiverse, Sharpverse, then MathsVerse');
 assert(t.includes('Number(this.subjectHasTrainer(b.id))-Number(this.subjectHasTrainer(a.id))'),
  'Playable worlds must appear ahead of all locked worlds');
 assert(h.includes('*ngFor="let s of activeSubjects"'),
