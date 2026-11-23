@@ -64,7 +64,20 @@ function browserPath() {
     await switcher.getByRole('button', { name: /Test · Kenny-Rig/ }).click();
     const rig = page.locator('app-kenny-rig-preview');
     await rig.waitFor({ state: 'visible' });
-    await page.waitForFunction(() => document.querySelectorAll('app-kenny-rig-preview svg image').length >= 18, null, {timeout: 20000});
+    await page.waitForTimeout(1700);
+    const debug = await page.evaluate(async () => {
+      const rig = document.querySelector('app-kenny-rig-preview');
+      const r = await fetch(new URL('kenny/rig/v1/manifest.json', document.baseURI));
+      return {
+        base: document.baseURI, imageCount: rig?.querySelectorAll('svg image').length,
+        error: rig?.querySelector('.rig-error')?.textContent,
+        src: [...(rig?.querySelectorAll('svg image') || [])].slice(0, 3).map(i => i.getAttribute('href')),
+        manifestStatus: r.status, manifestTypes: r.ok ? (await r.json()).parts?.length : null,
+      };
+    });
+    console.log('RIG_DIAGNOSTICS', JSON.stringify(debug), 'HTTP_ERRORS', JSON.stringify(missingRigImages), 'PAGE_ERRORS', JSON.stringify(errors));
+    await page.screenshot({path:path.join(shots,'kenny-rig-initial-state.png'),fullPage:true});
+    await page.waitForFunction(() => document.querySelectorAll('app-kenny-rig-preview svg image').length >= 18, null, {timeout: 12000});
     assert.equal(await rig.locator('svg image').count(),18,'Expected 18 independent image layers');
     assert.equal(await rig.locator('svg image[href*="/parts/blue/"]').count(),18,'Should begin with blue PNG parts');
     assert.equal(missingRigImages.length,0,'Missing rig assets: '+JSON.stringify(missingRigImages));
