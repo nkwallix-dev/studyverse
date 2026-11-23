@@ -1,282 +1,69 @@
 <section class="kenny-rig-test" aria-label="Kenny Master-Rig Test">
   <div class="preview-stage">
     <div class="bar">
-      <span class="eyebrow">🦖 Kenny · Master-Rig v0.1</span><span>10 FPS · 64 Frames</span>
+      <span class="eyebrow">🦖 Kenny · Freigegebenes Master-Design</span>
+      <span>10 FPS · 64 Frames</span>
     </div>
     <svg
-      viewBox="0 0 740 620"
+      viewBox="0 0 1205 1305"
       role="img"
-      aria-label="Animierter, gelenkbasierter blauer Cartoon-Raptor Kenny mit beweglichem Kopf, Kiefer, Armen, Beinen und Schwanz"
+      aria-label="Originalgetreuer blauer Kenny aus transparenten, separat beweglichen PNG-Körperteilen"
     >
-      <defs>
-        <linearGradient id="kennyRigBody" x1="0" x2="1" y1=".15" y2=".85">
-          <stop offset="0" [attr.stop-color]="palette.lit" />
-          <stop offset=".57" [attr.stop-color]="palette.body" />
-          <stop offset="1" [attr.stop-color]="palette.shadow" />
-        </linearGradient>
-        <linearGradient id="kennyRigBelly" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0" [attr.stop-color]="palette.belly" />
-          <stop offset="1" [attr.stop-color]="palette.bellyShadow" />
-        </linearGradient>
-        <linearGradient id="kennyRigEye" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0" stop-color="#ffea49" />
-          <stop offset="1" stop-color="#ff9900" />
-        </linearGradient>
-      </defs>
-      <!-- The reference canvas and ground line are fixed: animation never changes the hitbox. -->
-      <ellipse cx="350" cy="578" rx="214" ry="18" fill="#000" opacity=".28" />
-      <!-- Tail bone: independent root and distal bend -->
-      <g id="kenny-bone-tail-base" [attr.transform]="tailTransform">
-        <path
-          d="M269 351 Q190 336 133 306 Q79 278 30 294 Q116 311 163 374 Q220 426 292 413Z"
-          fill="url(#kennyRigBody)"
-          stroke="#08101d"
-          stroke-width="6"
-          stroke-linejoin="round"
-        />
-        <path
-          d="M34 297 Q94 317 152 373 Q224 431 289 406 Q209 392 166 355 Q91 290 34 297Z"
-          fill="url(#kennyRigBelly)"
-          opacity=".9"
-        />
-        <path
-          d="M102 317 l26 16 -10 -26z M152 343 l23 21 -8 -31z M205 362 l25 24 -4 -33z"
-          [attr.fill]="palette.stripes"
-        />
-        <g id="kenny-bone-tail-tip" [attr.transform]="tailTipTransform">
-          <path
-            d="M114 310 Q71 285 30 294 Q81 297 115 327 Z"
-            [attr.fill]="palette.lit"
-            opacity=".2"
-          />
-        </g>
-      </g>
-      <!-- Back leg (separate joint) -->
-      <g id="kenny-bone-far-leg" [attr.transform]="farLegTransform">
-        <path
-          d="M432 402 Q489 419 485 453 Q478 484 468 509 L488 545 L467 559 L432 538 Q405 508 416 469 Q395 439 432 402Z"
-          fill="url(#kennyRigBody)"
-          stroke="#08101d"
-          stroke-width="6"
-        />
-        <g id="kenny-bone-far-foot">
-          <path
-            d="M444 533 Q463 527 484 536 Q506 541 537 557 Q546 574 525 578 L443 578 Q428 561 444 533Z"
-            [attr.fill]="palette.body"
-            stroke="#08101d"
-            stroke-width="6"
-          />
-          <path
-            d="M478 555 q16 0 19 23 l-24 0 q-8 -13 5 -23z M510 557 q16 0 18 20 l-25 0 q-4 -15 7 -20z M446 553 q16 -4 19 24 l-24 0 q-8 -15 5 -24z"
-            [attr.fill]="palette.nail"
-            stroke="#12131a"
-            stroke-width="4"
-          />
-        </g>
-      </g>
-      <!-- Torso base and light belly, not atlas-cropped -->
-      <g id="kenny-bone-torso">
-        <path
-          d="M253 371 Q277 296 362 286 Q460 275 505 342 Q525 395 469 463 Q428 505 331 479 Q271 470 253 414Z"
-          fill="url(#kennyRigBody)"
-          stroke="#07111d"
-          stroke-width="7"
-        />
-        <path
-          d="M385 302 Q462 302 477 376 Q493 431 441 462 Q398 490 345 460 Q374 436 372 402 Q379 345 385 302Z"
-          fill="url(#kennyRigBelly)"
-          opacity=".98"
-        />
-        <path
-          d="M275 342 q45 3 42 29 l-32 -9z M304 318 q43 3 43 36 l-31 -13z M350 297 q31 8 30 31 l-25 -11z"
-          [attr.fill]="palette.stripes"
-          opacity=".88"
-        />
-        <path
-          d="M280 406 q28 -6 43 27 l-41 -12z M322 449 q31 -14 52 14 l-41 -3z"
-          [attr.fill]="palette.stripes"
-          opacity=".77"
-        />
-      </g>
-      <!-- Neck attached to torso; head rotates around the upper neck pivot -->
-      <path
-        d="M398 349 Q397 290 396 251 L422 176 Q442 175 465 212 Q465 272 472 332 L455 380 L403 377Z"
-        fill="url(#kennyRigBody)"
-        stroke="#09101d"
-        stroke-width="6"
+      <ellipse cx="639" cy="1223" rx="356" ry="24" fill="#02040a" opacity=".3" />
+      <image
+        *ngIf="!isReady"
+        [attr.href]="fallback"
+        x="0"
+        y="0"
+        width="1205"
+        height="1305"
+        preserveAspectRatio="none"
       />
-      <path
-        d="M439 233 Q459 257 459 319 L450 371 L416 367 Q423 308 420 266Z"
-        fill="url(#kennyRigBelly)"
-      />
-      <path d="M404 282 l23 13 -6 -25z M400 323 l22 18 -1 -31z" [attr.fill]="palette.stripes" />
-      <!-- Arms are separate bones, with three individual hooked fingers on each hand. -->
-      <g id="kenny-bone-far-arm" [attr.transform]="farArmTransform">
-        <path
-          d="M459 336 Q481 325 490 347 L506 384 Q526 383 535 394 L541 422 Q533 436 520 423 L510 410 L509 428 Q501 441 493 428 L491 407 L480 425 Q468 431 463 417 L473 384 Q441 373 459 336Z"
-          fill="url(#kennyRigBody)"
-          stroke="#08101d"
-          stroke-width="5"
-          stroke-linejoin="round"
+      <ng-container *ngIf="isReady">
+        <image
+          *ngFor="let part of orderedParts"
+          [attr.href]="imageUrl(part.id)"
+          [attr.x]="part.x"
+          [attr.y]="part.y"
+          [attr.width]="part.width"
+          [attr.height]="part.height"
+          [attr.transform]="layerTransform(part.id)"
+          [attr.opacity]="isBlinking && part.id === 'eye_open' ? 0 : 1"
+          preserveAspectRatio="none"
         />
-        <path
-          d="M541 418 l-8 17 -10 -14z M509 425 l-9 16 -9 -14z M481 422 l-11 14 -8 -16z"
-          [attr.fill]="palette.nail"
-          stroke="#15151e"
-          stroke-width="3"
+        <image
+          *ngIf="isBlinking && eyelid"
+          [attr.href]="imageUrl('eye_closed')"
+          [attr.x]="eyelid.x"
+          [attr.y]="eyelid.y"
+          [attr.width]="eyelid.width"
+          [attr.height]="eyelid.height"
+          [attr.transform]="layerTransform('eye_closed')"
+          preserveAspectRatio="none"
         />
-      </g>
-      <!-- Near leg and its grounded foot -->
-      <g id="kenny-bone-near-leg" [attr.transform]="nearLegTransform">
-        <path
-          d="M307 410 Q362 415 360 465 Q354 491 335 507 L304 551 L281 552 Q278 515 292 475 Q259 450 278 424Z"
-          fill="url(#kennyRigBody)"
-          stroke="#08101d"
-          stroke-width="7"
-        />
-        <path d="M274 430 Q298 418 326 447 Q318 464 287 453Z" [attr.fill]="palette.stripes" />
-        <g id="kenny-bone-near-foot">
-          <path
-            d="M290 539 Q328 526 347 541 L390 563 Q396 579 372 581 L269 581 Q251 564 269 546Z"
-            fill="url(#kennyRigBody)"
-            stroke="#08101d"
-            stroke-width="6"
-          />
-          <path
-            d="M274 557 q-18 2 -12 25 l28 0 q8 -15 -16 -25z M307 555 q-13 4 -9 27 l29 0 q9 -18 -20 -27z M341 555 q-10 4 -7 27 l29 0 q10 -19 -22 -27z"
-            [attr.fill]="palette.nail"
-            stroke="#16151e"
-            stroke-width="4"
-          />
-          <!-- Raised sickle claw is distinct from the three forward toes -->
-          <path
-            d="M319 538 Q312 509 340 502 Q328 519 346 535 Q332 542 319 538Z"
-            [attr.fill]="palette.nail"
-            stroke="#16151e"
-            stroke-width="4"
+        <g *ngIf="showBones" aria-hidden="true">
+          <circle
+            *ngFor="let part of parts"
+            class="rig-joint"
+            [attr.cx]="part.pivotX"
+            [attr.cy]="part.pivotY"
+            r="7"
           />
         </g>
-      </g>
-      <!-- Head with independently hinged lower jaw, eye/expression and defined pivot -->
-      <g id="kenny-bone-head" [attr.transform]="headTransform">
-        <g id="kenny-bone-lower-jaw" [attr.transform]="jawTransform">
-          <path
-            d="M444 224 Q474 229 511 243 Q551 263 584 235 Q599 251 583 280 Q539 320 480 282 Q454 264 444 224Z"
-            fill="url(#kennyRigBelly)"
-            stroke="#08101d"
-            stroke-width="6"
-          />
-          <path d="M470 243 Q514 267 572 247 Q554 292 510 274 Q483 267 470 243Z" fill="#b83950" />
-          <path d="M505 270 Q534 253 560 261 Q538 293 505 270Z" fill="#ff8796" />
-          <path
-            d="M547 262 l10 -18 7 22z M566 251 l8 -16 6 18z"
-            fill="#fff9f3"
-            stroke="#10131a"
-            stroke-width="3"
-          />
-        </g>
-        <path
-          d="M364 191 Q355 142 393 111 Q426 75 471 93 Q493 88 518 115 Q546 133 585 142 Q623 146 631 180 Q635 217 596 228 Q564 238 535 225 L476 227 Q445 241 410 230 Q373 220 364 191Z"
-          fill="url(#kennyRigBody)"
-          stroke="#08101d"
-          stroke-width="7"
-          stroke-linejoin="round"
-        />
-        <path
-          d="M379 188 Q393 216 421 224 Q445 230 463 228 Q433 249 399 228 Q374 216 379 188Z"
-          fill="url(#kennyRigBelly)"
-        />
-        <path
-          d="M377 154 q28 -12 34 11 l-35 -1z M401 121 q25 -17 36 13 l-29 -1z M444 101 q20 -12 29 18 l-25 -2z"
-          [attr.fill]="palette.stripes"
-        />
-        <!-- A real eye bone so blinking does not redraw the entire character -->
-        <g id="kenny-bone-eye" [attr.transform]="'translate(0 0)'">
-          <ellipse cx="468" cy="169" rx="43" [attr.ry]="40 * pose.blink" fill="#101520" />
-          <ellipse cx="468" cy="168" rx="36" [attr.ry]="33 * pose.blink" fill="url(#kennyRigEye)" />
-          <ellipse cx="483" cy="169" rx="16" [attr.ry]="24 * pose.blink" fill="#131014" />
-          <ellipse cx="491" cy="156" rx="7" [attr.ry]="8 * pose.blink" fill="#fff" />
-          <path
-            d="M424 153 Q444 122 485 136"
-            fill="none"
-            stroke="#101520"
-            stroke-width="5"
-            stroke-linecap="round"
-          />
-        </g>
-        <path
-          d="M598 170 q10 0 9 13 q-8 -5 -9 -13z M622 173 q7 2 5 12 q-7 -3 -5 -12z"
-          fill="#121722"
-        />
-        <path
-          d="M533 222 l11 15 14 -13 9 12 13 -15"
-          fill="none"
-          stroke="#101520"
-          stroke-width="3"
-        />
-        <path
-          d="M535 226 l10 17 12 -16z M558 228 l10 18 11 -22z M580 223 l10 16 8 -18z"
-          fill="#fff"
-          stroke="#101520"
-          stroke-width="3"
-        />
-        <path
-          d="M390 207 Q415 223 436 218"
-          fill="none"
-          stroke="#0e1822"
-          stroke-width="4"
-          stroke-linecap="round"
-        />
-      </g>
-      <!-- Near arm is drawn in front of torso -->
-      <g id="kenny-bone-near-arm" [attr.transform]="nearArmTransform">
-        <path
-          d="M386 327 Q412 327 429 350 L439 384 Q459 382 472 393 L481 419 Q475 433 464 420 L455 405 L456 424 Q446 436 437 421 L433 405 L431 421 Q422 431 412 418 L413 389 Q377 376 386 327Z"
-          fill="url(#kennyRigBody)"
-          stroke="#08101d"
-          stroke-width="6"
-          stroke-linejoin="round"
-        />
-        <path
-          d="M481 418 l-10 17 -8 -13z M455 424 l-11 15 -8 -15z M429 419 l-11 15 -7 -17z"
-          [attr.fill]="palette.nail"
-          stroke="#10151b"
-          stroke-width="3"
-        />
-      </g>
-      <g *ngIf="showBones" aria-hidden="true" opacity=".94">
-        <line
-          x1="252"
-          y1="378"
-          x2="115"
-          y2="415"
-          stroke="#f5d2ff"
-          stroke-width="2"
-          stroke-dasharray="6 6"
-        />
-        <line x1="307" y1="425" x2="288" y2="556" stroke="#f5d2ff" stroke-width="2" />
-        <line x1="430" y1="196" x2="440" y2="325" stroke="#f5d2ff" stroke-width="2" />
-        <line x1="386" y1="335" x2="447" y2="404" stroke="#f5d2ff" stroke-width="2" />
-        <circle
-          *ngFor="let bone of bones"
-          class="rig-joint"
-          [attr.cx]="bone.x"
-          [attr.cy]="bone.y"
-          r="4"
-        />
-      </g>
+      </ng-container>
     </svg>
     <div class="bar">
-      <span>Idle: Schauen · Blinzeln · Schnüffeln · Atmen · Schwanz</span
-      ><span class="frame-meta">{{ frame + 1 }} / 64</span>
+      <span>Idle: Blickwechsel · Blinzeln · Schnüffeln · Schwanz</span>
+      <span class="frame-meta">{{ frame + 1 }} / 64</span>
     </div>
   </div>
   <div class="settings">
-    <div class="eyebrow">Prototype · unabhängig vom Livespiel</div>
-    <h3>Rig-Testlabor</h3>
+    <div class="eyebrow">Vorschau · Originalgrafik als PNG-Bauteile</div>
+    <h3>Kennys Rig-Testlabor</h3>
     <p>
-      Ein einzelnes, aus SVG-Ebenen zusammengesetztes Kenny-Modell. Kopf, Kiefer, Augen, Arme, Beine
-      und Schwanz bewegen sich um eigene Drehpunkte. Alle fünf Farben benutzen dieselbe Timeline.
+      Kein neu gezeichneter Dino: Die Figur wird aus separaten transparenten PNGs
+      des freigegebenen Kenny zusammengesetzt. Gelenke und Animation werden
+      unabhängig von Skin, Expedition und Firestore gesteuert.
     </p>
     <div class="skins" role="group" aria-label="Test-Skin auswählen">
       <button
@@ -297,20 +84,33 @@
       >
         {{ playing ? '⏸ Pause' : '▶ Play' }}
       </button>
-      <button type="button" (click)="step(-1)" aria-label="Ein Frame zurück">← Frame</button>
-      <button type="button" (click)="step(1)" aria-label="Ein Frame weiter">Frame →</button>
-      <button type="button" (click)="showBones = !showBones" [attr.aria-pressed]="showBones">
+      <button type="button" (click)="step(-1)" aria-label="Ein Frame zurück">
+        ← Frame
+      </button>
+      <button type="button" (click)="step(1)" aria-label="Ein Frame weiter">
+        Frame →
+      </button>
+      <button
+        type="button"
+        (click)="showBones = !showBones"
+        [attr.aria-pressed]="showBones"
+      >
         🦴 Gelenke
       </button>
     </div>
     <div class="frame-meta">
-      Frame: {{ frame.toString().padStart(3, '0') }} · {{ fps }} FPS<br />{{ bones.length }}
-      benannte Gelenke / Segmente · 6,4 s Idle-Loop
+      Frame: {{ frame.toString().padStart(3, '0') }} · {{ fps }} FPS<br />
+      {{ parts.length }} transparente Master-PNG-Ebenen · 6,4 s Idle-Loop
     </div>
+    <p *ngIf="imageError" class="rig-error" role="alert">
+      Einige Einzelbilder konnten nicht geladen werden. Die Originalgrafik bleibt als Fallback sichtbar.
+      {{ imageError }}
+    </p>
     <p class="rig-legend">
-      Dies ist ein <strong>editierbarer Vektor-Rig-Prototyp</strong>, noch nicht die pixelgenaue
-      Zerlegung der zuletzt freigegebenen PNG-Illustration. Keine Atlas-Crops, kein Einfluss auf
-      Firestore oder Expedition.
+      <strong>Testversion:</strong> Form, Farben und Details stammen vom
+      freigegebenen Kenny. Die Gelenkbewegungen sind absichtlich noch klein,
+      bis alle verdeckten Flächen und Übergänge künstlerisch geprüft wurden.
+      Skins wechseln hier ausschließlich in der Vorschau.
     </p>
   </div>
 </section>
