@@ -3,6 +3,7 @@
  * Trainer progression is mirrored by the existing Studyverse cloud bridge.
  */
 const D=window.MATHS_DATA,KEY='mathsverse_sa01_v1',PROFILE='studyverse_profile_v1';
+const SOURCE=window.MATHS_SOURCE_TRAINER;
 const $=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const int=v=>Number.isFinite(Number(v))?Math.max(0,Number(v)):0;
@@ -13,11 +14,12 @@ for(const k of ['solved','courseDone','learned','earned'])state[k]=object(state[
 state.xp=int(state.xp);state.coins=int(state.coins);state.bestBoss=int(state.bestBoss);
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));window.studyverseCloudTouch?.()}catch(err){console.warn('MathsVerse save:',err)}}
 let view='home',selected='',focusTopic='all',activeQuestion=null,answered=false,selectedAnswer=-1,feedback='',boss=null,graphType='tangent',graphX=1;
-const names={home:'Übersicht',academy:'Lernakademie',lesson:'Lernkapitel',practice:'Aufgaben-Training',graphs:'Graphenlabor',sources:'Quellen',boss:'SA-Bosskampf',bossrun:'Bosskampf',bossresult:'Boss-Ergebnis'};
+const names={home:'Übersicht',academy:'Lernakademie',lesson:'Lernkapitel',book:'Buchbeispiele',pool:'4. Deskriptor',graphs:'Graphenlabor',sources:'Quellen',boss:'Schularbeitssimulation',bossrun:'Schularbeit',bossresult:'Boss-Ergebnis'};
 const count=o=>Object.values(object(o)).filter(Boolean).length;
 const lessonsDone=()=>D.lessons.filter(l=>state.courseDone[l.id]).length;
-const solvedQuestions=()=>D.questions.filter(q=>state.solved[q.id]).length+D.numeric.filter(q=>state.solved[q.id]).length;
-const totalQuestions=()=>D.questions.length+D.numeric.length;
+const sourceSolvedKey=(q,mode)=>(mode==='book'?'n':'q')+q.id.replace(/[^a-z0-9-]/gi,'_');
+const solvedQuestions=()=>SOURCE.BOOK.filter(q=>state.solved[sourceSolvedKey(q,'book')]).length+SOURCE.POOL.filter(q=>state.solved[sourceSolvedKey(q,'pool')]).length;
+const totalQuestions=()=>SOURCE.BOOK.length+SOURCE.POOL.length;
 function toast(s){const el=$('toast');el.textContent=s;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),3100)}
 function reward(id,xp,coins){if(state.earned[id])return false;state.earned[id]=true;state.xp+=xp;state.coins+=coins;save();toast('✓ +'+xp+' XP · +'+coins+' TT');return true}
 function shuffle(arr){let copy=[...arr];for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]]}return copy}
@@ -25,16 +27,19 @@ function progress(done,total){return '<div class="progress-track" role="progress
 function button(label,action,style='secondary'){return '<button class="btn '+style+'" data-action="'+esc(action)+'">'+esc(label)+'</button>'}
 function heroGraphic(){return '<svg class="hero-art" viewBox="0 0 520 310" aria-hidden="true"><defs><pattern id="grid" width="35" height="35" patternUnits="userSpaceOnUse"><path d="M35 0H0V35" fill="none" stroke="#e1ffb8" stroke-opacity=".18"/></pattern></defs><rect width="520" height="310" fill="url(#grid)"/><path d="M0 210H520M70 0V310" fill="none" stroke="#d8f8bd" opacity=".6" stroke-width="2"/><path d="M0 285 C70 260 85 60 155 95 S275 340 360 170 S470 75 520 25" fill="none" stroke="#d4ff95" stroke-width="7"/><circle cx="155" cy="95" r="9" fill="#fff"/><text x="290" y="60" fill="#f4ffcf" opacity=".7" font-size="45" font-family="Georgia">∫ f(x) dx</text></svg>'}
 function home(){
-return '<section class="hero"><div class="hero-copy"><div class="eyebrow">AM · 1. SCHULARBEIT · 26. NOVEMBER 2026</div><h1>Mathe verstehen.<br> Nicht nur auswendig lernen.</h1><p>Von Grenzwerten bis Integralen: händisch rechnen, Graphen wirklich begreifen und dich auf die SA vorbereiten.</p><div class="actions">'+button('Lernakademie starten','nav:academy','primary')+button('Aufgaben lösen','nav:practice')+'</div></div>'+heroGraphic()+'</section>'
+return '<section class="hero"><div class="hero-copy"><div class="eyebrow">AM · 1. SCHULARBEIT · 26. NOVEMBER 2026</div><h1>Mathe verstehen.<br> Nicht nur auswendig lernen.</h1><p>Von Grenzwerten bis Integralen: händisch rechnen, Graphen wirklich begreifen und dich auf die SA vorbereiten.</p><div class="actions">'+button('Lernakademie starten','nav:academy','primary')+button('Buchbeispiele rechnen','nav:book')+'</div></div>'+heroGraphic()+'</section>'
 +'<div class="stats"><div class="stat"><b>'+lessonsDone()+'/'+D.lessons.length+'</b><small>LEKTIONEN</small></div><div class="stat"><b>'+solvedQuestions()+'/'+totalQuestions()+'</b><small>AUFGABEN ERSTMALS GELÖST</small></div><div class="stat"><b>'+state.bestBoss+'%</b><small>BESTER BOSSKAMPF</small></div><div class="stat"><b>'+state.xp+'</b><small>VERSE-XP VERDIENT</small></div></div>'
 +'<div class="section-heading"><h2>Dein Trainingsbereich</h2><small>Wähle deinen nächsten Schritt</small></div>'
 +'<div class="mode-grid">'+[
 ['f′','Lernakademie','11 Lernkapitel mit Erklärungen, Rechenwegen und Checks.','academy'],
-['∑','Aufgaben-Training',totalQuestions()+' eigene Übungsfragen, davon '+D.numeric.length+' mit Zahleneingabe.','practice'],
+['∑','Buchbeispiele',SOURCE.BOOK.length+' echte Buchaufgaben mit Rechenwegen.','book'],
+['∂','4. Deskriptor',SOURCE.POOL.length+' originale SRDP-Teilaufgaben samt offizieller Quelle.','pool'],
 ['⌁','Graphenlabor','Steigungen, Tangenten und Integrale live untersuchen.','graphs'],
-['∫','SA-Bosskampf','Gemischte Aufgaben aus allen Kapiteln – 100 % zählt.','boss']
+['∫','SA-Simulation','10 Buchbeispiele + 10 Deskriptor-Aufgaben, jedes Mal neu gemischt.','boss']
 ].map(x=>'<button class="mode-card" data-nav="'+x[3]+'"><span class="glyph">'+x[0]+'</span><h3>'+x[1]+'</h3><p>'+x[2]+'</p></button>').join('')+'</div>';
 }
+function book(){return SOURCE.browser('book',state)}
+function pool(){return SOURCE.browser('pool',state)}
 function academy(){return '<div class="eyebrow">01 / VERSTEHEN</div><h1>Lernakademie<span style="color:var(--accent)">.</span></h1><p>Keine Mathe-Wand aus Formeln. Schrittweise verstehen, dann direkt ein Beispiel prüfen.</p><div class="panel">'+progress(lessonsDone(),D.lessons.length)+'<p style="margin:10px 0 0">'+lessonsDone()+' von '+D.lessons.length+' Kapiteln abgeschlossen</p></div><div class="section-heading"><h2>Alle Kapitel</h2></div><div class="lesson-grid">'+D.lessons.map((l,i)=>'<button class="lesson-card '+(state.courseDone[l.id]?'done':'')+'" data-action="lesson:'+l.id+'"><span class="count">'+String(i+1).padStart(2,'0')+'</span><small>'+esc(l.group)+' · '+esc(l.source)+'</small><h3>'+esc(l.title)+'</h3><p>'+esc(l.lead)+'</p><b>'+(state.courseDone[l.id]?'✓ Gelernt':'Kapitel öffnen →')+'</b></button>').join('')+'</div>'}
 function lesson(){let l=D.lessons.find(x=>x.id===selected);if(!l)return academy();let i=D.lessons.indexOf(l),done=!!state.courseDone[l.id];return '<div class="eyebrow">'+esc(l.group)+' · '+esc(l.source)+'</div><h1>'+esc(l.title)+'</h1><p class="subtitle">'+esc(l.lead)+'</p><div class="panel"><h2>So gehst du vor</h2><div class="lesson-steps">'+l.steps.map((t,j)=>'<div class="lesson-step"><b>'+(j+1)+'</b><p>'+esc(t)+'</p></div>').join('')+'</div><h3>Handgerechnetes Beispiel</h3><div class="formula">'+esc(l.example)+'</div></div><div class="question-card"><span class="eyebrow">VERSTÄNDNIS-CHECK</span><h2>'+esc(l.check.q)+'</h2>'+questionOptions(l.check,done?'lesson-complete':'lesson-check')+'</div><div class="actions">'+button('← Alle Kapitel','nav:academy')+(i+1<D.lessons.length?button('Nächstes Kapitel →','lesson:'+D.lessons[i+1].id,'primary'):'')+'</div>'}
 function questionOptions(q,mode){const choices=q.options||q.a;const correct=q.answer??q.correct;let isBoss=mode==='boss',isLesson=mode==='lesson-check'||mode==='lesson-complete';let locked=isLesson?!!state.courseDone[selected]:isBoss?answered:answered||!!state.solved[q.id];let chosen=isLesson?(locked?q.correct:-1):selectedAnswer;return '<div class="option-list">'+choices.map((x,i)=>'<button class="option '+(locked?(i===correct?'correct':i===chosen?'wrong':''):'')+'" data-action="'+mode+':'+i+'" '+(locked?'disabled':'')+'>'+String.fromCharCode(65+i)+'. '+esc(x)+'</button>').join('')+'</div>'+(isLesson&&locked?'<div class="answer-feedback good">✓ '+esc(q.why)+'</div>':!isLesson&&locked?'<div class="answer-feedback '+(chosen===correct?'good':'bad')+'">'+esc(q.why)+'</div>':'')}
@@ -56,10 +61,11 @@ function startBoss(){boss={questions:makeBoss(),index:0,correct:0,choices:[]};an
 function bossRun(){if(!boss)return bossIntro();let q=boss.questions[boss.index];return '<div class="eyebrow">BOSSKAMPF · FRAGE '+(boss.index+1)+' / '+boss.questions.length+'</div><h1>Keine Panik. Nur Mathe.</h1>'+progress(boss.index,boss.questions.length)+'<div class="question-card"><span class="pill">'+esc(D.lessons.find(l=>l.id===q.topic)?.title||'AM')+'</span><h2 style="margin-top:16px">'+esc(q.q)+'</h2>'+questionOptions(q,'boss')+(answered?'<div class="actions">'+button(boss.index===boss.questions.length-1?'Boss abschließen':'Nächste Frage →','boss-next','primary')+'</div>':'')+'</div>'}
 function finishBoss(){let pct=Math.round(100*boss.correct/boss.questions.length);state.bestBoss=Math.max(state.bestBoss,pct);state.bossRuns++;if(state.bossRuns===1)reward('boss-first-run',Math.round(pct*2),Math.round(pct));if(pct===100)reward('boss-perfect',300,500);save();boss={...boss,result:pct};view='bossresult';render()}
 function bossResult(){let pct=boss?.result??0;return '<div class="eyebrow">FINALE · ABGESCHLOSSEN</div><div class="panel center"><div class="boss-number">'+pct+'%</div><h1>'+ (pct===100?'Du hast die Mathematik geknackt.':'Training macht den Unterschied.')+'</h1><p>'+boss?.correct+' von '+boss?.questions.length+' Antworten richtig. Bestwert: '+state.bestBoss+' %.</p><p>'+(pct===100?'100 %! Der exklusive Titel Professor Filipp ist freigeschaltet.':'Wiederhole die offenen Kapitel und versuche es erneut.')+'</p><div class="actions" style="justify-content:center">'+button('Erneut antreten','start-boss','primary')+button('Zur Lernakademie','nav:academy')+'</div></div>'}
-function render(){if(!D||!$('main'))return;$('crumb').textContent=names[view]||'MathsVerse';document.querySelectorAll('[data-nav]').forEach(x=>{x.classList.toggle('active',x.dataset.nav===view||(view==='lesson'&&x.dataset.nav==='academy')||(view.startsWith('boss')&&x.dataset.nav==='boss'));if(x.dataset.nav===view)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});$('main').innerHTML=({home,academy,lesson,practice,graphs,sources,boss:bossIntro,bossrun:bossRun,bossresult:bossResult}[view]||home)()}
+function render(){if(!D||!$('main'))return;$('crumb').textContent=names[view]||'MathsVerse';document.querySelectorAll('[data-nav]').forEach(x=>{x.classList.toggle('active',x.dataset.nav===view||(view==='lesson'&&x.dataset.nav==='academy')||(view.startsWith('boss')&&x.dataset.nav==='boss'));if(x.dataset.nav===view)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});$('main').innerHTML=({home,academy,lesson,book,pool,graphs,sources,boss:()=>SOURCE.intro(state),bossrun:()=>SOURCE.run(),bossresult:()=>SOURCE.result()}[view]||home)()}
 function nav(page){if(!names[page])return;view=page;answered=false;selectedAnswer=-1;feedback='';$('sidebar').classList.remove('open');$('menuToggle').setAttribute('aria-expanded','false');render();window.scrollTo({top:0,behavior:'smooth'})}
 document.addEventListener('click',e=>{let t=e.target.closest('[data-nav],[data-action]');if(!t)return;if(t.dataset.nav){nav(t.dataset.nav);return}let a=t.dataset.action||'';
  if(a.startsWith('nav:'))return nav(a.slice(4));
+ if(a.startsWith('source:')){SOURCE.handle(a,{view,state,reward,save,navigate:nav});render();return}
  if(a.startsWith('lesson:')){selected=a.slice(7);view='lesson';render();scrollTo({top:0,behavior:'smooth'});return}
  if(a.startsWith('lesson-check:')){let l=D.lessons.find(x=>x.id===selected);if(!l||state.courseDone[selected])return;let i=Number(a.split(':')[1]);if(i===l.check.correct){state.courseDone[selected]=true;state.learned[selected]=true;reward('lesson:'+selected,35,30)}else toast('Nicht ganz. Lies die Erklärung und versuch es erneut.');render();return}
  if(a==='start-boss')return startBoss();
@@ -72,9 +78,9 @@ document.addEventListener('click',e=>{let t=e.target.closest('[data-nav],[data-a
  if(a.startsWith('graph:')){graphType=a.slice(6);render();return}
 });
 $('menuToggle').addEventListener('click',()=>{let o=$('sidebar').classList.toggle('open');$('menuToggle').setAttribute('aria-expanded',String(o))});
-document.addEventListener('change',e=>{if(e.target.id==='topicSelect'){focusTopic=e.target.value;activeQuestion=null;answered=false;selectedAnswer=-1;feedback='';render()}});
+document.addEventListener('change',e=>{if(e.target.id==='sourceSearch'||e.target.id==='sourceTopic'){SOURCE.refreshFilters();render();return}if(e.target.id==='topicSelect'){focusTopic=e.target.value;activeQuestion=null;answered=false;selectedAnswer=-1;feedback='';render()}});
 document.addEventListener('input',e=>{if(e.target.id==='graphX'){graphX=Number(e.target.value);render()}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.id==='numericAnswer'){e.preventDefault();submitPractice(-1)}});
-window.addEventListener('hashchange',()=>{let h=location.hash.slice(1);if(h==='boss'||h==='quiz')nav(h==='boss'?'boss':'practice')});
-if(location.hash==='#boss')view='boss';else if(location.hash==='#quiz')view='practice';
+window.addEventListener('hashchange',()=>{let h=location.hash.slice(1);if(h==='boss'||h==='quiz')nav(h==='boss'?'boss':'book')});
+if(location.hash==='#boss')view='boss';else if(location.hash==='#quiz')view='book';
 render();
