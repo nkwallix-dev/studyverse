@@ -66,22 +66,37 @@ assert(read('public/shared/verse-cosmetics.css').includes('linear-gradient(130de
 const bookJs=read('public/maths/sa-01/book-bank.js');
 const poolJs=read('public/maths/sa-01/pool-bank.js');
 const sourceJs=read('public/maths/sa-01/source-trainer.js');
-vm.runInNewContext(bookJs,sandbox);vm.runInNewContext(poolJs,sandbox);
-const book=sandbox.window.MATHS_BOOK_BANK,pool=sandbox.window.MATHS_POOL_BANK;
+vm.runInNewContext(bookJs,sandbox);vm.runInNewContext(read('public/maths/sa-01/book-groups.js'),sandbox);vm.runInNewContext(poolJs,sandbox);
+const book=sandbox.window.MATHS_BOOK_BANK,pool=sandbox.window.MATHS_POOL_BANK,sourceGroups=sandbox.window.MATHS_BOOK_GROUPS;
 assert(book.length>=80,'Textbook ZIP must produce >80 specific sourced tasks');
-assert.equal(pool.length,50,'Descriptor 4 bank must contain 50 real source IDs');
+assert.equal(pool.length,29,'Only the 29 directly sourced official Aufgabenpool PDF tasks should remain');
+assert.equal(sourceGroups.length,84,'Book task navigation should group the 215 existing sub-parts into 84 real exercises');
 assert.equal(new Set(book.map(q=>q.number)).size,book.length,'Do not repeat textbook tasks');
 assert.equal(new Set(pool.map(q=>q.number)).size,pool.length,'Do not repeat official task IDs');
 for(const q of book){assert(q.prompt&&q.solution&&q.steps,'Book tasks need exact prompt and explained answer');if(q.expected!=null)assert(Number.isFinite(q.expected),'Book numeric result must be finite')}
 for(const q of pool){assert(q.source.startsWith('https://')&&q.number,'Every pool task must link to its original source');assert(!/^4[.]7(?:\\D|$)/.test(q.descriptor),'Excluded descriptor 4.7 must not appear');if(q.expected!=null)assert(Number.isFinite(q.expected))}
-assert(sourceJs.includes('shuffle(BOOK).slice(0,10)'),'Book half of boss is random 10');
+assert(sourceJs.includes('shuffle(GROUPS).slice(0,10)'),'Boss must select 10 distinct original textbook exercise groups');
 assert(sourceJs.includes('shuffle(POOL).slice(0,10)'),'Official half of boss is random 10');
 assert(sourceJs.includes('api.reward')||sourceJs.includes('api.state.bestBoss'),'Exam result must be recorded');
 assert(mhtml.includes('data-nav="book"')&&mhtml.includes('data-nav="pool"'),'There must be two separate catalog tabs');
 assert(!mhtml.includes('data-nav="practice"'),'Synthetic practice must not be in the navigation');
-for(const name of ['book-bank.js','pool-bank.js','source-trainer.js','source-trainer.css'])assert(mhtml.includes(name),'Missing source trainer asset '+name);
+for(const name of ['book-bank.js','book-groups.js','pool-bank.js','source-trainer.js','source-trainer.css'])assert(mhtml.includes(name),'Missing source trainer asset '+name);
 assert(mjs.includes('SOURCE.browser(\'book\',state)')&&mjs.includes('SOURCE.browser(\'pool\',state)'),'Original catalogs must render via app');
 assert(sourceJs.includes('Stift und Papier')&&sourceJs.includes('Lösung anzeigen'),'Paper instructions and reveal button required');
+assert(!poolJs.includes('maths2mind.com'),'No third-party task mirror allowed in official source bank');
+assert(!mhtml.includes('official-inline.js'),'Do not load mixed-origin inline task artifacts');
+assert(pool.every(q=>/^https:\/\/(?:www\.)?aufgabenpool\.at\/amn\//.test(q.source)),'Every descriptor task must load the original official PDF');
+assert(sourceJs.includes('source:pool-check')&&sourceJs.includes('Lösungserwartung'),'Official solutions must be checked in the real PDF instead of fake numerical grading');
+for(const group of sourceGroups){
+ assert(group.steps.length>=1&&group.steps.every(q=>q.number.startsWith(group.number)),'Every original subtask must belong to exactly one exercise');
+ assert(group.artwork.length>=1,'Original page scan must be attached to exercise '+group.number);
+ for(const art of group.artwork)assert(fs.existsSync('public/maths/sa-01/original-figures/'+art),'Missing imported original figure '+art);
+}
+assert.equal(sourceGroups.find(g=>g.number==='1.80').steps.length,2,'Rotational-solid book example 1.80 must be grouped in two steps');
+assert.equal(sourceGroups.find(g=>g.number==='1.100').steps.length,4,'Drone book example 1.100 must be grouped in four steps');
+assert(sourceGroups.find(g=>g.number==='1.80').artwork.includes('book-1-80-a.webp'),'Use original 1.80 diagram, not a hand-drawn substitute');
+assert(sourceGroups.find(g=>g.number==='1.100').artwork.includes('book-1-100.webp'),'Use original 1.100 statement scan');
+for(let n=1;n<=15;n++)assert(fs.existsSync('public/maths/sa-01/original-figures/book-page-'+n+'.webp'),'Missing original image for source page '+n);
 
 const original=new Map(book.map(q=>[q.number,q]));
 const approx=(actual,expected,id)=>assert(Math.abs(actual-expected)<1e-8,id+' value incorrect: '+actual+' expected '+expected);
@@ -116,19 +131,17 @@ approx(original.get('1.98c').expected,(3/5)*(Math.pow(5,5/3)-Math.pow(2,5/3)),'1
 approx(original.get('1.99').expected,300/Math.PI,'1.99');
 approx(original.get('1.100d').expected,14.4098445789603,'1.100d');
 assert(original.get('1.79a').graph?.curves?.[1]?.domain?.[0]===10,'Composite rod plot must begin the parabola only at x=10');
-for(const comp of ['4.2','4.4','4.5','4.8']){
+for(const comp of ['4.2','4.3','4.4','4.5','4.8']){
  const hits=pool.filter(q=>q.descriptor.split(',').map(x=>x.trim()).includes(comp));
- assert(hits.length>=5,'Official pool must cover highlighted descriptor '+comp+' (got '+hits.length+')');
+ assert(hits.length>=1,'Must keep official task evidence for descriptor '+comp);
 }
-
+assert(sourceJs.includes("'4.1':'Grenzwerte & Stetigkeit'")&&sourceJs.includes("'4.6':'Stammfunktionen'"),'All 7 descriptor topics must have transparent navigation, even without verified official question IDs');
 
 const fixedCss=read('public/maths/sa-01/source-trainer.css');
-const inlineJs=read('public/maths/sa-01/official-inline.js');
 const assetMap=read('src/app/cosmetic-assets.ts');
 const legacyBridge=read('public/shared/verse-cosmetics.js');
 const foxSvg=read('public/cosmetics/avatars/maths_pi_fox.svg');
 const owlSvg=read('public/cosmetics/avatars/maths_euler_owl.svg');
-vm.runInNewContext(inlineJs,sandbox);
 assert(!mhtml.includes('data-nav="graphs"')&&!mjs.includes('Graphenlabor'),'Unneeded graph lab removed from all visible MathsVerse destinations');
 assert(mjs.includes('SOURCE.captureList')&&mjs.includes('SOURCE.restoreList'),'Catalog position must survive changing selected tasks');
 assert(mjs.includes("source-screen")&&mjs.includes("SOURCE.focusSolution")&&!mjs.includes("classList.toggle('source-solution-open'"),'Revealing an answer must never release the fixed viewport');
@@ -139,11 +152,8 @@ assert(fixedCss.includes('min-height:56px!important')&&fixedCss.includes('flex:0
 assert(!fixedCss.includes('source-solution-open'),'No solution mode may unlock outer page scrolling');
 assert(sourceJs.includes('source-reading')&&sourceJs.includes('source-answer-dock'),'The trainer must render document area and answer dock as siblings');
 assert(!sourceJs.includes('inner.style.zoom'),'Remove automatic content shrinking that made PDFs unreadable');
-assert(sourceJs.includes('officialStatement(q)')&&sourceJs.includes('source-inline-original'),'SRDP should show complete sourced prompt inline');
+assert(sourceJs.includes('officialStatement(q)')&&sourceJs.includes('aufgabenpool.at'),'SRDP tasks must display the original official PDF');
 assert(sourceJs.includes('view=FitH')&&sourceJs.includes('zoom=page-width'),'Official PDF must open readable at page width');
-assert(mhtml.includes('official-inline.js'),'Full official inline material should load before source trainer');
-assert.equal(Object.keys(sandbox.window.MATHS_INLINE_ORIGINAL).length,21,'All source-page-based exams must be imported');
-assert(sandbox.window.MATHS_OFFICIAL_FIGURES['4205'].some(x=>x.endsWith('.svg')),'Real original graphs must be available as SVG');
 assert(assetMap.includes("'🦊':'maths_avatar_pi'")&&assetMap.includes("'🦉':'maths_owl'"),'Legacy equipped animal emojis must resolve to new art');
 assert(legacyBridge.includes("'🦊': 'maths_avatar_pi'")&&legacyBridge.includes("'🦉': 'maths_owl'"),'Standalone worlds must show same avatar art');
 assert(app.includes("item.id==='maths_avatar_pi'||item.id==='maths_owl'"),'MathsVerse equipped items must store ID, not emoji');
@@ -152,4 +162,4 @@ assert(!/circle cx="256" cy="256" r="250" fill=/.test(owlSvg),'Owl image may not
 
 console.log('PASS: Source-screenshot cross-checks, numeric golden values, and original 10+10 MathsVerse training.');
 
-console.log('PASS: MathsVerse original textbook, 50 sourced SRDP tasks, 10+10 exam, safe progress and cosmetics.');
+console.log('PASS: 84 grouped original textbook tasks, 29 verified original SRDP PDFs, and 10+10 exam, with safe progress.');
