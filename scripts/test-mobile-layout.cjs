@@ -771,15 +771,14 @@ async function main(){
     await dinoPage.waitForTimeout(1100);
     assert.equal(await dinoPage.locator('.kenny-reveal-modal').count(),0,
      'Feeding animation must remain visible for more than a brief flash');
-    const delivery=await dinoPage.evaluate(()=>{
-     const stage=document.querySelector('.kenny-stage').getBoundingClientRect();
-     const drone=document.querySelector('.kenny-drone');
-     const meat=document.querySelector('.kenny-meat');
-     return {stageRight:stage.right,droneLeft:drone.getBoundingClientRect().left,
-      droneOpacity:Number(getComputedStyle(drone).opacity),meatOpacity:Number(getComputedStyle(meat).opacity)};
+    const feedingAtlas=await dinoPage.evaluate(()=>{
+     const sprite=document.querySelector('.kenny-stage.kenny-feeding .kenny-sprite');
+     const style=getComputedStyle(sprite);
+     return {image:style.backgroundImage,position:style.backgroundPosition,size:style.backgroundSize};
     });
-    assert(delivery.droneLeft<delivery.stageRight&&delivery.droneOpacity>.3&&delivery.meatOpacity>.3,
-     'The drone must fly into the stage and release the meat before Kenny eats: '+JSON.stringify(delivery));
+    assert(feedingAtlas.image.includes('kenny-blue-30fps.png')&&feedingAtlas.size==='900% 600%'&&
+     feedingAtlas.position!=='0% 0%',
+     'Feeding must advance through the authored 30 FPS atlas before Kenny eats: '+JSON.stringify(feedingAtlas));
     await dinoPage.screenshot({path:path.join(screenshots,'kenny-feeding-390.png')});
     await dinoPage.waitForTimeout(900);
     await dinoPage.screenshot({path:path.join(screenshots,'kenny-eating-390.png')});
@@ -883,7 +882,7 @@ async function main(){
    await poolPage.locator('.kenny-pool-dialog').waitFor({state:'visible'});
    const exclusiveSection=poolPage.locator('.kenny-pool-section').filter({hasText:'Saisonexklusiv'}).first();
    assert.equal(await exclusiveSection.locator('.kenny-pool-items > span').count(), 1,
-     'A completed regular collection must leave only the missing Zebra in the prize pool');
+     'A completed regular collection must leave only the missing white skin in the prize pool');
    const exclusiveLayout=await exclusiveSection.locator('.kenny-pool-items').evaluate(el=>{
      const bar=el.querySelector('.kenny-pool-zebra-divider');
      const zebra=el.querySelector('.kenny-pool-zebra');
@@ -894,15 +893,15 @@ async function main(){
        zebraLabel:zebra?.textContent?.trim()};
    });
    assert(exclusiveLayout.bar==='Exklusiv ab Level 4 mit 0,5%'&&
-     exclusiveLayout.zebraLabel?.includes('Kenny Zebra')&&
+     exclusiveLayout.zebraLabel?.includes('Kenny Weiß')&&
      exclusiveLayout.barPosition===exclusiveLayout.totalChildren-2&&
      exclusiveLayout.zebraPosition===exclusiveLayout.totalChildren-1&&
      !exclusiveLayout.heading?.includes('Zebra separat'),
-     'Zebra must appear immediately after its own rarity bar, following Kenny Rot: '+JSON.stringify(exclusiveLayout));
+     'The white skin must appear immediately after its own rarity bar, following Kenny Rot: '+JSON.stringify(exclusiveLayout));
    assert.equal(await exclusiveSection.locator('.kenny-pool-complete-regular').count(),1,
      'The five ordinary season exclusives must show their own completed note');
    assert.equal(await exclusiveSection.locator('.kenny-pool-complete-zebra').count(),0,
-     'The rare Zebra note must stay absent before Zebra is owned');
+     'The rare white-skin note must stay absent before it is owned');
    const modal=await poolPage.evaluate(()=>{
     const root=document.querySelector('.kenny-pool-dialog');
     const list=document.querySelector('.kenny-pool-scroll');

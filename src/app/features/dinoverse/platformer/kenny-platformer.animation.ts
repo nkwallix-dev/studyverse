@@ -25,8 +25,7 @@ export function playerAnimation(world: KennyWorld): { motion: PlayerMotion; fram
       ),
     };
   if (!world.grounded) return { motion: 'jump', frame: frameAt30Fps(world.elapsed) };
-  if (Math.abs(world.player.vx) > 10)
-    return { motion: 'walk', frame: frameAt30Fps(world.elapsed) };
+  if (Math.abs(world.player.vx) > 10) return { motion: 'walk', frame: frameAt30Fps(world.elapsed) };
   return { motion: 'idle', frame: idleAtlasFrame(world.elapsed) };
 }
 export function enemyAnimation(

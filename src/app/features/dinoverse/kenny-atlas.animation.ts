@@ -30,10 +30,7 @@ export function idleAtlasFrame(elapsedSeconds: number): number {
   return tick < 81 ? 0 : tick - 81;
 }
 
-export function atlasCellForMotion(
-  motion: KennyAtlasMotion,
-  frame: number,
-): KennyAtlasCell {
+export function atlasCellForMotion(motion: KennyAtlasMotion, frame: number): KennyAtlasCell {
   return {
     column: clampFrame(frame, KENNY_ATLAS_COLUMNS - 1),
     row: MOTION_ROWS[motion],
