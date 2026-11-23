@@ -8,7 +8,11 @@
 const R=[];
 function B(no,category,prompt,solution,steps,expected,graph){
  const n=String(no);if(!prompt||!solution||!steps)throw Error('Incomplete book task '+n);
- const x={id:'book-'+n.replace(/[^a-z0-9]/gi,'-'),number:n,category,prompt,solution,steps,source:'Vom Nutzer bereitgestellte Mathe-Matik 4, Kapitel 1–2 (Buch-Screenshot-ZIP)'};
+ const section=n.split('.')[0],number=Number((n.split('.')[1]||'').match(/^\\d+/)?.[0]||0);
+ const originalPage=section==='2'?(number<=31?14:15):
+   number<=9?1:number<=13?2:number<=20?3:number<=25?4:number<=30?5:number<=33?6:
+   number<=65?7:number<=70?8:number<=74?9:number<=76?10:number<=82?11:number<=92?12:13;
+ const x={id:'book-'+n.replace(/[^a-z0-9]/gi,'-'),number:n,category,prompt,solution,steps,source:'Originaldatei: Buchbeispiele laut SchularbeitsStoff.zip · Screenshot '+String(originalPage).padStart(2,'0'),originalScreenshot:originalPage};
  if(expected!==undefined&&expected!==null)x.expected=expected;
  if(graph)x.graph=graph;
  R.push(x);
