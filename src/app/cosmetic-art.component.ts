@@ -46,7 +46,7 @@ import { FitCosmeticTextDirective } from './fit-cosmetic-text.directive';
                 id="tasty_token"
                 fallback="🪙"
                 class="token-icon"
-              /><ng-template #effectEmoji>{{ item.icon }}</ng-template></span
+              /><ng-template #effectEmoji>{{ effectParticle(n) }}</ng-template></span
             >
           </div>
         </div>
@@ -142,4 +142,9 @@ export class CosmeticArtComponent {
   @Input() equippedTitle = 'Weltenentdecker';
   @Input() equippedFont = 'standard';
   readonly particles = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+  effectParticle(index: number): string {
+    if (this.item.id === 'maths_chalk_fx') return ['∂', 'f′', '∫', '·', 'dx', '∑'][index % 6];
+    if (this.item.id === 'maths_delta_fx') return ['Δ', '∫', 'Δx', '∂', 'π', '∑'][index % 6];
+    return this.item.icon;
+  }
 }

@@ -30,6 +30,11 @@
   (seenRequested)="acknowledgeCompanion($event)" (inventoryRequested)="go('companion-equipment')" />
 <div class="universe" [attr.inert]="view==='platformer'?'':null" [class.kenny-mode]="view==='shop' && (shopTab==='kenny'||shopTab==='designer')" [class.shop-mode]="view==='shop' && (shopTab==='catalog'||shopTab==='inventory')" [class.friends-mode]="view==='friends'" [class.designer-mode]="view==='shop' && shopTab==='designer'" [class.companions-mode]="view==='companions'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
   <div class="ambient a"></div><div class="ambient b"></div>
+  @if (equippedMathsEffect; as effect) {
+    <div class="studyverse-maths-fx" [attr.data-fx]="effect.equip || effect.id" aria-hidden="true">
+      <span *ngFor="let slot of previewParticleSlots; let i=index" [style.--particle-index]="i">{{previewParticle(effect,i)}}</span>
+    </div>
+  }
   <aside class="sidebar">
     <button class="brand" (click)="go('dashboard')">
       <span class="brand-icon">✦</span>
@@ -104,6 +109,8 @@
   </div>
   <div class="banner-scene scene-parallel"><div class="parallel-grid"></div><span class="parallel-signal a">●</span><span class="parallel-signal b">●</span><span class="parallel-signal c">●</span><span class="parallel-symbol">♯</span></div>
   <div class="banner-scene scene-kenny-volcano"><span class="kenny-banner-sun"></span><span class="kenny-banner-volcano"></span><span class="kenny-banner-smoke">☁</span><span class="kenny-banner-fern">🌿</span></div>
+  <div class="banner-scene scene-maths-curve"><img src="cosmetics/banners/maths_curve.svg" alt="" loading="eager" /></div>
+  <div class="banner-scene scene-maths-integral"><img src="cosmetics/banners/maths_integral.svg" alt="" loading="eager" /></div>
 </div><div class="planet-stage"><div class="planet-glow"></div><div class="planet-orbit orbit-1"></div><div class="planet-orbit orbit-2"></div><div class="planet"><span>✦</span></div><div class="orbit-spark s1">✧</div><div class="orbit-spark s2">✦</div></div>
           </div>
           <section class="level-card dashboard-level" aria-label="Dein Level-Fortschritt">
@@ -541,6 +548,8 @@
   </div>
   <div class="banner-scene scene-parallel"><div class="parallel-grid"></div><span class="parallel-signal a">●</span><span class="parallel-signal b">●</span><span class="parallel-signal c">●</span><span class="parallel-symbol">♯</span></div>
   <div class="banner-scene scene-kenny-volcano"><span class="kenny-banner-sun"></span><span class="kenny-banner-volcano"></span><span class="kenny-banner-smoke">☁</span><span class="kenny-banner-fern">🌿</span></div>
+  <div class="banner-scene scene-maths-curve"><img src="cosmetics/banners/maths_curve.svg" alt="" loading="eager" /></div>
+  <div class="banner-scene scene-maths-integral"><img src="cosmetics/banners/maths_integral.svg" alt="" loading="eager" /></div>
 </div>
         <div class="friend-showcase-cover-shade"></div>
         <span class="friend-showcase-cover-tag">✦ STUDYVERSE PLAYER CARD</span>
@@ -1048,6 +1057,8 @@
                 <span class="kenny-banner-sun"></span><span class="kenny-banner-volcano"></span
                 ><span class="kenny-banner-smoke">☁</span><span class="kenny-banner-fern">🌿</span>
               </div>
+  <div class="banner-scene scene-maths-curve"><img src="cosmetics/banners/maths_curve.svg" alt="" loading="eager" /></div>
+  <div class="banner-scene scene-maths-integral"><img src="cosmetics/banners/maths_integral.svg" alt="" loading="eager" /></div>
             </div>
           </div>
           <div class="shop-live-cards">
@@ -1070,7 +1081,7 @@
                   id="tasty_token"
                   fallback="🪙"
                   class="token-icon"
-                /><ng-template #effectText>{{ previewParticle(effect) }}</ng-template></span
+                /><ng-template #effectText>{{ previewParticle(effect,i) }}</ng-template></span
               >
             </div>
           }

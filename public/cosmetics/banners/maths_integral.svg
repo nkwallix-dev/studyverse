@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-label="Integral-Landschaft – schraffierte Fläche unter einem Funktionsgraphen">
+<defs>
+<linearGradient id="board" x1="0" y1="0" x2="1" y2=".7"><stop stop-color="#071f1d"/><stop offset=".56" stop-color="#123c2e"/><stop offset="1" stop-color="#20664a"/></linearGradient>
+<radialGradient id="light"><stop stop-color="#c7ff8e" stop-opacity=".31"/><stop offset="1" stop-color="#c7ff8e" stop-opacity="0"/></radialGradient>
+<linearGradient id="veil"><stop stop-color="#061b18" stop-opacity=".9"/><stop offset=".55" stop-color="#071b19" stop-opacity=".64"/><stop offset="1" stop-color="#071b19" stop-opacity="0"/></linearGradient>
+<filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>
+<pattern id="hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="1" y1="0" x2="1" y2="12" stroke="#d4fbaa" stroke-opacity=".46" stroke-width="3"/></pattern>
+<linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#bcf187" stop-opacity=".6"/><stop offset="1" stop-color="#72bd9a" stop-opacity=".16"/></linearGradient>
+<linearGradient id="chalk" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#73e5b0"/><stop offset=".5" stop-color="#d8ff9d"/><stop offset="1" stop-color="#a0ffda"/></linearGradient>
+</defs>
+<rect width="1200" height="360" fill="url(#board)"/>
+<ellipse cx="905" cy="167" rx="450" ry="260" fill="url(#light)"/>
+<g fill="none" stroke="#9acb9d" stroke-width="1" opacity=".25"><path d="M0 0V360"/><path d="M45 0V360"/><path d="M90 0V360"/><path d="M135 0V360"/><path d="M180 0V360"/><path d="M225 0V360"/><path d="M270 0V360"/><path d="M315 0V360"/><path d="M360 0V360"/><path d="M405 0V360"/><path d="M450 0V360"/><path d="M495 0V360"/><path d="M540 0V360"/><path d="M585 0V360"/><path d="M630 0V360"/><path d="M675 0V360"/><path d="M720 0V360"/><path d="M765 0V360"/><path d="M810 0V360"/><path d="M855 0V360"/><path d="M900 0V360"/><path d="M945 0V360"/><path d="M990 0V360"/><path d="M1035 0V360"/><path d="M1080 0V360"/><path d="M1125 0V360"/><path d="M1170 0V360"/><path d="M0 0H1200"/><path d="M0 45H1200"/><path d="M0 90H1200"/><path d="M0 135H1200"/><path d="M0 180H1200"/><path d="M0 225H1200"/><path d="M0 270H1200"/><path d="M0 315H1200"/><path d="M0 360H1200"/></g>
+<g fill="#d6f5cc" opacity=".23" font-family="Georgia,serif" font-style="italic"><text x="62" y="285" font-size="86">∫</text><text x="195" y="77" font-size="27">f(x)</text><text x="320" y="312" font-size="29">Δx</text></g>
+
+<g fill="none" stroke="#b4e2ba" stroke-opacity=".7" stroke-width="2.5" stroke-linecap="round">
+<path d="M595 291H1165"/><path d="M645 331V32"/><path d="M1154 283L1165 291L1154 299"/><path d="M637 44L645 32L653 44"/>
+</g>
+<path d="M690 291V246 C758 240 765 117 829 132 S939 226 985 168 S1058 96 1110 78 L1110 291Z" fill="url(#area)"/>
+<path d="M690 291V246 C758 240 765 117 829 132 S939 226 985 168 S1058 96 1110 78 L1110 291Z" fill="url(#hatch)" opacity=".69"/>
+<g stroke="#a3e8ab" stroke-opacity=".64" stroke-width="1.8"><path d="M690 291V246M760 291V192M830 291V132M900 291V179M970 291V187M1040 291V100M1110 291V78"/></g>
+<path d="M663 258C742 268 756 110 828 132S938 222 985 168S1057 94 1118 77" fill="none" stroke="#a7ffd6" stroke-width="16" opacity=".25" filter="url(#glow)"/>
+<path d="M663 258C742 268 756 110 828 132S938 222 985 168S1057 94 1118 77" fill="none" stroke="url(#chalk)" stroke-width="5.5" stroke-linecap="round"/>
+<circle cx="830" cy="132" r="6.5" fill="#f0f9a8" stroke="#fff5cd" stroke-width="2"/>
+<circle cx="1110" cy="80" r="5" fill="#caffb4"/>
+<g font-family="Georgia,serif" font-style="italic" fill="#eaffd1"><text x="1026" y="59" font-size="30">f(x)</text><text x="810" y="227" font-size="35" fill="#f1ffaa">∫ₐᵇ f(x) dx</text><text x="682" y="319" font-size="21">a</text><text x="1105" y="319" font-size="21">b</text><text x="1163" y="320" text-anchor="end" font-size="20">x</text><text x="632" y="36" text-anchor="end" font-size="20">y</text></g>
+<path d="M689 285H1110" stroke="#e2ffa4" stroke-width="3" opacity=".5"/>
+<g fill="#e1ffab" opacity=".85"><circle cx="775" cy="72" r="3"/><circle cx="944" cy="108" r="2"/><circle cx="1060" cy="204" r="3"/></g>
+
+<rect x="0" y="0" width="650" height="360" fill="url(#veil)"/>
+<path d="M45 42H1155" stroke="#c4f6b9" stroke-opacity=".12"/>
+<path d="M45 320H1155" stroke="#c4f6b9" stroke-opacity=".12"/>
+<circle cx="1114" cy="42" r="3" fill="#eaffb6" opacity=".9"/><circle cx="1138" cy="42" r="2" fill="#eaffb6" opacity=".55"/>
+</svg>

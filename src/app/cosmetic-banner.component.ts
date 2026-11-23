@@ -12,6 +12,8 @@ const BANNER_PREVIEWS = new Set([
   'pink_paradise',
   'parallel_pulse',
   'kenny_volcano',
+  'maths_curve',
+  'maths_integral',
 ]);
 
 /** Still images of the actual Studyverse dashboard banners. */
@@ -48,6 +50,6 @@ export class CosmeticBannerComponent {
 
   get source(): string {
     const key = this.banner && BANNER_PREVIEWS.has(this.banner) ? this.banner : 'default';
-    return 'cosmetics/banners/' + key + '.webp';
+    return 'cosmetics/banners/' + key + (key.startsWith('maths_') ? '.svg' : '.webp');
   }
 }

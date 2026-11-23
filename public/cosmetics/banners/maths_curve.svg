@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-label="Kurvenwerkstatt – aufleuchtende Funktion mit Tangente">
+<defs>
+<linearGradient id="board" x1="0" y1="0" x2="1" y2=".7"><stop stop-color="#071f1d"/><stop offset=".56" stop-color="#123c2e"/><stop offset="1" stop-color="#20664a"/></linearGradient>
+<radialGradient id="light"><stop stop-color="#77ffba" stop-opacity=".31"/><stop offset="1" stop-color="#77ffba" stop-opacity="0"/></radialGradient>
+<linearGradient id="veil"><stop stop-color="#061b18" stop-opacity=".9"/><stop offset=".55" stop-color="#071b19" stop-opacity=".64"/><stop offset="1" stop-color="#071b19" stop-opacity="0"/></linearGradient>
+<filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>
+<pattern id="hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="1" y1="0" x2="1" y2="12" stroke="#d4fbaa" stroke-opacity=".46" stroke-width="3"/></pattern>
+<linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#bcf187" stop-opacity=".6"/><stop offset="1" stop-color="#72bd9a" stop-opacity=".16"/></linearGradient>
+<linearGradient id="chalk" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#73e5b0"/><stop offset=".5" stop-color="#d8ff9d"/><stop offset="1" stop-color="#a0ffda"/></linearGradient>
+</defs>
+<rect width="1200" height="360" fill="url(#board)"/>
+<ellipse cx="905" cy="167" rx="450" ry="260" fill="url(#light)"/>
+<g fill="none" stroke="#9acb9d" stroke-width="1" opacity=".25"><path d="M0 0V360"/><path d="M45 0V360"/><path d="M90 0V360"/><path d="M135 0V360"/><path d="M180 0V360"/><path d="M225 0V360"/><path d="M270 0V360"/><path d="M315 0V360"/><path d="M360 0V360"/><path d="M405 0V360"/><path d="M450 0V360"/><path d="M495 0V360"/><path d="M540 0V360"/><path d="M585 0V360"/><path d="M630 0V360"/><path d="M675 0V360"/><path d="M720 0V360"/><path d="M765 0V360"/><path d="M810 0V360"/><path d="M855 0V360"/><path d="M900 0V360"/><path d="M945 0V360"/><path d="M990 0V360"/><path d="M1035 0V360"/><path d="M1080 0V360"/><path d="M1125 0V360"/><path d="M1170 0V360"/><path d="M0 0H1200"/><path d="M0 45H1200"/><path d="M0 90H1200"/><path d="M0 135H1200"/><path d="M0 180H1200"/><path d="M0 225H1200"/><path d="M0 270H1200"/><path d="M0 315H1200"/><path d="M0 360H1200"/></g>
+<g fill="#d6f5cc" opacity=".23" font-family="Georgia,serif" font-style="italic"><text x="62" y="285" font-size="86">∫</text><text x="195" y="77" font-size="27">f(x)</text><text x="320" y="312" font-size="29">Δx</text></g>
+
+<g fill="none" stroke="#b8ecca" stroke-opacity=".62" stroke-width="2.5" stroke-linecap="round">
+<path d="M610 290H1165"/><path d="M654 332V33"/><path d="M1154 282L1165 290L1154 298"/><path d="M646 44L654 33L662 44"/>
+</g>
+<g stroke="#bde6bd" stroke-opacity=".46" stroke-width="1.5"><path d="M760 286v9M860 286v9M960 286v9M1060 286v9M649 190h10M649 105h10"/></g>
+<text x="1164" y="317" text-anchor="end" fill="#d6f6c5" font-size="21" font-family="Georgia,serif">x</text>
+<text x="636" y="35" text-anchor="end" fill="#d6f6c5" font-size="20" font-family="Georgia,serif">y</text>
+<path d="M610 314 C678 318 723 283 752 243 S817 122 869 149 S994 245 1116 74" fill="none" stroke="#8fffe0" stroke-width="16" opacity=".35" filter="url(#glow)"/>
+<path d="M610 314 C678 318 723 283 752 243 S817 122 869 149 S994 245 1116 74" fill="none" stroke="url(#chalk)" stroke-width="6" stroke-linecap="round"/>
+<path d="M718 292L923 91" stroke="#f4d77f" stroke-width="3" stroke-linecap="round" stroke-dasharray="12 8"/>
+<path d="M816 193V291H654" stroke="#d8ffd0" stroke-width="1.7" stroke-dasharray="5 6" opacity=".52"/>
+<circle cx="816" cy="193" r="14" fill="#e8f9ad" opacity=".24"/>
+<circle cx="816" cy="193" r="7" fill="#ffe79c" stroke="#fff6d2" stroke-width="2"/>
+<g font-family="Georgia,serif" font-style="italic" fill="#eaffd2"><text x="1032" y="60" font-size="34">f(x)</text><text x="924" y="119" font-size="24" fill="#ffe49b">f′(x)</text><text x="781" y="326" font-size="20">x₀</text></g>
+<g fill="#d0f8b9" opacity=".73"><circle cx="1082" cy="153" r="3"/><circle cx="1014" cy="67" r="2"/><circle cx="706" cy="120" r="2"/><circle cx="923" cy="248" r="2.5"/></g>
+
+<rect x="0" y="0" width="650" height="360" fill="url(#veil)"/>
+<path d="M45 42H1155" stroke="#c4f6b9" stroke-opacity=".12"/>
+<path d="M45 320H1155" stroke="#c4f6b9" stroke-opacity=".12"/>
+<circle cx="1114" cy="42" r="3" fill="#eaffb6" opacity=".9"/><circle cx="1138" cy="42" r="2" fill="#eaffb6" opacity=".55"/>
+</svg>

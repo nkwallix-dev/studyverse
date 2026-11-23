@@ -255,3 +255,41 @@ body.studyverse-cosmetics[data-frame="glass"]{--verse-frame-color:#86e6ff}
 body.studyverse-cosmetics[data-frame="kenny_fossil"]{--verse-frame-color:#f1bf7d}
 /* Global stylesheet only; maths source/exam layout is left untouched. */
 body.studyverse-cosmetics[data-frame]:not([data-frame="none"]) :is(.source-task,.source-detail,.source-exam-card){outline:2px solid var(--verse-frame-color,var(--border));outline-offset:-2px}
+
+
+/* MathsVerse vector banners are rendered in all standalone training worlds. */
+body.studyverse-cosmetics[data-banner="maths_curve"] .hero .verse-banner{background:url("../cosmetics/banners/maths_curve.svg") right center / cover no-repeat!important}
+body.studyverse-cosmetics[data-banner="maths_integral"] .hero .verse-banner{background:url("../cosmetics/banners/maths_integral.svg") right center / cover no-repeat!important}
+body.studyverse-cosmetics[data-banner="maths_curve"] .hero .verse-banner span,
+body.studyverse-cosmetics[data-banner="maths_integral"] .hero .verse-banner span{
+ font-size:clamp(18px,2.8vw,36px)!important;opacity:.85;text-shadow:0 0 12px #a6ffc6
+}
+/* Previous global z-index hid these effects behind the trainer interface. */
+body.studyverse-cosmetics[data-fx="maths_chalk_fx"]>.verse-fx,
+body.studyverse-cosmetics[data-fx="maths_delta_fx"]>.verse-fx{
+ z-index:18;opacity:.72;pointer-events:none
+}
+body.studyverse-cosmetics[data-fx="maths_chalk_fx"] .verse-fx i{
+ font:italic 700 23px/1.4 Georgia,serif;color:#eeffd3;
+ opacity:.8;text-shadow:0 0 8px #55dfa7;animation:verse-fx-drift 5s ease-in-out infinite alternate
+}
+body.studyverse-cosmetics[data-fx="maths_chalk_fx"] .verse-fx i::after{
+ content:"";display:block;width:30px;height:2px;
+ background:linear-gradient(90deg,transparent,#efffc5,transparent);
+ box-shadow:0 0 7px #b4ffc6;transform:rotate(-12deg)
+}
+body.studyverse-cosmetics[data-fx="maths_delta_fx"] .verse-fx i{
+ font:700 24px/1.4 Georgia,serif;color:#e0ff9d;opacity:.75;
+ text-shadow:0 0 12px #a6fc8a;animation:verse-fx-drift 4.3s ease-in-out infinite alternate
+}
+body.studyverse-cosmetics[data-fx="maths_delta_fx"] .verse-fx i::before{
+ content:"";position:absolute;inset:-12px;border:2px solid #d2ffa899;
+ border-radius:50%;animation:study-maths-ring 3s ease-out infinite;
+ animation-delay:calc(var(--i) * -.26s)
+}
+@keyframes study-maths-ring{from{transform:scale(.45);opacity:.72}to{transform:scale(1.6);opacity:0}}
+@media(prefers-reduced-motion:reduce){
+ body.studyverse-cosmetics[data-fx="maths_chalk_fx"] .verse-fx i,
+ body.studyverse-cosmetics[data-fx="maths_delta_fx"] .verse-fx i,
+ body.studyverse-cosmetics[data-fx="maths_delta_fx"] .verse-fx i::before{animation:none!important;opacity:.75}
+}

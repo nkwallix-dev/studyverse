@@ -1402,7 +1402,14 @@ export class App implements OnInit,OnDestroy {
    const effect = this.previewValue('fx', item, after);
    return this.items.find((candidate) => candidate.group === 'fx' && candidate.equip === effect);
  }
- previewParticle(item:ShopItem):string{
+ get equippedMathsEffect():ShopItem|null{
+  const fx=this.previewSlot('fx');
+  return fx==='maths_chalk_fx'||fx==='maths_delta_fx'
+   ?this.items.find(item=>item.group==='fx'&&item.equip===fx)||null:null;
+ }
+ previewParticle(item:ShopItem,index=0):string{
+   if(item.id==='maths_chalk_fx')return ['∂','f′','∫','·','dx','∑'][index%6];
+   if(item.id==='maths_delta_fx')return ['Δ','∫','Δx','∂','π','∑'][index%6];
    if(item.id==='effect_coinrain')return '🪙';
    if(item.id==='effect_discoin')return '🪩';
    if(item.id==='dsai_fx')return '✧';

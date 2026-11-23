@@ -70,6 +70,10 @@ const EFFECTS={
  neural_spark:'✧',thread_sparks:'⚡',pulse_rings:'◯',
  maths_chalk_fx:'∂',maths_delta_fx:'Δ'
 };
+const MATHS_PARTICLES={
+ maths_chalk_fx:['∂','f′','∫','·','dx','∑'],
+ maths_delta_fx:['Δ','∫','Δx','∂','π','∑']
+};
 let lastBanner='';
 let lastFx='';
 function readProfile(){
@@ -112,7 +116,7 @@ function refreshFx(fx){
    span.style.setProperty('--i',i);
    span.style.left=(6+i*11)+'%';
    span.style.top=(10+(i%4)*21)+'%';
-   span.textContent=symbol;
+   span.textContent=MATHS_PARTICLES[fx]?MATHS_PARTICLES[fx][i%MATHS_PARTICLES[fx].length]:symbol;
    layer.appendChild(span);
   }
  }
