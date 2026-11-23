@@ -1,0 +1,193 @@
+{
+  "version": 1,
+  "source": "approved-kenny-master",
+  "width": 1205,
+  "height": 1305,
+  "fps": 10,
+  "skins": [
+    "blue",
+    "green",
+    "red",
+    "pink",
+    "white"
+  ],
+  "skinAlias": {
+    "zebra": "white"
+  },
+  "parts": [
+    {
+      "id": "eye_open",
+      "x": 694,
+      "y": 192,
+      "width": 197,
+      "height": 169,
+      "pivotX": 800,
+      "pivotY": 268
+    },
+    {
+      "id": "jaw_lower",
+      "x": 640,
+      "y": 349,
+      "width": 383,
+      "height": 236,
+      "pivotX": 756,
+      "pivotY": 380
+    },
+    {
+      "id": "head_upper",
+      "x": 533,
+      "y": 106,
+      "width": 624,
+      "height": 399,
+      "pivotX": 699,
+      "pivotY": 437
+    },
+    {
+      "id": "hand_far",
+      "x": 860,
+      "y": 673,
+      "width": 191,
+      "height": 177,
+      "pivotX": 896,
+      "pivotY": 716
+    },
+    {
+      "id": "arm_far",
+      "x": 800,
+      "y": 656,
+      "width": 92,
+      "height": 122,
+      "pivotX": 849,
+      "pivotY": 690
+    },
+    {
+      "id": "hand_near",
+      "x": 676,
+      "y": 678,
+      "width": 198,
+      "height": 196,
+      "pivotX": 724,
+      "pivotY": 723
+    },
+    {
+      "id": "arm_near",
+      "x": 574,
+      "y": 598,
+      "width": 184,
+      "height": 195,
+      "pivotX": 631,
+      "pivotY": 682
+    },
+    {
+      "id": "foot_near",
+      "x": 279,
+      "y": 1056,
+      "width": 271,
+      "height": 164,
+      "pivotX": 396,
+      "pivotY": 1086
+    },
+    {
+      "id": "shin_near",
+      "x": 330,
+      "y": 909,
+      "width": 173,
+      "height": 173,
+      "pivotX": 397,
+      "pivotY": 955
+    },
+    {
+      "id": "thigh_near",
+      "x": 401,
+      "y": 694,
+      "width": 255,
+      "height": 303,
+      "pivotX": 495,
+      "pivotY": 842
+    },
+    {
+      "id": "foot_far",
+      "x": 685,
+      "y": 1043,
+      "width": 310,
+      "height": 156,
+      "pivotX": 777,
+      "pivotY": 1069
+    },
+    {
+      "id": "shin_far",
+      "x": 645,
+      "y": 910,
+      "width": 199,
+      "height": 148,
+      "pivotX": 734,
+      "pivotY": 958
+    },
+    {
+      "id": "thigh_far",
+      "x": 655,
+      "y": 779,
+      "width": 241,
+      "height": 200,
+      "pivotX": 778,
+      "pivotY": 853
+    },
+    {
+      "id": "neck",
+      "x": 621,
+      "y": 420,
+      "width": 241,
+      "height": 294,
+      "pivotX": 729,
+      "pivotY": 623
+    },
+    {
+      "id": "tail_tip",
+      "x": 24,
+      "y": 507,
+      "width": 208,
+      "height": 88,
+      "pivotX": 197,
+      "pivotY": 552
+    },
+    {
+      "id": "tail_mid",
+      "x": 188,
+      "y": 506,
+      "width": 271,
+      "height": 219,
+      "pivotX": 396,
+      "pivotY": 658
+    },
+    {
+      "id": "tail_base",
+      "x": 375,
+      "y": 575,
+      "width": 317,
+      "height": 277,
+      "pivotX": 584,
+      "pivotY": 704
+    },
+    {
+      "id": "torso_core",
+      "x": 0,
+      "y": 11,
+      "width": 1197,
+      "height": 1294,
+      "pivotX": 613,
+      "pivotY": 756
+    }
+  ],
+  "extraParts": [
+    {
+      "id": "eye_closed",
+      "x": 694,
+      "y": 192,
+      "width": 200,
+      "height": 170,
+      "pivotX": 800,
+      "pivotY": 268
+    }
+  ],
+  "note": "All parts originate from one approved master PNG; generated Part 1 source remains reference-only. At rest the non-overlapping layers reconstruct the original pixels."
+}
