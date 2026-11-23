@@ -1784,7 +1784,7 @@ async function main(){
      }
      assert((await cosmeticPage.locator('#main').innerText()).includes('FRAGE 2 / 20'),'Exam must progress to a second sourced problem');
      await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="book"]').click());
-     await cosmeticPage.locator('[data-action="source:open:book-1-19a"]').click();
+     await cosmeticPage.locator('[data-action="source:open:group-1-19"]').click();
      await cosmeticPage.locator('.handwrite-note').waitFor({timeout:5000});
      assert((await cosmeticPage.locator('.handwrite-note').innerText()).includes('Stift und Papier'),'Real textbook tasks must prompt for paper');
      assert.equal(await cosmeticPage.locator('#sourceAnswer').count(),1,'Textbook tasks must allow an answer');
@@ -1818,16 +1818,30 @@ async function main(){
        'Selecting next exercise must close the solution inside the reader');
      assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,'Page must be fixed again after next exercise');
      assert.equal(await cosmeticPage.locator('#nav [data-nav="graphs"]').count(),0,'Graphenlabor removed from MathsVerse');
+     await cosmeticPage.locator('[data-action="source:open:group-1-80"]').evaluate(el=>el.click());
+     const scanned=cosmeticPage.locator('.book-original-sheet img');
+     assert.equal(await scanned.count(),2,'Book 1.80 should present its two authentic source-image fragments');
+     await cosmeticPage.locator('.book-original-toggle').evaluate(el=>el.open=true);
+     await cosmeticPage.waitForFunction(()=>[...document.querySelectorAll('.book-original-sheet img')].every(el=>el.complete&&el.naturalWidth>0));
+     assert.equal(await cosmeticPage.locator('.book-step-pick').count(),2,'Book 1.80 must have exactly two independently selectable subtasks');
+     await cosmeticPage.locator('[data-action="source:step:book-1-80b"]').click();
+     assert((await cosmeticPage.locator('.book-active-step h3').innerText()).includes('Schritt 2'),'Clicking second step must show the second part');
+     assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,
+       'Group step changes must preserve fixed viewport');
+     await cosmeticPage.locator('[data-action="source:open:group-1-100"]').evaluate(el=>el.click());
+     assert.equal(await cosmeticPage.locator('.book-step-pick').count(),4,'Drone example 1.100 must contain all four ordered subtasks');
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-original-390.png'),fullPage:true});
      await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="pool"]').click());
      await cosmeticPage.locator('.source-external').first().waitFor({timeout:5000});
-     assert.equal(await cosmeticPage.locator('.source-list .source-task').count(),50,'SRDP bank must contain 50 sourced tasks');
-     await cosmeticPage.locator('[data-action="source:open:pool-a-117-c"]').evaluate(el=>el.click());
-     await cosmeticPage.locator('.source-inline-original').waitFor({timeout:5000});
-     assert((await cosmeticPage.locator('.source-original-text').innerText()).includes('Geschwindigkeitsverlauf'),
-       'Descriptor page must render complete source exercise text directly, not a generic link-only prompt');
-     await cosmeticPage.locator('.source-original-figures img').first().waitFor({state:'visible',timeout:5000});
-     await cosmeticPage.waitForFunction(()=>document.querySelector('.source-original-figures img')?.naturalWidth>0,{timeout:10000});
+     assert.equal(await cosmeticPage.locator('.source-list .source-task').count(),29,'SRDP bank displays only original native PDF tasks');
+     await cosmeticPage.locator('[data-action="source:open:pool-b-377-c"]').evaluate(el=>el.click());
+     await cosmeticPage.locator('.source-pdf-sheet iframe').waitFor({timeout:5000});
+     const sourceUrl=await cosmeticPage.locator('.source-pdf-sheet iframe').getAttribute('src');
+     assert(sourceUrl.startsWith('https://www.aufgabenpool.at/amn/'),
+       'Only the official Aufgabenpool domain may serve the source tasks');
+     await cosmeticPage.locator('[data-action="source:pool-check"]').click();
+     assert((await cosmeticPage.locator('.source-reading .source-solution').innerText()).includes('möglichen Lösungswege'),
+       'Checking descriptor solutions must point to the official answer pages inside the PDF');
      assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,
        'Descriptor original statement must not re-enable outer page scrolling');
      const layout=await cosmeticPage.locator('.source-detail').evaluate(el=>{
