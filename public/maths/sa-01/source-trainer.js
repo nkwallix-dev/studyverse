@@ -14,6 +14,14 @@ function shuffle(items){let a=[...items];for(let i=a.length-1;i>0;i--){let j=Mat
 const key=q=>q.id.replace(/[^a-z0-9-]/gi,'_');
 const solvedKey=(q,mode)=>mode==='book'?'n'+key(q):'q'+key(q);
 function plot(graph){
+ if(graph?.kind==='book-velocity'){
+  const ticks=[0,1,2,3,4,5,6,7,8].map(n=>'<text x="'+(50+68*n)+'" y="225" font-size="12" text-anchor="middle" fill="#e6f6df">'+n+'</text>').join('');
+  return '<figure class="source-graph book-original-graph"><svg viewBox="0 0 660 270" role="img" aria-label="Original-Geschwindigkeits-Zeit-Grafik aus Buchaufgabe 1.13">'+
+  '<path d="M50 18V209H635" fill="none" stroke="#d3edc7" stroke-width="2"/><path d="M50 209L254 97L390 97L594 23" stroke="#a4edb4" stroke-width="5" fill="none" stroke-linecap="round"/>'+
+  '<text x="15" y="13" font-size="13" fill="#e6f6df">Geschwindigkeit in m/s</text><text x="540" y="250" font-size="13" fill="#e6f6df">Zeit in s</text>'+
+  '<text x="28" y="101" font-size="12" fill="#e6f6df">6</text><text x="21" y="25" font-size="12" fill="#e6f6df">10</text>'+ticks+
+  '</svg><figcaption>Die Geschwindigkeit bleibt von t=3 bis t=5 konstant; die Beschleunigung dort ist null.</figcaption></figure>';
+ }
  if(graph?.kind==='book-distance-time'){
   const nums=[0,1,2,3,4,5,6,7,8].map(x=>'<text x="'+(48+68*x)+'" y="222" font-size="12" text-anchor="middle" fill="#e6f6df">'+x+'</text>').join('');
   return '<figure class="source-graph book-original-graph"><svg viewBox="0 0 660 270" role="img" aria-label="Entfernungs-Zeit-Diagramm aus Buchbeispiel 1.12, nach der Originalabbildung gezeichnet">'+

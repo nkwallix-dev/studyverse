@@ -257,10 +257,10 @@ B('1.11b',K,'Der Graph von f ist eine Parabel mit Nullstellen 1 und 3 sowie Sche
  'f(x)=(x−2)²−1 ⇒ f′(x)=2x−4, eine Gerade mit Nullstelle bei x=2.',
  'Die Ableitung einer quadratischen Funktion ist eine Gerade. Links des Scheitels negativ, rechts positiv.',
  null,{curves:[{label:'f',poly:[1,-4,3]}],x:[-.2,4.3],y:[-2,5]});
-B('1.13',K,'Eine Geschwindigkeits-Zeit-Funktion steigt linear von (0|0) bis (3|6), verläuft bis (5|6) konstant und steigt dann bis (8|10). Wie groß ist die Beschleunigung im Intervall ]3;5[?',
- 'a=0 m/s². Die Geschwindigkeit ist dort konstant.',
- 'Beschleunigung ist die Steigung des v-t-Diagramms. Ein waagrechter Abschnitt hat Steigung 0.',0,
- {curves:[{label:'v(t)',points:[[0,0],[3,6],[5,6],[8,10]]}],x:[0,8],y:[0,11]});
+B('1.13',K,'In der Abbildung ist der Graph einer Geschwindigkeits-Zeit-Funktion dargestellt. Kreuze die zutreffende Aussage an.\nA: Die Beschleunigung im Intervall ]0;3[ beträgt 6 m/s².\nB: Die Beschleunigung im Intervall ]5;8[ ist größer als jene im Intervall ]0;3[.\nC: Die Beschleunigung im Intervall ]3;5[ beträgt 0 m/s².\nD: Die Geschwindigkeit im Intervall ]3;5[ beträgt 0 m/s.\nE: Der Term (v(3)−v(2))/(3−2) gibt die mittlere Geschwindigkeit im Intervall [2;3] an.',
+ 'C ist richtig. Auf dem waagrechten Graphenabschnitt 3<t<5 bleibt die Geschwindigkeit konstant (6 m/s); die Beschleunigung ist dort 0 m/s².',
+ 'Beschleunigung ist die Steigung eines v-t-Diagramms, nicht dessen Höhe. Für 0<t<3 beträgt sie 2 m/s², für 3<t<5 beträgt sie 0 und für 5<t<8 beträgt sie 4/3 m/s². Die Geschwindigkeit bleibt im mittleren Abschnitt 6 m/s.',
+ null,{kind:'book-velocity',curves:[{label:'v(t)',points:[[0,0],[3,6],[5,6],[8,10]]}],x:[0,8],y:[0,11]});
 B('1.15a',K,'Führe eine Kurvendiskussion für f(x)=x⁵−4x durch (Nullstellen, Extrema, Verhalten).',
  'f′=5x⁴−4; kritische Stellen x=±(4/5)^(1/4). f″=20x³: am negativen x lokales Maximum, am positiven x lokales Minimum. Nullstellen: x=0 und x=±√2.',
  'Mit f= x(x⁴−4) Nullstellen bestimmen. Für Extrema f′=0 und f″ untersuchen. Wegen ungeradem Grad fallen/steigen die Enden unterschiedlich.');
