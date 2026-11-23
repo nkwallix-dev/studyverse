@@ -103,6 +103,9 @@ function browserPath() {
     await page.waitForFunction(()=>document.querySelector('app-kenny-rig-preview svg image[href*="/parts/white/"]')!==null);
     assert((await rig.locator('svg image[href*="/parts/white/"]').count())>=19,'Stored zebra ID maps to white');
     await rig.getByRole('button',{name:/Gelenke/}).click();
+    await page.waitForFunction(() =>
+      document.querySelectorAll('app-kenny-rig-preview svg .rig-joint').length >= 17,
+      null, {timeout: 5000});
     assert(await rig.locator('svg .rig-joint').count()>=17,'Joint debug controls must work');
     await rig.getByRole('button',{name:'Blau',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('app-kenny-rig-preview svg image[href*="/parts/blue/"]')!==null);
