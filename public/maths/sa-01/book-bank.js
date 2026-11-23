@@ -452,6 +452,18 @@ B('2.38d',P,'Gegeben z=y·e^(sin x), S(π|−3|z₀). Bestimme zₓₓ, zᵧᵧ 
  'zₓₓ=y e^(sin x)(cos²x−sin x), zᵧᵧ=0, zₓᵧ=e^(sin x)cos x. In S: zₓₓ=−3, zᵧᵧ=0, zₓᵧ=−1.',
  'Zweimal die Kettenregel und bei zₓₓ die Produktregel. Beim Ableiten nach y ist e^(sin x) konstant.');
 
+
+/* The teacher explicitly requires 1.55–1.57 by hand: include all subparts. */
+B('1.56b',I,'Berechne ∫(³√(x²)+5/x−3/x³)dx.',
+ 'F(x)=(3/5)x^(5/3)+5ln|x|+3/(2x²)+C.',
+ 'Schreibe ³√(x²)=x^(2/3) und −3/x³=−3x⁻³. Dann die rückwärts angewandte Potenzregel und Logarithmus-Stammfunktion nutzen.');
+B('1.56c',I,'Berechne ∫(6x−5·⁴√x+³√(2x))dx.',
+ 'F(x)=3x²−4x^(5/4)+(3/8)(2x)^(4/3)+C.',
+ '⁴√x=x^(1/4); für ³√(2x) ist eine Substitution u=2x mit du=2dx hilfreich. Am Ende +C.');
+B('1.61c',I,'Berechne ∫(3−2x)/(x²−3x+4)² dx.',
+ 'F(x)=1/(x²−3x+4)+C.',
+ 'Nenner-Grundfunktion u=x²−3x+4, u′=2x−3. Zähler 3−2x=−u′. Also ∫−u′/u² dx=1/u.');
+
 if(new Set(R.map(x=>x.id)).size!==R.length)throw Error('Duplicate book IDs');
 window.MATHS_BOOK_BANK=Object.freeze(R);
 })();
