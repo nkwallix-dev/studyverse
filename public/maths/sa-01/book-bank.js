@@ -381,6 +381,66 @@ B('1.82d',V,'Rotiert f(x)=x³/8−3x²/2+9x/2+1 auf [1;7] um die x-Achse, wie gr
  'V=π·75951/1120≈213,03 cm³.',
  'Rotation um die x-Achse: V=π∫₁⁷[f(x)]²dx. Polynom quadrieren, integrieren und Grenzen einsetzen.',75951*Math.PI/1120);
 
+
+/* Actual exercises 2.25–2.38 from the last two uploaded screenshots. */
+B('2.25a',P,'Gegeben z=−5x³y²+7xy−3x²y. Bestimme zₓ und zᵧ.',
+ 'zₓ=−15x²y²+7y−6xy; zᵧ=−10x³y+7x−3x².',
+ 'Bei zₓ wird y als Konstante behandelt, bei zᵧ wird x als Konstante behandelt.');
+B('2.25b',P,'Gegeben z=4/x²−3x²y⁴+5/y. Bestimme zₓ und zᵧ.',
+ 'zₓ=−8/x³−6xy⁴; zᵧ=−12x²y³−5/y².',
+ 'Brüche als negative Potenzen schreiben. Nur die gewünschte Variable differenzieren.');
+B('2.25c',P,'Gegeben z=4x+y²/x−6/y+4. Bestimme zₓ und zᵧ.',
+ 'zₓ=4−y²/x²; zᵧ=2y/x+6/y².',
+ 'Auch bei 1/x und 1/y die Potenzregel verwenden.');
+B('2.26b',P,'Gegeben z=sin(3xy−4x²y). Berechne zₓ und zᵧ.',
+ 'zₓ=(3y−8xy)cos(3xy−4x²y); zᵧ=(3x−4x²)cos(3xy−4x²y).',
+ 'Sinus außen zu Cosinus ableiten; danach jeweils die partielle Ableitung der inneren Funktion multiplizieren.');
+B('2.26c',P,'Gegeben z=tan(5x²y³−2xy²). Berechne zₓ und zᵧ.',
+ 'Mit u=5x²y³−2xy²: zₓ=(10xy³−2y²)/cos²(u); zᵧ=(15x²y²−4xy)/cos²(u).',
+ 'Kettenregel für tan(u): (tan u)′=1/cos²u; dann u nach x bzw. y differenzieren.');
+B('2.27b',P,'Gegeben z=e^(3xy)/(2x+3y). Berechne zₓ und zᵧ.',
+ 'zₓ=e^(3xy)[3y(2x+3y)−2]/(2x+3y)²; zᵧ=e^(3xy)[3x(2x+3y)−3]/(2x+3y)².',
+ 'Quotientenregel und Kettenregel verwenden; beim Ableiten nach x bleibt y konstant, umgekehrt entsprechend.');
+B('2.27c',P,'Gegeben z=³√(3x²y+2xy²). Bestimme zₓ und zᵧ.',
+ 'Mit u=3x²y+2xy²: zₓ=(6xy+2y²)/(3u^(2/3)); zᵧ=(3x²+4xy)/(3u^(2/3)).',
+ 'Dritte Wurzel als Potenz 1/3 schreiben und Kettenregel ausführen.');
+B('2.28b',P,'Gegeben W(v,α)=v²sin(2α)/6. Berechne ∂W/∂v und ∂W/∂α.',
+ 'Wᵥ=v·sin(2α)/3; W_α=v²cos(2α)/3.',
+ 'Bei v-Ableitung ist α fest. Bei Winkelableitung bleibt v²/6 konstant; innere Ableitung von 2α ist 2.');
+B('2.28c',P,'Gegeben p(V,T)=nRT/V. Bestimme ∂p/∂V und ∂p/∂T.',
+ 'pᵥ=−nRT/V²; pₜ=nR/V.',
+ 'Die Konstanten n und R bleiben fest; bei ∂/∂V ist T konstant, bei ∂/∂T ist V konstant.');
+B('2.29b',P,'Die Halbkugel z=√(49−x²−y²) hat Radius 7. Skizziere die Fläche und beschreibe ihre Tangentialebenen an den Schnittpunkten mit x- und y-Achse.',
+ 'Am Rand (±7|0|0) und (0|±7|0) stehen die Tangentialebenen senkrecht zur xy-Ebene: x=±7 bzw. y=±7.',
+ 'Die Gleichung x²+y²+z²=49 beschreibt die Kugel. Der Radiusvektor ist an jedem der vier Randpunkte normal zur Tangentialebene.');
+B('2.30b',P,'Bestimme die Tangentialebene von z=6x²−8y² in P(−2|5|z₀).',
+ 'z₀=−176. zₓ(P)=−24, zᵧ(P)=−80. Tangentialebene z=−176−24(x+2)−80(y−5).',
+ 'Erst den Punktwert berechnen, danach zₓ=12x und zᵧ=−16y im Punkt auswerten und in z=z₀+zₓ(P)(x−x₀)+zᵧ(P)(y−y₀) einsetzen.');
+B('2.31b',P,'Bestimme die Tangentialebene von z=√(36−x²−y²) im Punkt P(−1|2|z₀).',
+ 'z₀=√31. Tangentialebene: z=√31+(x+1)/√31−2(y−2)/√31.',
+ 'Die partiellen Ableitungen lauten zₓ=−x/√(36−x²−y²) und zᵧ=−y/√(36−x²−y²). Bei P einsetzen.');
+B('2.35b',P,'Gegeben z=cos(4xy²). Bestimme zₓₓ und zᵧᵧ.',
+ 'Mit u=4xy²: zₓₓ=−16y⁴cos(u); zᵧᵧ=−8xsin(u)−64x²y²cos(u).',
+ 'Zuerst zₓ=−4y²sin(u), zᵧ=−8xy sin(u). Dann noch einmal differenzieren, bei zᵧᵧ Produkt- und Kettenregel.');
+B('2.35c',P,'Gegeben z=tan(5x³y). Ermittle zₓₓ und zᵧᵧ.',
+ 'Mit u=5x³y: zₓₓ=30xy·sec²(u)+450x⁴y²sec²(u)tan(u); zᵧᵧ=50x⁶sec²(u)tan(u).',
+ 'Zuerst Ableitung von tan als sec², danach erneute Produkt- und Kettenregel. sec²(u)=1/cos²(u).');
+B('2.36c',P,'Gegeben f(x,y)=4x²cos(x+y). Bestimme fₓₓ und fᵧᵧ.',
+ 'fₓₓ=8cos(x+y)−16xsin(x+y)−4x²cos(x+y); fᵧᵧ=−4x²cos(x+y).',
+ 'Beim zweimaligen Ableiten nach x entsteht aus dem Produkt 4x²·cos(x+y) ein zusätzlicher Term; nach y ist 4x² konstant.');
+B('2.37',P,'Gegeben f(x,y)=3x⁴y²−4xy²+x²y³. Anna und Sebastian berechnen fᵧᵧ am Rechner und erhalten verschiedene Ergebnisse. Berechne fᵧᵧ selbst und prüfe den Fehler.',
+ 'fᵧ=6x⁴y−8xy+3x²y²; fᵧᵧ=6x⁴−8x+6x²y. Prüfe, ob die Geräteausgaben zu dieser Form äquivalent sind.',
+ 'Halte x konstant. Differenziere 3x⁴y² zweimal nach y ⇒6x⁴; −4xy² ⇒−8x; x²y³⇒6x²y. Auf den Rechnern wurde die Ableitungsvariable vermutlich falsch gewählt.');
+B('2.38b',P,'Gegeben z=2sin(4x)+5cos(6y), Q(π/6|π/4|z₀). Bestimme zₓₓ, zᵧᵧ und zₓᵧ in Q.',
+ 'zₓₓ=−32sin(4x), zᵧᵧ=−180cos(6y), zₓᵧ=0. In Q: zₓₓ=−16√3, zᵧᵧ=0, zₓᵧ=0.',
+ 'Die beiden Summanden hängen jeweils nur von einer Variablen ab. Das gemischte Ableiten liefert 0; in die zweiten Ableitungen danach π/6 bzw. π/4 einsetzen.');
+B('2.38c',P,'Gegeben z=(x²+y)/(y−x), R(1|4|z₀). Bestimme zₓₓ, zᵧᵧ und prüfe zₓᵧ=zᵧₓ in R.',
+ 'zₓₓ=2y(y+1)/(y−x)³, zᵧᵧ=2x(x+1)/(y−x)³. In R: zₓₓ=40/27, zᵧᵧ=4/27, zₓᵧ=zᵧₓ=−13/27.',
+ 'Quotientenregel für beide ersten Ableitungen. Danach erneut differenzieren und am Ende x=1, y=4 einsetzen.');
+B('2.38d',P,'Gegeben z=y·e^(sin x), S(π|−3|z₀). Bestimme zₓₓ, zᵧᵧ und die gemischte Ableitung am Punkt.',
+ 'zₓₓ=y e^(sin x)(cos²x−sin x), zᵧᵧ=0, zₓᵧ=e^(sin x)cos x. In S: zₓₓ=−3, zᵧᵧ=0, zₓᵧ=−1.',
+ 'Zweimal die Kettenregel und bei zₓₓ die Produktregel. Beim Ableiten nach y ist e^(sin x) konstant.');
+
 if(new Set(R.map(x=>x.id)).size!==R.length)throw Error('Duplicate book IDs');
 window.MATHS_BOOK_BANK=Object.freeze(R);
 })();
