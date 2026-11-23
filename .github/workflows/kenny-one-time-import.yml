@@ -1,4 +1,4 @@
-name: Import Kenny master reference assets (one shot)
+name: Produce Kenny rig PNG parts (one shot)
 on:
   push:
     branches:
@@ -12,26 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Obtain approved master and Part 1 image for asset pipeline
-        run: |
-          set -euo pipefail
-          mkdir -p public/kenny/rig/v1/source
-          curl -LfsS --retry 2 --max-time 90 'https://at.adobe.com/2lvXzjICzr8q4LmR' -o public/kenny/rig/v1/source/kenny-approved-master.png
-          curl -LfsS --retry 2 --max-time 90 'https://at.adobe.com/68UW3PrR4jukjEzt' -o public/kenny/rig/v1/source/kenny-part1-source.png
-          python3 - <<'PY'
-          from pathlib import Path
-          import struct
-          for p in sorted(Path('public/kenny/rig/v1/source').glob('*.png')):
-            b=p.read_bytes()
-            assert b[:8] == bytes((137,80,78,71,13,10,26,10)), f'Not raw PNG: {p}: {b[:36]!r}'
-            width,height=struct.unpack('>II',b[16:24])
-            print('VERIFIED',p,'dimensions',width,height,'bytes',len(b))
-            assert width>=1000 and height>=800
-          PY
-      - name: Commit validated PNG image masters
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Export individual transparent Kenny body parts for five skins
+        run: node scripts/kenny/build-parts-from-master.mjs
+      - name: Verify pixel-exact blue reconstruction and all five skins
+        run: node scripts/kenny/test-rig-parts.mjs
+      - name: Commit generated PNG parts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/kenny/rig/v1/source/*.png
-          git commit -m "assets(kenny): preserve approved master and generated Part 1 image"
-          git push origin HEAD:feature/kenny-image-parts-rig-20261123
+          git add public/kenny/rig/v1/
+          if ! git diff --cached --quiet; then
+            git commit -m "assets(kenny): export rig body PNGs and skin palettes"
+            git push origin HEAD:feature/kenny-image-parts-rig-20261123
+          fi
