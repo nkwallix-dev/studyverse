@@ -13,7 +13,7 @@ const state=Object.assign({xp:0,coins:0,solved:{},courseDone:{},learned:{},earne
 for(const k of ['solved','courseDone','learned','earned'])state[k]=object(state[k]);
 state.xp=int(state.xp);state.coins=int(state.coins);state.bestBoss=int(state.bestBoss);
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));window.studyverseCloudTouch?.()}catch(err){console.warn('MathsVerse save:',err)}}
-let view='home',selected='',focusTopic='all',activeQuestion=null,answered=false,selectedAnswer=-1,feedback='',boss=null,graphType='tangent',graphX=1;
+let view='home',selected='',focusTopic='all',activeQuestion=null,answered=false,selectedAnswer=-1,feedback='',boss=null;
 const names={home:'Übersicht',academy:'Lernakademie',lesson:'Lernkapitel',book:'Buchbeispiele',pool:'4. Deskriptor',sources:'Quellen',boss:'Schularbeitssimulation',bossrun:'Schularbeit',bossresult:'Boss-Ergebnis'};
 const count=o=>Object.values(object(o)).filter(Boolean).length;
 const lessonsDone=()=>D.lessons.filter(l=>state.courseDone[l.id]).length;

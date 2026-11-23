@@ -1787,6 +1787,26 @@ async function main(){
      await cosmeticPage.locator('.handwrite-note').waitFor({timeout:5000});
      assert((await cosmeticPage.locator('.handwrite-note').innerText()).includes('Stift und Papier'),'Real textbook tasks must prompt for paper');
      assert.equal(await cosmeticPage.locator('#sourceAnswer').count(),1,'Textbook tasks must allow an answer');
+     const retainedListScroll=await cosmeticPage.evaluate(()=>{
+       const list=document.querySelector('.source-list');
+       list.scrollTop=Math.min(460,list.scrollHeight-list.clientHeight);
+       const previous=list.scrollTop;
+       const buttons=list.querySelectorAll('.source-task');
+       buttons[Math.min(31,buttons.length-1)].click();
+       return previous;
+     });
+     assert(retainedListScroll>0,'Nested catalog needs a real independent scrollbar');
+     const restoredScroll=await cosmeticPage.locator('.source-list').evaluate(el=>el.scrollTop);
+     assert(Math.abs(restoredScroll-retainedListScroll)<=2,
+       'Selecting a numbered book example must not return catalog to the first entry');
+     assert(await cosmeticPage.evaluate(()=>document.body.classList.contains('source-screen')),'Book workspace must be fixed');
+     assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,'Book page itself must not scroll');
+     await cosmeticPage.locator('[data-action="source:reveal"]').first().click();
+     assert(await cosmeticPage.evaluate(()=>document.body.classList.contains('source-solution-open')),'Solution should switch to expandable reading layout');
+     await cosmeticPage.locator('[data-action="source:next"]').click();
+     assert(!await cosmeticPage.evaluate(()=>document.body.classList.contains('source-solution-open')),'Selecting the next exercise closes solution mode');
+     assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,'Page must be fixed again after next exercise');
+     assert.equal(await cosmeticPage.locator('#nav [data-nav="graphs"]').count(),0,'Graphenlabor removed from MathsVerse');
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-original-390.png'),fullPage:true});
      await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="pool"]').click());
      await cosmeticPage.locator('.source-external').first().waitFor({timeout:5000});

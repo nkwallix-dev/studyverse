@@ -128,10 +128,11 @@ function fitDetail(root){
  if(!detail||!document.body.classList.contains('source-screen')||document.body.classList.contains('source-solution-open'))return;
  const inner=detail.querySelector('.source-detail-inner');if(!inner)return;
  inner.style.zoom='1';
+ inner.style.width='100%';
  const available=Math.max(120,detail.clientHeight-18);
  const natural=Math.max(1,inner.scrollHeight);
  const factor=Math.min(1,available/natural);
- if(factor<.995)inner.style.zoom=String(Math.max(.42,factor));
+ if(factor<.995){const z=Math.max(.42,factor);inner.style.width=(100/z)+'%';inner.style.zoom=String(z)}
 }
 function current(mode){return cards(mode).find(x=>x.id===(mode==='book'?ui.bookId:ui.poolId))}
 function next(mode,state){let list=cards(mode),idx=list.findIndex(x=>x.id===current(mode)?.id);

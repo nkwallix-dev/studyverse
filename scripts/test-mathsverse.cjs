@@ -118,6 +118,30 @@ for(const comp of ['4.2','4.4','4.5','4.8']){
  assert(hits.length>=5,'Official pool must cover highlighted descriptor '+comp+' (got '+hits.length+')');
 }
 
+
+const fixedCss=read('public/maths/sa-01/source-trainer.css');
+const inlineJs=read('public/maths/sa-01/official-inline.js');
+const assetMap=read('src/app/cosmetic-assets.ts');
+const legacyBridge=read('public/shared/verse-cosmetics.js');
+const foxSvg=read('public/cosmetics/avatars/maths_pi_fox.svg');
+const owlSvg=read('public/cosmetics/avatars/maths_euler_owl.svg');
+vm.runInNewContext(inlineJs,sandbox);
+assert(!mhtml.includes('data-nav="graphs"')&&!mjs.includes('Graphenlabor'),'Unneeded graph lab removed from all visible MathsVerse destinations');
+assert(mjs.includes('SOURCE.captureList')&&mjs.includes('SOURCE.restoreList'),'Catalog position must survive changing selected tasks');
+assert(mjs.includes("source-screen")&&mjs.includes("source-solution-open"),'Page scrolling enabled only for a revealed solution');
+assert(fixedCss.includes('height:100dvh;max-height:100dvh;overflow:hidden'),'Catalog exercise pages must fit in viewport');
+assert(fixedCss.includes('source-list')&&fixedCss.includes('overflow-y:auto'),'Only the list scrolls in normal study mode');
+assert(sourceJs.includes('officialStatement(q)')&&sourceJs.includes('source-inline-original'),'SRDP should show complete sourced prompt inline');
+assert(sourceJs.includes('scrolling="no"')&&sourceJs.includes('view=Fit'),'Official PDF must fit without a nested scroll viewer');
+assert(mhtml.includes('official-inline.js'),'Full official inline material should load before source trainer');
+assert.equal(Object.keys(sandbox.window.MATHS_INLINE_ORIGINAL).length,21,'All source-page-based exams must be imported');
+assert(sandbox.window.MATHS_OFFICIAL_FIGURES['4205'].some(x=>x.endsWith('.svg')),'Real original graphs must be available as SVG');
+assert(assetMap.includes("'🦊':'maths_avatar_pi'")&&assetMap.includes("'🦉':'maths_owl'"),'Legacy equipped animal emojis must resolve to new art');
+assert(legacyBridge.includes("'🦊': 'maths_avatar_pi'")&&legacyBridge.includes("'🦉': 'maths_owl'"),'Standalone worlds must show same avatar art');
+assert(app.includes("item.id==='maths_avatar_pi'||item.id==='maths_owl'"),'MathsVerse equipped items must store ID, not emoji');
+assert(!/circle cx="256" cy="256" r="250" fill=/.test(foxSvg),'Fox image may not contain a background circle');
+assert(!/circle cx="256" cy="256" r="250" fill=/.test(owlSvg),'Owl image may not contain a background circle');
+
 console.log('PASS: Source-screenshot cross-checks, numeric golden values, and original 10+10 MathsVerse training.');
 
 console.log('PASS: MathsVerse original textbook, 50 sourced SRDP tasks, 10+10 exam, safe progress and cosmetics.');
