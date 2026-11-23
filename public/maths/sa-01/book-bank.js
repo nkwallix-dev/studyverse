@@ -62,8 +62,8 @@ B('1.29',V,'Eine zylindrische Dose soll Volumen 75 cm³ besitzen. Bei welcher Ab
  'Zylinder: V=πr²h. Materialfläche entsprechend Aufgabenstellung mit Aufschlag für Boden und Deckel aufstellen. Die Nebenbedingung eliminiert h.');
 B('1.30',V,'Aus 144 cm Draht entsteht das Kantenmodell eines Quaders mit quadratischer Grundfläche. Berechne die Abmessungen für maximales Volumen.','Grundkante 12 cm, Höhe 12 cm; Volumen 1728 cm³.',
  'Drahtlänge 8a+4h=144 ⇒ h=36−2a. V=a²(36−2a). V′=72a−6a²=0 liefert a=12, h=12.',12);
-B('1.31',K,'Ein Bauer hat 50 m² Wiese. Eine Ziege gibt jährlich 800 l Milch; jede zusätzliche Ziege senkt die Jahresproduktion pro Ziege um 10 l. Wie viele Ziegen geben insgesamt die größte Milchmenge?','40 Ziegen, Milchmenge 16 000 l.',
- 'M(n)=n(800−10n). Die Parabel ist nach unten geöffnet; Scheitel bei n=800/(20)=40.',40);
+B('1.31',K,'Ein Bauer hält bereits 50 Ziegen mit je 800 l Milch im Jahr. Für jede zusätzlich angeschaffte Ziege sinkt die Jahresmilchmenge pro Tier um 10 l. Wie viele Ziegen soll er zusätzlich anschaffen?','15 zusätzliche Ziegen, also 65 insgesamt. Maximal 65·650=42 250 l Milch.',
+ 'Sei x die Anzahl zusätzlich angeschaffter Ziegen. Dann M(x)=(50+x)(800−10x)=40 000+300x−10x². Ableitung M′=300−20x=0 ⇒ x=15; M″=−20<0.',15);
 B('1.55a',I,'Berechne ∫(4x³−3x+1) dx.','F(x)=x⁴−3x²/2+x+C.',
  'Potenzregel rückwärts auf alle Summanden anwenden. Jede Stammfunktion hat +C.');
 B('1.55b',I,'Berechne ∫(a·t+b) dt (a,b sind Konstanten).','F(t)=a·t²/2+b·t+C.',
@@ -295,9 +295,9 @@ B('1.24',K,'Der höchste Punkt eines kubischen Seilverlaufs ist H(2|50), der tie
 B('1.25',K,'Ein beidseitig eingespannter Träger von 3 m Länge biegt sich in der Mitte um maximal 2 cm durch. Die Endwerte sind 0 und die Tangenten an beiden Enden waagrecht. Stelle ein Polynom 4. Grades auf.',
  'Mit x in mm und y als Durchbiegung in mm gilt y(x)=20·[x(3000−x)/(1500²)]².',
  'Doppelte Nullstellen bei x=0 und x=3000 erzwingen y=a x²(x−3000)². Mit y(1500)=20 mm wird a eindeutig bestimmt.');
-B('1.32a',K,'Einem Halbkreis mit Radius R ist ein gleichschenkliges Dreieck mit Grundseite am Durchmesser eingeschrieben. Wie viel Prozent der Halbkreisfläche kann die Dreiecksfläche maximal einnehmen?',
- 'Anteil 2/π≈63,66 %.',
- 'Größte Grundseite 2R (Durchmesser), maximale Höhe R. Dreiecksfläche R²; Halbkreisfläche πR²/2, Verhältnis 2/π.',200/Math.PI);
+B('1.32a',K,'In einen Halbkreis mit Radius R wird ein gleichschenkliges Dreieck maximaler Fläche eingeschrieben. Die Spitze liegt im Kreismittelpunkt, die Grundlinie parallel zum Durchmesser. Welcher Prozentanteil der Halbkreisfläche ist maximal?',
+ 'Anteil 1/π≈31,83 %.',
+ 'Bei Dreieckshöhe h liegt die halbe Grundlinie bei √(R²−h²). A(h)=h·√(R²−h²) hat sein Maximum bei h=R/√2, also A=R²/2. Halbkreisfläche πR²/2 ⇒ Verhältnis 1/π.',100/Math.PI);
 B('1.32b',K,'Einem gleichschenkligen Dreieck mit Basis B und Höhe H wird ein Rechteck mit maximaler Fläche eingeschrieben. Bestimme seine Abmessungen.',
  'Breite B/2, Höhe H/2, Rechtecksfläche BH/4.',
  'Mit Strahlensatz beträgt die verfügbare Breite in Höhe h: B(1−h/H). Maximieren von A(h)=hB(1−h/H).');
