@@ -24,6 +24,9 @@ for(const skin of manifest.skins) {
    }
   }
  }
+ await sharp(path.join(base,'parts',skin,'seam_underlay.png')).metadata().then(m=>{
+  if(m.width!==1205||m.height!==1305)throw Error('Seam underlay geometry mismatch');
+ });
  await sharp(path.join(base,'parts',skin,'eye_closed.png')).metadata().then(m=>{
   if(m.width!==200||m.height!==170)throw Error('Eyelid file mismatch');
  });
