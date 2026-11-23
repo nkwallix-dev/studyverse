@@ -5,9 +5,7 @@
 export const KENNY_FUSION_SKINS = ['blue', 'pink', 'green', 'red', 'zebra'] as const;
 
 export function normalizedKennySkin(skin: string): string {
-  return KENNY_FUSION_SKINS.includes(skin as (typeof KENNY_FUSION_SKINS)[number])
-    ? skin
-    : 'blue';
+  return KENNY_FUSION_SKINS.includes(skin as (typeof KENNY_FUSION_SKINS)[number]) ? skin : 'blue';
 }
 
 const atlasCache = new Map<string, Promise<HTMLImageElement>>();
@@ -27,7 +25,10 @@ export function loadKennyFusionAtlas(skin: string): Promise<HTMLImageElement> {
       resolve(image);
     };
     image.onerror = () => reject(new Error(`Fusionsatlas fehlt: ${selected}`));
-    image.src = new URL(`kenny/animations/fusions/${selected}-polished.png?v=6`, document.baseURI).href;
+    image.src = new URL(
+      `kenny/animations/fusions/${selected}-polished.png?v=6`,
+      document.baseURI,
+    ).href;
   });
   atlasCache.set(selected, load);
   // A transient network error must not poison the preview forever.
@@ -111,12 +112,16 @@ function biteEye(image: HTMLCanvasElement): { x: number; y: number } {
   const ctx = image.getContext('2d');
   if (!ctx) return { x: 120, y: 58 };
   const pixels = ctx.getImageData(0, 0, 192, 192).data;
-  let sx = 0, sy = 0, count = 0;
+  let sx = 0,
+    sy = 0,
+    count = 0;
   for (let y = 0; y < 120; y++) {
     for (let x = 98; x < 192; x++) {
       const index = (y * 192 + x) * 4;
-      const r = pixels[index], g = pixels[index + 1],
-        b = pixels[index + 2], a = pixels[index + 3];
+      const r = pixels[index],
+        g = pixels[index + 1],
+        b = pixels[index + 2],
+        a = pixels[index + 3];
       // Yellow iris, not the darker orange plates or pale ivory horn.
       if (r > 210 && g > 184 && b < 115 && a > 200) {
         sx += x;
@@ -151,9 +156,8 @@ export function composeKennyDirectionalBite(
   const open = progress >= 0.2 && progress <= 0.8;
   const source = open ? openMouth : standing;
   const sourceEye = open ? biteEye(openMouth) : eye;
-  const ease = progress < 0.25
-    ? progress / 0.25
-    : progress < 0.75 ? 1 : Math.max(0, (1 - progress) / 0.25);
+  const ease =
+    progress < 0.25 ? progress / 0.25 : progress < 0.75 ? 1 : Math.max(0, (1 - progress) / 0.25);
 
   // Remove the old head and horns but do not erase the arm/chest silhouette.
   ctx.save();

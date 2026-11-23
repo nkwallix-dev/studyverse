@@ -72,12 +72,9 @@
       aria-label="Stachelweide. A und D bewegen, Leertaste springen, W und S zielen, J beißen, L Spezialangriff, E aufheben, P pausieren, Beim Tod beginnt die Expedition wieder von vorn."
       [attr.inert]="status() !== 'playing' || !available ? '' : null"
     ></canvas>
-    <div
-      #sprite
-      class="platformer-player kenny-sprite"
-      [attr.data-skin]="skin"
-      aria-hidden="true"
-    ><canvas #fusionSpriteCanvas class="kenny-native-fusion-frame" aria-hidden="true"></canvas></div>
+    <div #sprite class="platformer-player kenny-sprite" [attr.data-skin]="skin" aria-hidden="true">
+      <canvas #fusionSpriteCanvas class="kenny-native-fusion-frame" aria-hidden="true"></canvas>
+    </div>
     <div #fusionLayer class="kenny-fusion-layer" aria-hidden="true">
       <img
         class="fuse-item fuse-horns"
@@ -103,7 +100,6 @@
         src="kenny/hornweide/drops/stegosaurus-plates.png"
         alt=""
       />
-
     </div>
     <div class="stage-caption" aria-hidden="true">
       <span>{{
@@ -432,7 +428,10 @@
           S = durch Plattform droppen</label
         >
         <small>X lässt Kenny immer durch eine begehbare Plattform fallen.</small>
-        <small>Q legt das offensive Item ab; ohne Offensiv-Item wird das Schild abgelegt. Aufheben mit E.</small>
+        <small
+          >Q legt das offensive Item ab; ohne Offensiv-Item wird das Schild abgelegt. Aufheben mit
+          E.</small
+        >
       </fieldset>
       <p>
         A/D bewegen · Space springen · W/S zielen · X Plattform verlassen · J beißen · L

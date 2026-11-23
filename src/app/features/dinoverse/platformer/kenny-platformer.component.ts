@@ -1,11 +1,7 @@
 import { BALANCE, playerSpecialDuration } from './kenny-platformer.balance';
 import { playerAnimation } from './kenny-platformer.animation';
 import { fusionColumn, fusionRow } from './kenny-platformer.fusion';
-import {
-  atlasAsset,
-  atlasBackgroundPosition,
-  atlasCellForMotion,
-} from '../kenny-atlas.animation';
+import { atlasAsset, atlasBackgroundPosition, atlasCellForMotion } from '../kenny-atlas.animation';
 import {
   ItemId,
   FusionId,
@@ -43,7 +39,16 @@ import { KennyRenderer } from './kenny-platformer.renderer';
 import { KennyFusionPreviewComponent } from '../equipment/kenny-fusion-preview.component';
 
 type Action =
-  'left' | 'right' | 'aimUp' | 'aimDown' | 'jump' | 'attack' | 'special' | 'interact' | 'drop' | 'discard';
+  | 'left'
+  | 'right'
+  | 'aimUp'
+  | 'aimDown'
+  | 'jump'
+  | 'attack'
+  | 'special'
+  | 'interact'
+  | 'drop'
+  | 'discard';
 type Status = 'ready' | 'playing' | 'paused' | 'won' | 'error' | 'tutorialComplete' | 'lost';
 interface RecordTime {
   seconds: number;
@@ -91,7 +96,8 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('expedition', { static: true }) expedition!: ElementRef<HTMLElement>;
   @ViewChild('sprite', { static: true }) sprite!: ElementRef<HTMLDivElement>;
-  @ViewChild('fusionSpriteCanvas', { static: true }) fusionSpriteCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('fusionSpriteCanvas', { static: true })
+  fusionSpriteCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('fusionLayer', { static: true }) fusionLayer!: ElementRef<HTMLDivElement>;
   @ViewChild('stage', { static: true }) stage!: ElementRef<HTMLDivElement>;
   @ViewChild('dialogAction') dialogAction?: ElementRef<HTMLButtonElement>;
@@ -573,7 +579,7 @@ export class KennyPlatformerComponent implements AfterViewInit, OnDestroy, OnCha
         this.specialQueued = false;
         this.interactQueued = false;
         this.dropQueued = false;
-    this.discardQueued = false;
+        this.discardQueued = false;
         this.accumulator -= STEP;
       }
       if (this.world.won && !this.tutorialActive) this.zone.run(() => this.finish());

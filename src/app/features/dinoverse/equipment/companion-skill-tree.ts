@@ -1,6 +1,12 @@
 import {
-  CompanionState, EquipmentSlots, ItemId, FusionId, FUSION_GOALS,
-  countItem, countFusionRuns, isFusionId,
+  CompanionState,
+  EquipmentSlots,
+  ItemId,
+  FusionId,
+  FUSION_GOALS,
+  countItem,
+  countFusionRuns,
+  isFusionId,
 } from './companion-equipment.model';
 
 export interface CompanionSkillNode {
@@ -24,13 +30,14 @@ const kit = (
   title,
   family,
   tier,
-  subtitle: family === 'base'
-    ? 'Von Anfang an verfügbar'
-    : tier === 1
-      ? '50 originale Pickups'
-      : tier === 2
-        ? '25 Runs mit beiden Items ausgerüstet'
-        : '10 Runs mit beiden Items ausgerüstet',
+  subtitle:
+    family === 'base'
+      ? 'Von Anfang an verfügbar'
+      : tier === 1
+        ? '50 originale Pickups'
+        : tier === 2
+          ? '25 Runs mit beiden Items ausgerüstet'
+          : '10 Runs mit beiden Items ausgerüstet',
   slots: { offense, defense },
   needs: [offense, defense].filter((item): item is ItemId => item !== null),
 });

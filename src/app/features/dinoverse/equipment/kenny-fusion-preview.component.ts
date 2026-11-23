@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import type { ItemId } from './companion-equipment.model';
 import { fusionRow } from '../platformer/kenny-platformer.fusion';
 import {
@@ -13,12 +21,30 @@ import {
   standalone: true,
   template: `
     <canvas #portrait [style.display]="hasFusion ? 'block' : 'none'" aria-hidden="true"></canvas>
-    <img [style.display]="hasFusion ? 'none' : 'block'" [src]="basePortrait" alt="" aria-hidden="true" />
+    <img
+      [style.display]="hasFusion ? 'none' : 'block'"
+      [src]="basePortrait"
+      alt=""
+      aria-hidden="true"
+    />
   `,
-  styles: [`
-    :host { display: block; width: 100%; height: 100%; min-width: 0; }
-    canvas, img { display: block; width: 100%; height: 100%; object-fit: contain; }
-  `],
+  styles: [
+    `
+      :host {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+      }
+      canvas,
+      img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    `,
+  ],
 })
 export class KennyFusionPreviewComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() skin = 'blue';

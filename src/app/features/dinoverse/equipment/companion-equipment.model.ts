@@ -19,8 +19,7 @@ export function fusionIdForSlots(slots: Partial<EquipmentSlots>): FusionId | nul
   return (
     FUSION_IDS.find(
       (id) =>
-        FUSION_GOALS[id].offense === slots.offense &&
-        FUSION_GOALS[id].defense === slots.defense,
+        FUSION_GOALS[id].offense === slots.offense && FUSION_GOALS[id].defense === slots.defense,
     ) ?? null
   );
 }
@@ -110,14 +109,21 @@ export function normalizeCompanions(raw: unknown): CompanionState {
     if (validReceipt(id) && isItem(item)) pickups[id] = item;
   for (const [id, value] of Object.entries(data.amberPickups || {}))
     if (validReceipt(id) && value === true) amberPickups[id] = true;
-  const rawRuns = data.fusionRuns && typeof data.fusionRuns === 'object'
-    ? data.fusionRuns : {} as Partial<Record<FusionId, unknown>>;
+  const rawRuns =
+    data.fusionRuns && typeof data.fusionRuns === 'object'
+      ? data.fusionRuns
+      : ({} as Partial<Record<FusionId, unknown>>);
   const fusionRuns = {} as Record<FusionId, string[]>;
   for (const id of FUSION_IDS) {
     const receipts = rawRuns[id];
     fusionRuns[id] = Array.isArray(receipts)
-      ? [...new Set(receipts.filter((receipt): receipt is string =>
-          typeof receipt === 'string' && validReceipt(receipt)))].sort()
+      ? [
+          ...new Set(
+            receipts.filter(
+              (receipt): receipt is string => typeof receipt === 'string' && validReceipt(receipt),
+            ),
+          ),
+        ].sort()
       : [];
   }
   const slots: EquipmentSlots = { offense: null, defense: null };
@@ -181,7 +187,10 @@ export function mergeCompanions(a: unknown, b: unknown): CompanionState {
     pickups: { ...left.pickups, ...right.pickups },
     amberPickups: { ...left.amberPickups, ...right.amberPickups },
     fusionRuns: Object.fromEntries(
-      FUSION_IDS.map((id) => [id, [...new Set([...left.fusionRuns[id], ...right.fusionRuns[id]])].sort()]),
+      FUSION_IDS.map((id) => [
+        id,
+        [...new Set([...left.fusionRuns[id], ...right.fusionRuns[id]])].sort(),
+      ]),
     ),
     seen: [...left.seen, ...right.seen],
   });
@@ -237,10 +246,14 @@ export function equipCompanionKit(raw: unknown, requested: EquipmentSlots): Comp
   if (fusion) {
     if (countFusionRuns(state, fusion) < FUSION_GOALS[fusion].runs) return state;
   } else if (
-    (requested.offense && (!isItem(requested.offense) || itemSlot(requested.offense) !== 'offense' ||
-      countItem(state, requested.offense) < 50)) ||
-    (requested.defense && (!isItem(requested.defense) || itemSlot(requested.defense) !== 'defense' ||
-      countItem(state, requested.defense) < 50))
+    (requested.offense &&
+      (!isItem(requested.offense) ||
+        itemSlot(requested.offense) !== 'offense' ||
+        countItem(state, requested.offense) < 50)) ||
+    (requested.defense &&
+      (!isItem(requested.defense) ||
+        itemSlot(requested.defense) !== 'defense' ||
+        countItem(state, requested.defense) < 50))
   ) {
     return state;
   }

@@ -80,7 +80,10 @@ export class KennyRenderer {
         resolve();
       };
       image.onerror = () => reject(new Error(`Fusionsatlas fehlt: ${selected}`));
-      image.src = new URL(`kenny/animations/fusions/${selected}-polished.png?v=6`, document.baseURI).href;
+      image.src = new URL(
+        `kenny/animations/fusions/${selected}-polished.png?v=6`,
+        document.baseURI,
+      ).href;
     });
     this.fusionPending.set(selected, task);
     void task.finally(() => this.fusionPending.delete(selected)).catch(() => undefined);
@@ -122,7 +125,6 @@ export class KennyRenderer {
     }
     composeKennyDirectionalBite(target, sources.standing, sources.open, aim, progress);
   }
-
 
   /** The Canvas source crop prevents neighbouring 8×8 atlas cells bleeding into Kenny. */
   drawFusionSprite(canvas: HTMLCanvasElement, skin: string, row: number, pose: number): void {
@@ -328,9 +330,10 @@ export class KennyRenderer {
     world.enemyAmberDrops.forEach((drop) => {
       if (drop.collected) return;
       const x = drop.x + drop.w / 2;
-      const erupt = drop.checkpointReward && drop.pickupDelay
-        ? Math.sin((1 - drop.pickupDelay / 0.65) * Math.PI) * 22
-        : 0;
+      const erupt =
+        drop.checkpointReward && drop.pickupDelay
+          ? Math.sin((1 - drop.pickupDelay / 0.65) * Math.PI) * 22
+          : 0;
       const y = drop.y + drop.h / 2 - erupt;
       const icon = this.images.get('amber-icon');
       if (icon) ctx.drawImage(icon, x - 8, y - 10, 16, 20);
@@ -343,7 +346,7 @@ export class KennyRenderer {
       ctx.globalAlpha = fade;
       ctx.globalCompositeOperation = 'lighter';
       for (let i = 0; i < 15; i++) {
-        const angle = Math.PI * 2 * i / 15 + 0.4;
+        const angle = (Math.PI * 2 * i) / 15 + 0.4;
         const radius = 9 + progress * (31 + (i % 4) * 6);
         const x = burst.x + Math.cos(angle) * radius;
         const y = burst.y + Math.sin(angle) * radius;
@@ -389,8 +392,7 @@ export class KennyRenderer {
         -bodyWidth / 2,
         // The 8-pose atlas has ~95–110px of transparent padding below Stego's feet
         // in each 443px frame. Ground the artwork without changing its size or collision box.
-        (-size * 180) / 192 +
-          (fullStego ? (state.animation === 'attack' ? 29 : 35) : 0),
+        (-size * 180) / 192 + (fullStego ? (state.animation === 'attack' ? 29 : 35) : 0),
         bodyWidth,
         size,
       );
