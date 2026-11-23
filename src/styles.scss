@@ -2869,3 +2869,10 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 }
 .kenny-achievement-symbol img{width:100%;max-width:96px;height:68px;object-fit:contain;image-rendering:auto}
 .kenny-achievement-section .achievement-reward{color:#edcd9d}
+
+/* On 320×568 displays, keep two rows of achievements clear of the fixed nav. */
+@media (max-width: 360px) and (max-height: 620px) {
+  .universe main.achievements-view .achievement-card { padding: 4px 6px; }
+  .universe main.achievements-view .achievement-grid { row-gap: 4px; }
+  .universe main.achievements-view .achievements-section .section-heading { margin-bottom: 4px; }
+}
