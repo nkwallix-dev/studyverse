@@ -1,232 +1,108 @@
-/* MathsVerse sourced exercise studio, all scoped to the existing learning world. */
-.source-count{display:inline-flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:9px 13px;margin:7px 0 13px;color:var(--muted);font-size:12px;font-weight:700}
-.source-count strong{color:var(--accent);font-size:17px}
-.source-filters{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap}
-.source-filters label{display:grid;gap:4px;flex:1;min-width:min(190px,100%);font-size:11px;font-weight:800;color:var(--muted)}
-.source-filters :is(input,select){padding:10px 12px;border:1px solid var(--border);border-radius:10px;color:var(--ink);background:var(--card);font:inherit;font-size:13px;width:100%}
-.source-workspace{display:grid;grid-template-columns:minmax(160px,260px) minmax(0,1fr);gap:14px;align-items:start;margin-top:12px}
-.source-list{position:sticky;top:74px;max-height:calc(100dvh - 100px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;display:grid;align-content:start;gap:6px;padding:6px;background:var(--card2);border:1px solid var(--border);border-radius:15px}
-.source-task{border:1px solid transparent;background:transparent;color:var(--ink);border-radius:10px;text-align:left;padding:10px 11px;display:grid;gap:2px;line-height:1.3;font-weight:800;font-size:13px}
-.source-task small{font-weight:600;font-size:10px;color:var(--muted)}
-.source-task.active{background:color-mix(in srgb,var(--accent) 19%,var(--card));border-color:color-mix(in srgb,var(--accent) 53%,transparent)}
+/* MathsVerse exercise catalog and original-document reader.
+   Only the task list and the document reader scroll. The answer dock stays fixed. */
+.source-count{display:inline-flex;align-items:center;gap:8px;padding:6px 11px;margin:4px 0 8px;background:var(--card2);border:1px solid var(--border);border-radius:11px;color:var(--muted);font-size:11px;font-weight:750}
+.source-count strong{font-size:15px;color:var(--accent)}
+.source-filters{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:5px 0 10px}
+.source-filters label{display:flex;align-items:center;gap:8px;flex:1;min-width:170px;color:var(--muted);font-size:11px;font-weight:800}
+.source-filters input,.source-filters select{display:block;min-width:0;width:100%;height:36px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;font-size:12px;padding:6px 10px}
+.source-workspace{display:grid;grid-template-columns:clamp(190px,22%,278px) minmax(0,1fr);gap:12px;min-width:0;min-height:0;align-items:stretch;margin-top:8px}
+.source-list{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scroll-behavior:auto;scrollbar-gutter:stable;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:15px}
+.source-task{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;flex:0 0 auto!important;align-self:stretch!important;position:relative;box-sizing:border-box;width:100%;height:auto!important;min-height:56px!important;max-height:none!important;gap:3px;padding:9px 11px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--ink);text-align:left;font-size:13px;font-weight:850;line-height:1.2;white-space:normal;overflow-wrap:anywhere}
+.source-task .source-task-number{display:block!important;position:static!important;width:100%;height:auto!important;min-height:0;font-size:13px;line-height:1.3;color:var(--ink)}
+.source-task .source-task-title{display:block!important;position:static!important;width:100%;height:auto!important;min-height:0;font-size:11px;line-height:1.3;font-weight:550;color:var(--muted)}
 .source-task:hover{border-color:var(--accent)}
-.source-detail{background:var(--card);border:1px solid var(--border);border-radius:17px;padding:19px 21px;min-width:0}
+.source-task.active{background:color-mix(in srgb,var(--accent) 20%,var(--card));border-color:color-mix(in srgb,var(--accent) 47%,transparent)}
+.source-detail{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:17px}
+.source-detail-header{flex:0 0 auto;min-width:0;padding:12px 16px 8px;border-bottom:1px solid color-mix(in srgb,var(--border) 65%,transparent)}
 .source-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.source-meta .eyebrow{max-width:100%}
-.source-detail h2{margin:12px 0 4px;font-size:clamp(20px,2vw,27px)}
-.source-number{font-size:10px;line-height:1.4;color:var(--muted);margin-bottom:14px}
-.source-question{font-size:clamp(14px,1.3vw,17px);color:var(--ink);line-height:1.7;white-space:pre-wrap;background:var(--card2);border:1px solid var(--border);padding:16px;border-radius:12px;margin:12px 0}
-.source-graph{margin:12px 0;background:#0c2f21;border:1px solid #3c8058;border-radius:13px;padding:10px}
-.source-graph svg{display:block;width:100%;height:auto;max-height:250px;color:#e0f3d0}
-.source-graph figcaption{font-size:11px;color:#cee1cd;margin:7px 3px 3px}
-.source-external{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin:14px 0}
-.source-external b{font-size:12px;color:var(--accent)}
-.source-external p{font-size:12px;margin:5px 0 11px}
-.source-external iframe{display:block;background:#fff;width:100%;height:320px;border:0;border-radius:8px;margin-top:11px}
-.source-open-link{font-size:11px}
-.source-credit{font-size:11px;color:var(--muted);margin:10px 0}
-.source-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:13px}
-.source-detail .answer-field{margin:12px 0}
-.source-detail .answer-field :is(input,textarea),.source-exam-input{background:var(--card2);border:1px solid var(--border);border-radius:11px;color:var(--ink);padding:13px 14px;font:inherit;min-width:0}
-.source-detail .answer-field textarea{resize:vertical;width:100%}
-.source-solution{margin-top:16px;padding:19px;background:color-mix(in srgb,var(--accent) 9%,var(--card2));border:1px solid color-mix(in srgb,var(--accent) 43%,var(--border));border-radius:14px}
-.source-solution h3{font-size:18px;margin:0 0 10px}
-.source-solution p{font-size:14px}
-.source-solution .formula{font-size:clamp(14px,1.5vw,18px);white-space:pre-wrap;overflow-wrap:anywhere}
+.source-meta .eyebrow{font-size:10px;letter-spacing:1.2px}
+.source-detail-header h2{margin:5px 0 3px;font-size:clamp(17px,1.7vw,24px);line-height:1.15}
+.source-number{margin:0;color:var(--muted);font-size:10px;line-height:1.35;overflow-wrap:anywhere}
+.source-original-link{color:var(--accent);font-weight:800;margin-left:5px}
+.source-done{font-size:11px;font-weight:800;color:var(--accent)}
+.source-reading{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable;padding:10px 14px 18px;background:color-mix(in srgb,var(--card) 72%,var(--bg))}
+.source-reading > *{flex:0 0 auto}
+.source-question{white-space:pre-wrap;overflow-wrap:anywhere;font-size:clamp(13px,1.15vw,17px);line-height:1.6;color:var(--ink);padding:16px;border:1px solid var(--border);background:var(--card2);border-radius:11px;margin:0}
+.source-graph{margin:10px 0;background:#0c2f21;border:1px solid #3c8058;border-radius:12px;padding:12px}
+.source-graph svg{display:block;width:100%;height:auto;max-height:none;color:#e0f3d0}
+.source-graph figcaption{font-size:11px;color:#cee1cd;margin:5px 0 0}
+.source-inline-original{display:flex;flex-direction:column;gap:10px;min-width:0}
+.source-inline-heading{font-size:12px;font-weight:850;color:var(--accent)}
+.source-original-body{display:flex;flex-direction:column;min-width:0;gap:13px}
+.source-original-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:clamp(13px,1.15vw,16px);line-height:1.65}
+.source-original-figures{display:flex;flex-direction:column;gap:12px;min-width:0}
+.source-original-figures img{display:block;max-width:100%;width:100%;height:auto;max-height:none;object-fit:contain;background:white;border-radius:6px}
+.source-external{min-width:0;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px 12px}
+.source-external b{display:block;color:var(--accent);font-size:12px;margin:0 0 7px}
+.source-pdf-sheet{display:flex;flex-direction:column;gap:6px;margin:0}
+.source-pdf-sheet iframe{display:block;flex:0 0 auto;width:100%;min-width:0;height:max(950px,130dvh);border:0;border-radius:7px;background:#f9fafb;pointer-events:auto}
+.source-pdf-help{font-size:11px;color:var(--muted);margin:3px 0 0}
+.source-answer-dock{display:flex;flex-direction:column;flex:0 0 auto;gap:8px;padding:11px 15px 12px;min-width:0;max-height:48dvh;overflow-y:auto;overscroll-behavior:contain;background:color-mix(in srgb,var(--card2) 87%,var(--card));border-top:1px solid var(--border);box-shadow:0 -5px 15px #091b1215}
+.source-answer-dock .handwrite-note{font-size:12px;line-height:1.35;padding:6px 10px;margin:0;min-height:0}
+.source-answer-dock .answer-field{display:flex;align-items:center;gap:9px;margin:0;min-width:0}
+.source-answer-dock .answer-field input,.source-answer-dock .answer-field textarea{flex:1 1 auto;width:100%;min-width:0;min-height:40px;max-height:82px;resize:vertical;background:var(--card);border:1px solid var(--border);border-radius:9px;color:var(--ink);padding:8px 10px;font:inherit;font-size:12px}
+.source-answer-dock .answer-field textarea{min-height:53px}
+.source-answer-dock .source-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0}
+.source-answer-dock .btn{min-height:35px;padding:7px 12px;border-radius:9px;font-size:12px}
+.source-answer-dock .answer-feedback{margin:0;font-size:12px}
+.source-answer-dock .source-credit{margin:0;font-size:10px;line-height:1.25}
+.source-solution{background:color-mix(in srgb,var(--accent) 10%,var(--card2));border:1px solid color-mix(in srgb,var(--accent) 42%,var(--border));border-radius:12px;margin:12px 0 2px;padding:17px}
+.source-solution h3{font-size:18px;margin:0 0 9px}
+.source-solution p{font-size:14px;line-height:1.6}
+.source-solution .formula{font-size:clamp(15px,1.5vw,20px);overflow-wrap:anywhere;white-space:pre-wrap}
 .source-solution a{color:var(--accent);font-weight:800}
-.source-done{font-size:11px;color:var(--accent);font-weight:800}
-.source-empty{padding:25px;color:var(--muted)}
+.source-credit{font-size:11px;color:var(--muted);margin:10px 0}
+.source-empty{padding:24px;color:var(--muted)}
+/* Bosskampf remains independent of the two catalog panes. */
 .source-exam-card{max-width:900px;margin:17px auto;display:grid;gap:12px}
-.source-exam-card .source-external iframe{height:280px}
-.source-exam-card .source-exam-input{width:100%;min-height:46px}
+.source-exam-card .source-external iframe{height:420px;width:100%;border:0}
+.source-exam-card .source-exam-input{width:100%;min-height:46px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--ink);padding:10px 13px;font:inherit}
 .source-exam-card textarea.source-exam-input{min-height:95px;resize:vertical}
-.source-exam-card .source-question{margin:0}
-.source-exam-card .handwrite-note{margin:0}
-.source-exam-card .source-graph{margin:0}
+.source-exam-card .source-question,.source-exam-card .source-graph,.source-exam-card .handwrite-note{margin:0}
+/* The entire app fits the browser. Showing a solution never changes page height. */
+html:has(body.source-screen){height:100%;overflow:hidden!important;scroll-behavior:auto}
+body.source-screen{height:100dvh;max-height:100dvh;overflow:hidden!important;overscroll-behavior:none}
+body.source-screen .app{height:100dvh;min-height:0;overflow:hidden}
+body.source-screen .workspace{height:100dvh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+body.source-screen .topbar{position:relative;flex:0 0 58px;height:58px;min-height:58px}
+body.source-screen footer{flex:0 0 32px;min-height:32px;padding:6px 22px;font-size:10px}
+body.source-screen main#main{display:flex;flex-direction:column;gap:0;flex:1 1 auto;min-height:0;overflow:hidden;width:min(1470px,100%);padding:clamp(7px,1.2vh,13px) clamp(9px,1.4vw,22px)}
+body.source-screen main#main > .eyebrow{flex:0 0 auto;font-size:9px;line-height:1.15}
+body.source-screen main#main > h1{flex:0 0 auto;font-size:clamp(21px,2.1vw,30px);margin:3px 0;line-height:1.1}
+body.source-screen main#main > p{flex:0 0 auto;font-size:11px;line-height:1.3;margin:0 0 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+body.source-screen .source-count{flex:0 0 auto;margin:3px 0 6px;padding:5px 10px;line-height:1.15}
+body.source-screen .source-filters{flex:0 0 auto;margin:3px 0 8px;gap:10px}
+body.source-screen .source-filters label{min-width:140px}
+body.source-screen .source-filters :is(input,select){height:33px}
+body.source-screen .source-workspace{flex:1 1 auto;min-height:0;max-height:100%;margin:0;overflow:hidden;align-items:stretch}
+body.source-screen .source-list{height:100%;max-height:100%;position:relative;top:auto;z-index:auto}
+body.source-screen .source-detail{height:100%;min-height:0;max-height:100%;overflow:hidden}
+body.source-screen .source-reading{min-height:0;overflow-y:auto;overflow-x:hidden}
+body.source-screen .source-answer-dock{position:relative;bottom:auto;z-index:1}
 @media(max-width:850px){
- .source-workspace{grid-template-columns:1fr}
- .source-list{position:relative;top:auto;max-height:118px;grid-template-columns:repeat(3,minmax(0,1fr))}
- .source-task{padding:8px}
- .source-detail{padding:16px}
+ body.source-screen .source-workspace{grid-template-columns:minmax(0,1fr);grid-template-rows:clamp(103px,16dvh,145px) minmax(0,1fr);gap:7px}
+ body.source-screen .source-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:max-content;align-content:start;gap:5px;overflow-y:auto}
+ body.source-screen .source-task{min-height:56px!important;padding:7px 8px}
+ body.source-screen .source-detail-header{padding:8px 11px 6px}
+ body.source-screen .source-detail-header h2{font-size:18px;margin:3px 0}
+ body.source-screen .source-reading{padding:8px 10px 14px}
+ body.source-screen .source-answer-dock{padding:7px 10px 9px;gap:5px}
+ body.source-screen .source-answer-dock .handwrite-note{padding:4px 7px;font-size:10px}
+ body.source-screen .source-answer-dock .btn{font-size:11px;padding:5px 8px;min-height:32px}
 }
-@media(max-width:520px){
- .source-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:165px}
- .source-workspace{gap:9px}
- .source-detail{padding:13px}
- .source-question{font-size:14px;padding:12px;line-height:1.6}
- .source-external iframe{height:255px}
- .source-filters{gap:7px}
- .source-solution{padding:13px}
+@media(max-width:540px){
+ body.source-screen main#main{padding:7px 8px}
+ body.source-screen main#main > p{display:none}
+ body.source-screen .source-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.source-screen .source-workspace{grid-template-rows:clamp(78px,13dvh,112px) minmax(0,1fr)}
+ body.source-screen .source-task{min-height:52px!important}
+ body.source-screen .source-detail-header .source-meta .eyebrow{font-size:9px}
+ body.source-screen .source-detail-header h2{font-size:16px}
+ body.source-screen .source-number{font-size:9px}
+ body.source-screen .source-answer-dock{max-height:50dvh}
+ body.source-screen .source-answer-dock .answer-field{gap:5px}
+ body.source-screen .source-answer-dock .answer-field input,body.source-screen .source-answer-dock .answer-field textarea{padding:6px 8px;min-height:33px}
+ body.source-screen .source-answer-dock .source-actions{gap:5px}
+ .source-original-text{font-size:13px}
 }
-@media(prefers-reduced-motion:reduce){.source-list{scroll-behavior:auto}}
-
-
-/* Source-first exercise UI: the catalog is the only regular scroll container.
-   A revealed solution deliberately switches back to a readable, flowing page. */
-body.source-screen:not(.source-solution-open){
- height:100dvh;max-height:100dvh;overflow:hidden;overscroll-behavior:none;
-}
-html:has(body.source-screen:not(.source-solution-open)){height:100%;overflow:hidden}
-body.source-screen:not(.source-solution-open) .app{
- height:100dvh;min-height:0;overflow:hidden;
-}
-body.source-screen:not(.source-solution-open) .workspace{
- height:100dvh;min-height:0;overflow:hidden;display:flex;flex-direction:column;
-}
-body.source-screen:not(.source-solution-open) .topbar{
- position:relative;flex:0 0 60px;min-height:60px;
-}
-body.source-screen:not(.source-solution-open) footer{flex:0 0 34px;min-height:34px;padding-top:5px;padding-bottom:5px}
-body.source-screen:not(.source-solution-open) main#main{
- flex:1 1 auto;min-height:0;width:min(1390px,100%);
- overflow:hidden;display:flex;flex-direction:column;gap:0;
- padding:clamp(8px,1.2vh,15px) clamp(10px,1.5vw,22px);
-}
-body.source-screen:not(.source-solution-open) main#main > .eyebrow{font-size:9px;line-height:1.2;flex:0 0 auto}
-body.source-screen:not(.source-solution-open) main#main > h1{font-size:clamp(20px,2vw,31px);margin:2px 0 3px;flex:0 0 auto}
-body.source-screen:not(.source-solution-open) main#main > p{font-size:11px;line-height:1.25;margin:0 0 4px;flex:0 0 auto;max-width:100%;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
-body.source-screen:not(.source-solution-open) .source-count{font-size:10px;margin:2px 0 6px;padding:5px 10px;flex:0 0 auto;line-height:1.2}
-body.source-screen:not(.source-solution-open) .source-count strong{font-size:14px}
-body.source-screen:not(.source-solution-open) .source-filters{flex:0 0 auto;gap:9px;margin:3px 0 8px}
-body.source-screen:not(.source-solution-open) .source-filters label{display:flex;align-items:center;gap:8px;min-width:min(150px,100%);font-size:10px}
-body.source-screen:not(.source-solution-open) .source-filters :is(input,select){height:32px;min-width:0;padding:4px 8px;font-size:11px}
-body.source-screen:not(.source-solution-open) .source-workspace{
- flex:1 1 auto;min-height:0;max-height:100%;
- display:grid;grid-template-columns:clamp(165px,22%,265px) minmax(0,1fr);
- margin:0;gap:11px;align-items:stretch;overflow:hidden;
-}
-body.source-screen:not(.source-solution-open) .source-list{
- position:relative;top:auto;height:100%;min-height:0;max-height:100%;
- overflow-y:auto;scrollbar-gutter:stable;scroll-behavior:auto;
- display:grid;grid-template-columns:1fr;align-content:start;gap:4px;
- padding:6px;
-}
-body.source-screen:not(.source-solution-open) .source-task{padding:6px 9px;font-size:12px;min-height:0}
-body.source-screen:not(.source-solution-open) .source-task small{font-size:10px}
-body.source-screen:not(.source-solution-open) .source-detail{
- height:100%;min-height:0;max-height:100%;overflow:hidden;
- padding:clamp(8px,1vh,14px) clamp(10px,1.3vw,17px);
- display:flex;flex-direction:column;gap:clamp(3px,.6vh,7px);
-}
-body.source-screen:not(.source-solution-open) .source-detail > *{flex:0 0 auto}
-body.source-screen:not(.source-solution-open) .source-detail h2{font-size:clamp(16px,1.5vw,22px);margin:2px 0 0;line-height:1.16}
-body.source-screen:not(.source-solution-open) .source-meta .eyebrow{font-size:9px}
-body.source-screen:not(.source-solution-open) .source-number{font-size:9px;margin:0;line-height:1.1}
-body.source-screen:not(.source-solution-open) .source-question{
- font-size:clamp(11px,1.1vw,14px);line-height:1.32;margin:0;padding:8px 11px;
-}
-body.source-screen:not(.source-solution-open) .source-graph{
- margin:0;padding:5px;min-height:0;max-height:clamp(65px,18vh,140px);overflow:hidden;
-}
-body.source-screen:not(.source-solution-open) .source-graph svg{max-height:clamp(58px,15vh,115px)}
-body.source-screen:not(.source-solution-open) .source-graph figcaption{font-size:9px;margin:0}
-body.source-screen:not(.source-solution-open) .source-external{
- display:flex;flex-direction:column;min-height:0;overflow:hidden;
- margin:0;padding:7px 10px;gap:2px;flex:1 1 32%;
-}
-body.source-screen:not(.source-solution-open) .source-external b{font-size:10px}
-body.source-screen:not(.source-solution-open) .source-external p{font-size:10px;margin:0}
-body.source-screen:not(.source-solution-open) .source-external .source-open-link{
- flex:0 0 auto;width:max-content;max-width:100%;padding:5px 9px;font-size:10px;
-}
-body.source-screen:not(.source-solution-open) .source-external iframe{
- flex:1 1 auto;height:100%;min-height:65px;margin-top:2px;border-radius:6px;
- overflow:hidden;pointer-events:none;
-}
-body.source-screen:not(.source-solution-open) .handwrite-note{
- margin:0;padding:6px 8px;font-size:11px;line-height:1.25;min-height:0;
-}
-body.source-screen:not(.source-solution-open) .source-detail .answer-field{
- display:flex;align-items:center;gap:8px;margin:0;min-height:0;
-}
-body.source-screen:not(.source-solution-open) .source-detail .answer-field :is(input,textarea){
- flex:1 1 auto;min-height:34px;max-height:60px;padding:6px 9px;font-size:12px;
-}
-body.source-screen:not(.source-solution-open) .source-actions{margin:0;gap:7px}
-body.source-screen:not(.source-solution-open) .source-actions .btn,
-body.source-screen:not(.source-solution-open) .answer-field .btn{
- min-height:34px;padding:7px 10px;font-size:11px;
-}
-body.source-screen:not(.source-solution-open) .source-credit{font-size:9px;margin:0;line-height:1.1}
-body.source-screen:not(.source-solution-open) .source-inline-original{
- overflow:hidden;min-height:0;flex:1 1 auto;display:flex;flex-direction:column;gap:7px;
-}
-body.source-screen:not(.source-solution-open) .source-inline-original pre{
- margin:0;white-space:pre-wrap;font:inherit;font-size:12px;line-height:1.35;
-}
-body.source-screen.source-solution-open{height:auto;overflow-y:auto}
-body.source-screen.source-solution-open .app{min-height:100dvh;height:auto;overflow:visible}
-body.source-screen.source-solution-open .workspace{min-height:100dvh;height:auto;overflow:visible}
-body.source-screen.source-solution-open main#main{overflow:visible}
-body.source-screen.source-solution-open .source-workspace{align-items:start}
-body.source-screen.source-solution-open .source-list{position:sticky;top:68px;max-height:calc(100dvh - 80px)}
-body.source-screen.source-solution-open .source-detail{overflow:visible}
-body.source-screen.source-solution-open .source-external iframe{height:min(70dvh,660px);overflow:hidden}
-body.source-screen.source-solution-open .source-inline-original{overflow:visible}
-@media(max-width:850px){
- body.source-screen:not(.source-solution-open) .source-workspace{
-  grid-template-columns:1fr;grid-template-rows:clamp(77px,15dvh,145px) minmax(0,1fr);gap:7px;
- }
- body.source-screen:not(.source-solution-open) .source-list{
-  height:100%;max-height:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;
- }
- body.source-screen:not(.source-solution-open) .source-task{padding:5px}
- body.source-screen:not(.source-solution-open) .source-detail{padding:8px 11px}
- body.source-screen:not(.source-solution-open) .source-filters :is(input,select){min-width:0}
-}
-@media(max-width:720px){
- body.source-screen:not(.source-solution-open) .app{display:flex;flex-direction:column}
- body.source-screen:not(.source-solution-open) .sidebar{height:100dvh;max-height:none}
- body.source-screen:not(.source-solution-open) .workspace{flex:1 1 auto;height:100dvh}
- body.source-screen:not(.source-solution-open) main#main{padding:7px 10px}
- body.source-screen:not(.source-solution-open) .source-list{grid-template-columns:repeat(2,minmax(0,1fr))}
- body.source-screen:not(.source-solution-open) .source-detail .answer-field{flex-wrap:wrap}
- body.source-screen:not(.source-solution-open) .source-graph{max-height:95px}
- body.source-screen:not(.source-solution-open) .source-graph svg{max-height:72px}
-}
-
-/* A complete original question occupies one fixed study sheet; figures are
-   displayed in the same panel, never in an independently scrolling iframe. */
-.source-detail .source-detail-inner{display:flex;flex-direction:column;gap:7px;min-width:0;max-width:100%}
-.source-detail .source-detail-inner > *{flex:0 0 auto}
-.source-inline-original{display:flex;flex-direction:column;gap:4px;min-width:0}
-.source-inline-heading{font-size:10px;font-weight:850;color:var(--accent);letter-spacing:.3px}
-.source-original-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);align-items:start;gap:10px}
-.source-original-body:not(:has(.source-original-figures)){grid-template-columns:1fr}
-.source-original-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.36}
-.source-original-figures{display:flex;flex-direction:column;gap:4px;min-width:0}
-.source-original-figures img{width:100%;height:auto;object-fit:contain;max-height:160px;background:white;border-radius:5px}
-.source-original-link{color:var(--accent);font-weight:800;margin-left:6px}
-.source-pdf-sheet{display:flex;flex-direction:column;gap:5px;min-height:0;flex:1 1 auto}
-.source-pdf-sheet iframe{height:clamp(190px,42dvh,510px);width:100%;border:0;overflow:hidden;pointer-events:none;background:white}
-body.source-screen:not(.source-solution-open) .source-detail{display:block}
-body.source-screen:not(.source-solution-open) .source-detail .source-detail-inner{transform-origin:top left;gap:clamp(3px,.5vh,7px);width:100%}
-body.source-screen:not(.source-solution-open) .source-detail .source-original-body{gap:8px}
-body.source-screen:not(.source-solution-open) .source-detail .source-original-text{font-size:clamp(10px,1vw,12px);line-height:1.27}
-body.source-screen:not(.source-solution-open) .source-detail .source-original-figures img{max-height:clamp(68px,20dvh,175px)}
-body.source-screen:not(.source-solution-open) .source-detail .source-pdf-sheet{height:clamp(185px,42dvh,390px);min-height:140px}
-body.source-screen:not(.source-solution-open) .source-detail .source-pdf-sheet iframe{min-height:140px;height:100%;flex:1 1 auto}
-body.source-screen.source-solution-open .source-detail .source-detail-inner{zoom:1!important}
-body.source-screen.source-solution-open .source-original-text{font-size:14px;line-height:1.55}
-body.source-screen.source-solution-open .source-original-figures img{max-height:520px}
-@media(max-width:720px){
- .source-original-body{grid-template-columns:1fr}
- body.source-screen:not(.source-solution-open) .source-original-body:has(.source-original-figures){grid-template-columns:minmax(0,1fr) minmax(0,.75fr)}
- body.source-screen:not(.source-solution-open) .source-detail .source-original-text{font-size:10px;line-height:1.23}
-}
-
-/* In mobile solution mode, a sticky catalog must never float over exercise buttons. */
-@media(max-width:850px){
- body.source-screen.source-solution-open .source-workspace{
-  grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;
-  align-items:start;overflow:visible;
- }
- body.source-screen.source-solution-open .source-list{
-  position:relative;top:auto;z-index:auto;max-height:clamp(105px,18dvh,162px);
-  min-height:0;overflow-y:auto;scrollbar-width:thin;
-  grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;
- }
- body.source-screen.source-solution-open .source-detail{
-  min-height:0;height:auto;position:relative;z-index:auto;
- }
-}
+@media(prefers-reduced-motion:reduce){.source-reading,.source-list{scroll-behavior:auto}}
