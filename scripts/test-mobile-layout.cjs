@@ -1738,6 +1738,21 @@ async function main(){
      assert(darkColor(shades.background)&&darkColor(shades.card),
        'Default MathsVerse background and cards should be emerald, not white: '+JSON.stringify(shades));
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-emerald-default-390.png'),fullPage:true});
+     // Verify the actual boss screen, not just its breadcrumb.
+     await cosmeticPage.evaluate(()=>document.querySelector('.verse-endgame [data-nav="boss"]').click());
+     await cosmeticPage.locator('[data-action="start-boss"]').waitFor({timeout:5000});
+     assert.equal((await cosmeticPage.locator('#main h1').innerText()).trim(),'SA-Bosskampf.','MathsVerse Boss intro must not render the overview');
+     await cosmeticPage.locator('[data-action="start-boss"]').click();
+     assert(await cosmeticPage.locator('#main .question-card .option').count()>=4,'Boss run must show answer options');
+     await cosmeticPage.locator('#main .question-card .option').first().click();
+     await cosmeticPage.locator('[data-action="boss-next"]').click();
+     assert((await cosmeticPage.locator('#main').innerText()).includes('FRAGE 2 / 20'),'Boss must progress to its second question');
+     await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="practice"]').click());
+     await cosmeticPage.locator('#topicSelect').selectOption('hand');
+     await cosmeticPage.locator('.handwrite-note').waitFor({timeout:5000});
+     assert((await cosmeticPage.locator('.handwrite-note').innerText()).includes('Stift und Papier'),'Hand calculations must require paper');
+     assert.equal(await cosmeticPage.locator('#numericAnswer').count(),1,'Handwork must have numeric input');
+     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-handwritten-390.png'),fullPage:true});
    }
    await equipped.close();
   }
