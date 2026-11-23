@@ -13,7 +13,7 @@ assert.equal(d.questions.length,40);
 assert.equal(d.numeric.length,14);
 assert.equal(new Set(d.questions.map(x=>x.id)).size,40);
 assert.equal(new Set(d.numeric.map(x=>x.id)).size,14);
-for(const l of d.lessons){assert.ok(l.check&&l.check.options[l.check.correct]);assert.ok(l.steps.length>=3)}
+for(const l of d.lessons){assert.ok(l.check&&l.check.a[l.check.correct]);assert.ok(l.steps.length>=3)}
 for(const q of d.questions){assert.ok(d.lessons.some(l=>l.id===q.topic));assert.ok(q.options[q.answer],q.id)}
 for(const q of d.numeric){assert.ok(d.lessons.some(l=>l.id===q.topic));assert.ok(Number.isFinite(q.expected),q.id)}
 assert(registry.includes("id:'maths-sa-01'"),'trainer activated');
