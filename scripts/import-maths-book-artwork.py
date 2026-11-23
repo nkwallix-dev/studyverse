@@ -21,15 +21,19 @@ def main(zip_path, output):
             with Image.open(BytesIO(archive.read(name))) as im:
                 im.convert("RGB").save(output / f"book-page-{page}.webp", "WEBP", quality=91, method=6)
                 print(f"Original {page:02d}: {im.width}x{im.height} {name}")
-        # Exercise 1.80 spans two screenshots. The two original parts are
-        # cropped, not redrawn, to preserve all printed math and diagrams.
-        with Image.open(BytesIO(archive.read(files[9]))) as im:
-            im.crop((0, 246, im.width, im.height)).convert("RGB").save(output / "book-1-80-a.webp", "WEBP", quality=93, method=6)
+        # Exact problem boundaries from ORIGINAL screenshot 11, not guessed
+        # from the neighboring page. Preserve printed diagram colors/labels.
         with Image.open(BytesIO(archive.read(files[10]))) as im:
-            im.crop((0, 0, im.width, 185)).convert("RGB").save(output / "book-1-80-b.webp", "WEBP", quality=93, method=6)
+            for number,rect in {
+                "1-79": (0, 110, im.width, 243),
+                "1-80": (0, 242, im.width, 420),
+                "1-81": (0, 417, im.width, 588),
+            }.items():
+                im.crop(rect).convert("RGB").save(output / f"book-{number}.webp", "WEBP", quality=94, method=6)
+        # Drone example is on screenshot 13; source includes all four parts.
         with Image.open(BytesIO(archive.read(files[12]))) as im:
-            im.crop((0, 366, im.width, 572)).convert("RGB").save(output / "book-1-100.webp", "WEBP", quality=93, method=6)
-    print("Imported all 15 original pages and 3 targeted word-problem crops.")
+            im.crop((0, 365, im.width, 567)).convert("RGB").save(output / "book-1-100.webp", "WEBP", quality=94, method=6)
+    print("Imported 15 original pages and four exact word-problem crops.")
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
