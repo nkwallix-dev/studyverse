@@ -201,17 +201,23 @@ function intro(state){
 }
 function run(){
  if(!ui.run)return '<div class="panel">Starte eine neue Prüfung.</div>';
- const r=ui.run,q=r.tasks[r.index],mode=q.origin;const isPool=mode==='pool';
- const frame=isPool?'<div class="source-external"><p>Originalaufgabe mit Diagrammen und Tabellen:</p><a href="'+esc(q.source)+'" target="_blank" rel="noopener noreferrer">Original öffnen ↗</a>'+(q.kind==='pdf'?'<iframe title="Original-Aufgabe" loading="lazy" src="'+esc(encodeURI(q.source))+'#page=1&toolbar=0"></iframe>':'')+'</div>':'';
- return '<div class="eyebrow">SCHULARBEITSSIMULATION · FRAGE '+(r.index+1)+' / 20 · '+(isPool?'DESKRIPTOR 4':'BUCHBEISPIEL')+'</div><h1>Am Papier rechnen.</h1><div class="progress-track"><i style="width:'+((r.index/20)*100)+'%"></i></div>'+
- '<section class="question-card source-exam-card"><span class="pill">'+esc(q.number)+'</span><h2>'+esc(q.title||q.category)+'</h2><p class="source-question">'+esc(q.prompt)+'</p>'+plot(q.graph)+frame+
- '<div class="handwrite-note">✏️ Berechne oder begründe zuerst auf Papier. Erst danach die Antwort hier eintragen.</div>'+
- (q.expected!=null?'<input class="source-exam-input" id="sourceExamAnswer" inputmode="decimal" value="'+esc(r.draft)+'" placeholder="Berechnetes Ergebnis, z. B. 4,5" aria-label="Berechnetes Ergebnis">':
- '<textarea class="source-exam-input" id="sourceExamAnswer" rows="3" aria-label="Deine Rechnung / Interpretation" placeholder="Deine Rechnung, Formel oder Begründung …">'+esc(r.draft)+'</textarea>')+
- (!r.graded?'<button class="btn primary" data-action="source:exam-submit">Prüfen / Lösung vergleichen</button>':
- '<div class="source-solution"><h3>'+ (r.results[r.results.length-1]?.auto===null?'Vergleiche deine Begründung mit der Lösung':'Ergebniskontrolle')+'</h3><p>'+esc(q.guide||q.steps)+'</p><div class="formula">'+esc(q.solution)+'</div>'+(isPool?'<a href="'+esc(q.source)+'" target="_blank" rel="noopener noreferrer">Offizielle Lösung & Originalabbildung ↗</a>':'')+
- (r.results[r.results.length-1]?.auto===null?'<div class="source-actions"><button class="btn primary" data-action="source:exam-self-right">✓ Meine Lösung stimmt</button><button class="btn secondary" data-action="source:exam-self-wrong">✕ Noch nicht richtig</button></div>':
- '<div class="answer-feedback '+(r.results[r.results.length-1]?.correct?'good':'bad')+'">'+(r.results[r.results.length-1]?.correct?'✓ Automatisch richtig bewertet':'✕ Ergebnis stimmt noch nicht')+'</div><button class="btn primary" data-action="source:exam-next">Nächste Aufgabe →</button>')+'</div>')+
+ const r=ui.run,q=r.tasks[r.index],isPool=q.origin==='pool';
+ const frame=isPool?officialStatement(q):
+  '<div class="book-exam-original">'+(q.originalArtwork||[]).map((name,i)=>'<img loading="lazy" alt="Originalbuchbeispiel '+esc(q.groupNumber)+' Abbildung '+(i+1)+'" src="original-figures/'+esc(name)+'">').join('')+'</div>';
+ const last=r.results[r.results.length-1];
+ return '<div class="eyebrow">SCHULARBEITSSIMULATION · FRAGE '+(r.index+1)+' / 20 · '+(isPool?'OFFIZIELLER AUFGABENPOOL':'BUCHBEISPIEL')+'</div>'+
+ '<h1>Am Papier rechnen.</h1><div class="progress-track"><i style="width:'+((r.index/20)*100)+'%"></i></div>'+
+ '<section class="question-card source-exam-card"><span class="pill">'+esc(q.groupNumber||q.number)+'</span><h2>'+esc(q.title||q.category)+'</h2>'+
+ (isPool?'': '<p class="source-question">'+esc(q.prompt)+'</p>')+frame+
+ '<div class="handwrite-note">✏️ Bearbeite die Originalaufgabe zuerst auf Papier. '+(isPool?'Die amtlichen Lösungswege befinden sich unten im PDF.':'Danach das Ergebnis eingeben.')+'</div>'+
+ (q.expected!=null&&!isPool?'<input class="source-exam-input" id="sourceExamAnswer" inputmode="decimal" value="'+esc(r.draft)+'" placeholder="Berechnetes Ergebnis, z. B. 4,5">':
+ '<textarea class="source-exam-input" id="sourceExamAnswer" rows="3" placeholder="Deine Rechnung oder Begründung …">'+esc(r.draft)+'</textarea>')+
+ (!r.graded?'<button class="btn primary" data-action="source:exam-submit">'+(isPool?'Ergebnis mit Original-PDF vergleichen':'Prüfen / Lösung vergleichen')+'</button>':
+ '<div class="source-solution"><h3>Ergebnis vergleichen</h3>'+
+ (isPool?'<p>Scroll im amtlichen PDF weiter nach unten. Dort stehen die möglichen Lösungswege und die Lösungserwartung – keine automatisch erfundene Lösung.</p>':
+ '<p>'+esc(q.steps)+'</p><div class="formula">'+esc(q.solution)+'</div>')+
+ (last?.auto===null?'<div class="source-actions"><button class="btn primary" data-action="source:exam-self-right">✓ Meine Lösung stimmt</button><button class="btn secondary" data-action="source:exam-self-wrong">✕ Noch nicht richtig</button></div>':
+ '<div class="answer-feedback '+(last?.correct?'good':'bad')+'">'+(last?.correct?'✓ Richtig':'✕ Ergebnis stimmt noch nicht')+'</div><button class="btn primary" data-action="source:exam-next">Nächste Aufgabe →</button>')+'</div>')+
  '</section>';
 }
 function result(){
@@ -233,7 +239,7 @@ function handle(action,api){
  if(action==='source:exam-start'){startExam(api);api.navigate('bossrun');return}
  if(action==='source:exam-submit'&&ui.run&&!ui.run.graded){
   const r=ui.run,q=r.tasks[r.index];r.draft=document.getElementById('sourceExamAnswer')?.value||'';
-  const verdict=answerNumeric(q,r.draft);
+  const verdict=q.origin==='pool'?null:answerNumeric(q,r.draft);
   r.results.push({id:q.id,origin:q.origin,auto:verdict,correct:verdict===true});
   r.graded=true;if(verdict===true)r.score++;return
  }
