@@ -178,6 +178,71 @@ B('2.35a',P,'Gegeben z=sin(x²y). Bestimme zₓₓ und zᵧᵧ.','zₓₓ=2ycos(
  'Bei zₓ=2xycos(x²y) nochmals Produkt- und Kettenregel; bei zᵧ=x²cos(x²y) nochmals Kettenregel.');
 B('2.38a',P,'Gegeben z=xy⁴+3x²−5x im Punkt P(−2|3|z₀). Ermittle zₓ und zᵧ am Punkt.','zₓ=y⁴+6x−5 ⇒ zₓ(P)=64; zᵧ=4xy³ ⇒ zᵧ(P)=−216.',
  'Für zₓ y konstant halten; für zᵧ x konstant halten. Zuletzt x=−2, y=3 einsetzen.');
+
+/* Further exact subparts from the first screenshot (teacher's handwritten portion 1.1–1.9). */
+B('1.5a',A,'Ermittle f′(x) für f(x)=(x²−3x)/(x⁴+1).',
+ 'f′(x)=[(2x−3)(x⁴+1)−4x³(x²−3x)]/(x⁴+1)².',
+ 'Quotientenregel (u/v)′=(u′v−uv′)/v² mit u=x²−3x und v=x⁴+1.');
+B('1.5b',A,'Ermittle f′(t) für f(t)=eᵗ/(t+1).',
+ 'f′(t)=t·eᵗ/(t+1)².',
+ 'Quotientenregel: [eᵗ(t+1)−eᵗ]/(t+1)², dann eᵗ ausklammern.');
+B('1.5c',A,'Ermittle f′(x) für f(x)=2x/cos(x).',
+ 'f′(x)=[2cos(x)+2xsin(x)]/cos²(x).',
+ 'Bei u=2x und v=cos(x) erhältst du u′=2, v′=−sin(x). Im Zähler ist minus mal minus plus.');
+B('1.5d',A,'Ermittle f′(x) für f(x)=sin(x)/x².',
+ 'f′(x)=[xcos(x)−2sin(x)]/x³, x≠0.',
+ 'Quotientenregel ergibt [x²cos(x)−2xsin(x)]/x⁴. Kürze einen Faktor x.');
+B('1.6c',A,'Ermittle f′(x) für f(x)=³√(x³+2x).',
+ 'f′(x)=(3x²+2)/[3(x³+2x)^(2/3)] an Stellen mit x³+2x≠0.',
+ 'Schreibe die dritte Wurzel als Potenz 1/3 und wende die Kettenregel mit innerer Ableitung 3x²+2 an.');
+B('1.7c',A,'Ermittle f′(x) für f(x)=2sin(4x)/x³.',
+ 'f′(x)=8cos(4x)/x³−6sin(4x)/x⁴.',
+ 'Schreibe f=2sin(4x)·x⁻³. Produktregel und Kettenregel liefern die beiden Summanden.');
+B('1.7d',A,'Ermittle die Ableitung von y=e^(−0,2x)/(0,3x).',
+ 'y′=e^(−0,2x)·[−2/(3x)−10/(3x²)].',
+ 'Zuerst durch 0,3 dividieren. Produktregel für e^(−0,2x)·x⁻¹; innere Ableitung −0,2 beachten.');
+B('1.8-1',A,'Ermittle y′(t), wenn y(t)=a·e^(λ₁t)+b·e^(λ₂t), alle Parameter außer t konstant.',
+ 'y′(t)=aλ₁e^(λ₁t)+bλ₂e^(λ₂t).',
+ 'Jede Exponentialfunktion separat ableiten. Die Konstante λ wird wegen der Kettenregel als Faktor übernommen.');
+B('1.8-2',A,'Ermittle y′(t), wenn y(t)=(a+b·t)e^(λt).',
+ 'y′(t)=e^(λt)[b+λ(a+bt)].',
+ 'Produktregel, wobei (a+bt)′=b und (e^(λt))′=λe^(λt).');
+B('1.8-3',A,'Ermittle y′(t) für y(t)=a·e^(αt)sin(ωt)+b·e^(αt)cos(ωt).',
+ 'y′(t)=e^(αt)[(αa−ωb)sin(ωt)+(ωa+αb)cos(ωt)].',
+ 'Beide Produkte ableiten, danach gemeinsamen Faktor e^(αt) ausklammern.');
+B('1.8-4',A,'Ermittle y′(t) für y(t)=a·sin(ωt)−b·t·cos(ωt).',
+ 'y′(t)=(aω−b)cos(ωt)+bωt·sin(ωt).',
+ 'Für b·t·cos(ωt) die Produktregel verwenden, danach Minuszeichen verteilen.');
+B('1.9b',A,'Gegeben z=a(1+bc)³. Bestimme ∂z/∂a und ∂z/∂b.',
+ 'zₐ=(1+bc)³; zᵦ=3ac(1+bc)².',
+ 'Bei der ersten Ableitung b und c als Konstanten behandeln. Für die zweite Kettenregel mit innerer Ableitung c.');
+B('1.9c',A,'Gegeben v=−ωcos(ωt−φ). Bestimme ∂v/∂t und ∂v/∂ω.',
+ 'vₜ=ω²sin(ωt−φ); v_ω=−cos(ωt−φ)+ωt·sin(ωt−φ).',
+ 'Nach t ist ω konstant. Nach ω musst du das Produkt −ω·cos(ωt−φ) mit Produkt- und Kettenregel ableiten.');
+B('1.9d',A,'Gegeben η=(T₂−T₁)/T₁. Bestimme ∂η/∂T₁ und ∂η/∂T₂.',
+ 'η_T₁=−T₂/T₁²; η_T₂=1/T₁.',
+ 'Schreibe zuerst η=T₂/T₁−1. Bei jeder partiellen Ableitung bleibt die andere Temperatur konstant.');
+B('1.56a',I,'Berechne ∫(−5x²+3/2−√x)dx.',
+ 'F(x)=−5x³/3+3x/2−2x^(3/2)/3+C.',
+ 'Die Wurzel ist x^(1/2). Potenzregel rückwärts für alle drei Summanden.');
+B('1.61a',I,'Berechne ∫3x·e^(2x)dx mittels partieller Integration.',
+ 'F(x)=(3/2)x·e^(2x)−(3/4)e^(2x)+C.',
+ 'u=3x und dv=e^(2x)dx; damit du=3dx und v=e^(2x)/2. Verwende ∫u dv=uv−∫vdu.');
+B('1.68a',F,'Die grafisch markierte Fläche wird von der x-Achse und der Geraden durch (0|3) und (6|0) begrenzt. Bestimme den Flächeninhalt.',
+ 'A=9 Flächeneinheiten. Gerade f(x)=3−x/2, Fläche =∫₀⁶(3−x/2)dx =9.',
+ 'Alternativ: rechtwinkliges Dreieck mit Grundseite 6 und Höhe 3 ⇒ ½·6·3=9.',9,
+ {curves:[{label:'f',points:[[0,3],[6,0]]}],area:{a:0,b:6},x:[0,7],y:[-1,4]});
+B('1.68b',F,'Die grafisch markierte Fläche hat die Eckpunkte (0|0),(2|4),(4|4),(5|0). Berechne den Flächeninhalt.',
+ 'A=14 Flächeneinheiten.',
+ 'Zerlege in ein linkes Dreieck (4), ein Rechteck (8) und rechtes Dreieck (2). Summe 14.',14,
+ {curves:[{label:'f',points:[[0,0],[2,4],[4,4],[5,0]]}],area:{a:0,b:5},x:[-.5,5.7],y:[-1,5]});
+B('1.69a',F,'Stelle eine Integralformel für die blau markierte Fläche zwischen einer steigenden Funktion f, x=0, x=a und der Höhe y=f(a) auf.',
+ 'A=∫₀ᵃ[f(a)−f(x)]dx=a·f(a)−∫₀ᵃf(x)dx.',
+ 'Die markierte Fläche ist Rechteck minus Fläche unter f.');
+B('1.69b',F,'Die blau markierte Fläche liegt im Rechteck von x=a bis x=b über einer positiven Funktion f und unter y=c. Stelle eine Integralformel auf.',
+ 'A=∫ₐᵇ[c−f(x)]dx.',
+ 'Obere Begrenzungsfunktion minus untere Begrenzungsfunktion integrieren.');
+
 if(new Set(R.map(x=>x.id)).size!==R.length)throw Error('Duplicate book IDs');
 window.MATHS_BOOK_BANK=Object.freeze(R);
 })();
