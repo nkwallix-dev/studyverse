@@ -21,6 +21,14 @@
       />
       <ng-container *ngIf="isReady">
         <image
+          [attr.href]="imageUrl('seam_underlay')"
+          x="0"
+          y="0"
+          width="1205"
+          height="1305"
+          preserveAspectRatio="none"
+        />
+        <image
           *ngFor="let part of orderedParts"
           [attr.href]="imageUrl(part.id)"
           [attr.x]="part.x"
