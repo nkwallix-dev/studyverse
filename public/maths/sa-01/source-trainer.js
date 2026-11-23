@@ -8,7 +8,7 @@
 const BOOK=window.MATHS_BOOK_BANK||[];
 const GROUPS=window.MATHS_BOOK_GROUPS||[];
 const POOL=window.MATHS_POOL_BANK||[];
-const ui={bookId:GROUPS[0]?.id,bookStepId:GROUPS[0]?.steps[0]?.id,poolId:POOL[0]?.id,mode:null,filter:'',topic:'all',shown:false,submitted:false,correct:null,answer:'',run:null,complete:null,listScroll:{book:0,pool:0}};
+const ui={bookId:GROUPS[0]?.id,bookStepId:GROUPS[0]?.steps[0]?.id,poolId:POOL[0]?.id,mode:null,filter:'',topic:'all',shown:false,poolHint:false,submitted:false,correct:null,answer:'',run:null,complete:null,listScroll:{book:0,pool:0}};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const select=(arr)=>arr[Math.floor(Math.random()*arr.length)];
 function shuffle(items){let a=[...items];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -76,32 +76,13 @@ function plot(graph){
  return '<figure class="source-graph"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Passender mathematischer Funktionsgraph zum Originalbuchbeispiel"><g>'+grid+fill+ax+paths+'</g></svg><figcaption>Rechnerisch rekonstruierter Funktionsgraph · dieselben Koordinaten wie in der Angabe</figcaption></figure>';
 }
 const cards=(mode)=>mode==='book'?BOOK:POOL;
-function officialRecord(q){
- if(q.kind!=='page')return null;
- const n=(q.source||'').match(/aufgabe-(\d+)/);
- return n?window.MATHS_INLINE_ORIGINAL?.[n[1]]||null:null;
-}
-function officialId(q){return (q.source||'').match(/aufgabe-(\d+)/)?.[1]||''}
-function officialFigures(q){
- const figs=window.MATHS_OFFICIAL_FIGURES?.[officialId(q)]||[];
- if(!figs.length)return '';
- return '<div class="source-original-figures">'+figs.map((s,i)=>{
-  const url=/^https:\/\//.test(s)?s:s.replace(/^/,'');
-  return '<img src="'+esc(url)+'" alt="Originalgrafik '+(i+1)+' zur Aufgabe '+esc(q.number)+'" loading="eager" decoding="async">';
- }).join('')+'</div>';
-}
 function officialStatement(q){
- const data=officialRecord(q);
- if(data){
-  const original=data.text.replace(/\\\(/g,'').replace(/\\\)/g,'')
-   .replace(/\*\*/g,'').replace(/^####\s*/gm,'')
-   .replace(/xml version="[^"]*" encoding="[^"]*" standalone="[^"]*"\?/g,'')
-   .replace(/Schon den nächsten Urlaub geplant\?[\s\S]*?(?=\n(?:\*\*)?\d+\.\s*Teilaufgabe|$)/gi,'')
-   .replace(/\n{3,}/g,'\n\n').trim();
-  return '<div class="source-inline-original"><div class="source-inline-heading">Originalaufgabe · BHS Angewandte Mathematik</div><div class="source-original-body"><div class="source-original-text">'+esc(original)+'</div>'+officialFigures(q)+'</div></div>';
- }
+ if(!/^https:\/\/(?:www\.)?aufgabenpool\.at\/amn\//i.test(q.source))
+  return '<p class="source-empty">Diese Aufgabe hat keine verifizierte Original-PDF-Quelle und kann hier nicht als offizielle SRDP-Aufgabe angezeigt werden.</p>';
  const src=esc(encodeURI(q.source))+'#view=FitH&zoom=page-width&toolbar=0&navpanes=0';
- return '<div class="source-external source-pdf-sheet"><b>Original-Aufgabenblatt · in Seitenbreite</b><iframe loading="eager" title="Original-SRDP-Aufgabe '+esc(q.number)+'" src="'+src+'" referrerpolicy="no-referrer" aria-label="Original-PDF mit Aufgabenstellung und Grafik in lesbarer Seitenbreite"></iframe><p class="source-pdf-help">Im Aufgabenblatt scrollen, um alle Seiten zu lesen.</p></div>';
+ return '<div class="source-external source-pdf-sheet"><b>Amtliches Aufgabenblatt · aufgabenpool.at</b>'+
+ '<iframe loading="eager" title="Offizielle SRDP-Aufgabe '+esc(q.number)+'" src="'+src+'" referrerpolicy="no-referrer" aria-label="Vollständiges Original-PDF des Bundesministeriums für Bildung"></iframe>'+
+ '<p class="source-pdf-help">Scrolle im Aufgabenblatt nach unten: Die offizielle Lösungserwartung steht im selben PDF.</p></div>';
 }
 function activeGroup(){return GROUPS.find(g=>g.id===ui.bookId)||GROUPS[0]}
 function activeStep(){const group=activeGroup();return group?.steps.find(q=>q.id===ui.bookStepId)||group?.steps[0]}
@@ -130,33 +111,23 @@ function bookDetails(group){
 }
 
 function details(q,mode){
- if(!q)return '<div class="source-empty">Kein Beispiel gefunden.</div>';
- const solved=!!window.__mathSourceState?.solved?.[solvedKey(q,mode)];
- const isPool=mode==='pool',needsSelfCheck=isPool&&q.expected==null;
- const badge=solved?'<span class="source-done">✓ Bereits bearbeitet</span>':'<span class="pill">✎ Noch offen</span>';
- const statement=isPool?officialStatement(q):'<div class="source-question">'+esc(q.prompt)+'</div>'+plot(q.graph);
- const sourceUrl=isPool?'<a class="source-original-link" href="'+esc(q.source)+'" target="_blank" rel="noopener noreferrer">Originalquelle ↗</a>':'';
- const result=ui.submitted&&ui.correct!==null?'<p class="answer-feedback '+(ui.correct?'good':'bad')+'">'+(ui.correct?'✓ Richtig!':'Noch nicht korrekt. Vergleiche deinen Rechenweg.')+'</p>':'';
- const solution=ui.shown?'<section class="source-solution" id="sourceSolution" aria-label="Erklärte Lösung"><h3>Schritt-für-Schritt-Erklärung</h3><p>'+esc(q.guide||q.steps)+'</p><div class="formula">'+esc(q.solution)+'</div>'+
- (isPool?'<p class="source-credit">'+esc(q.credit||'Datenquelle: Bundesministerium für Bildung (CC BY 4.0)')+'</p><a target="_blank" rel="noopener noreferrer" href="'+esc(q.source)+'">Offizielle Lösungserwartung ↗</a>':'')+
- '</section>':'';
- const answer=needsSelfCheck?'<textarea id="sourceAnswer" rows="2" placeholder="Deine Rechnung / Interpretation …" aria-label="Deine Rechnung">'+esc(ui.answer)+'</textarea>':
- '<input id="sourceAnswer" autocomplete="off" inputmode="'+(q.expected!=null?'decimal':'text')+'" placeholder="'+(q.expected!=null?'Deine Zahl, z. B. 4,5':'Dein Ergebnis oder Rechenweg …')+'" value="'+esc(ui.answer)+'" aria-label="Deine Antwort">';
- const check=needsSelfCheck?'':'<button class="btn primary" data-action="source:submit">Überprüfen</button>';
+ if(!q)return '<div class="source-empty">Keine Originalaufgabe gefunden.</div>';
+ if(mode!=='pool')return bookDetails(activeGroup());
+ const solved=!!window.__mathSourceState?.solved?.[solvedKey(q,'pool')];
  return '<section class="source-detail" data-source-id="'+esc(q.id)+'">'+
- '<header class="source-detail-header"><div class="source-meta"><span class="eyebrow">'+(isPool?'SRDP · '+esc(q.descriptor):'BUCHBEISPIEL · '+esc(q.category))+'</span>'+badge+'</div>'+
- '<h2>'+esc(isPool?q.title+' · '+q.part:q.number)+'</h2>'+
- '<p class="source-number">'+esc(isPool?q.number:q.source)+' '+sourceUrl+'</p></header>'+
- '<div class="source-reading" role="region" tabindex="0" aria-label="Aufgabenstellung und Lösungsweg – scrollbar">'+statement+solution+'</div>'+
- '<div class="source-answer-dock"><div class="handwrite-note" role="note">✏️ <strong>Stift und Papier:</strong> Löse zuerst die Aufgabe selbst. Trage danach dein Ergebnis ein.</div>'+
- '<div class="answer-field">'+answer+check+'</div>'+result+
- '<div class="source-actions"><button class="btn secondary" data-action="source:reveal">'+(ui.shown?'Lösung schließen':'Lösung anzeigen')+'</button><button class="btn secondary" data-action="source:next">Nächstes Beispiel →</button>'+
- (ui.shown?'<button class="btn primary" data-action="source:self-right">✓ Ich hatte es richtig</button><button class="btn secondary" data-action="source:self-wrong">✕ Noch üben</button>':'')+
- '</div>'+
- (needsSelfCheck?'<p class="source-credit">Zeichnungen und Begründungen: Lösung vergleichen und anschließend selbst bewerten.</p>':'')+
- '</div></section>';
+ '<header class="source-detail-header"><div class="source-meta"><span class="eyebrow">SRDP · '+esc(q.descriptor)+'</span>'+
+ (solved?'<span class="source-done">✓ Bearbeitet</span>':'<span class="pill">✎ Noch offen</span>')+'</div>'+
+ '<h2>'+esc(q.title)+' · '+esc(q.part)+'</h2>'+
+ '<p class="source-number">'+esc(q.number)+' <a class="source-original-link" href="'+esc(q.source)+'" target="_blank" rel="noopener noreferrer">Offizielle Quelle ↗</a></p></header>'+
+ '<div class="source-reading" role="region" tabindex="0" aria-label="Vollständige offizielle Aufgabe mit Original-Lösungswegen">'+
+ officialStatement(q)+
+ (ui.poolHint?'<section class="source-solution" id="sourceSolution"><h3>Ergebnis überprüfen</h3><p>Scroll im offiziellen Aufgabenblatt weiter nach unten. Dort stehen die <strong>möglichen Lösungswege und die Lösungserwartung</strong>. Vergleiche sie direkt mit deinem Rechenweg auf Papier.</p></section>':'')+'</div>'+
+ '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Bearbeite die vollständige Originalaufgabe. Lösungen stehen am Ende des PDF.</div>'+
+ '<div class="source-actions"><button class="btn primary" data-action="source:pool-check">Ergebnis überprüfen</button>'+
+ '<button class="btn secondary" data-action="source:pool-complete">'+(solved?'✓ Als bearbeitet markiert':'✓ Fertig bearbeitet')+'</button>'+
+ '<button class="btn secondary" data-action="source:next">Nächstes Beispiel →</button></div>'+
+ '<p class="source-credit">Datenquelle: Bundesministerium für Bildung · CC BY 4.0. Keine erfundene automatische Bewertung.</p></div></section>';
 }
-
 function browser(mode,state){
  if(ui.mode!==mode){ui.mode=mode;ui.filter='';ui.topic='all';reset()}
  window.__mathSourceState=state;
@@ -184,7 +155,7 @@ function browser(mode,state){
  }).join('')+'</aside>'+(groups?bookDetails(active):details(active,'pool'))+'</div>';
 }
 
-function reset(){ui.shown=false;ui.submitted=false;ui.correct=null;ui.answer=''}
+function reset(){ui.shown=false;ui.poolHint=false;ui.submitted=false;ui.correct=null;ui.answer=''}
 function captureList(mode,scroll){if(mode==='book'||mode==='pool')ui.listScroll[mode]=Math.max(0,scroll||0)}
 function restoreList(mode,el){if(el&&ui.listScroll[mode]!=null)el.scrollTop=ui.listScroll[mode]}
 function focusSolution(root){const reader=root?.querySelector('.source-reading');if(reader&&ui.shown)reader.scrollTop=reader.scrollHeight;}
@@ -249,6 +220,8 @@ function handle(action,api){
  const mode=api.view==='pool'?'pool':'book';
  if(action.startsWith('source:open:')){let x=action.slice(12),q=(mode==='book'?GROUPS:POOL).find(q=>q.id===x);if(q){if(mode==='book'){ui.bookId=x;ui.bookStepId=q.steps[0].id}else ui.poolId=x;reset()}return}
  if(action.startsWith('source:step:')&&mode==='book'){const id=action.slice(12);if(activeGroup().steps.some(q=>q.id===id)){ui.bookStepId=id;reset()}return}
+ if(action==='source:pool-check'&&mode==='pool'){ui.poolHint=!ui.poolHint;return}
+ if(action==='source:pool-complete'&&mode==='pool'){const q=current('pool');if(q)mark(q,'pool',true,api);return}
  if(action==='source:next'){next(mode,api.state);return}
  if(action==='source:reveal'){ui.answer=document.getElementById('sourceAnswer')?.value??ui.answer;ui.shown=!ui.shown;return}
  if(action==='source:submit'){let q=current(mode);if(!q)return;const v=document.getElementById('sourceAnswer')?.value||'';ui.answer=v;ui.submitted=true;ui.correct=answerNumeric(q,v);if(ui.correct===true)mark(q,mode,true,api);if(ui.correct===false)ui.shown=true;if(ui.correct===null)ui.shown=true;return}
