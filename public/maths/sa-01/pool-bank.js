@@ -88,7 +88,7 @@ P('A_116 b','Baumhaus','b','4.8',aLink(4201),'page',{
  prompt:'A_116 b — Die obere Fensterkante eines Baumhauses ist f(x)=−0,003x³+0,164x²−2,25x+40 für 0≤x≤40 (cm). Um wie viel Prozent ist die tatsächlich begrenzte Fensterfläche kleiner als ein Quadrat mit Seitenlänge 40 cm?',
  guide:'Fläche des Quadrats =40²=1600 cm². Fläche unter der Kurve A=∫₀⁴⁰ f(x)dx. Prozentuale Verringerung = (1600−A)/1600·100.',
  solution:'Eine Stammfunktion ist F(x)=−0,00075x⁴+0,164x³/3−1,125x²+40x. Setze 40 und 0 ein. Die prozentuale Verringerung wird auf das Quadrat mit 1600 cm² bezogen.',
- expected:49.133333333
+ expected:13.833333333
 });
 P('A_243 c','Der Bodensee','c','4.8',aLink(4015),'page',{
  prompt:'A_243 c — Sabine startet 12 km vor Bregenz und fährt mit 15 km/h. Johanna fährt eine Stunde später von Bregenz mit 30 km/h los. Wie viele Stunden ist Johanna unterwegs, bis sie Sabine einholt?',
@@ -111,8 +111,8 @@ P('A_317 a','Stand-up-Paddling','a','4.8',aLink(4551),'page');
 P('A_318 a','Kleingartensiedlung','a','4.8',aLink(4553),'page',{
  prompt:'A_318 a — Ein Grundstück wird durch f(x)=0,01x²+0,01x+16 auf [0;20] begrenzt. Wo muss bei x=a vertikal geteilt werden, sodass beide Flächen gleich groß sind?',
  guide:'Suche a aus ∫₀ᵃ f(x)dx = ½∫₀²⁰ f(x)dx. Nutze F(x)=x³/300+x²/200+16x.',
- solution:'Berechne die Gesamtfläche und halbiere sie. Setze F(a) auf die Hälfte und löse numerisch. Die Teilstelle liegt bei ungefähr a=10,65 m.',
- expected:10.65
+ solution:'Berechne die Gesamtfläche und halbiere sie. Setze F(a) auf die Hälfte und löse numerisch. Die Teilstelle liegt bei ungefähr a≈10,612 m.',
+ expected:10.611692948
 });
 if(Q.length!==50)throw Error('Expected exactly 50 genuinely sourced pool tasks, got '+Q.length);
 if(new Set(Q.map(q=>q.id)).size!==Q.length)throw Error('Duplicate pool tasks');

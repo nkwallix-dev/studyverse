@@ -47,14 +47,14 @@ B('1.12a',K,'Das Weg-Zeit-Diagramm zeigt (0|0), (3|50), (5|50), (8|0). Ermittle 
 B('1.14',K,'Diskutiere f(x)=0,2x³−x² und bestimme die Wendetangente.','f′=0,6x²−2x; f″=1,2x−2. Wendestelle x=5/3; Wendepunkt (5/3|−50/27); Steigung m=−5/3. Wendetangente y=−5x/3+25/27.',
  'Für Wendestellen f″=0 setzen; x in f und f′ einsetzen. Wendetangente y=f′(xW)(x−xW)+f(xW).',
  null,{curves:[{label:'f',poly:[0.2,-1,0,0]}],x:[-1,5],y:[-4,3]});
-B('1.17',K,'Eine Körpertemperatur wird beschrieben durch T(t)=−0,16t³+0,82t²+0,8t+36,5 mit 0≤t≤6. Bestimme die maximale Körpertemperatur und wann sie auftritt.','T′(t)=−0,48t²+1,64t+0,8. Maximum im Intervall bei t≈3,85 h, mit T≈41,0 °C (gerundet).',
+B('1.17',K,'Eine Körpertemperatur wird beschrieben durch T(t)=−0,16t³+0,82t²+0,8t+36,5 mit 0≤t≤6. Bestimme die maximale Körpertemperatur und wann sie auftritt.','T′(t)=−0,48t²+1,64t+0,8. Maximum im Intervall bei t≈3,85 h, mit T≈42,60 °C (gerundet).',
  'Ableitung gleich Null setzen. Positive kritische Stelle und beide Intervallenden prüfen, dann T einsetzen.');
 B('1.18a',K,'Die Firma hat Fixkosten 1200 GE und Erlös E(x)=−4x²+450x. Stelle die Gewinnfunktion auf.','G(x)=E(x)−1200=−4x²+450x−1200.',
  'Gewinn ist Erlös minus Kosten. Die Fixkosten sind unabhängig von x.');
 B('1.19a',K,'Ein Ball folgt h(t)=−5t²+10t+7 (h in m, t in s). Bestimme seine Abwurfhöhe.','h(0)=7 m.','Abwurfzeit t=0 einsetzen.',7);
 B('1.19b',K,'Der Ball hat h(t)=−5t²+10t+7. Wann erreicht er seine maximale Höhe?','t=1 s; Höhe h(1)=12 m.',
  'Scheitel einer quadratischen Funktion: h′=−10t+10=0 ⇒ t=1. Zweite Ableitung negativ.',1);
-B('1.21',K,'Ein kubisches Polynom hat E(2|4) als Extrempunkt und W(−1|0) als Wendepunkt. Bestimme seine Funktionsgleichung.','f(x)=a x³+b x²+c x+d; Bedingungen f(2)=4, f′(2)=0, f(−1)=0, f″(−1)=0. Daraus folgt f(x)=−4x³/27−4x²/9+16x/9+76/27.',
+B('1.21',K,'Ein kubisches Polynom hat E(2|4) als Extrempunkt und W(−1|0) als Wendepunkt. Bestimme seine Funktionsgleichung.','f(x)=a x³+b x²+c x+d; Bedingungen f(2)=4, f′(2)=0, f(−1)=0, f″(−1)=0. Daraus folgt f(x)=−2x³/27−2x²/9+16x/9+52/27.',
  'Vier Bedingungen für die vier Koeffizienten aufstellen und ein lineares Gleichungssystem lösen.');
 B('1.28',K,'Zerlege 40 in zwei natürliche Summanden, sodass die Summe ihrer Quadrate minimal ist.','20 und 20; Minimalwert 20²+20²=800.',
  'Sei x der erste Teil und 40−x der zweite. S(x)=x²+(40−x)². S′=4x−80=0 ⇒ x=20.',20);
@@ -138,7 +138,7 @@ B('1.89a',A,'Bestimme die ersten beiden Ableitungen von f(x)=3x²−7x+5/x.','f�
  '5/x=5x⁻¹ schreiben und zweimal die Potenzregel anwenden.');
 B('1.93a',K,'Die Steigung von y=x²+a·x+2 an x₀=−1 ist k=3. Bestimme a.','a=5.',
  'f′=2x+a. Bei x=−1 ist f′=−2+a=3 ⇒ a=5.',5);
-B('1.93b',K,'Die Steigung von y=4x³−a·x²+x an x₀=2 ist k=−1. Bestimme a.','a=25/4=6,25.',
+B('1.93b',K,'Die Steigung von y=4x³−a·x²+x an x₀=2 ist k=−1. Bestimme a.','a=25/2=12,5.',
  'f′(x)=12x²−2ax+1. Bei x=2 ergibt 49−4a=−1 ⇒ a=12,5.',12.5);
 B('1.98a',F,'Berechne ∫₀⁴(x²+4x−1)dx.','Achtung: bestimmtes, orientiertes Integral =148/3≈49,3333.',
  'Stammfunktion x³/3+2x²−x. F(4)−F(0)=64/3+32−4=148/3.',148/3);
