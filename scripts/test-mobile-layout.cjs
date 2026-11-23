@@ -1811,6 +1811,19 @@ async function main(){
      await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="pool"]').click());
      await cosmeticPage.locator('.source-external').first().waitFor({timeout:5000});
      assert.equal(await cosmeticPage.locator('.source-list .source-task').count(),50,'SRDP bank must contain 50 sourced tasks');
+     await cosmeticPage.locator('[data-action="source:open:pool-a-117-c"]').evaluate(el=>el.click());
+     await cosmeticPage.locator('.source-inline-original').waitFor({timeout:5000});
+     assert((await cosmeticPage.locator('.source-original-text').innerText()).includes('Geschwindigkeitsverlauf'),
+       'Descriptor page must render complete source exercise text directly, not a generic link-only prompt');
+     await cosmeticPage.locator('.source-original-figures img').first().waitFor({state:'visible',timeout:5000});
+     await cosmeticPage.waitForFunction(()=>document.querySelector('.source-original-figures img')?.naturalWidth>0,{timeout:10000});
+     assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,
+       'Descriptor original statement must not re-enable outer page scrolling');
+     const fitted=await cosmeticPage.locator('.source-detail').evaluate(el=>({
+       outer:el.getBoundingClientRect().bottom,
+       inner:el.querySelector('.source-detail-inner').getBoundingClientRect().bottom
+     }));
+     assert(fitted.inner<=fitted.outer+8,'Original task content must be visually fitted into the fixed card: '+JSON.stringify(fitted));
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-50-official-390.png'),fullPage:true});
    }
    await equipped.close();
