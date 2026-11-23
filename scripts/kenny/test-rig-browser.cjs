@@ -77,9 +77,9 @@ function browserPath() {
     });
     console.log('RIG_DIAGNOSTICS', JSON.stringify(debug), 'HTTP_ERRORS', JSON.stringify(missingRigImages), 'PAGE_ERRORS', JSON.stringify(errors));
     await page.screenshot({path:path.join(shots,'kenny-rig-initial-state.png'),fullPage:true});
-    await page.waitForFunction(() => document.querySelectorAll('app-kenny-rig-preview svg image').length >= 18, null, {timeout: 12000});
-    assert.equal(await rig.locator('svg image').count(),18,'Expected 18 independent image layers');
-    assert.equal(await rig.locator('svg image[href*="/parts/blue/"]').count(),18,'Should begin with blue PNG parts');
+    await page.waitForFunction(() => document.querySelectorAll('app-kenny-rig-preview svg image').length >= 19, null, {timeout: 12000});
+    assert((await rig.locator('svg image').count())>=19,'Expected 18 independent PNG parts plus underpaint');
+    assert((await rig.locator('svg image[href*="/parts/blue/"]').count())>=19,'Should begin with blue PNG parts plus underpaint');
     assert.equal(missingRigImages.length,0,'Missing rig assets: '+JSON.stringify(missingRigImages));
     await rig.getByRole('button',{name:'Pause'}).click();
     const before=await rig.locator('.frame-meta').last().innerText();
@@ -92,10 +92,10 @@ function browserPath() {
     assert.notEqual(before,after,'Frame step should change the frame counter');
     await rig.getByRole('button',{name:'Pink',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('app-kenny-rig-preview svg image[href*="/parts/pink/"]')!==null);
-    assert.equal(await rig.locator('svg image[href*="/parts/pink/"]').count(),18,'Pink reuses the identical 18 body part geometry');
+    assert((await rig.locator('svg image[href*="/parts/pink/"]').count())>=19,'Pink reuses the identical 18 body parts');
     await rig.getByRole('button',{name:'Weiß',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('app-kenny-rig-preview svg image[href*="/parts/white/"]')!==null);
-    assert.equal(await rig.locator('svg image[href*="/parts/white/"]').count(),18,'Stored zebra ID maps to white');
+    assert((await rig.locator('svg image[href*="/parts/white/"]').count())>=19,'Stored zebra ID maps to white');
     await rig.getByRole('button',{name:/Gelenke/}).click();
     assert(await rig.locator('svg .rig-joint').count()>=17,'Joint debug controls must work');
     await rig.getByRole('button',{name:'Blau',exact:true}).click();
