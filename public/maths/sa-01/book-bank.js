@@ -599,6 +599,24 @@ B('1.100d',V,'Die Drohne startet mit v(0)=3 m/s und a(t)=0,0036t²−0,18t+2,25.
  'Nach etwa t≈14,410 s hat die Drohne 200 m zurückgelegt.',
  'Aus a erhält man v(t)=0,0012t³−0,09t²+2,25t+3. Der Weg ist s(t)=0,0003t⁴−0,03t³+1,125t²+3t. Löse s(t)=200 numerisch auf [0;25].',14.40984457896);
 
+
+B('1.30b',V,'Beweise an einem selbst gewählten Beispiel, dass ein Quader mit quadratischer Grundfläche, dessen Kanten zusammen 144 cm messen, ein kleineres Volumen als der optimale Würfel hat.',
+ 'Beispiel: Grundkante a=10 cm, Höhe h=16 cm. Drahtlänge 8·10+4·16=144 cm; Volumen 10²·16=1600 cm³ <1728 cm³ beim Würfel.',
+ 'Die Nebenbedingung lautet h=36−2a. Nimm einen zulässigen anderen Wert a≠12 und vergleiche V=a²h mit 1728.');
+B('1.94',K,'Diskutiere f(x)=4x³+3x²−2x+1 und zeichne Extrema, Wendepunkt sowie Wendetangente ein.',
+ 'f′=12x²+6x−2, f″=24x+6. Extremstellen x=(−3±√33)/12; Wendepunkt W(−1/4|13/8), Wendetangente y=−11x/4+15/16.',
+ 'Zuerst f′=0 mit der quadratischen Formel lösen, mit f″ typisieren. Wendestelle f″=0 bei −1/4, y-Wert und Tangentensteigung f′ einsetzen.',
+ null,{curves:[{label:'f',poly:[4,3,-2,1]}],x:[-1.8,1.2],y:[-5,10]});
+B('1.95a',K,'In einen Kreis mit Radius R=10 cm soll das flächengrößte Rechteck eingeschrieben werden. Berechne die Seitenlängen.',
+ 'Die optimale Form ist ein Quadrat mit Seitenlänge 10√2 cm. Maximalfläche A=200 cm².',
+ 'Bei Halbseiten a,b gilt a²+b²=R². Fläche A=4ab. Maximum bei a=b=R/√2, also Seitenlänge 2a=√2R.');
+B('1.95b',K,'In einen Kreis mit Radius R=10 cm soll das flächengrößte gleichschenklige Dreieck eingeschrieben werden. Bestimme seine Seitenlängen.',
+ 'Das maximale Dreieck ist gleichseitig mit Seitenlänge 10√3 cm; Fläche A=75√3≈129,90 cm².',
+ 'Ein gleichseitiges Dreieck maximiert bei festem Umkreisradius die Fläche. Beim gleichseitigen Dreieck gilt R=a/√3 ⇒ a=R√3.');
+B('1.96',K,'Ein Turm soll ein kegelförmiges Dach bekommen. Der Dachraum hat das Volumen 300 m³. Welche Höhe und welcher Radius minimieren die Materialkosten bei möglichst kleiner Mantelfläche?',
+ 'Optimal gilt h=√2r, r≈5,873 m, h≈8,306 m.',
+ 'Volumen V=(πr²h)/3=300 ⇒ h=900/(πr²). Mantelfläche M=πr√(r²+h²). Nach Einsetzen minimieren; daraus folgt r⁶=405000/π².',5.8729893455533);
+
 if(new Set(R.map(x=>x.id)).size!==R.length)throw Error('Duplicate book IDs');
 window.MATHS_BOOK_BANK=Object.freeze(R);
 })();
