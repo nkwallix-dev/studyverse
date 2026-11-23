@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import {
   KENNY_RIG_BONES,
   KENNY_RIG_FPS,
@@ -40,6 +40,7 @@ export class KennyRigPreviewComponent implements OnInit, OnDestroy {
     if (!this.skinOverridden && value) void this.chooseSkin(value, false);
   }
 
+  private readonly changeDetector = inject(ChangeDetectorRef);
   readonly skinOptions = [
     { id: 'blue', name: 'Blau' },
     { id: 'pink', name: 'Pink' },
@@ -123,11 +124,15 @@ export class KennyRigPreviewComponent implements OnInit, OnDestroy {
       if (manifest.width !== 1205 || manifest.height !== 1305 || manifest.fps !== 10)
         throw new Error('Invalid PNG rig manifest geometry');
       this.parts = manifest.parts;
+      this.changeDetector.markForCheck();
       this.eyelid = manifest.extraParts.find((part) => part.id === 'eye_closed');
       if (!this.eyelid || this.parts.length < 17) throw new Error('PNG rig parts incomplete');
       await this.chooseSkin(this.requestedSkin, false);
     } catch (error) {
-      if (!this.disposed) this.imageError = String(error);
+      if (!this.disposed) {
+        this.imageError = String(error);
+        this.changeDetector.markForCheck();
+      }
     }
   }
 
@@ -148,6 +153,7 @@ export class KennyRigPreviewComponent implements OnInit, OnDestroy {
     this.requestedSkin = skin;
     if (!this.parts.length) {
       this.currentSkin = skin;
+      this.changeDetector.markForCheck();
       return;
     }
     this.imageError = '';
@@ -174,8 +180,12 @@ export class KennyRigPreviewComponent implements OnInit, OnDestroy {
       if (this.disposed || this.requestedSkin !== skin) return;
       this.currentSkin = skin;
       this.isReady = true;
+      this.changeDetector.markForCheck();
     } catch (error) {
-      if (!this.disposed && this.requestedSkin === skin) this.imageError = String(error);
+      if (!this.disposed && this.requestedSkin === skin) {
+        this.imageError = String(error);
+        this.changeDetector.markForCheck();
+      }
     }
   }
 
@@ -208,6 +218,7 @@ export class KennyRigPreviewComponent implements OnInit, OnDestroy {
   setFrame(value: number): void {
     this.frame = ((Math.floor(Number(value) || 0) % 64) + 64) % 64;
     this.pose = kennyIdlePose(this.frame);
+    this.changeDetector.markForCheck();
   }
 
   step(by: number): void {
@@ -217,5 +228,6 @@ export class KennyRigPreviewComponent implements OnInit, OnDestroy {
 
   togglePlay(): void {
     this.playing = !this.playing;
+    this.changeDetector.markForCheck();
   }
 }
