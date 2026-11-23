@@ -427,7 +427,7 @@ B('2.35c',P,'Gegeben z=tan(5x³y). Ermittle zₓₓ und zᵧᵧ.',
  'Zuerst Ableitung von tan als sec², danach erneute Produkt- und Kettenregel. sec²(u)=1/cos²(u).');
 
 B('2.36a',P,'Gegeben f(x,y)=e^(3xy)cos(2xy²). Bestimme fₓₓ und fᵧᵧ.',
- 'Setze v=2xy². fₓₓ=e^(3xy)[(9y²−4y⁴)cos(v)−12y³sin(v)]. fᵧᵧ=e^(3xy)[(9x²−16x²y²)cos(v)+(6x−24x²y)sin(v)−4xsin(v)].',
+ 'Setze v=2xy². fₓₓ=e^(3xy)[(9y²−4y⁴)cos(v)−12y³sin(v)]. fᵧᵧ=e^(3xy)[(9x²−16x²y²)cos(v)−(24x²y+4x)sin(v)].',
  'Erste Ableitungen: fₓ=e^(3xy)[3ycos(v)−2y²sin(v)], fᵧ=e^(3xy)[3xcos(v)−4xy sin(v)]. Beim zweiten Ableiten Produkt- und Kettenregel.');
 B('2.36b',P,'Gegeben f(x,y)=7e^(−2y)sin(4x²+y²). Bestimme fₓₓ und fᵧᵧ.',
  'Mit v=4x²+y²: fₓₓ=7e^(−2y)[8cos(v)−64x²sin(v)]; fᵧᵧ=7e^(−2y)[(4−4y²)sin(v)+(2−8y)cos(v)].',
