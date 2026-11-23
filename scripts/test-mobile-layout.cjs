@@ -582,6 +582,34 @@ async function main(){
         assert.equal(saved.tokens, baseline.tokens);
         continue;
       }
+      if (group === 'avatar' || group === 'title') {
+        assert.equal(await slider.count(), 0, group + ' must show only the new item without a slider');
+        assert.equal(await comparisonPage.locator('.preview-before').count(), 0);
+        assert.equal(await comparisonPage.locator('.preview-divider').count(), 0);
+        const after = comparisonPage.locator('.preview-after');
+        await after.waitFor();
+        if (group === 'title') {
+          assert.equal((await after.locator('.cosmetic-text').innerText()).trim(), candidateText[0].trim());
+          await assertReadableText(after.locator('.cosmetic-text'));
+        } else {
+          assert.equal(await after.locator('app-cosmetic-icon.avatar-icon').count(), 1,
+            'Avatar must show the candidate portrait only');
+        }
+        const geometry = await comparisonPage.locator('.shop-preview-modal').evaluate(modal=>({
+          height:modal.clientHeight,content:modal.scrollHeight,bottom:modal.getBoundingClientRect().bottom
+        }));
+        assert(geometry.content <= geometry.height + 2 && geometry.bottom <= 801,
+          group + ' single-item preview must fit at ' + width + ': ' + JSON.stringify(geometry));
+        if (width === 390) {
+          await comparisonPage.screenshot({path:path.join(screenshots,'single-'+group+'-390.png')});
+        }
+        await comparisonPage.getByRole('button', {name:'Vorschau schließen'}).click();
+        const saved=await comparisonPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
+        assert.deepEqual(saved.equipped,baseline.equipped);
+        assert.deepEqual(saved.inventory,baseline.inventory);
+        assert.equal(saved.tokens,baseline.tokens);
+        continue;
+      }
       await slider.waitFor();
       assert.equal(await slider.inputValue(), '100', 'Each preview starts at After');
       const before = comparisonPage.locator('.preview-before');
