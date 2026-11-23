@@ -176,7 +176,7 @@ body.source-screen.source-solution-open .source-inline-original{overflow:visible
 }
 @media(max-width:720px){
  body.source-screen:not(.source-solution-open) .app{display:flex;flex-direction:column}
- body.source-screen:not(.source-solution-open) .sidebar{height:auto;max-height:0}
+ body.source-screen:not(.source-solution-open) .sidebar{height:100dvh;max-height:none}
  body.source-screen:not(.source-solution-open) .workspace{flex:1 1 auto;height:100dvh}
  body.source-screen:not(.source-solution-open) main#main{padding:7px 10px}
  body.source-screen:not(.source-solution-open) .source-list{grid-template-columns:repeat(2,minmax(0,1fr))}
