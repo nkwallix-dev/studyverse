@@ -164,10 +164,8 @@ export class KennyRigPreviewComponent implements OnInit, OnDestroy {
     );
     urls.push(
       new URL(`kenny/rig/v1/parts/${this.renderSkin(skin)}/eye_closed.png`, document.baseURI).href,
-      new URL(
-        `kenny/rig/v1/parts/${this.renderSkin(skin)}/seam_underlay.png`,
-        document.baseURI,
-      ).href,
+      new URL(`kenny/rig/v1/parts/${this.renderSkin(skin)}/seam_underlay.png`, document.baseURI)
+        .href,
     );
     try {
       await Promise.all(
