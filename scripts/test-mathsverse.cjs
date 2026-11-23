@@ -82,4 +82,28 @@ assert(!mhtml.includes('data-nav="practice"'),'Synthetic practice must not be in
 for(const name of ['book-bank.js','pool-bank.js','source-trainer.js','source-trainer.css'])assert(mhtml.includes(name),'Missing source trainer asset '+name);
 assert(mjs.includes('SOURCE.browser(\'book\',state)')&&mjs.includes('SOURCE.browser(\'pool\',state)'),'Original catalogs must render via app');
 assert(sourceJs.includes('Stift und Papier')&&sourceJs.includes('Lösung anzeigen'),'Paper instructions and reveal button required');
-console.log('PASS: MathsVerse 84 original book tasks, 50 sourced SRDP tasks, 10+10 exam, safe progress and cosmetics.');
+
+const original=new Map(book.map(q=>[q.number,q]));
+const approx=(actual,expected,id)=>assert(Math.abs(actual-expected)<1e-8,id+' value incorrect: '+actual+' expected '+expected);
+for(const [number,page] of [['1.1a',1],['1.11a',2],['1.18a',3],['1.21',4],['1.31',6],['1.55a',7],['1.57c',7],['1.67c',8],['1.73b',9],['1.82d',11],['1.98d',13],['2.24a',14],['2.36a',15]]){
+ assert.equal(original.get(number)?.originalScreenshot,page,number+' must cite the actual screenshot in the provided ZIP');
+}
+assert(original.get('1.18a').prompt.includes('110 GE'),'Sessel variable costs are part of original 1.18');
+assert(original.get('1.21').prompt.includes('W(−1|0,5)'),'Wendepunkt must use original ordinate 0.5');
+assert(original.get('1.55a').prompt.includes('4x³'),'1.55a contains a cubic power');
+assert(original.get('1.55c').prompt.includes('2/x'),'1.55c is 2/x, not x/2');
+assert(original.get('1.56a').prompt.includes('3/x³')&&original.get('1.56a').prompt.includes('³√x'),'1.56a has original fraction and cube root');
+assert(original.get('1.58b').prompt.includes('π/2'),'1.58b angle is pi/2');
+assert(original.get('1.60c').prompt.includes('3π/2'),'1.60c upper integration limit is 3pi/2');
+approx(original.get('1.57c').expected,16/3,'1.57c');
+approx(original.get('1.60c').expected,2,'1.60c');
+approx(original.get('1.67c').expected,1/24,'1.67c');
+approx(original.get('1.31').expected,15,'1.31');
+approx(original.get('1.32a').expected,100/Math.PI,'1.32a');
+approx(original.get('1.73b').expected,17.64,'1.73b');
+approx(original.get('1.76a').expected,96/(Math.PI*Math.PI),'1.76a');
+assert(original.get('2.37').solution.includes('Anna hat recht'),'2.37 must match calculator screenshot analysis');
+assert(book.length>=160,'Book task bank should retain the verified expansions from screenshots');
+console.log('PASS: Source-screenshot cross-checks, numeric golden values, and original 10+10 MathsVerse training.');
+
+console.log('PASS: MathsVerse original textbook, 50 sourced SRDP tasks, 10+10 exam, safe progress and cosmetics.');
