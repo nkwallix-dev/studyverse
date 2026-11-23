@@ -56,8 +56,8 @@ B('1.17',K,'Eine Körpertemperatur wird beschrieben durch T(t)=−0,16t³+0,82t�
 B('1.18a',K,'Eine Firma hat Fixkosten von 1200 GE und Herstellungskosten von 110 GE pro Sessel. Bei E(x)=−4x²+450x stelle Kosten- und Gewinnfunktion auf.','K(x)=110x+1200; G(x)=E(x)−K(x)=−4x²+340x−1200.',
  'Die 110 GE je Sessel sind variable Kosten und müssen zur Fixkostenpauschale addiert werden. Gewinn = Erlös minus Gesamtkosten.');
 B('1.19a',K,'Ein Ball folgt h(t)=−5t²+10t+7 (h in m, t in s). Bestimme seine Abwurfhöhe.','h(0)=7 m.','Abwurfzeit t=0 einsetzen.',7);
-B('1.19b',K,'Der Ball hat h(t)=−5t²+10t+7. Wann erreicht er seine maximale Höhe?','t=1 s; Höhe h(1)=12 m.',
- 'Scheitel einer quadratischen Funktion: h′=−10t+10=0 ⇒ t=1. Zweite Ableitung negativ.',1);
+B('1.19b',K,'Ein Ball hat h(t)=−5t²+10t+7. Wann erreicht er nach dem Abwurf erneut die Abwurfhöhe von 7 m?','Bei t=2 s.',
+ 'Setze h(t)=7: −5t²+10t=0, also t(−5t+10)=0. Die Lösung t=0 ist der Abwurf, t=2 der gesuchte spätere Zeitpunkt.',2);
 B('1.21',K,'Ein kubisches Polynom hat E(2|4) als Extrempunkt und W(−1|0,5) als Wendepunkt. Bestimme die Funktionsgleichung.','Bedingungen: f(2)=4, f′(2)=0, f(−1)=0,5 und f″(−1)=0. Daraus folgt f(x)=−7x³/108−7x²/36+14x/9+59/27.',
  'Vier Bedingungen für die vier Koeffizienten aufstellen und ein lineares Gleichungssystem lösen.');
 B('1.28',K,'Zerlege 40 in zwei natürliche Summanden, sodass die Summe ihrer Quadrate minimal ist.','20 und 20; Minimalwert 20²+20²=800.',
@@ -463,6 +463,55 @@ B('1.56c',I,'Berechne ∫(6x−5·⁴√x+³√(2x))dx.',
 B('1.61c',I,'Berechne ∫(3−2x)/(x²−3x+4)² dx.',
  'F(x)=1/(x²−3x+4)+C.',
  'Nenner-Grundfunktion u=x²−3x+4, u′=2x−3. Zähler 3−2x=−u′. Also ∫−u′/u² dx=1/u.');
+
+
+/* Subparts from original graph and application pages 2, 3 and 9. */
+B('1.12b',K,'Die Fahrt hat im Entfernungs-Zeit-Diagramm bei t=3 h einen Knick. Erkläre, warum dort keine Momentangeschwindigkeit berechnet werden kann.',
+ 'Die Funktion ist bei t=3 nicht differenzierbar: Linkssteigung 50/3 km/h, Rechtssteigung 0 km/h.',
+ 'Am Knick sind links- und rechtsseitige Differenzialquotienten unterschiedlich, also existiert dort keine gemeinsame Tangentensteigung.');
+B('1.12c',K,'Zeichne das Geschwindigkeits-Zeit-Diagramm zur Fahrt durch (0|0),(3|50),(5|50),(8|0).',
+ 'v(t)=50/3 km/h auf (0;3), v(t)=0 auf (3;5), v(t)=−50/3 auf (5;8); an den Knicken t=3 und t=5 ist v nicht eindeutig.',
+ 'Nimm die Steigung der drei Strecken des Entfernungs-Zeit-Diagramms. Diese Steigung ist die Geschwindigkeit.');
+B('1.12d',K,'Berechne die mittlere Geschwindigkeit der Fahrt im Zeitintervall [0;5] h für s(0)=0 km und s(5)=50 km.',
+ 'v_mittel=(50−0)/(5−0)=10 km/h.',
+ 'Die mittlere Änderungsrate ist der Differenzenquotient (s(5)−s(0))/5.',10);
+B('1.17b',K,'Die Temperatur T(t)=−0,16t³+0,82t²+0,8t+36,5 (0≤t≤6) steigt zunächst. Wann ist ihr Anstieg am stärksten?',
+ 'Der stärkste Temperaturanstieg liegt bei t=41/24≈1,708 h.',
+ 'Maximiere T′(t)=−0,48t²+1,64t+0,8. Für das Maximum von T′ gilt T″=−0,96t+1,64=0.',41/24);
+B('1.17c',K,'Erkläre die Bedeutung von [T(5)−T(2)]/3 für eine Körpertemperaturfunktion T(t), t in Stunden.',
+ 'Die durchschnittliche Temperaturänderung von Stunde 2 bis Stunde 5, gemessen in °C pro Stunde.',
+ 'Differenzenquotient: Temperaturdifferenz ΔT geteilt durch Zeitdifferenz Δt=3 h.');
+B('1.18c',K,'Eine Firma hat E(x)=−4x²+450x und K(x)=110x+1200. Berechne die Höhe des maximalen Gewinns.',
+ 'G(x)=−4x²+340x−1200; Maximum 6025 GE bei x=42,5.',
+ 'Gewinn ableiten: G′=−8x+340=0 ⇒ x=42,5. In G einsetzen. Für ganzzahlige Sessel bei x=42 oder 43 getrennt prüfen.',6025);
+B('1.20b',K,'Wirkstoff-Konzentration K(t)=5(e^(−0,12t)−e^(−0,3t)), t in h. In welchem Zeitintervall liegt K(t) über 25 % ihres Maximums?',
+ 'Über der 25-%-Schwelle liegt K(t) etwa für 0,503 h < t < 20,697 h.',
+ 'Erst Maximum von K bei t≈5,0905 h berechnen, K_max≈1,62865. Gleichung K(t)=0,25·K_max numerisch zweimal lösen; dazwischen ist der Wert größer.');
+B('1.20c',K,'Für K(t)=5(e^(−0,12t)−e^(−0,3t)) bestimme den Zeitpunkt der stärksten Konzentrationsabnahme.',
+ 'Bei t=ln(6,25)/0,18≈10,181 h ist K′(t) am stärksten negativ.',
+ 'Minimiere K′. Dazu K″(t)=5(0,0144e^(−0,12t)−0,09e^(−0,3t))=0 setzen und die Ableitungsvorzeichen prüfen.',Math.log(6.25)/.18);
+B('1.20d',K,'Erkläre, welchem Wert K(t)=5(e^(−0,12t)−e^(−0,3t)) für t→∞ zustrebt.',
+ 'lim(t→∞)K(t)=0 mg/l.',
+ 'Beide Exponentialterme mit negativen Exponenten streben für große t gegen 0.');
+B('1.71c',K,'Gegeben f′(x)=x²−4x und f(0)=4. Erkläre, warum f genau einen Wendepunkt hat, und bestimme ihn.',
+ 'f″=2x−4 hat genau eine Nullstelle x=2; f‴=2≠0. W(2|−4/3).',
+ 'Aus f′ integrieren: f=x³/3−2x²+4. Da f″ linear mit Steigung 2 ist, wechselt die Krümmung genau bei x=2.');
+B('1.71d',K,'Gegeben f=x³/3−2x²+4 mit Hochpunkt H(0|4) und Wendepunkt W(2|−4/3). Ermittle die Gerade g durch H und W.',
+ 'g(x)=−(8/3)x+4.',
+ 'Steigung m=[−4/3−4]/(2−0)=−8/3. Mit H(0|4) ist der y-Achsenabschnitt 4.');
+B('1.71e',K,'Zeige rechnerisch, dass die Gerade g(x)=−8x/3+4 zum Graphen f(x)=x³/3−2x²+4 auch im Tiefpunkt T(4|−20/3) verläuft.',
+ 'g(4)=−32/3+4=−20/3=f(4).',
+ 'Zuerst aus f′=x(x−4) den Tiefpunkt bei x=4 erkennen, dann beide Funktionen an x=4 auswerten.');
+B('1.71f',K,'Zeichne f(x)=x³/3−2x²+4 und g(x)=−8x/3+4 in ein gemeinsames Koordinatensystem.',
+ 'Die Graphen treffen sich bei x=0, x=2 und x=4; H(0|4), W(2|−4/3), T(4|−20/3) sind markante Punkte.',
+ 'Setze f(x)=g(x) und faktorisiere (x/3)(x−2)(x−4)=0. Nutze die besonderen Punkte zum Skizzieren.',
+ null,{curves:[{label:'f',poly:[1/3,-2,0,4]},{label:'g',poly:[-8/3,4]}],x:[-1,5],y:[-8,7]});
+B('1.71g',F,'Berechne die Fläche zwischen f(x)=x³/3−2x²+4 und g(x)=−8x/3+4, die von beiden Graphen eingeschlossen wird.',
+ 'Schnittpunkte bei x=0,2,4. Gesamtfläche A=8/3 Flächeneinheiten.',
+ 'Auf (0;2) ist f über g, auf (2;4) ist g über f. A=∫₀²(f−g)dx+∫₂⁴(g−f)dx=4/3+4/3.',8/3);
+B('1.74a',V,'Nach Öffnung einer Kanalschleuse ist v(t)=6,2t·e^(−1,4t) m³/s. Erkläre die Bedeutung des Integrals ∫₀⁴⁰v(t)dt.',
+ 'Es ist das Wasservolumen in m³, das während der ersten 40 Sekunden durch die Schleuse strömt.',
+ 'Durchflussgeschwindigkeit ist Volumen pro Zeit. Integrieren über die Zeit summiert das Gesamtvolumen.');
 
 if(new Set(R.map(x=>x.id)).size!==R.length)throw Error('Duplicate book IDs');
 window.MATHS_BOOK_BANK=Object.freeze(R);
