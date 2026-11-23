@@ -14,6 +14,7 @@ async function exercise(expired){
   set('chemverse_niklas_v1',{xp:21,coins:499,purchased:{stars:true},learned:{basis:true}});
   set('dsai_studyverse_v1',{xp:9,coins:499,learned:{a:true}});
   set('mathsverse_hw02_v1',{xp:42,coins:503,solved:{'q1.55a':true},learned:{Stammfunktionen:true}});
+  set('mathsverse_sa01_v1',{xp:84,coins:505,solved:{q1:true,n1:true},courseDone:{derivative:true},bestBoss:80});
   set('studyverse_trainer_launch_v2',{id:'nawi-test-01',saveKey:'chemverse_niklas_v1',xp:0});
   set('studyverse_shared_daily_v1',{today:'2026-11-09',bossPaid:true});
   let scheduled=null;const calls=[];
@@ -43,7 +44,8 @@ async function exercise(expired){
   assert.equal(snapshot.profile.xp,132);
   assert.equal(snapshot.trainers['nawi-test-01'].xp,21);
   assert.equal(snapshot.trainers['dsai-test-01'].xp,9);
-  assert.equal(snapshot.trainers['maths-hw-02'].xp,42,'MathsVerse progress must sync across devices');
+  assert.equal(snapshot.trainers['maths-hw-02'].xp,42,'Archived MathsVerse homework progress must remain in cloud backups');
+  assert.equal(snapshot.trainers['maths-sa-01'].xp,84,'Current MathsVerse SA1 progress must sync across devices');
   assert.equal(snapshot.bridge.xp,0);
   assert.equal(snapshot.daily.bossPaid,true);
   assert.ok(!payload.fields.profile.stringValue.includes('refresh-123'),'Tokens must stay out of Firestore');
