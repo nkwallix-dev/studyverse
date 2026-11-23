@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DinoSeasonState, kennyPortrait } from '../../../dino-season';
+import { KennyRigPreviewComponent } from './kenny-rig-preview.component';
 
 interface SkinChoice {
   id: string;
@@ -13,7 +14,7 @@ interface SkinChoice {
 @Component({
   selector: 'app-dino-designer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, KennyRigPreviewComponent],
   templateUrl: './dino-designer.component.html',
   styleUrl: './dino-designer.component.scss',
 })
@@ -29,4 +30,5 @@ export class DinoDesignerComponent {
   @Output() readonly skinSelected = new EventEmitter<string>();
 
   readonly kennyPortrait = kennyPortrait;
+  view: 'designer' | 'test' = 'designer';
 }
