@@ -1,7 +1,15 @@
 :host{display:block;min-height:100vh}*{box-sizing:border-box}button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}button:focus-visible,input:focus-visible{outline:2px solid #c6a6ff;outline-offset:3px}
 .universe{--bg:#080d1c;--sidebar:#0d1123;--card:#151b30;--card2:#101629;--border:#29314c;--text:#eef0ff;--muted:#a1a6c3;--accent:#ac90ff;--accent2:#7cf0e6;--glow:#6040dc;min-height:100vh;display:flex;position:relative;color:var(--text);background:var(--bg);isolation:isolate;overflow-x:clip;font:15px/1.5 Inter,"Segoe UI",system-ui,sans-serif}
 .universe[data-theme="cosmic"]{--bg:#09051d;--sidebar:#130b2c;--card:#20153b;--card2:#150d2e;--border:#50346b;--accent:#ee86ff;--accent2:#8ce7ff;--glow:#b241d9}
-.universe[data-theme="neon"]{--bg:#080e12;--sidebar:#0e1820;--card:#16262a;--card2:#101e22;--border:#38545b;--accent:#a9ff68;--accent2:#bc95ff;--glow:#63b34a}
+.universe[data-theme="neon"]{
+ --bg:#200f34;--sidebar:#2a1249;--card:#34214f;--card2:#23243e;--border:#7851a2;
+ --accent:#aaff60;--accent2:#d1a1ff;--glow:#88ff4a;
+ background:radial-gradient(circle at 85% 12%,#a9ff4540,transparent 36%),linear-gradient(125deg,#351157 0%,#3e2172 38%,#134631 72%,#23683c 100%);
+}
+.universe[data-theme="neon"] .sidebar{background:linear-gradient(180deg,#2f1652,#203a32)!important}
+.universe[data-theme="neon"] .topbar{background:linear-gradient(95deg,#3c1c68eb,#215b44e8)!important}
+.universe[data-theme="neon"] .hero{background:linear-gradient(112deg,#4f2487,#4c247a 34%,#29764c 73%,#6dbd37)!important}
+.universe[data-theme="neon"] .stat,.universe[data-theme="neon"] .item{background:linear-gradient(140deg,#412458,#254a3a 90%)}
 .universe[data-theme="pizza"]{--bg:#1d110d;--sidebar:#281612;--card:#33221a;--card2:#271912;--border:#684631;--accent:#ffd077;--accent2:#ff9d87;--glow:#c5793b}
 .universe[data-theme="gold"]{--bg:#11100c;--sidebar:#1a160d;--card:#29231a;--card2:#1c1710;--border:#64512e;--accent:#ffda76;--accent2:#e8bd5e;--glow:#b49342}
 .universe[data-theme="ocean"]{--bg:#071b29;--sidebar:#0a2332;--card:#123047;--card2:#0d2738;--border:#2e6074;--accent:#71f0ce;--accent2:#71c0f9;--glow:#2cabc2}

@@ -193,3 +193,14 @@ body[data-fx="maths_chalk_fx"] .verse-fx i,body[data-fx="maths_delta_fx"] .verse
 body.studyverse-cosmetics[data-atm="maths_graph"]>.verse-atmosphere,
 body.studyverse-cosmetics[data-atm="maths_formula"]>.verse-atmosphere{animation:none}
 @media(prefers-reduced-motion:reduce){body[data-fx="maths_chalk_fx"] .verse-fx i,body[data-fx="maths_delta_fx"] .verse-fx i{animation:none!important}}
+
+/* Toxic Neon: globally equipped purple-to-lime gradient, in every learning world. */
+body[data-theme="neon"]{
+ --bg:#27143f;--bg2:#233d34;--side:#2d194d;--card:#3c2455;--card2:#25283c;--panel:#3c2455;--border:#8264a6;
+ --accent:#adff63;--accent2:#d4aaff;--aqua:#adff63;--ink:#f7f2ff;--text:#f7f2ff;--muted:#d2c4df;
+ background:linear-gradient(130deg,#31164f 0%,#442773 38%,#1b593b 76%,#235c37 100%);
+}
+body[data-theme="neon"]:is([data-banner="none"],[data-banner="default"]) .hero{
+ background:linear-gradient(110deg,#471b74,#572895 36%,#29734f 70%,#7bc63e)!important;
+}
+body[data-theme="neon"] .sidebar{background:linear-gradient(180deg,#321650,#223d31)!important}

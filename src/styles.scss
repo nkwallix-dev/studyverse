@@ -2876,3 +2876,21 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
   .universe main.achievements-view .achievement-grid { row-gap: 4px; }
   .universe main.achievements-view .achievements-section .section-heading { margin-bottom: 4px; }
 }
+
+/* Toxic Neon has an actual violet/lime gradient inside the shop's live preview. */
+.shop-live-stage.universe[data-theme="neon"]{
+ background:linear-gradient(125deg,#351557,#3e2772 45%,#21643b 100%)!important;
+}
+.shop-live-stage.universe[data-theme="neon"] .shop-live-topbar.topbar{
+ background:linear-gradient(95deg,#421a6a,#267449)!important;
+}
+.shop-live-stage.universe[data-theme="neon"] .shop-frame-card{
+ background:linear-gradient(135deg,#47266a,#285b40)!important;
+}
+/* Portrait cosmetics are single-item previews; no splitter or slider is needed. */
+.shop-preview-modal[data-category="avatar"] .preview-comparison,
+.shop-preview-modal[data-category="title"] .preview-comparison{
+ height:clamp(116px,19dvh,165px);
+}
+.shop-preview-modal[data-category="avatar"] .preview-after,
+.shop-preview-modal[data-category="title"] .preview-after{clip-path:none!important}
