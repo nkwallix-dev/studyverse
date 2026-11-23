@@ -582,6 +582,34 @@ async function main(){
         assert.equal(saved.tokens, baseline.tokens);
         continue;
       }
+      if (group === 'avatar' || group === 'title') {
+        assert.equal(await slider.count(), 0, group + ' must show only the new item without a slider');
+        assert.equal(await comparisonPage.locator('.preview-before').count(), 0);
+        assert.equal(await comparisonPage.locator('.preview-divider').count(), 0);
+        const after = comparisonPage.locator('.preview-after');
+        await after.waitFor();
+        if (group === 'title') {
+          assert.equal((await after.locator('.cosmetic-text').innerText()).trim(), candidateText[0].trim());
+          await assertReadableText(after.locator('.cosmetic-text'));
+        } else {
+          assert.equal(await after.locator('app-cosmetic-icon.avatar-icon').count(), 1,
+            'Avatar must show the candidate portrait only');
+        }
+        const geometry = await comparisonPage.locator('.shop-preview-modal').evaluate(modal=>({
+          height:modal.clientHeight,content:modal.scrollHeight,bottom:modal.getBoundingClientRect().bottom
+        }));
+        assert(geometry.content <= geometry.height + 2 && geometry.bottom <= 801,
+          group + ' single-item preview must fit at ' + width + ': ' + JSON.stringify(geometry));
+        if (width === 390) {
+          await comparisonPage.screenshot({path:path.join(screenshots,'single-'+group+'-390.png')});
+        }
+        await comparisonPage.getByRole('button', {name:'Vorschau schließen'}).click();
+        const saved=await comparisonPage.evaluate(()=>JSON.parse(localStorage.getItem('studyverse_profile_v1')));
+        assert.deepEqual(saved.equipped,baseline.equipped);
+        assert.deepEqual(saved.inventory,baseline.inventory);
+        assert.equal(saved.tokens,baseline.tokens);
+        continue;
+      }
       await slider.waitFor();
       assert.equal(await slider.inputValue(), '100', 'Each preview starts at After');
       const before = comparisonPage.locator('.preview-before');
@@ -1738,6 +1766,21 @@ async function main(){
      assert(darkColor(shades.background)&&darkColor(shades.card),
        'Default MathsVerse background and cards should be emerald, not white: '+JSON.stringify(shades));
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-emerald-default-390.png'),fullPage:true});
+     // Verify the actual boss screen, not just its breadcrumb.
+     await cosmeticPage.evaluate(()=>document.querySelector('.verse-endgame [data-nav="boss"]').click());
+     await cosmeticPage.locator('[data-action="start-boss"]').waitFor({timeout:5000});
+     assert.equal((await cosmeticPage.locator('#main h1').innerText()).trim(),'SA-Bosskampf.','MathsVerse Boss intro must not render the overview');
+     await cosmeticPage.locator('[data-action="start-boss"]').click();
+     assert(await cosmeticPage.locator('#main .question-card .option').count()>=4,'Boss run must show answer options');
+     await cosmeticPage.locator('#main .question-card .option').first().click();
+     await cosmeticPage.locator('[data-action="boss-next"]').click();
+     assert((await cosmeticPage.locator('#main').innerText()).includes('FRAGE 2 / 20'),'Boss must progress to its second question');
+     await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="practice"]').click());
+     await cosmeticPage.locator('#topicSelect').selectOption('hand');
+     await cosmeticPage.locator('.handwrite-note').waitFor({timeout:5000});
+     assert((await cosmeticPage.locator('.handwrite-note').innerText()).includes('Stift und Papier'),'Hand calculations must require paper');
+     assert.equal(await cosmeticPage.locator('#numericAnswer').count(),1,'Handwork must have numeric input');
+     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-handwritten-390.png'),fullPage:true});
    }
    await equipped.close();
   }

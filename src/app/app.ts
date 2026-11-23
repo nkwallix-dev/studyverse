@@ -1020,6 +1020,16 @@ export class App implements OnInit,AfterViewInit,OnDestroy {
    }));
  }
  get inventoryEquippedCount(){return this.ownedCatalogItems.filter(item=>this.active(item)).length;}
+ previewDropLabel(id:string):string {
+   const labels:Record<string,string>={
+     global:'STUDYVERSE GLOBAL',
+     'nawi-test-01':'CHEMVERSE DROP',
+     'dsai-test-01':'DSAIVERSE DROP',
+     'pos-pa-01':'SHARPVERSE DROP',
+     'maths-sa-01':'MATHSVERSE DROP'
+   };
+   return labels[id]||(this.dropLabel(id)+' DROP').toLocaleUpperCase('de');
+ }
  dropLabel(id:string){
    const names:Record<string,string>={
      'nawi-test-01':'1. NAWI Test','dsai-test-01':'1. DSAI Test',

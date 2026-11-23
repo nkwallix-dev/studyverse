@@ -2876,3 +2876,32 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
   .universe main.achievements-view .achievement-grid { row-gap: 4px; }
   .universe main.achievements-view .achievements-section .section-heading { margin-bottom: 4px; }
 }
+
+/* Toxic Neon has an actual violet/lime gradient inside the shop's live preview. */
+.shop-live-stage.universe[data-theme="neon"]{
+ background:linear-gradient(125deg,#351557,#3e2772 45%,#21643b 100%)!important;
+}
+.shop-live-stage.universe[data-theme="neon"] .shop-live-topbar.topbar{
+ background:linear-gradient(95deg,#421a6a,#267449)!important;
+}
+.shop-live-stage.universe[data-theme="neon"] .shop-frame-card{
+ background:linear-gradient(135deg,#47266a,#285b40)!important;
+}
+/* Portrait cosmetics are single-item previews; no splitter or slider is needed. */
+.shop-preview-modal[data-category="avatar"] .preview-comparison,
+.shop-preview-modal[data-category="title"] .preview-comparison{
+ height:clamp(116px,19dvh,165px);
+}
+.shop-preview-modal[data-category="avatar"] .preview-after,
+.shop-preview-modal[data-category="title"] .preview-after{clip-path:none!important}
+
+/* Toxic Neon globals live outside the component CSS size budget. */
+.universe[data-theme="neon"]{
+ --bg:#200f34;--sidebar:#2a1249;--card:#34214f;--card2:#23243e;--border:#7851a2;
+ --accent:#aaff60;--accent2:#d1a1ff;--glow:#88ff4a;
+ background:radial-gradient(circle at 85% 12%,#a9ff4540,transparent 36%),linear-gradient(125deg,#351157 0%,#3e2172 38%,#134631 72%,#23683c 100%);
+}
+.universe[data-theme="neon"] .sidebar{background:linear-gradient(180deg,#2f1652,#203a32)!important}
+.universe[data-theme="neon"] .topbar{background:linear-gradient(95deg,#3c1c68eb,#215b44e8)!important}
+.universe[data-theme="neon"] .hero{background:linear-gradient(112deg,#4f2487,#4c247a 34%,#29764c 73%,#6dbd37)!important}
+.universe[data-theme="neon"] .stat,.universe[data-theme="neon"] .item{background:linear-gradient(140deg,#412458,#254a3a 90%)}

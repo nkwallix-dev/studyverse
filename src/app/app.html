@@ -888,7 +888,7 @@
     aria-label="Live-Vorschau für ein Cosmetic"
   >
     <div class="modal shop-preview-modal" [attr.data-category]="item.group">
-      @let compare = item.group !== 'fx' && item.group !== 'atm';
+      @let compare = item.group !== 'fx' && item.group !== 'atm' && item.group !== 'avatar' && item.group !== 'title';
       <div
         class="preview-comparison"
         [class.portrait-comparison]="item.group === 'avatar' || item.group === 'title'"
@@ -1108,15 +1108,7 @@
       </ng-template>
       <div class="eyebrow">
         LIVE-VORSCHAU ·
-        {{
-          item.drop === 'global'
-            ? 'STUDYVERSE GLOBAL'
-            : item.drop === 'dsai-test-01'
-              ? 'Dsaiverse DROP'
-              : item.drop === 'pos-pa-01'
-                ? 'Sharpverse DROP'
-                : 'CHEMVERSE DROP'
-        }}
+        {{ previewDropLabel(item.drop) }}
       </div>
       <h2 class="preview-item-name">
         {{ item.name
