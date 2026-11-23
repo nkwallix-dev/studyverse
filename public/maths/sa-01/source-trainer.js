@@ -133,8 +133,10 @@ function browser(mode,state){
  window.__mathSourceState=state;
  const groups=mode==='book',bank=groups?GROUPS:POOL;
  const value=groups?ui.bookId:ui.poolId;
- const categories=[...new Set(bank.map(x=>x.category))];
- const rows=bank.filter(x=>(ui.topic==='all'||x.category===ui.topic)&&
+ const competencies={'4.1':'Grenzwerte & Stetigkeit','4.2':'Änderungsraten','4.3':'Ableitungsregeln','4.4':'Tangenten & Extrema','4.5':'Funktion & Ableitung','4.6':'Stammfunktionen','4.8':'Integrale & Flächen'};
+ const categories=groups?[...new Set(bank.map(x=>x.category))]:Object.keys(competencies);
+ const rows=bank.filter(x=>(ui.topic==='all'||(groups?x.category===ui.topic:
+   x.descriptor.split(',').map(d=>d.trim()).includes(ui.topic)))&&
   (!ui.filter||(x.number+' '+(x.title||'')+' '+x.prompt).toLowerCase().includes(ui.filter.toLowerCase())));
  const active=rows.find(x=>x.id===value)||rows[0];
  if(active&&active.id!==value){
@@ -145,14 +147,15 @@ function browser(mode,state){
  const total=groups?BOOK.length:POOL.length;
  return '<div class="eyebrow">'+(groups?'ECHTE SCHULBUCH-AUFGABEN':'ORIGINAL-SRDP · 4. DESKRIPTOR')+'</div>'+
  '<h1>'+(groups?'Buchbeispiele':'4. Deskriptor')+'</h1><p>'+(groups?
- 'Buchaufgaben mit gemeinsamer Originalangabe und einzelnen überprüfbaren Schritten.':
- 'Offizielle Prüfungsaufgaben als PDF, inklusive der vom Bundesministerium veröffentlichten Lösungserwartungen.')+'</p>'+
+ 'Buchaufgaben mit gemeinsamer Originalangabe und einzeln überprüfbaren Schritten.':
+ 'Ausschließlich originale PDFs von aufgabenpool.at. Die Deskriptoren 4.1 und 4.6 sind im recherchierten amtlichen Pool nicht mit eigenständigen Aufgaben belegt.')+'</p>'+
  '<div class="source-count"><strong>'+done+'/'+total+'</strong> Schritte bearbeitet · '+(groups?GROUPS.length+' zusammengehörende Buchbeispiele':'Datenquelle: Bundesministerium für Bildung · CC BY 4.0')+'</div>'+
- '<div class="source-filters"><label>Suche <input id="sourceSearch" placeholder="z. B. '+(groups?'1.80':'B_405')+'" value="'+esc(ui.filter)+'"></label><label>Thema <select id="sourceTopic"><option value="all">Alle Bereiche</option>'+categories.map(c=>'<option value="'+esc(c)+'" '+(ui.topic===c?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select></label></div>'+
+ '<div class="source-filters"><label>Suche <input id="sourceSearch" placeholder="z. B. '+(groups?'1.80':'B_405')+'" value="'+esc(ui.filter)+'"></label><label>Thema <select id="sourceTopic"><option value="all">Alle Bereiche</option>'+categories.map(c=>'<option value="'+esc(c)+'" '+(ui.topic===c?'selected':'')+'>'+(groups?esc(c):esc(c+' · '+competencies[c]))+'</option>').join('')+'</select></label></div>'+
  '<div class="source-workspace" data-mode="'+mode+'"><aside class="source-list" aria-label="Aufgabenliste">'+rows.map(x=>{
   const doneSteps=groups?x.steps.filter(q=>state.solved[solvedKey(q,'book')]).length:0;
   return '<button class="source-task '+(x.id===active?.id?'active':'')+'" data-action="source:open:'+esc(x.id)+'"><span class="source-task-number">'+esc(x.number)+(groups&&doneSteps===x.steps.length?' ✓':!groups&&state.solved[solvedKey(x,'pool')]?' ✓':'')+'</span><small class="source-task-title">'+esc(x.category)+(groups?' · '+doneSteps+'/'+x.steps.length+' Schritte':'')+'</small></button>'
- }).join('')+'</aside>'+(groups?bookDetails(active):details(active,'pool'))+'</div>';
+ }).join('')+'</aside>'+(groups?bookDetails(active):active?details(active,'pool'):
+ '<section class="source-detail"><header class="source-detail-header"><h2>Deskriptor '+esc(ui.topic)+'</h2></header><div class="source-reading"><p>Für diesen Deskriptor konnte ich keine eigenständig zugeordnete Originalaufgabe direkt von aufgabenpool.at verifizieren. Ich zeige dir keine erfundene Aufgabe und keine Fremdseite als angeblich offiziellen Aufgabenpool.</p><p>Die verbindliche Kompetenzbeschreibung findest du im <a target="_blank" rel="noopener noreferrer" href="https://www.aufgabenpool.at/amn/gk/srdp_am_kompetenzen_2018-2019-09-05.pdf">offiziellen Kompetenzkatalog des Bildungsministeriums</a>. Passende Rechenübungen sind unter Buchbeispiele zu finden.</p></div></section>')+'</div>';
 }
 
 function reset(){ui.shown=false;ui.poolHint=false;ui.submitted=false;ui.correct=null;ui.answer=''}
@@ -188,7 +191,7 @@ function answerNumeric(q,s){
 }
 function startExam(api){
  if(BOOK.length<10||POOL.length<10)throw Error('Not enough authentic source problems for a 10+10 exam');
- const b=shuffle(BOOK).slice(0,10).map(q=>({...q,origin:'book'}));
+ const b=shuffle(GROUPS).slice(0,10).map(g=>({...g.steps[Math.floor(Math.random()*g.steps.length)],origin:'book',groupNumber:g.number,originalArtwork:g.artwork}));
  const p=shuffle(POOL).slice(0,10).map(q=>({...q,origin:'pool'}));
  ui.run={tasks:shuffle(b.concat(p)),index:0,score:0,results:[],draft:'',revealed:false,graded:false};
  ui.complete=null;
