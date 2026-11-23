@@ -160,7 +160,7 @@ body[data-theme="maths_chalk"]{
  --panel:#1b4030;--card:#1b4030;--card2:#143527;--surface:#214632;--surface2:#28543d;--surface3:#326f4f;
  --border:#498364;--accent:#d5ed98;--accent2:#95dfac;--aqua:#95dfac;--ink:#f2ffe8;--text:#f2ffe8;--muted:#b8d7b9;--glow:#4ba86b
 }
-body[data-theme="maths_chalk"] .hero{background:linear-gradient(115deg,#17432e,#387a47)!important;color:#efffe7}
+body[data-theme="maths_chalk"]:is([data-banner="none"],[data-banner="default"]) .hero{background:linear-gradient(115deg,#17432e,#387a47)!important;color:#efffe7}
 body[data-atm="maths_graph"] .verse-atmosphere{
  opacity:.47;background:linear-gradient(#8ccc9a77 1px,transparent 1px),linear-gradient(90deg,#8ccc9a77 1px,transparent 1px),linear-gradient(90deg,transparent 49.4%,#d0e5b4a8 49.5% 50%,transparent 50.1%),linear-gradient(transparent 49.4%,#d0e5b4a8 49.5% 50%,transparent 50.1%);
  background-size:55px 55px,55px 55px,330px 330px,330px 330px;animation:none
