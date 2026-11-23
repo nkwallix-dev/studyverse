@@ -104,6 +104,20 @@ approx(original.get('1.73b').expected,17.64,'1.73b');
 approx(original.get('1.76a').expected,96/(Math.PI*Math.PI),'1.76a');
 assert(original.get('2.37').solution.includes('Anna hat recht'),'2.37 must match calculator screenshot analysis');
 assert(book.length>=160,'Book task bank should retain the verified expansions from screenshots');
+
+assert(book.length>=210,'Book bank must include the full handwritten core and further numbered source subparts');
+approx(original.get('1.19b').expected,2,'1.19b');
+approx(original.get('1.98a').expected,48,'1.98a');
+assert(original.get('1.98c').prompt.includes('³√(x²)'),'1.98c has the original root and power');
+approx(original.get('1.98c').expected,(3/5)*(Math.pow(5,5/3)-Math.pow(2,5/3)),'1.98c');
+approx(original.get('1.99').expected,300/Math.PI,'1.99');
+approx(original.get('1.100d').expected,14.4098445789603,'1.100d');
+assert(original.get('1.79a').graph?.curves?.[1]?.domain?.[0]===10,'Composite rod plot must begin the parabola only at x=10');
+for(const comp of ['4.2','4.4','4.5','4.8']){
+ const hits=pool.filter(q=>q.descriptor.split(',').map(x=>x.trim()).includes(comp));
+ assert(hits.length>=5,'Official pool must cover highlighted descriptor '+comp+' (got '+hits.length+')');
+}
+
 console.log('PASS: Source-screenshot cross-checks, numeric golden values, and original 10+10 MathsVerse training.');
 
 console.log('PASS: MathsVerse original textbook, 50 sourced SRDP tasks, 10+10 exam, safe progress and cosmetics.');
