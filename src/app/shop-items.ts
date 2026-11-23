@@ -30,7 +30,7 @@ export const SHOP_DROPS:ShopDrop[]=[
   {id:'maths-sa-01',icon:'∫',title:'MathsVerse · 1. SA',subtitle:'AM · Ableitungen & Integrale',description:'MathsVerse-Cosmetics mit Mathematik statt Galaxy: grüne Designs und händische Aufgaben.',status:'live'}
 ];
 export const SHOP_ITEMS:ShopItem[]=([
-{id:'neon',kind:'theme',icon:'🟢',name:'Toxic Neon',desc:'Grün-violette Labornacht. Leuchtet schon beim Anschauen.',group:'theme',bg:'linear-gradient(125deg,#2f104d,#85ff50)',drop:'nawi-test-01',requirement:{metric:'academy',value:3}},
+{id:'neon',kind:'theme',icon:'🟢',name:'Toxic Neon',desc:'Elektrischer Farbverlauf von sattem Violett bis leuchtendem Giftgrün.',group:'theme',bg:'linear-gradient(120deg,#43126b 0%,#59219a 38%,#1b7450 66%,#9cff43 100%)',drop:'nawi-test-01',requirement:{metric:'academy',value:3}},
 {id:'pizza',kind:'theme',icon:'🍕',name:'Lehrer-Pizza',desc:'Goldgelbe Cheeseboard-Hölle. Wer bestellt den Stoff?',group:'theme',bg:'linear-gradient(125deg,#773420,#ffc778)',drop:'nawi-test-01',requirement:{metric:'academy',value:4}},
 {id:'cosmic',kind:'theme',icon:'🌌',name:'Galaxy',desc:'Legendäres galaktisches Theme. Ein teures Prestige-Upgrade für dein gesamtes STUDYVERSE.',group:'theme',bg:'radial-gradient(circle at 70% 40%,#f872e8,#190852 45%,#03031c)',drop:'global',level:20},
 {id:'arcade',kind:'theme',icon:'🕹️',name:'1987 Arcade',desc:'Cyberpink und Spielfeldraster aus dem Automaten.',group:'theme',bg:'linear-gradient(125deg,#4d125f,#ff32c1,#00dabe)',drop:'global',level:19},
@@ -103,7 +103,7 @@ export const SHOP_ITEMS:ShopItem[]=([
 
 
  // MATHSVERSE · GREEN MATHEMATICS. Keep the original Pi-Fuchs ID for old purchasers.
- {id:'maths_avatar_pi',kind:'avatar',icon:'🦊',name:'Pi-Fuchs',desc:'Der originale Pi-Fuchs kehrt zurück – als cleverer Mathebegleiter in sattem Grün.',group:'avatar',drop:'maths-sa-01',requirement:{metric:'academy',value:2}},
+ {id:'maths_avatar_pi',kind:'avatar',icon:'🦊',name:'Pi-Fuchs',desc:'Ein schlauer Mathe-Fuchs mit grünen Akzenten und dem Symbol π auf seinem Schal.',group:'avatar',drop:'maths-sa-01',requirement:{metric:'academy',value:2}},
  {id:'maths_owl',kind:'avatar',icon:'🦉',name:'Euler-Eule',desc:'Eule mit grüner Kreidetafel und Euler-Blick – Mathe statt Roboterschrott.',group:'avatar',drop:'maths-sa-01',requirement:{metric:'draw',value:8}},
  {id:'maths_chalk',kind:'theme',icon:'∫',name:'Emerald Chalk',desc:'Kreidetafelgrün, frisches Salbei, feine Formellinien. Kein Galaxy.',group:'theme',bg:'linear-gradient(130deg,#102f26,#28754c 65%,#a9d575)',drop:'maths-sa-01',requirement:{metric:'academy',value:8}},
  {id:'maths_graph',kind:'atm',icon:'⌁',name:'Funktionspapier',desc:'Ein maßstäblich wirkendes grünes Koordinatenraster mit präzisen Kurven statt Sternen.',group:'atm',equip:'maths_graph',drop:'maths-sa-01',requirement:{metric:'academy',value:3}},
@@ -115,8 +115,8 @@ export const SHOP_ITEMS:ShopItem[]=([
  {id:'maths_integral_banner',kind:'banner',icon:'∫',name:'Integral-Landschaft',desc:'Schraffierte Fläche unter einem Funktionsgraphen – ganz ohne Sternennebel.',group:'banner',equip:'maths_integral',drop:'maths-sa-01',requirement:{metric:'draw',value:5}},
  {id:'maths_chalk_fx',kind:'extra',icon:'∂',name:'Kreidestaub',desc:'Dezente grüne Kreidestriche und Mathezeichen in deiner Studyverse-Ansicht.',group:'fx',equip:'maths_chalk_fx',drop:'maths-sa-01',requirement:{metric:'academy',value:4}},
  {id:'maths_delta_fx',kind:'extra',icon:'Δ',name:'Delta-Pulse',desc:'Sanfte Δ- und ∫-Impulse statt der üblichen Sternenpartikel.',group:'fx',equip:'maths_delta_fx',drop:'maths-sa-01',requirement:{metric:'quiz',value:30}},
- {id:'maths_title_integral',kind:'title',icon:'∑',name:'Integral-Genie',desc:'Der ursprüngliche MathsVerse-Titel bleibt erhalten und ist wieder freischaltbar.',group:'title',drop:'maths-sa-01',requirement:{metric:'academy',value:4}},
- {id:'maths_boss_title',kind:'title',icon:'♛',name:'Herr der Unendlichkeit',desc:'Exklusiver Prestige-Titel nur nach 100 % im MathsVerse-SA-Bosskampf.',group:'title',drop:'maths-sa-01',requirement:{metric:'boss',value:100}},
+ {id:'maths_title_integral',kind:'title',icon:'∑',name:'Integral-Genie',desc:'Für alle, die bei Stammfunktionen und Integralen den Durchblick haben.',group:'title',drop:'maths-sa-01',requirement:{metric:'academy',value:4}},
+ {id:'maths_boss_title',kind:'title',icon:'♛',name:'Professor Filipp',desc:'Exklusiver Titel für einen perfekten MathsVerse-Schularbeits-Bosskampf mit 100 %.',group:'title',drop:'maths-sa-01',requirement:{metric:'boss',value:100}},
 
 // SHARPVERSE DROP · first practical assessment
 {id:'sharp_sheep',kind:'avatar',icon:'🐑',name:'Scharfes Schaf',desc:'Mäh. Das schärfste Schaf in C#.',group:'avatar',drop:'pos-pa-01',requirement:{metric:'academy',value:1}},

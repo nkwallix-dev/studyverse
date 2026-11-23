@@ -61,7 +61,7 @@ const TITLES={
  dsai_title_crisp:'CRISP-DM-Guru',dsai_title_weber:'Professorin Weber',
  dsai_title_boss:'Artificial Legend',sharp_title_thread:'Threadstarter',
  sharp_title_lock:'Lockpicker',sharp_title_spermann:'Professor Spermann',
- maths_title_integral:'Integral-Genie',maths_boss_title:'Herr der Unendlichkeit'
+ maths_title_integral:'Integral-Genie',maths_boss_title:'Professor Filipp'
 };
 const EFFECTS={
  effects:'🎊',effect_coinrain:'🪙',effect_discoin:'🪩',

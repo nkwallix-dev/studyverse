@@ -24,7 +24,7 @@ export const TRAINERS: TrainerDef[] = [
       {id:'numeric1',icon:'▦',title:'Ohne GeoGebra',description:'Erste händische Rechenaufgabe gelöst',metric:'draw',target:1,reward:150},
       {id:'numeric10',icon:'▧',title:'Rechenmeister',description:'Zehn händische Rechenaufgaben gelöst',metric:'draw',target:10,reward:300},
       {id:'boss80',icon:'∫',title:'SA bereit',description:'80 % im Mathe-Bosskampf',metric:'boss',target:80,reward:500},
-      {id:'boss100',icon:'♛',title:'Herr der Unendlichkeit',description:'100 % im Mathe-Bosskampf',metric:'boss',target:100,reward:900}
+      {id:'boss100',icon:'♛',title:'Professor Filipp',description:'100 % im Mathe-Bosskampf',metric:'boss',target:100,reward:900}
     ]
   },
   {
