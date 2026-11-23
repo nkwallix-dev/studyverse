@@ -350,9 +350,9 @@ B('1.71b',K,'Gegeben ist f′(x)=x²−4x sowie f(0)=4. Ermittle die Extrempunkt
 B('1.73a',F,'Eine Wand (6 m × 10 m) wird zweifarbig gestaltet. Die Farbgrenzen werden durch g(x)=(x³−12x)/8 und h(x)=−g(x) beschrieben. Berechne die blau und rot eingefärbten Flächen.',
  'Jede Farbe bedeckt 9 m², beide Farben zusammen 18 m².',
  'Schnittstellen g=h liefern x=−2√3, 0, 2√3. Die vier Teilbereiche werden durch die Graphen und die x-Achse unterteilt; je Farbe bestehen zwei Teilflächen von 4,5 m².');
-B('1.73b',F,'Eine 6×10-m-Wand wird nach 1.73 mit je 9 m² Blau und Rot gestrichen. Für 2 m² werden 0,5 l Farbe gebraucht; Blau kostet 5,50 €/l und Rot 4,30 €/l. Berechne die Mindestkosten.',
- 'Blau 2,25 l·5,50 €/l=12,375 €, Rot 2,25 l·4,30 €/l=9,675 €; zusammen 22,05 €.',
- '0,5 l auf 2 m² bedeutet 0,25 l pro m². Jede Farbe benötigt 9·0,25=2,25 l; anschließend Preis mit Litern multiplizieren.',22.05);
+B('1.73b',F,'Eine 6×10-m-Wand wird nach 1.73 mit je 9 m² Blau und Rot gestrichen. Pro Quadratmeter braucht man 200 ml Farbe; Blau kostet 5,50 €/l und Rot 4,30 €/l. Berechne die Mindestkosten.',
+ 'Blau 1,8 l·5,50 €/l=9,90 €, Rot 1,8 l·4,30 €/l=7,74 €; zusammen 17,64 €.',
+ '200 ml/m² =0,2 l/m². Jede Farbe benötigt 9·0,2=1,8 l; anschließend den jeweiligen Literpreis multiplizieren.',17.64);
 B('1.73c',F,'Welche Prozentzahl der Wandfläche bleibt bei der zweifarbigen Gestaltung aus 1.73 weiß?',
  'Die Wand hat 60 m², farbig sind 18 m², weiß 42 m² ⇒ 70 %.',
  'Gesamtfläche =6·10=60 m². Weißer Anteil (60−18)/60·100.',70);
@@ -366,10 +366,10 @@ B('1.75d',V,'Begründe anhand von a(t)=(30t−t²)/225, warum v(t) auf [0;30] mo
  'a(t)=t(30−t)/225≥0 für 0≤t≤30, daher ist v′(t)=a(t)≥0.',
  'Monotonie der Geschwindigkeit aus dem Vorzeichen der Ableitung a(t) ablesen.');
 B('1.76a',V,'Ein kreisförmiger Pool hat Durchmesser 20 m. Ein geschwungener Barbereich liegt zwischen y₁=sin(πx/8) und y₂=4sin(πx/8) für −8≤x≤8. Wie viel Prozent der Poolfläche nimmt der Barbereich ein?',
- 'A_Bar=96/π≈30,56 m². Poolfläche 100π m²; Anteil 96/π²≈9,73 %.',
- 'Zwischen den beiden Sinusgraphen ergibt sich durch Symmetrie A=2∫₀⁸[4sin(πx/8)−sin(πx/8)]dx=96/π. Durch 100π teilen und mit 100 multiplizieren.',9600/(Math.PI*Math.PI));
+ 'A_Bar=96/π≈30,56 m². Poolfläche 100π m²; Anteil (96/π²)≈9,73 %.',
+ 'Zwischen den beiden Sinusgraphen ergibt sich durch Symmetrie A=2∫₀⁸[4sin(πx/8)−sin(πx/8)]dx=96/π. Durch 100π teilen und mit 100 multiplizieren.',96/(Math.PI*Math.PI));
 B('1.76b',V,'Der Barbereich aus 1.76 hat eine Fläche von 96/π m². Der Pool ist 120 cm tief. Wie viele Hektoliter Wasser passen in den Pool ohne Barbereich?',
- 'Wasserfläche =100π−96/π m². Volumen=1,2·(100π−96/π) m³, in hL: ≈340,32 hL.',
+ 'Wasserfläche =100π−96/π m². Volumen=1,2·(100π−96/π) m³, in hL: ≈3 403,22 hL.',
  'Poolvolumen aus Oberfläche·Tiefe (1,2 m). Für Barbereich kein Wasser mitzählen. 1 m³=10 hL.');
 B('1.82a',K,'Ein Polynom 3. Grades hat Maximum H(2|5), Wendestelle x=4 und Wendetangenten-Steigung k=−3/2. Bestimme Funktion und Wendetangente.',
  'f(x)=x³/8−3x²/2+9x/2+1. Wendepunkt W(4|3) und Wendetangente y=−(3/2)x+9.',
