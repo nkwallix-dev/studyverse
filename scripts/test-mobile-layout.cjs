@@ -1583,7 +1583,7 @@ async function main(){
   assert.equal(final.rewardQueue.length,0,'Entire reward queue acknowledged once');
   await rewardContext.close();
   console.log('PASS: 6 Dsaiverse lessons reveal all four cosmetics in a single buy-or-next carousel.');
-  // MathsVerse remains a visible locked subject but has no deployable course.
+  // MathsVerse is now a playable SA1 trainer with a green learning world.
   const subjectPage=await browser.newPage();
   // Same initialized test profile as the main mobile sweep. Otherwise the
   // first-run import welcome dialog correctly blocks navigation clicks.
@@ -1593,14 +1593,15 @@ async function main(){
   await subjectPage.locator('.navigation button[aria-label="Lernwelten"]').first().click();
   const matTile=subjectPage.locator('button.subject-card.detailed[aria-label^="Mathematik"]').first();
   await matTile.waitFor({state:'visible',timeout:6000});
-  assert(await matTile.isDisabled(),'MathsVerse must remain visible but locked');
+  assert(!(await matTile.isDisabled()),'MathsVerse should be playable when its trainer is deployed');
   await subjectPage.close();
   // Global equipment must actually render inside EACH standalone trainer, not
   // merely appear on the Studyverse dashboard where it was equipped.
   for(const [world,url] of [
    ['Chemverse','nawi/test-01/'],
    ['Dsaiverse','dsai/test-01/'],
-   ['Sharpverse','pos/pa-01/']]){
+   ['Sharpverse','pos/pa-01/'],
+   ['MathsVerse','maths/sa-01/']]){
    const equipped=await browser.newContext({viewport:{width:390,height:800},deviceScaleFactor:1});
    const cosmeticPage=await equipped.newPage();
    await cosmeticPage.addInitScript(()=>{
@@ -1682,7 +1683,7 @@ async function main(){
    }else{
     assert.equal(await cosmeticPage.locator('#menuBtn').count(),0,'Chemverse has no burger');
    }
-   const sourceNav=cosmeticPage.locator(world==='Sharpverse'?'[data-action="view:sources"]':'[data-nav="sources"]');
+   const sourceNav=cosmeticPage.locator(world==='Sharpverse'?'[data-action="view:sources"]':world==='MathsVerse'?'#nav [data-nav="sources"]':'[data-nav="sources"]');
    await sourceNav.click();
    await cosmeticPage.locator('.sources-list').waitFor();
    assert((await cosmeticPage.locator('.sources-list').innerText()).length>150,world+' must list real teaching sources');

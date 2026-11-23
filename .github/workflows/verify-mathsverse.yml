@@ -1,0 +1,39 @@
+name: Verify MathsVerse SA1
+on:
+  push:
+    branches: [main, feat/mathverse-sa1-green-20261123]
+    paths:
+      - 'public/maths/sa-01/**'
+      - 'src/app/trainer-registry.ts'
+      - 'src/app/shop-items.ts'
+      - 'src/app/app.ts'
+      - 'src/app/app.scss'
+      - 'src/app/app.html'
+      - 'src/app/legacy-owned-items.ts'
+      - 'src/app/cosmetic-assets.ts'
+      - 'public/shared/verse-cosmetics.*'
+      - 'public/shared/cloud-progress.js'
+      - 'scripts/test-mathsverse.cjs'
+      - '.github/workflows/verify-mathsverse.yml'
+  pull_request:
+    paths:
+      - 'public/maths/sa-01/**'
+      - 'src/app/**'
+      - 'scripts/test-mathsverse.cjs'
+      - '.github/workflows/verify-mathsverse.yml'
+permissions:
+  contents: read
+jobs:
+  mathsverse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node --check public/maths/sa-01/app.js
+      - run: node --check public/maths/sa-01/data.js
+      - run: node scripts/test-mathsverse.cjs
+      - run: npm run build

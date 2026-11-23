@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Pi-Fuchs: grüner, mathematischer Fuchs">
+<defs><linearGradient id="bg" x2=".8" y2="1"><stop stop-color="#133f2e"/><stop offset="1" stop-color="#347d46"/></linearGradient><linearGradient id="fur" x2=".9" y2=".95"><stop stop-color="#f9b65d"/><stop offset="1" stop-color="#d86f3e"/></linearGradient><linearGradient id="scarf" x2="1" y2="1"><stop stop-color="#c8fa91"/><stop offset="1" stop-color="#62ba72"/></linearGradient></defs>
+<circle cx="256" cy="256" r="250" fill="url(#bg)"/><g fill="none" stroke="#a6df82" opacity=".19" stroke-width="3"><path d="M39 153H480M39 256H480M39 359H480M153 28V484M256 28V484M359 28V484"/><path d="M71 355Q142 132 225 250T431 168" stroke-width="7"/></g>
+<circle cx="257" cy="266" r="190" fill="#bde38a" opacity=".09"/>
+<path d="M135 346Q116 430 98 451Q175 474 237 425L253 342" fill="#df8745"/><path d="M123 423L98 451Q162 467 193 439Z" fill="#fff7df"/>
+<path d="M142 191L118 64Q188 75 222 140L297 139Q334 82 393 69L374 198Q429 250 394 327Q368 384 257 400Q144 389 115 331Q78 261 142 191Z" fill="url(#fur)" stroke="#b55c35" stroke-width="6"/>
+<path d="M156 165L142 98Q185 113 206 165Z M321 168Q349 114 371 104L357 172Z" fill="#ffcfab"/>
+<path d="M128 284Q181 269 213 291Q229 305 256 305Q282 304 298 290Q331 270 384 287Q373 366 261 391Q154 369 128 284Z" fill="#fff4d8"/>
+<path d="M178 272Q202 251 229 267" fill="none" stroke="#4a3427" stroke-linecap="round" stroke-width="11"/><path d="M286 267Q310 250 334 270" fill="none" stroke="#4a3427" stroke-linecap="round" stroke-width="11"/>
+<path d="M231 305Q257 293 282 304Q269 327 256 329Q242 328 231 305Z" fill="#4b3b2b"/><path d="M256 329V345" stroke="#4b3b2b" stroke-width="5" stroke-linecap="round"/>
+<path d="M256 346Q244 358 228 343M256 346Q267 358 282 343" fill="none" stroke="#805841" stroke-width="4" stroke-linecap="round"/>
+<path d="M160 376Q240 417 350 378L360 432Q264 472 158 428Z" fill="url(#scarf)" stroke="#338554" stroke-width="6"/><path d="M328 402L385 446L357 464L301 422" fill="#80c578" stroke="#338554" stroke-width="5"/>
+<rect x="212" y="389" width="94" height="47" rx="15" fill="#125037" stroke="#d9ffb3" stroke-width="3"/><text x="259" y="425" font-family="Georgia,serif" font-weight="bold" font-size="47" text-anchor="middle" fill="#efffbd">π</text>
+<path d="M93 91L110 72M395 113L421 96M404 382L429 402" stroke="#e0f6a3" stroke-width="6" stroke-linecap="round"/><circle cx="113" cy="201" r="6" fill="#f4e6a0"/><circle cx="402" cy="240" r="5" fill="#f4e6a0"/>
+</svg>

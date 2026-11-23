@@ -11,6 +11,23 @@ export interface TrainerDef {
 /** Add one entry for each new test. XP/coins are synced per trainer, not per subject. */
 export const TRAINERS: TrainerDef[] = [
   {
+    id:'maths-sa-01',subjectId:'mat',title:'MathsVerse · 1. Schularbeit',
+    subtitle:'AM · Differential- & Integralrechnung · 11 Lektionen, 54 Aufgaben, Graphenlabor & Boss',
+    path:'maths/sa-01/index.html',saveKey:'mathsverse_sa01_v1',examDate:'2026-11-26',
+    achievements:[
+      {id:'start',icon:'∫',title:'Mathe gestartet',description:'Erstes Kapitel abgeschlossen',metric:'learn',target:1,reward:100},
+      {id:'half',icon:'π',title:'Ableitungs-Analyst',description:'Fünf Lernkapitel verstanden',metric:'learn',target:5,reward:200},
+      {id:'complete',icon:'∑',title:'Alle Kapitel gemeistert',description:'Alle elf Lernkapitel verstanden',metric:'learn',target:11,reward:400},
+      {id:'firstquiz',icon:'✎',title:'Aufgaben-Macher',description:'Erste Quizaufgabe richtig gelöst',metric:'quiz',target:1,reward:100},
+      {id:'quiz15',icon:'∂',title:'Handrechner',description:'15 Quizaufgaben gelöst',metric:'quiz',target:15,reward:250},
+      {id:'quiz40',icon:'ƒ',title:'Mathe-Maschine',description:'Alle 40 Quizaufgaben gelöst',metric:'quiz',target:40,reward:400},
+      {id:'numeric1',icon:'▦',title:'Ohne GeoGebra',description:'Erste händische Rechenaufgabe gelöst',metric:'draw',target:1,reward:150},
+      {id:'numeric10',icon:'▧',title:'Rechenmeister',description:'Zehn händische Rechenaufgaben gelöst',metric:'draw',target:10,reward:300},
+      {id:'boss80',icon:'∫',title:'SA bereit',description:'80 % im Mathe-Bosskampf',metric:'boss',target:80,reward:500},
+      {id:'boss100',icon:'♛',title:'Herr der Unendlichkeit',description:'100 % im Mathe-Bosskampf',metric:'boss',target:100,reward:900}
+    ]
+  },
+  {
     id:'nawi-test-01',subjectId:'nawi',title:'Chemverse 1. Test',
     subtitle:'Chemie · Lernakademie, Quiz, Formeln & Bosskampf',
     path:'nawi/test-01/index.html',saveKey:'chemverse_niklas_v1',examDate:'2026-11-10',
@@ -73,14 +90,14 @@ const number=(v:unknown)=>typeof v==='number'&&Number.isFinite(v)?Math.max(0,v):
 export function achievementValue(a:AchievementDef,save:unknown):number{
  const s=object(save),solved=object(s['solved']);
  switch(a.metric){
-  case 'quiz':return Object.keys(solved).filter(k=>k.startsWith('q')).length;
-  case 'draw':return Object.keys(solved).filter(k=>k.startsWith('d')).length;
+  case 'quiz':return Object.keys(solved).filter(k=>k.startsWith('q')&&!!solved[k]).length;
+  case 'draw':return Object.keys(solved).filter(k=>(k.startsWith('d')||k.startsWith('n'))&&!!solved[k]).length;
   case 'reaction':return Object.keys(solved).filter(k=>k.startsWith('r')).length;
   case 'sorter':return Object.keys(solved).filter(k=>k.startsWith('s')).length;
   case 'pipeline':return Object.keys(solved).filter(k=>k.startsWith('p')).length;
   case 'forecast':return Object.keys(solved).filter(k=>k.startsWith('f')).length;
   case 'flash':return Object.values(object(s['cards'])).filter(v=>number(v)>=1).length;
-  case 'learn':return Object.keys(object(s['learned'])).filter(k=>k!=='orb').length;
+  case 'learn':return Object.keys(object(s['learned'])).filter(k=>k!=='orb'&&!!object(s['learned'])[k]).length;
   case 'combo':return number(s['maxCombo']);
   case 'boss':return number(s['bestBoss']);
   case 'purchase':return Object.keys(object(s['purchased'])).length;

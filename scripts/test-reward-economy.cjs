@@ -26,16 +26,16 @@ for(const item of testItems){
   'Every test item must have a measurable learning goal: '+item.id);
  assert(!('level' in item),'Test rewards cannot be locked behind global profile level: '+item.id);
 }
-assert(drops[0].id==='global'&&drops.filter(d=>d.id!=='global').length===3);
-assert(!items.some(i=>i.id==='maths_avatar_pi'||i.id==='maths_title_integral'));
+assert(drops[0].id==='global'&&drops.filter(d=>d.id!=='global').length===4,'MathsVerse must join the three active test collections');
+assert(items.some(i=>i.id==='maths_avatar_pi')&&items.some(i=>i.id==='maths_title_integral'),'Returning MathsVerse items preserve their original IDs');
 assert(!drops.some(d=>d.id==='maths-hw-02'));
 assert(!registry.includes("id:'maths-hw-02'"));
 assert(!fs.existsSync('public/maths/hw-02/index.html'));
 const legacy=fs.readFileSync('src/app/legacy-owned-items.ts','utf8');
-assert(legacy.includes("id:'maths_avatar_pi'")&&legacy.includes("id:'maths_title_integral'"),
- 'Existing MathsVerse purchases remain available ONLY to existing inventory owners');
+assert(!legacy.includes("id:'maths_avatar_pi'")&&!legacy.includes("id:'maths_title_integral'"),
+ 'Returning MathsVerse cosmetics belong in the live catalog, never duplicated in legacy');
 assert(host.includes("...LEGACY_OWNED_ITEMS].filter(item=>item.group!=='dinoSkin'&&this.owns(item))"),
- 'Legacy Math cosmetics must remain accessible in the inventory, never in the store');
+ 'Owned cosmetics, including archived exclusive rewards, remain accessible in inventory');
 assert(host.includes('MathsVerse · Archiv'),'Archived MathsVerse inventory category needs a readable name');
 
 assert(host.includes("id:'mat',short:'AM'"),'MathsVerse tile remains visible while locked');

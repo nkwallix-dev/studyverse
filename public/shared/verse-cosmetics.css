@@ -152,3 +152,44 @@ body.studyverse-cosmetics>.app,body.studyverse-cosmetics>#app{position:relative;
   object-fit: contain;
   border-radius: inherit;
 }
+
+
+/* MATHSVERSE · mathematical equipment works globally, never overrides a user's chosen other style */
+body[data-theme="maths_chalk"]{
+ --bg:#0d251c;--bg2:#123527;--side:#102c22;--sidebar-bg:#102c22;
+ --panel:#1b4030;--card:#1b4030;--card2:#143527;--surface:#214632;--surface2:#28543d;--surface3:#326f4f;
+ --border:#498364;--accent:#d5ed98;--accent2:#95dfac;--aqua:#95dfac;--ink:#f2ffe8;--text:#f2ffe8;--muted:#b8d7b9;--glow:#4ba86b
+}
+body[data-theme="maths_chalk"]:is([data-banner="none"],[data-banner="default"]) .hero{background:linear-gradient(115deg,#17432e,#387a47)!important;color:#efffe7}
+body[data-atm="maths_graph"] .verse-atmosphere{
+ opacity:.47;background:linear-gradient(#8ccc9a77 1px,transparent 1px),linear-gradient(90deg,#8ccc9a77 1px,transparent 1px),linear-gradient(90deg,transparent 49.4%,#d0e5b4a8 49.5% 50%,transparent 50.1%),linear-gradient(transparent 49.4%,#d0e5b4a8 49.5% 50%,transparent 50.1%);
+ background-size:55px 55px,55px 55px,330px 330px,330px 330px;animation:none
+}
+body[data-atm="maths_graph"] .verse-atmosphere::after{
+ content:"";position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='350'%20height='245'%20viewBox='0%200%20350%20245'%3E%3Cpath%20d='M0%20200Q45%20172%2080%20122T180%2085T280%20190T350%2075'%20stroke='%2398d5a0'%20stroke-width='4'%20fill='none'%20opacity='.8'/%3E%3C/svg%3E") repeat;opacity:.72
+}
+body[data-atm="maths_formula"] .verse-atmosphere{
+ background:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='450'%20height='320'%3E%3Cg%20font-family='Georgia,serif'%20font-size='28'%20fill='%239ddbb1'%20opacity='.55'%3E%3Ctext%20x='26'%20y='67'%3Ef%E2%80%B2(x)%20%3D%202x%3C/text%3E%3Ctext%20x='207'%20y='134'%3E%E2%88%AB%20f(x)%20dx%3C/text%3E%3Ctext%20x='42'%20y='241'%3E%E2%88%82f/%E2%88%82x%3C/text%3E%3Ctext%20x='255'%20y='291'%3E%CE%94x%20%E2%86%92%200%3C/text%3E%3C/g%3E%3C/svg%3E") repeat;
+ opacity:.48;animation:none
+}
+body[data-frame="maths_axes"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){
+ border:2px solid #93d9a5!important;border-radius:8px!important;
+ box-shadow:inset 5px 0 #397c53,inset 0 5px #397c53,0 0 0 1px #cae4a733
+}
+body[data-frame="maths_fibonacci"] :is(.panel,.stat,.mode-card,.lesson-card,.question-card,.challenge-card,.boss-card,.lab-card,.tip-card,.writing-card,.info-card){
+ border:2px solid #bdd98b!important;border-radius:21px 6px 21px 6px!important;
+ box-shadow:inset 0 0 0 4px #84b87430,0 0 0 1px #a0cf81a3,5px 5px 0 #a0cf8127
+}
+body[data-font="maths_notebook"]{font-family:"Trebuchet MS",Verdana,Arial,sans-serif!important;letter-spacing:.05px}
+body[data-banner="maths_curve"] .hero{background:linear-gradient(120deg,#123b29,#37844a 68%,#96bc67)!important}
+body[data-banner="maths_integral"] .hero{background:linear-gradient(120deg,#154331,#2c6947 55%,#7eb961)!important}
+body[data-banner="maths_curve"] .hero .verse-banner span,body[data-banner="maths_integral"] .hero .verse-banner span{
+ color:#dcfbb3!important;font:900 clamp(23px,4vw,62px)/1.2 Georgia,serif!important;filter:drop-shadow(0 0 10px #164c2b)
+}
+body[data-fx="maths_chalk_fx"] .verse-fx i,body[data-fx="maths_delta_fx"] .verse-fx i{
+ color:#89df9b;font:700 25px/1.5 Georgia,serif;filter:drop-shadow(0 0 6px #6bb986);
+ animation:verse-fx-drift 6s ease-in-out infinite alternate;opacity:.45
+}
+body.studyverse-cosmetics[data-atm="maths_graph"]>.verse-atmosphere,
+body.studyverse-cosmetics[data-atm="maths_formula"]>.verse-atmosphere{animation:none}
+@media(prefers-reduced-motion:reduce){body[data-fx="maths_chalk_fx"] .verse-fx i,body[data-fx="maths_delta_fx"] .verse-fx i{animation:none!important}}

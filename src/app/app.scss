@@ -624,3 +624,19 @@ footer{padding:20px clamp(24px,3.1vw,52px);border-top:1px solid var(--border);di
   font-size: clamp(1.5rem, 3vw, 2rem);
   overflow-wrap: anywhere;
 }
+
+
+/* MATHSVERSE in the Studyverse shop, equip and preview */
+.universe[data-theme="maths_chalk"]{
+ --bg:#0c251b;--sidebar:#123628;--card:#1d4935;--card2:#153b2b;
+ --border:#4a8464;--text:#f2ffe8;--muted:#b5d4be;--accent:#c8ed8e;--accent2:#88dab1;--glow:#70b877;
+}
+.universe[data-theme="maths_chalk"]:is([data-banner="none"],[data-banner="default"]) .hero{background:linear-gradient(120deg,#133c2a,#368550)!important}
+.universe[data-frame="maths_axes"] :is(.stat,.item,.shop-live-stage .stat,.profile-showcase-card,.profile-card){border:2px solid #8bcd9e!important;box-shadow:inset 5px 0 #397c53,inset 0 5px #397c53}
+.universe[data-frame="maths_fibonacci"] :is(.stat,.item,.shop-live-stage .stat,.profile-showcase-card,.profile-card){border:2px solid #c4dc8d!important;border-radius:22px 6px!important;box-shadow:inset 0 0 0 4px #98ca7530}
+.universe[data-font="maths_notebook"]{font-family:"Trebuchet MS",Verdana,sans-serif!important}
+.universe[data-atm="maths_graph"]{background-image:linear-gradient(#76cf9b18 1px,transparent 1px),linear-gradient(90deg,#76cf9b18 1px,transparent 1px);background-size:45px 45px}
+.universe[data-atm="maths_formula"]{background-image:repeating-linear-gradient(150deg,#9edfad08 0 4px,transparent 4px 140px)}
+.universe[data-banner="maths_curve"] .hero{background:linear-gradient(115deg,#123c29,#397e4b)!important}
+.universe[data-banner="maths_integral"] .hero{background:linear-gradient(115deg,#123b29,#6cae59)!important}
+.universe[data-fx="maths_chalk_fx"] .shop-live-fx span,.universe[data-fx="maths_delta_fx"] .shop-live-fx span{color:#a7e5a0}

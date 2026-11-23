@@ -8,6 +8,8 @@ const SLOTS=Object.keys(DEFAULTS);
 const AVATAR_ROOT = new URL('../cosmetics/avatars/', document.currentScript.src);
 const AVATAR_FILES = new Map(Object.entries({
   default: 'default_avatar.png',
+  maths_avatar_pi: 'maths_pi_fox.svg',
+  maths_owl: 'maths_euler_owl.svg',
   avatar_pizza: 'pizza_avatar.png',
   avatar_alien: 'alien_avatar.png',
   avatar_frog: 'laborfish_avatar.png',
@@ -50,18 +52,21 @@ const BANNERS={
  gold:['🏆','✦','🥇'],warning:['⚠️','🧪','⚡'],galaxy:['🪐','✨','🌠'],
  molecule:['⚛️','🔬','✦'],flow:['▣','→','▣'],curve:['📈','✦','📊'],
  cloud:['☁️','☁','☀️'],solitaire:['A♠','K♥','Q♦'],
- pink_paradise:['♥','💗','✦'],parallel_pulse:['♯','⚡','✧']
+ pink_paradise:['♥','💗','✦'],parallel_pulse:['♯','⚡','✧'],
+ maths_curve:['f′(x)','∿','∂'],maths_integral:['∫','dx','∑']
 };
 const TITLES={
  title_chaos:'Professor Fischer',title_pizza:'Mozzarella-Magister',title_orbit:'Orbit-Gott',
  title_legend:'Labor-Legende',dsai_title_code:'Snippet-Slayer',
  dsai_title_crisp:'CRISP-DM-Guru',dsai_title_weber:'Professorin Weber',
  dsai_title_boss:'Artificial Legend',sharp_title_thread:'Threadstarter',
- sharp_title_lock:'Lockpicker',sharp_title_spermann:'Professor Spermann'
+ sharp_title_lock:'Lockpicker',sharp_title_spermann:'Professor Spermann',
+ maths_title_integral:'Integral-Genie',maths_boss_title:'Herr der Unendlichkeit'
 };
 const EFFECTS={
  effects:'🎊',effect_coinrain:'🪙',effect_discoin:'🪩',
- neural_spark:'✧',thread_sparks:'⚡',pulse_rings:'◯'
+ neural_spark:'✧',thread_sparks:'⚡',pulse_rings:'◯',
+ maths_chalk_fx:'∂',maths_delta_fx:'Δ'
 };
 let lastBanner='';
 let lastFx='';
