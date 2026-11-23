@@ -214,3 +214,19 @@ body.source-screen.source-solution-open .source-original-figures img{max-height:
  body.source-screen:not(.source-solution-open) .source-original-body:has(.source-original-figures){grid-template-columns:minmax(0,1fr) minmax(0,.75fr)}
  body.source-screen:not(.source-solution-open) .source-detail .source-original-text{font-size:10px;line-height:1.23}
 }
+
+/* In mobile solution mode, a sticky catalog must never float over exercise buttons. */
+@media(max-width:850px){
+ body.source-screen.source-solution-open .source-workspace{
+  grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;
+  align-items:start;overflow:visible;
+ }
+ body.source-screen.source-solution-open .source-list{
+  position:relative;top:auto;z-index:auto;max-height:clamp(105px,18dvh,162px);
+  min-height:0;overflow-y:auto;scrollbar-width:thin;
+  grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;
+ }
+ body.source-screen.source-solution-open .source-detail{
+  min-height:0;height:auto;position:relative;z-index:auto;
+ }
+}
