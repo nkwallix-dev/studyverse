@@ -1683,7 +1683,7 @@ async function main(){
    }else{
     assert.equal(await cosmeticPage.locator('#menuBtn').count(),0,'Chemverse has no burger');
    }
-   const sourceNav=cosmeticPage.locator(world==='Sharpverse'?'[data-action="view:sources"]':'[data-nav="sources"]');
+   const sourceNav=cosmeticPage.locator(world==='Sharpverse'?'[data-action="view:sources"]':world==='MathsVerse'?'#nav [data-nav="sources"]':'[data-nav="sources"]');
    await sourceNav.click();
    await cosmeticPage.locator('.sources-list').waitFor();
    assert((await cosmeticPage.locator('.sources-list').innerText()).length>150,world+' must list real teaching sources');
