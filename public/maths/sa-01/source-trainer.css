@@ -59,3 +59,128 @@
  .source-solution{padding:13px}
 }
 @media(prefers-reduced-motion:reduce){.source-list{scroll-behavior:auto}}
+
+
+/* Source-first exercise UI: the catalog is the only regular scroll container.
+   A revealed solution deliberately switches back to a readable, flowing page. */
+body.source-screen:not(.source-solution-open){
+ height:100dvh;max-height:100dvh;overflow:hidden;overscroll-behavior:none;
+}
+html:has(body.source-screen:not(.source-solution-open)){height:100%;overflow:hidden}
+body.source-screen:not(.source-solution-open) .app{
+ height:100dvh;min-height:0;overflow:hidden;
+}
+body.source-screen:not(.source-solution-open) .workspace{
+ height:100dvh;min-height:0;overflow:hidden;display:flex;flex-direction:column;
+}
+body.source-screen:not(.source-solution-open) .topbar{
+ position:relative;flex:0 0 60px;min-height:60px;
+}
+body.source-screen:not(.source-solution-open) footer{flex:0 0 34px;min-height:34px;padding-top:5px;padding-bottom:5px}
+body.source-screen:not(.source-solution-open) main#main{
+ flex:1 1 auto;min-height:0;width:min(1390px,100%);
+ overflow:hidden;display:flex;flex-direction:column;gap:0;
+ padding:clamp(8px,1.2vh,15px) clamp(10px,1.5vw,22px);
+}
+body.source-screen:not(.source-solution-open) main#main > .eyebrow{font-size:9px;line-height:1.2;flex:0 0 auto}
+body.source-screen:not(.source-solution-open) main#main > h1{font-size:clamp(20px,2vw,31px);margin:2px 0 3px;flex:0 0 auto}
+body.source-screen:not(.source-solution-open) main#main > p{font-size:11px;line-height:1.25;margin:0 0 4px;flex:0 0 auto;max-width:100%;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+body.source-screen:not(.source-solution-open) .source-count{font-size:10px;margin:2px 0 6px;padding:5px 10px;flex:0 0 auto;line-height:1.2}
+body.source-screen:not(.source-solution-open) .source-count strong{font-size:14px}
+body.source-screen:not(.source-solution-open) .source-filters{flex:0 0 auto;gap:9px;margin:3px 0 8px}
+body.source-screen:not(.source-solution-open) .source-filters label{display:flex;align-items:center;gap:8px;min-width:min(150px,100%);font-size:10px}
+body.source-screen:not(.source-solution-open) .source-filters :is(input,select){height:32px;min-width:0;padding:4px 8px;font-size:11px}
+body.source-screen:not(.source-solution-open) .source-workspace{
+ flex:1 1 auto;min-height:0;max-height:100%;
+ display:grid;grid-template-columns:clamp(165px,22%,265px) minmax(0,1fr);
+ margin:0;gap:11px;align-items:stretch;overflow:hidden;
+}
+body.source-screen:not(.source-solution-open) .source-list{
+ position:relative;top:auto;height:100%;min-height:0;max-height:100%;
+ overflow-y:auto;scrollbar-gutter:stable;scroll-behavior:auto;
+ display:grid;grid-template-columns:1fr;align-content:start;gap:4px;
+ padding:6px;
+}
+body.source-screen:not(.source-solution-open) .source-task{padding:6px 9px;font-size:12px;min-height:0}
+body.source-screen:not(.source-solution-open) .source-task small{font-size:10px}
+body.source-screen:not(.source-solution-open) .source-detail{
+ height:100%;min-height:0;max-height:100%;overflow:hidden;
+ padding:clamp(8px,1vh,14px) clamp(10px,1.3vw,17px);
+ display:flex;flex-direction:column;gap:clamp(3px,.6vh,7px);
+}
+body.source-screen:not(.source-solution-open) .source-detail > *{flex:0 0 auto}
+body.source-screen:not(.source-solution-open) .source-detail h2{font-size:clamp(16px,1.5vw,22px);margin:2px 0 0;line-height:1.16}
+body.source-screen:not(.source-solution-open) .source-meta .eyebrow{font-size:9px}
+body.source-screen:not(.source-solution-open) .source-number{font-size:9px;margin:0;line-height:1.1}
+body.source-screen:not(.source-solution-open) .source-question{
+ font-size:clamp(11px,1.1vw,14px);line-height:1.32;margin:0;padding:8px 11px;
+}
+body.source-screen:not(.source-solution-open) .source-graph{
+ margin:0;padding:5px;min-height:0;max-height:clamp(65px,18vh,140px);overflow:hidden;
+}
+body.source-screen:not(.source-solution-open) .source-graph svg{max-height:clamp(58px,15vh,115px)}
+body.source-screen:not(.source-solution-open) .source-graph figcaption{font-size:9px;margin:0}
+body.source-screen:not(.source-solution-open) .source-external{
+ display:flex;flex-direction:column;min-height:0;overflow:hidden;
+ margin:0;padding:7px 10px;gap:2px;flex:1 1 32%;
+}
+body.source-screen:not(.source-solution-open) .source-external b{font-size:10px}
+body.source-screen:not(.source-solution-open) .source-external p{font-size:10px;margin:0}
+body.source-screen:not(.source-solution-open) .source-external .source-open-link{
+ flex:0 0 auto;width:max-content;max-width:100%;padding:5px 9px;font-size:10px;
+}
+body.source-screen:not(.source-solution-open) .source-external iframe{
+ flex:1 1 auto;height:100%;min-height:65px;margin-top:2px;border-radius:6px;
+ overflow:hidden;pointer-events:none;
+}
+body.source-screen:not(.source-solution-open) .handwrite-note{
+ margin:0;padding:6px 8px;font-size:11px;line-height:1.25;min-height:0;
+}
+body.source-screen:not(.source-solution-open) .source-detail .answer-field{
+ display:flex;align-items:center;gap:8px;margin:0;min-height:0;
+}
+body.source-screen:not(.source-solution-open) .source-detail .answer-field :is(input,textarea){
+ flex:1 1 auto;min-height:34px;max-height:60px;padding:6px 9px;font-size:12px;
+}
+body.source-screen:not(.source-solution-open) .source-actions{margin:0;gap:7px}
+body.source-screen:not(.source-solution-open) .source-actions .btn,
+body.source-screen:not(.source-solution-open) .answer-field .btn{
+ min-height:34px;padding:7px 10px;font-size:11px;
+}
+body.source-screen:not(.source-solution-open) .source-credit{font-size:9px;margin:0;line-height:1.1}
+body.source-screen:not(.source-solution-open) .source-inline-original{
+ overflow:hidden;min-height:0;flex:1 1 auto;display:flex;flex-direction:column;gap:7px;
+}
+body.source-screen:not(.source-solution-open) .source-inline-original pre{
+ margin:0;white-space:pre-wrap;font:inherit;font-size:12px;line-height:1.35;
+}
+body.source-screen.source-solution-open{height:auto;overflow-y:auto}
+body.source-screen.source-solution-open .app{min-height:100dvh;height:auto;overflow:visible}
+body.source-screen.source-solution-open .workspace{min-height:100dvh;height:auto;overflow:visible}
+body.source-screen.source-solution-open main#main{overflow:visible}
+body.source-screen.source-solution-open .source-workspace{align-items:start}
+body.source-screen.source-solution-open .source-list{position:sticky;top:68px;max-height:calc(100dvh - 80px)}
+body.source-screen.source-solution-open .source-detail{overflow:visible}
+body.source-screen.source-solution-open .source-external iframe{height:min(70dvh,660px);overflow:hidden}
+body.source-screen.source-solution-open .source-inline-original{overflow:visible}
+@media(max-width:850px){
+ body.source-screen:not(.source-solution-open) .source-workspace{
+  grid-template-columns:1fr;grid-template-rows:clamp(77px,15dvh,145px) minmax(0,1fr);gap:7px;
+ }
+ body.source-screen:not(.source-solution-open) .source-list{
+  height:100%;max-height:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;
+ }
+ body.source-screen:not(.source-solution-open) .source-task{padding:5px}
+ body.source-screen:not(.source-solution-open) .source-detail{padding:8px 11px}
+ body.source-screen:not(.source-solution-open) .source-filters :is(input,select){min-width:0}
+}
+@media(max-width:720px){
+ body.source-screen:not(.source-solution-open) .app{display:flex;flex-direction:column}
+ body.source-screen:not(.source-solution-open) .sidebar{height:auto;max-height:0}
+ body.source-screen:not(.source-solution-open) .workspace{flex:1 1 auto;height:100dvh}
+ body.source-screen:not(.source-solution-open) main#main{padding:7px 10px}
+ body.source-screen:not(.source-solution-open) .source-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.source-screen:not(.source-solution-open) .source-detail .answer-field{flex-wrap:wrap}
+ body.source-screen:not(.source-solution-open) .source-graph{max-height:95px}
+ body.source-screen:not(.source-solution-open) .source-graph svg{max-height:72px}
+}
