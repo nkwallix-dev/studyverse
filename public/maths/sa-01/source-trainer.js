@@ -55,20 +55,46 @@ function plot(graph){
  return '<figure class="source-graph"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Passender mathematischer Funktionsgraph zum Originalbuchbeispiel"><g>'+grid+fill+ax+paths+'</g></svg><figcaption>Rechnerisch rekonstruierter Funktionsgraph · dieselben Koordinaten wie in der Angabe</figcaption></figure>';
 }
 const cards=(mode)=>mode==='book'?BOOK:POOL;
+function officialRecord(q){
+ if(q.kind!=='page')return null;
+ const n=(q.source||'').match(/aufgabe-(\d+)/);
+ return n?window.MATHS_INLINE_ORIGINAL?.[n[1]]||null:null;
+}
+function officialId(q){return (q.source||'').match(/aufgabe-(\d+)/)?.[1]||''}
+function officialFigures(q){
+ const figs=window.MATHS_OFFICIAL_FIGURES?.[officialId(q)]||[];
+ if(!figs.length)return '';
+ return '<div class="source-original-figures">'+figs.map((s,i)=>{
+  const url=/^https:\/\//.test(s)?s:s.replace(/^/,'');
+  return '<img src="'+esc(url)+'" alt="Originalgrafik '+(i+1)+' zur Aufgabe '+esc(q.number)+'" loading="eager" decoding="async">';
+ }).join('')+'</div>';
+}
+function officialStatement(q){
+ const data=officialRecord(q);
+ if(data){
+  const original=data.text.replace(/\\\(/g,'').replace(/\\\)/g,'')
+   .replace(/\*\*/g,'').replace(/^####\s*/gm,'')
+   .replace(/xml version="[^"]*" encoding="[^"]*" standalone="[^"]*"\?/g,'')
+   .replace(/Schon den nächsten Urlaub geplant\?[\s\S]*?(?=\n(?:\*\*)?\d+\.\s*Teilaufgabe|$)/gi,'')
+   .replace(/\n{3,}/g,'\n\n').trim();
+  return '<div class="source-inline-original"><div class="source-inline-heading">Originalaufgabe · BHS Angewandte Mathematik</div><div class="source-original-body"><div class="source-original-text">'+esc(original)+'</div>'+officialFigures(q)+'</div></div>';
+ }
+ const src=esc(encodeURI(q.source))+'#page=1&view=Fit&toolbar=0&navpanes=0&scrollbar=0';
+ return '<div class="source-external source-pdf-sheet"><b>Vollständiges Original-Aufgabenblatt</b><iframe loading="eager" scrolling="no" tabindex="-1" title="Original-SRDP-Aufgabe '+esc(q.number)+'" src="'+src+'" referrerpolicy="no-referrer" aria-label="Original-PDF mit Aufgabenstellung und Grafik"></iframe></div>';
+}
 function details(q,mode){
  if(!q)return '<div class="source-empty">Kein Beispiel gefunden.</div>';
  const solved=!!window.__mathSourceState?.solved?.[solvedKey(q,mode)];
  const isPool=mode==='pool',needsExternal=isPool&&q.expected==null;
- const ref=isPool?(q.kind==='pdf'?'Offizielles PDF mit Originalgrafiken':'Originalaufgabe mit Grafiken'):'Aus der hochgeladenen Schulbuch-ZIP';
- let remote='';
- if(isPool){
-  const link='<a class="btn secondary source-open-link" href="'+esc(q.source)+'" target="_blank" rel="noopener noreferrer">Originalaufgabe öffnen ↗</a>';
-  remote='<div class="source-external"><b>'+esc(ref)+'</b><p>Die Angabe stammt aus der amtlichen Aufgabensammlung. Diagramme und Tabellen bleiben im Originaldokument, damit nichts verfälscht wird.</p>'+link+
-   (q.kind==='pdf'?'<iframe loading="lazy" title="Originalaufgabe '+esc(q.number)+'" src="'+esc(encodeURI(q.source))+'#page=1&toolbar=0&navpanes=0" referrerpolicy="no-referrer" aria-label="Original-PDF der Bundesministerium-Aufgabe"></iframe>':'')+'</div>';
- }
  const badge=solved?'<span class="source-done">✓ Bereits bearbeitet</span>':'<span class="pill">✎ Noch offen</span>';
- return '<div class="source-detail"><div class="source-meta"><span class="eyebrow">'+(isPool?'SRDP · '+esc(q.descriptor):'BUCHBEISPIEL · '+esc(q.category))+'</span>'+badge+'</div><h2>'+esc(isPool?q.title+' · '+q.part:q.number)+'</h2><p class="source-number">'+esc(isPool?q.number:q.source)+'</p><div class="source-question">'+esc(q.prompt)+'</div>'+plot(q.graph)+remote+
- '<div class="handwrite-note" role="note">✏️ <strong>Stift und Papier:</strong> Rechne die Originalaufgabe selbst. Wenn du fertig bist, trage dein Ergebnis ein. Falls du nicht weiterkommst: „Lösung anzeigen“.</div>'+
+ const statement=isPool?officialStatement(q):'<div class="source-question">'+esc(q.prompt)+'</div>'+plot(q.graph);
+ const sourceUrl=isPool?'<a class="source-original-link" href="'+esc(q.source)+'" target="_blank" rel="noopener noreferrer">Originalquelle ↗</a>':'';
+ return '<div class="source-detail" data-source-id="'+esc(q.id)+'"><div class="source-detail-inner">'+
+ '<div class="source-meta"><span class="eyebrow">'+(isPool?'SRDP · '+esc(q.descriptor):'BUCHBEISPIEL · '+esc(q.category))+'</span>'+badge+'</div>'+
+ '<h2>'+esc(isPool?q.title+' · '+q.part:q.number)+'</h2>'+
+ '<p class="source-number">'+esc(isPool?q.number:q.source)+' '+sourceUrl+'</p>'+
+ statement+
+ '<div class="handwrite-note" role="note">✏️ <strong>Stift und Papier:</strong> Löse zuerst die Aufgabe selbst. Trage danach dein Ergebnis ein.</div>'+
  (!needsExternal?'<div class="answer-field"><input id="sourceAnswer" autocomplete="off" placeholder="'+(q.expected==null?'Dein Rechenweg oder Ergebnis …':'Deine Zahl, z. B. 4,5')+'" value="'+esc(ui.answer)+'" aria-label="Deine Antwort"><button class="btn primary" data-action="source:submit">Überprüfen</button></div>':
  '<div class="answer-field"><textarea id="sourceAnswer" rows="2" placeholder="Deine Rechnung / Interpretation …" aria-label="Deine Rechnung">'+esc(ui.answer)+'</textarea></div>')+
  (ui.submitted&&ui.correct!==null?'<p class="answer-feedback '+(ui.correct?'good':'bad')+'">'+(ui.correct?'✓ Richtig!':'Noch nicht korrekt. Schau dir den Rechenweg an.')+'</p>':'')+
@@ -76,9 +102,10 @@ function details(q,mode){
  (ui.shown?'<section class="source-solution"><h3>Schritt-für-Schritt-Erklärung</h3><p>'+esc(q.guide||q.steps)+'</p><div class="formula">'+esc(q.solution)+'</div>'+
  (isPool?'<p class="source-credit">'+esc(q.credit||'Datenquelle: Bundesministerium für Bildung (CC BY 4.0)')+'</p><a target="_blank" rel="noopener noreferrer" href="'+esc(q.source)+'">Vollständige offizielle Lösungserwartung öffnen ↗</a>':'')+
  '<div class="source-actions"><button class="btn secondary" data-action="source:reveal">Okay, verstanden · Lösung schließen</button><button class="btn primary" data-action="source:self-right">✓ Ich hatte es richtig</button><button class="btn secondary" data-action="source:self-wrong">✕ Noch üben</button></div></section>':'')+
- (needsExternal?'<p class="source-credit">Bei dieser Aufgabe können Antworten eine Zeichnung, Formel oder Begründung sein. Ohne eindeutigen Zahlenwert erfolgt eine transparente Selbstkontrolle statt erfundener automatischer Bewertung.</p>':'')+
- '</div>';
+ (needsExternal?'<p class="source-credit">Bei Zeichnungen und Begründungen: Vergleiche die Lösung und bewerte dich selbst.</p>':'')+
+ '</div></div>';
 }
+
 function browser(mode,state){
  if(ui.mode!==mode){ui.mode=mode;ui.filter='';ui.topic='all';reset()}
  window.__mathSourceState=state;
@@ -96,6 +123,16 @@ function reset(){ui.shown=false;ui.submitted=false;ui.correct=null;ui.answer=''}
 function captureList(mode,scroll){if(mode==='book'||mode==='pool')ui.listScroll[mode]=Math.max(0,scroll||0)}
 function restoreList(mode,el){if(el&&ui.listScroll[mode]!=null)el.scrollTop=ui.listScroll[mode]}
 function isSolutionOpen(){return !!ui.shown}
+function fitDetail(root){
+ const detail=root?.querySelector('.source-detail');
+ if(!detail||!document.body.classList.contains('source-screen')||document.body.classList.contains('source-solution-open'))return;
+ const inner=detail.querySelector('.source-detail-inner');if(!inner)return;
+ inner.style.zoom='1';
+ const available=Math.max(120,detail.clientHeight-18);
+ const natural=Math.max(1,inner.scrollHeight);
+ const factor=Math.min(1,available/natural);
+ if(factor<.995)inner.style.zoom=String(Math.max(.42,factor));
+}
 function current(mode){return cards(mode).find(x=>x.id===(mode==='book'?ui.bookId:ui.poolId))}
 function next(mode,state){let list=cards(mode),idx=list.findIndex(x=>x.id===current(mode)?.id);
  if(idx<0)return;let fresh=list.find((x,i)=>i>idx&&!state.solved[solvedKey(x,mode)])||list.find(x=>!state.solved[solvedKey(x,mode)])||list[(idx+1)%list.length];
@@ -181,5 +218,5 @@ function refreshFilters(){
  const q=document.getElementById('sourceSearch'),t=document.getElementById('sourceTopic');
  ui.filter=q?.value||'';ui.topic=t?.value||'all';reset();
 }
-window.MATHS_SOURCE_TRAINER={BOOK,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot,captureList,restoreList,isSolutionOpen};
+window.MATHS_SOURCE_TRAINER={BOOK,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot,captureList,restoreList,isSolutionOpen,fitDetail};
 })();
