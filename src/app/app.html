@@ -28,13 +28,8 @@
 ></app-kenny-platformer>
 <app-companion-equipment *ngIf="view === 'platformer'" [popupOnly]="true" [state]="companionState" [skin]="kennySkin"
   (seenRequested)="acknowledgeCompanion($event)" (inventoryRequested)="go('companion-equipment')" />
-<div class="universe" [attr.inert]="view==='platformer'?'':null" [class.kenny-mode]="view==='shop' && (shopTab==='kenny'||shopTab==='designer')" [class.shop-mode]="view==='shop' && (shopTab==='catalog'||shopTab==='inventory')" [class.friends-mode]="view==='friends'" [class.designer-mode]="view==='shop' && shopTab==='designer'" [class.companions-mode]="view==='companions'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="previewSlot('fx')">
+<div class="universe" [attr.inert]="view==='platformer'?'':null" [class.kenny-mode]="view==='shop' && (shopTab==='kenny'||shopTab==='designer')" [class.shop-mode]="view==='shop' && (shopTab==='catalog'||shopTab==='inventory')" [class.friends-mode]="view==='friends'" [class.designer-mode]="view==='shop' && shopTab==='designer'" [class.companions-mode]="view==='companions'" [attr.data-theme]="previewTheme" [attr.data-atm]="previewSlot('atm')" [attr.data-frame]="previewSlot('frame')" [attr.data-font]="previewSlot('font')" [attr.data-banner]="previewSlot('banner')" [attr.data-fx]="'none'">
   <div class="ambient a"></div><div class="ambient b"></div>
-  @if (equippedMathsEffect; as effect) {
-    <div class="studyverse-maths-fx" [attr.data-fx]="effect.equip || effect.id" aria-hidden="true">
-      <span *ngFor="let slot of previewParticleSlots; let i=index" [style.--particle-index]="i">{{previewParticle(effect,i)}}</span>
-    </div>
-  }
   <aside class="sidebar">
     <button class="brand" (click)="go('dashboard')">
       <span class="brand-icon">✦</span>

@@ -2922,31 +2922,8 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .universe[data-banner="maths_integral"] .hero:has(.scene-maths-integral){border-color:#90dca1;box-shadow:inset 0 0 25px #b4fba51c,0 8px 34px #0c4f3642}
 @keyframes maths-banner-shift{from{transform:scale(1);filter:brightness(1)}to{transform:scale(1.035);filter:brightness(1.13)}}
 @keyframes maths-banner-light{from{filter:brightness(.94)}to{filter:brightness(1.16)}}
-/* Actual equipped effects across Studyverse, not merely cosmetic preview particles. */
-.studyverse-maths-fx{position:fixed;inset:0;z-index:8;overflow:hidden;pointer-events:none;isolation:isolate}
-.studyverse-maths-fx span{
- position:absolute;left:calc(5% + var(--particle-index) * 7.65%);top:14%;
- color:#e8ffcb;font:italic 700 clamp(19px,2.1vw,31px)/1.2 Georgia,serif;
- text-shadow:0 0 10px #69d8ad,0 2px 7px #06352e;
- opacity:.7;white-space:nowrap;animation-delay:calc(var(--particle-index) * -.47s)
-}
-.studyverse-maths-fx span:nth-child(3n){top:73%;font-size:24px}
-.studyverse-maths-fx span:nth-child(3n + 1){top:28%}
-.studyverse-maths-fx span:nth-child(3n + 2){top:52%;font-size:21px}
-.studyverse-maths-fx[data-fx="maths_chalk_fx"] span{animation:maths-chalk-drift 5.6s ease-in-out infinite alternate}
-.studyverse-maths-fx[data-fx="maths_chalk_fx"] span::after,
-.shop-live-stage[data-fx="maths_chalk_fx"] .shop-live-fx span::after{
- content:"";position:absolute;left:-9px;top:95%;width:38px;height:2px;
- background:linear-gradient(90deg,transparent,#ecffcc,transparent);
- box-shadow:0 0 8px #aaffdc;transform:rotate(-17deg)
-}
-.studyverse-maths-fx[data-fx="maths_delta_fx"] span{font-style:normal;color:#d3ff8d;animation:maths-delta-hover 4.5s ease-in-out infinite alternate}
-.studyverse-maths-fx[data-fx="maths_delta_fx"] span::before,
-.shop-live-stage[data-fx="maths_delta_fx"] .shop-live-fx span::before{
- content:"";position:absolute;inset:-14px;border:2px solid #c9fb95a3;border-radius:50%;
- box-shadow:0 0 15px #94ffa152;animation:maths-delta-ring 2.8s ease-out infinite;
- animation-delay:calc(var(--particle-index) * -.23s)
-}
+
+/* Equipped FX are answer-triggered. Only the shop previews loop continuously. */
 @keyframes maths-chalk-drift{from{transform:translate3d(-6px,13px,0) rotate(-12deg);opacity:.36}to{transform:translate3d(11px,-17px,0) rotate(9deg);opacity:.82}}
 @keyframes maths-delta-hover{from{transform:translate3d(0,8px,0) scale(.9);opacity:.45}to{transform:translate3d(5px,-13px,0) scale(1.08);opacity:.85}}
 @keyframes maths-delta-ring{from{transform:scale(.48);opacity:.75}to{transform:scale(1.58);opacity:0}}
@@ -2959,16 +2936,19 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 }
 .shop-live-stage.universe[data-fx="maths_chalk_fx"] .shop-live-fx span{animation:maths-chalk-drift 3.8s ease-in-out infinite alternate;animation-delay:calc(var(--particle-index) * -.33s)}
 .shop-live-stage.universe[data-fx="maths_delta_fx"] .shop-live-fx span{font-style:normal;color:#d5ff9a;animation:maths-delta-hover 3.2s ease-in-out infinite alternate;animation-delay:calc(var(--particle-index) * -.27s)}
+.shop-live-stage.universe[data-fx="maths_chalk_fx"] .shop-live-fx span::after{
+ content:"";position:absolute;left:-9px;top:95%;width:38px;height:2px;
+ background:linear-gradient(90deg,transparent,#ecffcc,transparent);box-shadow:0 0 8px #aaffdc;transform:rotate(-17deg)
+}
+.shop-live-stage.universe[data-fx="maths_delta_fx"] .shop-live-fx span::before{
+ content:"";position:absolute;inset:-14px;border:2px solid #c9fb95a3;border-radius:50%;
+ box-shadow:0 0 15px #94ffa152;animation:maths-delta-ring 2.8s ease-out infinite;
+ animation-delay:calc(var(--particle-index) * -.23s)
+}
 .shop-live-stage.universe[data-fx="maths_chalk_fx"] .shop-live-fx span:nth-child(3n),
 .shop-live-stage.universe[data-fx="maths_delta_fx"] .shop-live-fx span:nth-child(3n){top:66%}
 .shop-live-stage.universe[data-fx="maths_chalk_fx"] .shop-live-fx span:nth-child(3n + 2),
 .shop-live-stage.universe[data-fx="maths_delta_fx"] .shop-live-fx span:nth-child(3n + 2){top:44%}
 .shop-live-stage.miniature.effect[data-fx="maths_chalk_fx"] .shop-live-fx span,
 .shop-live-stage.miniature.effect[data-fx="maths_delta_fx"] .shop-live-fx span{font-size:14px}
-@media(prefers-reduced-motion:reduce){
- .universe .hero .scene-maths-curve img,.universe .hero .scene-maths-integral img,
- .studyverse-maths-fx span,.shop-live-stage[data-fx="maths_chalk_fx"] .shop-live-fx span,
- .shop-live-stage[data-fx="maths_delta_fx"] .shop-live-fx span,
- .studyverse-maths-fx span::before,.shop-live-stage .shop-live-fx span::before{animation:none!important}
- .studyverse-maths-fx span{opacity:.66!important}
-}
+@media(prefers-reduced-motion:reduce){.shop-live-stage[data-fx="maths_chalk_fx"] .shop-live-fx span,.shop-live-stage[data-fx="maths_delta_fx"] .shop-live-fx span,.shop-live-stage .shop-live-fx span::before{animation:none!important}}

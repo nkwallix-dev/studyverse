@@ -75,7 +75,8 @@ const MATHS_PARTICLES={
  maths_delta_fx:['Δ','∫','Δx','∂','π','∑']
 };
 let lastBanner='';
-let lastFx='';
+let fxTimeout=null;
+let lastBurstAt=0;
 function readProfile(){
  try{const p=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');return p&&typeof p==='object'&&!Array.isArray(p)?p:null}
  catch{return null}
@@ -105,22 +106,61 @@ function decorateHeroes(banner){
   }
  });
 }
-function refreshFx(fx){
- if(lastFx===fx&&document.querySelector('.verse-fx'))return;
+/* The equipped effect is played once for a correct answer, never on page load. */
+function playCorrectAnswerFx(){
+ const fx=document.body.dataset.fx||'none',symbol=EFFECTS[fx];
+ if(!symbol)return;
  const layer=ensureLayer('verse-fx');
  layer.replaceChildren();
- const symbol=EFFECTS[fx]||'';
- if(symbol){
-  for(let i=0;i<9;i++){
-   const span=document.createElement('i');
-   span.style.setProperty('--i',i);
-   span.style.left=(6+i*11)+'%';
-   span.style.top=(10+(i%4)*21)+'%';
-   span.textContent=MATHS_PARTICLES[fx]?MATHS_PARTICLES[fx][i%MATHS_PARTICLES[fx].length]:symbol;
-   layer.appendChild(span);
-  }
+ for(let i=0;i<9;i++){
+  const part=document.createElement('i');
+  part.style.setProperty('--i',i);
+  part.style.left=(6+i*11)+'%';
+  part.style.top=(14+(i%4)*20)+'%';
+  part.textContent=MATHS_PARTICLES[fx]?MATHS_PARTICLES[fx][i%MATHS_PARTICLES[fx].length]:symbol;
+  layer.appendChild(part);
  }
- lastFx=fx;
+ layer.classList.add('is-burst');
+ if(fxTimeout!==null)clearTimeout(fxTimeout);
+ fxTimeout=setTimeout(()=>{
+  fxTimeout=null;layer.classList.remove('is-burst');layer.replaceChildren();
+ },1350);
+}
+function feedbackConfirmsCorrect(){
+ return [...document.querySelectorAll('.answer-feedback.good,.feedback.ok,.feedback.right,.feedback')]
+  .some(node=>{
+   if(node.closest('.verse-fx,.verse-banner'))return false;
+   if(node.matches('.answer-feedback.good,.feedback.ok,.feedback.right'))return true;
+   const message=(node.textContent||'').trim().toLowerCase();
+   return ['✅ richtig','✓ richtig','✅ korrekt','✓ korrekt','✅ erkannt','✅ muster']
+    .some(prefix=>message.startsWith(prefix));
+  });
+}
+function triggerIfCorrect(always){
+ queueMicrotask(()=>{
+  if(!always&&!feedbackConfirmsCorrect())return;
+  const now=Date.now();if(now-lastBurstAt<280)return;
+  lastBurstAt=now;playCorrectAnswerFx();
+ });
+}
+function candidateAnswerClick(event){
+ const element=event.target?.closest?.(
+  '[data-answer],[data-bossanswer],[data-lessonanswer],[data-quiz],'+
+  '[data-action^="answer:"],[data-action^="boss-answer:"],'+
+  '[data-action^="lesson-check:"],[data-action^="practice-answer:"],'+
+  '[data-action^="boss:"],[data-action="submit-numeric"],'+
+  '[data-action="source:submit"],[data-action="source:self-right"],'+
+  '[data-action="source:exam-submit"],[data-action="source:exam-self-right"],'+
+  '#nameCheck,#drawCheck,#orbCheck,[data-ez],[data-siede]'
+ );
+ if(!element||element.disabled)return;
+ const action=element.getAttribute('data-action')||'';
+ triggerIfCorrect(action==='source:self-right'||action==='source:exam-self-right');
+}
+function candidateAnswerKey(event){
+ if(event.key!=='Enter')return;
+ if(!['numericAnswer','nameInput','sourceAnswer'].includes(event.target?.id))return;
+ triggerIfCorrect(false);
 }
 function renderAvatar(element, avatar) {
   const file = AVATAR_FILES.get(LEGACY_AVATARS.get(avatar) ?? avatar);
@@ -148,9 +188,7 @@ function applyEquipment(){
   if(document.body.dataset[slot]!==value)document.body.dataset[slot]=value;
  }
  const banner=document.body.dataset.banner||'default';
- const fx=document.body.dataset.fx||'none';
  ensureLayer('verse-atmosphere');
- refreshFx(fx);
  decorateHeroes(banner);
  const avatar=typeof equip.avatar==='string'&&equip.avatar?equip.avatar:null;
  if(avatar){
@@ -184,6 +222,9 @@ function init(){
  window.addEventListener('focus',schedule);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
  window.addEventListener('studyverse-equipment-change',schedule);
+ document.addEventListener('click',candidateAnswerClick,true);
+ document.addEventListener('keydown',candidateAnswerKey,true);
+ document.addEventListener('studyverse-correct-answer',playCorrectAnswerFx);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
 else init();

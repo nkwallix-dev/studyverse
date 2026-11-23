@@ -19,7 +19,12 @@ for(const key of ['maths_chalk_fx','maths_delta_fx']){
  assert(styles.includes('data-fx="'+key+'"')&&sharedCSS.includes('data-fx="'+key+'"'),key+' missing styles');
  assert(sharedJS.includes(key+':['),key+' particle map absent');
 }
-assert(html.includes('class="studyverse-maths-fx"')&&html.includes('equippedMathsEffect'), 'No actual homepage equipped effect');
+assert(!html.includes('studyverse-maths-fx')&&!html.includes('equippedMathsEffect'), 'Permanent math FX overlay must be absent');
+assert(html.includes('[attr.data-fx]="\'none\'"'), 'Homepage must never run equipped FX as wallpaper');
+assert(sharedJS.includes('candidateAnswerClick')&&sharedJS.includes('feedbackConfirmsCorrect()'),'FX must respond to correct answers');
+assert(sharedJS.includes("layer.classList.add('is-burst')")&&sharedJS.includes("layer.classList.remove('is-burst')"),'FX must expire');
+assert(!sharedJS.includes('refreshFx(fx)'), 'Do not render FX automatically on equipment hydration');
+assert(sharedCSS.includes('>.verse-fx.is-burst'), 'Event FX need activation class');
 assert(html.includes('previewParticle(effect,i)')&&app.includes("item.id==='maths_chalk_fx'")&&app.includes("item.id==='maths_delta_fx'"),'Wrong preview particles');
 assert(art.includes('effectParticle(n)'),'Shop card missing particles');
 assert(styles.includes('maths-chalk-drift')&&styles.includes('maths-delta-ring'),'Both FX must be distinct');

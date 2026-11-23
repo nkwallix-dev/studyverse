@@ -113,8 +113,8 @@ export const SHOP_ITEMS:ShopItem[]=([
  {id:'maths_notebook',kind:'font',icon:'ƒ',name:'Mathe-Notizbuch',desc:'Eine klare, lehrbuchartige mathematische Schrift – gut lesbar und grün akzentuiert.',group:'font',equip:'maths_notebook',drop:'maths-sa-01',requirement:{metric:'academy',value:5}},
  {id:'maths_curve_banner',kind:'banner',icon:'∿',name:'Kurvenwerkstatt',desc:'Eine grüne Tafel mit echten Ableitungskurven und Koordinatenachsen.',group:'banner',equip:'maths_curve',drop:'maths-sa-01',requirement:{metric:'quiz',value:20}},
  {id:'maths_integral_banner',kind:'banner',icon:'∫',name:'Integral-Landschaft',desc:'Schraffierte Fläche unter einem Funktionsgraphen – ganz ohne Sternennebel.',group:'banner',equip:'maths_integral',drop:'maths-sa-01',requirement:{metric:'draw',value:5}},
- {id:'maths_chalk_fx',kind:'extra',icon:'∂',name:'Kreidestaub',desc:'Dezente grüne Kreidestriche und Mathezeichen in deiner Studyverse-Ansicht.',group:'fx',equip:'maths_chalk_fx',drop:'maths-sa-01',requirement:{metric:'academy',value:4}},
- {id:'maths_delta_fx',kind:'extra',icon:'Δ',name:'Delta-Pulse',desc:'Sanfte Δ- und ∫-Impulse statt der üblichen Sternenpartikel.',group:'fx',equip:'maths_delta_fx',drop:'maths-sa-01',requirement:{metric:'quiz',value:30}},
+ {id:'maths_chalk_fx',kind:'extra',icon:'∂',name:'Kreidestaub',desc:'Kreidestaub und Mathezeichen erscheinen kurz bei richtigen Antworten.',group:'fx',equip:'maths_chalk_fx',drop:'maths-sa-01',requirement:{metric:'academy',value:4}},
+ {id:'maths_delta_fx',kind:'extra',icon:'Δ',name:'Delta-Pulse',desc:'Leuchtende Δ- und ∫-Impulse bei richtigen Antworten.',group:'fx',equip:'maths_delta_fx',drop:'maths-sa-01',requirement:{metric:'quiz',value:30}},
  {id:'maths_title_integral',kind:'title',icon:'∑',name:'Integral-Genie',desc:'Für alle, die bei Stammfunktionen und Integralen den Durchblick haben.',group:'title',drop:'maths-sa-01',requirement:{metric:'academy',value:4}},
  {id:'maths_boss_title',kind:'title',icon:'♛',name:'Professor Filipp',desc:'Exklusiver Titel für einen perfekten MathsVerse-Schularbeits-Bosskampf mit 100 %.',group:'title',drop:'maths-sa-01',requirement:{metric:'boss',value:100}},
 
