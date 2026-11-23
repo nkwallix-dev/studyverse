@@ -1,0 +1,29 @@
+name: One-time Kenny joint repair asset export
+on:
+  push:
+    branches:
+      - feature/kenny-image-parts-rig-20261123
+    paths:
+      - .github/workflows/kenny-rig-underpaint-once.yml
+permissions:
+  contents: write
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/kenny/build-parts-from-master.mjs
+      - run: node scripts/kenny/test-rig-parts.mjs
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/kenny/rig/v1
+          if ! git diff --cached --quiet; then
+            git commit -m "assets(kenny): fill hidden seams with original-color joint underpaint"
+            git push origin HEAD:feature/kenny-image-parts-rig-20261123
+          fi
