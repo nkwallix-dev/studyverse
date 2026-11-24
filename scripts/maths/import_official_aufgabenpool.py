@@ -37,7 +37,7 @@ TARGETS = {
     "B_T2_4.5": ("HTL 2: Integralrechnung in Anwendungen", 10),
 }
 EXCLUDE_TITLE = re.compile(
-    r"\b(?:verkehrszeichen|stoppschild|gartenz[äa]une)\b", re.IGNORECASE
+    r"\b(?:verkehrszeichen|stoppschild)\b", re.IGNORECASE
 )
 session = requests.Session(impersonate="chrome")
 headers = {
@@ -185,7 +185,7 @@ def main():
         for row in rows:
             if row["source"] not in used:
                 unique.append(row);used.add(row["source"])
-        remaining=[row for row in rows if row["source"] not in set(x["source"] for x in unique)]
+        remaining=[row for row in rows if row not in unique]
         rand=random.Random("Studyverse-SA-2026-11-26:"+chapter)
         rand.shuffle(unique)
         rand.shuffle(remaining)
@@ -221,9 +221,9 @@ def main():
                         "selected":len(selected),"descriptor_id":descriptor_id,
                         "sample":[q["number"] for q in selected[:4]]}
         print("CHAPTER",chapter,json.dumps(report[chapter],ensure_ascii=False),flush=True)
-        if len(selected)<min(10,len(unique)):
+        if len(selected)<min(10,len(rows)):
             raise RuntimeError("Too few verified originals for "+chapter+
-                               "; expected at least "+str(min(10,len(unique))))
+                               "; expected at least "+str(min(10,len(rows))))
     if not output:raise RuntimeError("No official PDF exercises downloaded")
     if len({q["id"] for q in output})!=len(output):raise RuntimeError("Duplicate task IDs")
     if any(q["origin"]!="official" or not (ROOT/q["source"]).is_file() for q in output):
