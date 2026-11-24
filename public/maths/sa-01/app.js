@@ -15,7 +15,7 @@ state.xp=int(state.xp);state.coins=int(state.coins);state.bestBoss=int(state.bes
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));window.studyverseCloudTouch?.()}catch(err){console.warn('MathsVerse save:',err)}}
 if(SOURCE.migrateProgress(state))save();
 let view='home',selected='',focusTopic='all',activeQuestion=null,answered=false,selectedAnswer=-1,feedback='',boss=null;
-const names={home:'Übersicht',academy:'Lernakademie',lesson:'Lernkapitel',book:'Buchbeispiele',pool:'4. Deskriptor',sources:'Quellen',boss:'Schularbeitssimulation',bossrun:'Schularbeit',bossresult:'Boss-Ergebnis'};
+const names={home:'Übersicht',academy:'Lernakademie',lesson:'Lernkapitel',book:'Buchbeispiele',pool:'4. Deskriptor',cheat:'Cheat Sheet',sources:'Quellen',boss:'Schularbeitssimulation',bossrun:'Schularbeit',bossresult:'Boss-Ergebnis'};
 const count=o=>Object.values(object(o)).filter(Boolean).length;
 const lessonsDone=()=>D.lessons.filter(l=>state.courseDone[l.id]).length;
 const sourceSolvedKey=(q,mode)=>(mode==='book'?'n':'q')+q.id.replace(/[^a-z0-9-]/gi,'_');
@@ -68,7 +68,7 @@ function render(){
  if(oldList&&document.body.dataset.sourceView)SOURCE.captureList(document.body.dataset.sourceView,oldList.scrollTop);
  document.body.classList.toggle('source-screen',view==='book'||view==='pool');
  document.body.dataset.sourceView=(view==='book'||view==='pool')?view:'';
-$('crumb').textContent=names[view]||'MathsVerse';document.querySelectorAll('[data-nav]').forEach(x=>{x.classList.toggle('active',x.dataset.nav===view||(view==='lesson'&&x.dataset.nav==='academy')||(view.startsWith('boss')&&x.dataset.nav==='boss'));if(x.dataset.nav===view)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});$('main').innerHTML=({home,academy,lesson,book,pool,sources,boss:()=>SOURCE.intro(state),bossrun:()=>SOURCE.run(),bossresult:()=>SOURCE.result()}[view]||home)();if(view==='book'||view==='pool'){
+$('crumb').textContent=names[view]||'MathsVerse';document.querySelectorAll('[data-nav]').forEach(x=>{x.classList.toggle('active',x.dataset.nav===view||(view==='lesson'&&x.dataset.nav==='academy')||(view.startsWith('boss')&&x.dataset.nav==='boss'));if(x.dataset.nav===view)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});$('main').innerHTML=({home,academy,lesson,book,pool,cheat:()=>window.MATHS_CHEAT_SHEET.render(),sources,boss:()=>SOURCE.intro(state),bossrun:()=>SOURCE.run(),bossresult:()=>SOURCE.result()}[view]||home)();if(view==='book'||view==='pool'){
  SOURCE.restoreList(view,$('main').querySelector('.source-list'));
  SOURCE.focusSolution($('main'));
 }}
