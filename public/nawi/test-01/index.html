@@ -177,6 +177,13 @@ body[data-frame="pixel"] :is(.panel,.hero){border:3px solid #b78aff!important;bo
  .btnrow .btn{flex:1 1 100%}
 }
 
+
+/* Center the verse return and profile links. */
+.main>.topbar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+.main>.topbar .topbar-left{grid-column:1;grid-row:1;min-width:0;overflow:hidden}
+.main>.topbar .topbar-left .crumb{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.main>.topbar .topstats{grid-column:2;grid-row:1;justify-self:center;justify-content:center;margin:0;flex-wrap:nowrap}
+
 </style>
 <link rel="stylesheet" href="../../shared/verse-cosmetics.css">
 <link rel="stylesheet" href="../../shared/verse-endgame.css">
