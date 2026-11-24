@@ -28,7 +28,7 @@ const groups=[...shop.matchAll(/\{id:'maths_[^']+',kind:'[^']+',icon:'[^']+',nam
 for(const g of ['theme','atm','frame','avatar','title','font','banner','fx']){
  const n=groups.filter(x=>x===g).length;assert(n>=1&&n<=2,g+' count='+n);
 }
-assert(app.includes("drop==='maths-sa-01'?'n':'d'"),'numeric handwork metric');
+assert(app.includes("if(drop==='maths-sa-01')")&&app.includes('return mathsProgress(save,metric)'), 'Maths cosmetics must use current book and descriptor completion metrics');
 assert(app.includes("id:'mat',short:'AM'"));
 assert(html.includes('[disabled]="!subjectHasTrainer(s.id)"'));
 assert(mhtml.includes('../../shared/verse-cosmetics.js'));
