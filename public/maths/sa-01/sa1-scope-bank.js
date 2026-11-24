@@ -68,7 +68,7 @@
   add('B_649 b','B_T_4.1','Regelung der Temperatur – Grenzwert',
     'T(t)=a−15·e^(−0,05t)·cos(0,1t), t in Minuten. Erkläre, warum T(t) für t→∞ gegen a geht. Bestimme danach mit GeoGebra das Temperaturmaximum im Intervall 0<t<40 und interpretiere das im Original gezeigte Mittelwertintegral.',
     'Der Cosinus bleibt zwischen −1 und 1, aber e^(−0,05t) geht gegen 0. Für das Maximum T′(t)=0 im Intervall lösen; (1/t₁)∫₀^t₁T(t)dt ist eine mittlere Temperatur.',
-    'Der Exponentialfaktor geht gegen 0, also T(t)→a. Im Lernzettel liegt die Maximalstelle bei t≈30,92 min; die dortige mittlere Temperatur wird in °C interpretiert.',
+    'Der Exponentialfaktor geht gegen 0, also T(t)→a. Aus T′(t)=0 folgt im Intervall 0<t<40 die Maximalstelle t≈26,78 min (nicht die handschriftlich notierten 30,92 min). Ein Mittelwertintegral wird in °C interpretiert.',
     {image:'b-649',officialNumber:'B_649 b',activity:'GeoGebra · Interpretation'});
   add('B_615 b','4.8','Dreibein – Rotationsvolumen',
     'Der Querschnitt eines Topfes ist durch y=x⁴/500 begrenzt und um die y-Achse rotierbar. Der Rand liegt bei y=20 cm; Wasser steht bis y=15 cm. Berechne das Wasservolumen in cm³.',
