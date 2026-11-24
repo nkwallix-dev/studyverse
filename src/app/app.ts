@@ -16,7 +16,7 @@ import { CosmeticArtComponent } from './cosmetic-art.component';
 import { FitCosmeticTextDirective } from './fit-cosmetic-text.directive';
 import { SHOP_ITEMS, SHOP_DROPS, ShopItem, ShopRequirement } from './shop-items';
 import { LEGACY_OWNED_ITEMS } from './legacy-owned-items';
-import { TRAINERS, TrainerDef, achievementValue } from './trainer-registry';
+import { TRAINERS, TrainerDef, achievementValue, mathsProgress } from './trainer-registry';
 import { StudyverseCloud, CloudSnapshot, PublicPlayer, PublicShowcase, PublicCourseProgress, AccountNotice, CLOUD_DAILY_KEY, CLOUD_SESSION_KEY, cloudError, isAllowedNickname } from './cloud';
 import { KENNY_SEASON, KENNY_THRESHOLDS, KENNY_ODDS, KENNY_ITEMS, KENNY_EVENT_ITEMS, KENNY_ZEBRA_SKIN, KENNY_BLUE_SKIN, KENNY_BLUE_AVATAR, KENNY_SKIN_AVATARS, DinoSeasonState, DinoDrop,
   freshDinoState, normalizeDinoState, dinoLevel, nextDinoLevel, isKennyActive, cashbackDue, kennyCountdown,
@@ -910,9 +910,14 @@ export class App implements OnInit,OnDestroy {
  metricProgress(drop:string,metric:ShopRequirement['metric']):number{
    const trainer=TRAINERS.find(t=>t.id===drop);if(!trainer)return 0;
    const save=this.snapshot(trainer),solved=isObj(save['solved'])?save['solved']:{};
+   if(drop==='maths-sa-01'){
+    // MathsVerse awards now use whole book exercises, original descriptors and lessons.
+    if(metric==='academy'||metric==='book'||metric==='descriptor'||metric==='boss')return mathsProgress(save,metric);
+    return 0; // Legacy Maths quiz/draw counters must not unlock items.
+   }
    if(metric==='academy')return Object.values(isObj(save['courseDone'])?save['courseDone']:{}).filter(Boolean).length;
    if(metric==='boss')return safe(save['bestBoss']);
-   const prefix=({quiz:'q',draw:drop==='maths-sa-01'?'n':'d',reaction:'r',sorter:'s',pipeline:'p',forecast:'f'} as Record<ShopRequirement['metric'],string>)[metric]||'';
+   const prefix=({quiz:'q',draw:'d',reaction:'r',sorter:'s',pipeline:'p',forecast:'f'} as Record<ShopRequirement['metric'],string>)[metric]||'';
    return Object.keys(solved).filter(k=>k.startsWith(prefix)&&!!solved[k]).length;
  }
  isUnlocked(item:ShopItem):boolean{
@@ -926,7 +931,7 @@ export class App implements OnInit,OnDestroy {
    if(item.drop==='global')return 'Ab Profil-Level '+(item.level||1);
    const r=item.requirement;if(!r)return 'Drop noch nicht verfügbar';
    const value=this.metricProgress(item.drop,r.metric);
-   const captions={academy:'Lernlektionen',quiz:'Quizfragen',draw:item.drop==='maths-sa-01'?'Handrechenaufgaben':'Code- oder Zeichenaufgaben',reaction:'Reaktionsaufgaben',sorter:'Data-Sorter-Aufgaben',pipeline:'Prozess-Puzzles',forecast:'Festival-Prognosen',boss:'Boss-Ergebnis'};
+   const captions={academy:'Lernlektionen',book:'vollständig gelöste Buchbeispiele',descriptor:'richtig gelöste Deskriptor-Aufgaben',quiz:'Quizfragen',draw:'Code- oder Zeichenaufgaben',reaction:'Reaktionsaufgaben',sorter:'Data-Sorter-Aufgaben',pipeline:'Prozess-Puzzles',forecast:'Festival-Prognosen',boss:'Boss-Ergebnis'};
    const proof=r.metric==='boss'?'Boss: '+value+'% / '+r.value+'%':value+'/'+r.value+' '+captions[r.metric];
    return proof;
  }
