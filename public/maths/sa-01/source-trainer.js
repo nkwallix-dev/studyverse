@@ -126,19 +126,40 @@ function officialStatement(q){
 }
 function activeGroup(){return GROUPS.find(g=>g.id===ui.bookId)||GROUPS[0]}
 function activeStep(){const group=activeGroup();return group?.steps.find(q=>q.id===ui.bookStepId)||group?.steps[0]}
-/* Use ORIGINAL scan pixels and the active printed subpart's viewBox.
-   Shared directions/diagrams remain visible, neighboring exercises never do. */
+/* Buch: Only actual textbook graphs are kept as image excerpts.
+   The source directions, formulas and problem text are displayed as text. */
+const BOOK_GRAPHS={
+ '1.11a':[2,48,116,309,118], '1.11b':[2,381,116,249,118],
+ '1.12':[2,371,230,260,111], '1.13':[2,51,478,173,143],
+ '1.24':[4,338,244,133,95], '1.65':[7,34,440,172,125],
+ '1.68a':[8,45,218,193,81], '1.68b':[8,240,218,232,81],
+ '1.69a':[8,38,332,131,93], '1.69b':[8,173,332,151,93],
+ '1.69c':[8,326,332,147,93], '1.73':[9,302,373,172,95],
+ '1.76':[10,351,194,123,131], '1.79':[11,247,123,227,92],
+ '1.80':[11,292,238,181,118], '1.81':[11,274,373,201,196],
+ '1.99':[13,324,270,152,90]
+};
+const BOOK_SIZES={2:[642,671],4:[476,525],7:[482,573],8:[477,519],9:[474,690],10:[474,355],11:[478,735],13:[478,742]};
 function bookOriginalStep(q){
- const pieces=window.MATHS_BOOK_CROPS?.[q.number]||[];
- if(!pieces.length)return '<p class="source-empty">Kein Originalausschnitt für '+esc(q.number)+' verfügbar. Die Aufgabenstellung steht darunter.</p>';
- return pieces.map((r,index)=>{
-  const naturalWidth=Math.min(900,Math.max(340,Math.round(r.w*1.55)));
-  const original='original-figures/book-page-'+r.page+'.webp';
-  return '<figure class="book-original-sheet book-original-crop" style="--crop-width:'+naturalWidth+'px">'+
-   '<svg viewBox="'+r.x+' '+r.y+' '+r.w+' '+r.h+'" width="'+r.w+'" height="'+r.h+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Originalausschnitt aus Buchbeispiel '+esc(q.number)+'">'+
-   '<image href="'+original+'" x="0" y="0" width="'+r.W+'" height="'+r.H+'" preserveAspectRatio="none"></image></svg>'+
-   '<figcaption>Originalbuch · '+esc(q.number)+' · Ausschnitt '+(index+1)+'</figcaption></figure>';
- }).join('');
+ const printed=q.number.match(/^\d+\.\d+/)?.[0];
+ const region=BOOK_GRAPHS[q.number]||BOOK_GRAPHS[printed];
+ if(!region)return '';
+ const [page,x,y,w,h]=region,[W,H]=BOOK_SIZES[page];
+ return '<figure class="book-original-sheet book-original-crop book-graph-only">'+
+  '<svg viewBox="'+x+' '+y+' '+w+' '+h+'" width="'+w+'" height="'+h+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Originalgraph zu Buchbeispiel '+esc(q.number)+'">'+
+  '<image href="original-figures/book-page-'+page+'.webp" x="0" y="0" width="'+W+'" height="'+H+'" preserveAspectRatio="none"></image></svg>'+
+  '<figcaption>Graph aus dem Originalbuch · '+esc(q.number)+'</figcaption></figure>';
+}
+/* Limits are written in plain language rather than stacked Unicode symbols. */
+const SUB={'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9','₋':'−'};
+const SUP={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'−'};
+function bookPrompt(q){
+ const bounds=/∫(?:_\(([^)]+)\)|([₀₁₂₃₄₅₆₇₈₉₋]+|[a-z]))(?:\^\(([^)]+)\)|\^([^\s(]+)|([⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+))/g;
+ return String(q.prompt||'').replace(bounds,(_,l1,l2,u1,u2,u3)=>{
+  const lo=(l1||l2||'').replace(/[₀₁₂₃₄₅₆₇₈₉₋]/g,c=>SUB[c]);
+  const up=(u1||u2||u3||'').replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]/g,c=>SUP[c]);
+  return 'bestimmtes Integral mit Untergrenze '+lo+' und Obergrenze '+up+': ';
+ });
 }
 function bookDetails(group){
  if(!group)return '<p>Keine Buchaufgabe ausgewählt.</p>';
@@ -153,10 +174,9 @@ function bookDetails(group){
  return '<section class="source-detail" data-source-id="'+esc(group.id)+'"><header class="source-detail-header"><div class="source-meta"><span class="eyebrow">BUCHBEISPIEL · '+esc(group.category)+'</span><span class="source-done">'+nDone+'/'+group.steps.length+' Schritte</span></div><h2>Aufgabe '+esc(group.number)+'</h2><p class="source-number">Original · '+esc(group.source)+'</p></header>'+
  '<div class="source-reading" role="region" tabindex="0" aria-label="Ausgewählter Buchausschnitt und Lösungsweg">'+
  '<nav class="book-step-tabs" aria-label="Teilaufgaben wählen">'+stepMenu+'</nav>'+
- '<details class="book-original-toggle" open><summary>Originalausschnitt · '+esc(q.number)+'</summary><div class="book-original-body">'+sheet+
- '<p class="source-credit">Nur der aktuell gewählte Teil '+esc(q.number)+' und die dazugehörige gemeinsame Angabe oder Grafik.</p></div></details>'+
- '<section class="book-active-step"><h3>Schritt '+(stepIndex+1)+' von '+group.steps.length+(group.steps.length===1?'':' · '+esc(q.number))+'</h3><div class="source-question">'+esc(q.prompt)+'</div>'+
- (!sheet&&q.graph?plot(q.graph):'')+'</section>'+solution+'</div>'+
+ '<section class="book-active-step"><h3>Schritt '+(stepIndex+1)+' von '+group.steps.length+(group.steps.length===1?'':' · '+esc(q.number))+'</h3><div class="source-question">'+esc(bookPrompt(q))+'</div></section>'+
+ (sheet?'<details class="book-original-toggle" open><summary>Originalausschnitt · '+esc(q.number)+'</summary><div class="book-original-body">'+sheet+'</div></details>':'')+
+ solution+'</div>'+
  '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Rechne Schritt '+(stepIndex+1)+' eigenständig. Ergebnis erst danach überprüfen.</div>'+
  '<div class="answer-field"><input id="sourceAnswer" aria-label="Ergebnis für Schritt '+(stepIndex+1)+'" inputmode="'+(expected?'decimal':'text')+'" placeholder="'+(expected?'Deine Zahl':'Dein Ergebnis oder Lösungsweg')+'" value="'+esc(ui.answer)+'">'+'<button class="btn primary" data-action="source:submit">Überprüfen</button></div>'+result+
  '<div class="source-actions"><button class="btn secondary" data-action="source:reveal">'+(ui.shown?'Lösung schließen':'Lösung anzeigen')+'</button>'+
@@ -272,7 +292,7 @@ function run(){
  return '<div class="eyebrow">SCHULARBEITSSIMULATION · FRAGE '+(r.index+1)+' / 20 · '+(isPool?'DESKRIPTOR-TRAINING':'BUCHBEISPIEL')+'</div>'+
  '<h1>Am Papier rechnen.</h1><div class="progress-track"><i style="width:'+((r.index/20)*100)+'%"></i></div>'+
  '<section class="question-card source-exam-card"><span class="pill">'+esc(q.groupNumber||q.number)+'</span><h2>'+esc(q.title||q.category)+'</h2>'+
- (isPool?'': '<p class="source-question">'+esc(q.prompt)+'</p>')+frame+
+ (isPool?'': '<p class="source-question">'+esc(bookPrompt(q))+'</p>')+frame+
  '<div class="handwrite-note">✏️ Bearbeite die Originalaufgabe zuerst auf Papier. '+(isPool?'Amtliche Aufgaben: Lösung im PDF; Eigenübungen: Lösung nach Prüfen.':'Danach das Ergebnis eingeben.')+'</div>'+
  (q.expected!=null&&!isPool?'<input class="source-exam-input" id="sourceExamAnswer" inputmode="decimal" value="'+esc(r.draft)+'" placeholder="Berechnetes Ergebnis, z. B. 4,5">':
  '<textarea class="source-exam-input" id="sourceExamAnswer" rows="3" placeholder="Deine Rechnung oder Begründung …">'+esc(r.draft)+'</textarea>')+
