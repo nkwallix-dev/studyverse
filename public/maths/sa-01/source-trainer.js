@@ -145,7 +145,7 @@ function bookOriginalStep(q){
  const region=BOOK_GRAPHS[q.number]||BOOK_GRAPHS[printed];
  if(!region)return '';
  const [page,x,y,w,h]=region,[W,H]=BOOK_SIZES[page];
- return '<figure class="book-original-sheet book-original-crop book-graph-only">'+
+ return '<figure class="book-original-sheet book-original-crop book-graph-only" style="--crop-width:'+Math.min(780,Math.max(340,w*2))+'px">'+
   '<svg viewBox="'+x+' '+y+' '+w+' '+h+'" width="'+w+'" height="'+h+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Originalgraph zu Buchbeispiel '+esc(q.number)+'">'+
   '<image href="original-figures/book-page-'+page+'.webp" x="0" y="0" width="'+W+'" height="'+H+'" preserveAspectRatio="none"></image></svg>'+
   '<figcaption>Graph aus dem Originalbuch · '+esc(q.number)+'</figcaption></figure>';
@@ -159,7 +159,7 @@ function bookPrompt(q){
   const lo=(l1||l2||'').replace(/[₀₁₂₃₄₅₆₇₈₉₋]/g,c=>SUB[c]);
   const up=(u1||u2||u3||'').replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]/g,c=>SUP[c]);
   return 'bestimmtes Integral mit Untergrenze '+lo+' und Obergrenze '+up+': ';
- });
+ }).replace(/Berechne das bestimmte Integral:? bestimmtes Integral mit/g,'Berechne das bestimmte Integral mit');
 }
 function bookDetails(group){
  if(!group)return '<p>Keine Buchaufgabe ausgewählt.</p>';
