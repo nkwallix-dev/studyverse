@@ -375,15 +375,15 @@ B('1.76a',V,'Ein kreisförmiger Pool hat Durchmesser 20 m. Ein geschwungener Bar
 B('1.76b',V,'Der Barbereich aus 1.76 hat eine Fläche von 96/π m². Der Pool ist 120 cm tief. Wie viele Hektoliter Wasser passen in den Pool ohne Barbereich?',
  'Wasserfläche =100π−96/π m². Volumen=1,2·(100π−96/π) m³, in hL: ≈3 403,22 hL.',
  'Poolvolumen aus Oberfläche·Tiefe (1,2 m). Für Barbereich kein Wasser mitzählen. 1 m³=10 hL.');
-B('1.82a',K,'Ein Polynom 3. Grades hat Maximum H(2|5), Wendestelle x=4 und Wendetangenten-Steigung k=−3/2. Bestimme Funktion und Wendetangente.',
+B('1.82a',K,'Eine Polynomfunktion 3. Grades hat ein Maximum im Punkt H(2|5). An der Stelle x=4 befindet sich ein Wendepunkt. Die Steigung der Wendetangente beträgt k=−3/2. Bestimme die Funktionsgleichung und die Gleichung der Wendetangente.',
  'f(x)=x³/8−3x²/2+9x/2+1. Wendepunkt W(4|3) und Wendetangente y=−(3/2)x+9.',
  'f(2)=5, f′(2)=0, f″(4)=0, f′(4)=−3/2. Löse das lineare Gleichungssystem für a,b,c,d. Setze x=4 für W und die Tangente ein.');
 B('1.82c',F,'Berechne den orientierten Flächeninhalt zwischen f(x)=x³/8−3x²/2+9x/2+1 und der x-Achse auf [1;7].',
  'Bestimmtes Integral ∫₁⁷f(x)dx =18 Flächeneinheiten.',
  'Stammfunktion x⁴/32−x³/2+9x²/4+x bilden und Grenzen 7 und 1 einsetzen.',18);
-B('1.82d',V,'Rotiert f(x)=x³/8−3x²/2+9x/2+1 auf [1;7] um die x-Achse, wie groß ist das Rotationsvolumen?',
- 'V=π·75951/1120≈213,03 cm³.',
- 'Rotation um die x-Achse: V=π∫₁⁷[f(x)]²dx. Polynom quadrieren, integrieren und Grenzen einsetzen.',75951*Math.PI/1120);
+B('1.82d',V,'Rotiert der Funktionsgraph im Intervall [1;7] um die x-Achse, so hat der entstehende Rotationskörper die Form einer Spielfigur, wie sie aus einem Kunststoff mit der Dichte ρ=1,05 g/cm³ hergestellt ist. Bestimme die Masse der Spielfigur.',
+ 'V=π·75951/1120≈213,03 cm³; Masse m=1,05·V≈223,68 g.',
+ 'Rotationsvolumen um die x-Achse: V=π·Integral von f(x)² mit Untergrenze 1 und Obergrenze 7. Polynom quadrieren, integrieren und Grenzen einsetzen. Anschließend m=ρ·V mit ρ=1,05 g/cm³ berechnen.',1.05*75951*Math.PI/1120);
 
 
 /* Actual exercises 2.25–2.38 from the last two uploaded screenshots. */
@@ -551,26 +551,26 @@ B('1.92c',A,'Leite h(x)=ln(³√(2x−1)) ab.',
 
 
 /* Volume chapter screenshot 11: curves and solutions reconstructed from the printed parameters. */
-B('1.79a',V,'Das Endstück einer Vorhangstange entsteht durch Drehung eines Linienzuges um die x-Achse. Die Gerade g geht von (0|0) nach P(10|5); die Parabel p geht durch P, hat dort dieselbe Steigung und trifft die x-Achse bei x=50 (Maße in mm). Bestimme g und p.',
- 'g(x)=x/2 für 0≤x≤10; p(x)=−(x−50)(x−2)/64 für 10≤x≤50.',
- 'Gerade durch Ursprung und P: g(x)=0,5x. Für p=ax²+bx+c die drei Bedingungen p(10)=5, p′(10)=0,5 und p(50)=0 lösen.',
- null,{curves:[{label:'g',points:[[0,0],[10,5]]},{label:'p',poly:[-1/64,13/16,-25/16],domain:[10,50]}],x:[0,52],y:[0,12]});
-B('1.79b',V,'Das Endstück wird aus g=x/2 auf [0;10] und p=−(x−50)(x−2)/64 auf [10;50] um die x-Achse rotiert (mm). Bei Dichte ρ=8,4 g/cm³ berechne die Masse.',
- 'V=π(∫₀¹⁰g²dx+∫₁₀⁵⁰p²dx)=6250π/3 mm³≈6,545 cm³; Masse≈54,98 g.',
- 'Rotationsvolumen in mm³ berechnen, dann durch 1000 in cm³ umrechnen. Masse =ρ·V.',8.4*6250*Math.PI/3000);
-B('1.80a',V,'Der Halbquerschnitt eines Kreisels ist durch eine Gerade g von (0|3) nach (4|0) und die Kurve f(x)=−√[0,5·(4−x)] beschrieben. Bestimme g.',
+B('1.79a',V,'Das Endstück einer Vorhangstange entsteht durch Drehung der dargestellten Kurve um die x-Achse. Die Kurve setzt sich aus einer Geraden g und einer Parabel p zusammen, wobei der Übergang in P knickfrei (d. h. mit gleicher Steigung) erfolgt. Bestimme die Funktionsgleichungen von g und p. Die eingezeichneten Koordinaten sind in mm angegeben.',
+ 'g(x)=x/2 für 0≤x≤20; p(x)=−x²/36+(29/18)x−100/9 für 20≤x≤50.',
+ 'Aus dem Diagramm: g geht durch (0|0) und P(20|10), also g(x)=0,5x. Beim Übergang in P müssen Funktionswert und Steigung übereinstimmen: p(20)=10 und p′(20)=0,5. Die Parabel endet auf der x-Achse: p(50)=0. Setze p(x)=ax²+bx+c an und löse die drei Gleichungen nach a, b und c.',
+ null,{curves:[{label:'g',points:[[0,0],[20,10]]},{label:'p',poly:[-1/36,29/18,-100/9],domain:[20,50]}],x:[0,52],y:[0,14]});
+B('1.79b',V,'Berechne die Masse des Endstücks der Vorhangstange, wenn die Dichte des Materials ρ=8,4 g/cm³ beträgt. Verwende die beiden in Schritt 1 bestimmten Teilfunktionen g auf [0;20] und p auf [20;50] sowie die Rotation um die x-Achse.',
+ 'V=π·(10625/3) mm³≈11126,84 mm³=11,12684 cm³. Die Masse beträgt m=8,4·V≈93,46 g.',
+ 'Bei Rotation um die x-Achse: V=π·[Integral von g(x)² mit Untergrenze 0 und Obergrenze 20 + Integral von p(x)² mit Untergrenze 20 und Obergrenze 50]. Es ergibt sich V=(10625π/3) mm³. Teile durch 1000 für cm³, danach m=ρ·V mit ρ=8,4 g/cm³.',8.4*10625*Math.PI/3000);
+B('1.80a',V,'Die Form des Halbschnitts eines Kreisels (siehe Abbildung) kann durch die Gerade g und den Graphen der Funktion f beschrieben werden. f(x) = −√(0,5·(4−x)), x und y in cm. Stelle die Funktionsgleichung von g auf. Entnimm die dafür benötigten Werte aus der Grafik.',
  'g(x)=3−(3/4)x.',
  'Geradengleichung y=mx+b. Aus den Punkten m=(0−3)/(4−0)=−3/4 und b=3.');
-B('1.80b',V,'Ein Kreisel entsteht durch Rotation von g(x)=3−3x/4 (0≤x≤4) und f(x)=−√[0,5·(4−x)] um die y-Achse. Dichte ρ=8,7 g/cm³. Berechne die Masse.',
+B('1.80b',V,'Die Form des Kreisels entsteht durch Rotation der beiden Kurven g und f um die y-Achse. Der Kreisel soll aus einer Messing-Legierung mit einer Dichte von 8,7 g/cm³ hergestellt werden. Berechne die Masse des Kreisels.',
  'Rotationsvolumen ≈88,178 cm³; Masse ≈767,15 g.',
  'Nach x umstellen: x_g(y)=4−4y/3 für y∈[0;3], x_f(y)=4−2y² für y∈[−√2;0]. V=π∫₀³x_g(y)²dy+π∫₋√₂⁰x_f(y)²dy.',8.7*16*Math.PI*(8*Math.sqrt(2)+15)/15);
 B('1.81a',V,'Die Glasinnenseite ist durch y=0,2(x²+1)²+0,8 beschrieben. Forme die Gleichung nach x² um.',
  'x²=√[(y−0,8)/0,2]−1.',
  'Erst 0,8 abziehen und durch 0,2 teilen, dann die positive Quadratwurzel ziehen und 1 abziehen.');
-B('1.81b',V,'Die Glasinnenseite ist y=0,2(x²+1)²+0,8 (cm). Berechne, wie viele Milliliter das Glas bei einer Füllhöhe von 4 cm enthält.',
- 'Mit der Koordinatenhöhe y=4 beträgt V=π∫₁⁴[√(5y−4)−1]dy=27π/5≈16,965 ml. Falls 4 cm über dem Glasboden bei y=1 gemeint sind, reicht die Füllung bis y=5 und V≈27,325 ml.',
- 'Löse nach x² auf: x²=√(5y−4)−1. V=π∫x²dy. Achte darauf, ob die Aufgabenabbildung 4 cm als absolute Koordinate oder als Höhe über dem Glasboden zeigt; die Integrationsgrenzen unterscheiden sich.');
-B('1.81c',V,'Ist es möglich, das Glas mit Innenprofil y=0,2(x²+1)²+0,8 und Höhe 5,8 cm mit 40 ml zu befüllen?',
+B('1.81b',V,'Berechne, wie viele Milliliter Flüssigkeit das Glas beinhaltet, wenn die Füllhöhe im Glas 4 cm beträgt.',
+ 'Der Glasboden liegt bei y=1 cm. 4 cm Füllhöhe bedeutet deshalb die Grenzen y=1 und y=5. Volumen V=π·Integral von (√(5y−4)−1) mit Untergrenze 1 und Obergrenze 5 ≈27,33 cm³=27,33 ml.',
+ 'Die Innenwand hat die Gleichung y=0,2(x²+1)²+0,8. Stelle nach x² um: x²=√(5y−4)−1. Bei Rotation um die y-Achse ist der Querschnitt π·x². Der Boden liegt bei y=1; eine Flüssigkeitshöhe von 4 cm reicht daher bis y=5. Integriere π·x² über y von 1 bis 5 und nutze 1 cm³ = 1 ml.');
+B('1.81c',V,'Überprüfe nachweislich, ob es möglich ist, das Glas mit 40 ml Flüssigkeit zu füllen, wenn das Glas insgesamt 5,8 cm hoch ist.',
  'Nein. Die Modellkapazität bis y=5,8 cm beträgt etwa 36,86 ml und damit weniger als 40 ml.',
  'V_max=π∫₁^5,8[√(5y−4)−1]dy. Vergleiche das Ergebnis in cm³=ml mit 40 ml.');
 B('1.82b',K,'Zeichne f(x)=x³/8−3x²/2+9x/2+1 im Intervall [1;7], markiere Maximum H(2|5) und Wendepunkt W(4|3).',
