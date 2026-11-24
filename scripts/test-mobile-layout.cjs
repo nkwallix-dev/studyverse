@@ -1771,7 +1771,7 @@ async function main(){
      await cosmeticPage.evaluate(()=>document.querySelector('.verse-endgame [data-nav="boss"]').click());
      await cosmeticPage.locator('[data-action="source:exam-start"]').waitFor({timeout:5000});
      assert.equal((await cosmeticPage.locator('#main h1').innerText()).trim(),'Schularbeitssimulation.','Boss must show source-first exam intro');
-     assert((await cosmeticPage.locator('#main').innerText()).includes('10 Buch + 10 Deskriptor 4'),'Exam must draw from both genuine source banks');
+     assert((await cosmeticPage.locator('#main').innerText()).includes('10 Buch + 10 Deskriptor-Training'),'Exam must draw from both genuine source banks');
      await cosmeticPage.locator('[data-action="source:exam-start"]').click();
      await cosmeticPage.locator('.source-exam-input').waitFor();
      const examField=cosmeticPage.locator('.source-exam-input');
