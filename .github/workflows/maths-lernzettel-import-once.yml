@@ -1,0 +1,50 @@
+name: Import Unterrichts-Lernzettel (one-time)
+on:
+  push:
+    branches: [feature/mathsverse-sa1-descriptor-relevance-20261124]
+    paths: [.github/workflows/maths-lernzettel-import-once.yml]
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Import originals as oriented images without EXIF/identifying handwriting
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error --retry 2 --max-time 90 'https://at.adobe.com/QbMB09PCvprY4QE3' -o /tmp/lernzettel.zip
+          python -m pip install --quiet Pillow
+          python - <<'PY'
+          from PIL import Image,ImageDraw,ImageOps
+          from zipfile import ZipFile
+          from io import BytesIO
+          import os
+          out='public/maths/sa-01/lernzettel'
+          os.makedirs(out,exist_ok=True)
+          ids={1:'b-684',2:'b-615',3:'b-673',4:'b-649',5:'b-685',7:'b-660',8:'b-661',9:'b-623',10:'b-612'}
+          with ZipFile('/tmp/lernzettel.zip') as z:
+            entries=sorted((e for e in z.namelist() if e.lower().endswith(('.jpg','.jpeg','.png'))))
+            assert len(entries)==10, f'expected ten pictures, got {len(entries)}'
+            for i,name in enumerate(entries,1):
+              if i not in ids:continue
+              im=Image.open(BytesIO(z.read(name))).convert('RGB')
+              if im.width>im.height:im=im.transpose(Image.Transpose.ROTATE_270)
+              if i==1:
+                # Remove handwritten pupil name from photo. Preserve official printed title below.
+                ImageDraw.Draw(im).rectangle((155,105,785,221),fill=(241,231,213))
+              im.thumbnail((980,1800))
+              im.save(f'{out}/{ids[i]}.webp','WEBP',quality=85,method=6)
+              print(i,ids[i],im.size)
+          PY
+      - name: Commit only class-supplied reference photos
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- public/maths/sa-01/lernzettel/
+          test "$(find public/maths/sa-01/lernzettel/ -name '*.webp' | wc -l)" -eq 9
+          git commit -m 'assets(maths): add nine relevant SRDP classroom worksheet scans'
+          git push origin HEAD:feature/mathsverse-sa1-descriptor-relevance-20261124
