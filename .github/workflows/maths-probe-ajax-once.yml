@@ -1,0 +1,43 @@
+name: Probe official descriptor AJAX records (one shot)
+on:
+  push:
+    branches: [fix/mathsverse-official-aufgabenpool-20261124]
+    paths: [.github/workflows/maths-probe-ajax-once.yml]
+permissions: {contents: read}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q 'curl_cffi>=0.9' beautifulsoup4
+      - run: |
+          python - <<'PY'
+          from curl_cffi import requests
+          from bs4 import BeautifulSoup
+          import re
+          url='https://aufgabenpool.at/amn/'
+          s=requests.Session(impersonate='chrome')
+          h=s.get(url+'index.php?id=AM',timeout=25)
+          print('PAGE',h.status_code,len(h.content))
+          doc=BeautifulSoup(h.text,'html.parser')
+          for tag in doc.find_all(attrs={'id':re.compile('GateKeeper|addEx|aTyp|desk|stufe',re.I)}):
+            print('TAG',str(tag)[:520])
+          js=s.get(url+'js/index.js',timeout=25)
+          print('JS',js.status_code,len(js.content))
+          lines=js.text.splitlines()
+          for start,end in [(1,56),(925,989)]:
+            for i in range(start-1,min(end,len(lines))):
+              print(f'JS {i+1:04d}',lines[i][:400])
+          gate=doc.find(id='GateKeeper')
+          gate=gate.get('data-value','') if gate else ''
+          data={'query':'4.8','searchCase':'desk','gate':gate,'sstufe':'0','typ':'0','isExam':'0','hasBf':'0'}
+          a=s.post(url+'php/search.php',data=data,timeout=25,headers={'Referer':url+'index.php?id=AM'})
+          print('AUTOCOMPLETE',a.status_code,len(a.content),a.text[:2000])
+          for x in BeautifulSoup(a.text,'html.parser').find_all(attrs={'class':re.compile('results_desk')}):
+            print('DESCRIPTOR',x.get('id'),x.text.strip())
+          form={'getData':'1','start':'0','limit':'20','desk_send':'4.8','lp_send':'-1','aname_send':'-1','coll_send':'-1','coll':'','gate':gate,'sstufe':'0','typ':'0','isExam':'0','hasBf':'0','spalte':'date','asc':'desc','screenWidth':'1280'}
+          b=s.post(url+'php/results.php',data=form,timeout=30,headers={'Referer':url+'index.php?id=AM'})
+          print('RESULTS',b.status_code,len(b.content),'BODY',b.text[:4500])
+          PY
