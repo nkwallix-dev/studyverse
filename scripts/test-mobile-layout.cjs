@@ -1856,7 +1856,7 @@ async function main(){
      assert.equal(await cosmeticPage.locator('.book-step-pick').count(),4,'Drone example 1.100 must contain all four ordered subtasks');
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-original-390.png'),fullPage:true});
      await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="pool"]').click());
-     await cosmeticPage.locator('.source-external').first().waitFor({timeout:5000});
+     await cosmeticPage.locator('.source-detail').waitFor({timeout:5000});
      assert((await cosmeticPage.locator('.source-list .source-task').count())>=60,'SA1 cluster must display relevant mixed-origin training tasks');
      await cosmeticPage.locator('[data-action="source:open:pool-b-405-d"]').evaluate(el=>el.click());
      await cosmeticPage.locator('.source-pdf-sheet iframe').waitFor({timeout:5000});
