@@ -129,15 +129,15 @@ function activeStep(){const group=activeGroup();return group?.steps.find(q=>q.id
 /* Buch: Only actual textbook graphs are kept as image excerpts.
    The source directions, formulas and problem text are displayed as text. */
 const BOOK_GRAPHS={
- '1.11a':[2,44,97,282,120], '1.11b':[2,381,98,173,122],
+ '1.11a':[2,48,116,309,118], '1.11b':[2,381,116,249,118],
  '1.12':[2,371,230,260,111], '1.13':[2,51,478,173,143],
  '1.24':[4,338,244,133,95], '1.65':[7,34,440,172,125],
- '1.68a':[8,46,167,158,102], '1.68b':[8,241,167,172,102],
- '1.69a':[8,47,306,114,94], '1.69b':[8,178,306,115,94],
- '1.69c':[8,329,306,117,94], '1.73':[9,304,334,161,125],
+ '1.68a':[8,45,218,193,81], '1.68b':[8,240,218,232,81],
+ '1.69a':[8,38,332,131,93], '1.69b':[8,173,332,151,93],
+ '1.69c':[8,326,332,147,93], '1.73':[9,302,373,172,95],
  '1.76':[10,351,194,123,131], '1.79':[11,247,123,227,92],
  '1.80':[11,292,238,181,118], '1.81':[11,274,373,201,196],
- '1.99':[13,323,224,151,117]
+ '1.99':[13,324,270,152,90]
 };
 const BOOK_SIZES={2:[642,671],4:[476,525],7:[482,573],8:[477,519],9:[474,690],10:[474,355],11:[478,735],13:[478,742]};
 function bookOriginalStep(q){
@@ -292,7 +292,7 @@ function run(){
  return '<div class="eyebrow">SCHULARBEITSSIMULATION · FRAGE '+(r.index+1)+' / 20 · '+(isPool?'DESKRIPTOR-TRAINING':'BUCHBEISPIEL')+'</div>'+
  '<h1>Am Papier rechnen.</h1><div class="progress-track"><i style="width:'+((r.index/20)*100)+'%"></i></div>'+
  '<section class="question-card source-exam-card"><span class="pill">'+esc(q.groupNumber||q.number)+'</span><h2>'+esc(q.title||q.category)+'</h2>'+
- (isPool?'': '<p class="source-question">'+esc(q.prompt)+'</p>')+frame+
+ (isPool?'': '<p class="source-question">'+esc(bookPrompt(q))+'</p>')+frame+
  '<div class="handwrite-note">✏️ Bearbeite die Originalaufgabe zuerst auf Papier. '+(isPool?'Amtliche Aufgaben: Lösung im PDF; Eigenübungen: Lösung nach Prüfen.':'Danach das Ergebnis eingeben.')+'</div>'+
  (q.expected!=null&&!isPool?'<input class="source-exam-input" id="sourceExamAnswer" inputmode="decimal" value="'+esc(r.draft)+'" placeholder="Berechnetes Ergebnis, z. B. 4,5">':
  '<textarea class="source-exam-input" id="sourceExamAnswer" rows="3" placeholder="Deine Rechnung oder Begründung …">'+esc(r.draft)+'</textarea>')+
