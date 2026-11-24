@@ -101,7 +101,7 @@ const cards=(mode)=>mode==='book'?BOOK:POOL;
 function officialStatement(q){
  if(q.kind==='worksheet')return '<section class="source-compendium-statement"><span class="source-original-tag">UNTERRICHTS-LERNZETTEL · '+esc(q.officialNumber||q.number)+'</span><h3>'+esc(q.title)+'</h3><p>'+esc(q.prompt)+'</p><details class="source-worksheet-photo"><summary>Originalfoto zeigen (enthält handschriftliche Lösungen)</summary><img loading="lazy" src="'+esc(q.source)+'" alt="Original-Lernzettel '+esc(q.number)+'"></details></section>';
  if(q.kind==='practice')return '<section class="source-compendium-statement"><span class="source-original-tag">STUDYVERSE-ÜBUNG · KEINE AMTLICHE MATURA-AUFGABE</span><h3>'+esc(q.title)+'</h3><p>'+esc(q.prompt)+'</p><p class="source-credit">'+esc(q.activity||'Auf Papier rechnen')+'</p></section>';
- if(!/^https:\/\/(?:www\.)?aufgabenpool\.at\/amn\//i.test(q.source))
+ if(!(/^https:\/\/(?:www\.)?aufgabenpool\.at\/amn\//i.test(q.source) || (q.source.startsWith('official-pdfs/') && /^https:\/\/(?:www\.)?aufgabenpool\.at\/amn\//i.test(q.originalSource||''))))
   return '<p class="source-empty">Diese Aufgabe hat keine verifizierte Original-PDF-Quelle und kann hier nicht als offizielle SRDP-Aufgabe angezeigt werden.</p>';
  if(q.collection){
   // Some older official exercises are available only in the ministry's entire
@@ -172,18 +172,18 @@ function details(q,mode){
  '<header class="source-detail-header"><div class="source-meta"><span class="eyebrow">'+esc(q.origin==='official'||!q.origin?'SRDP':'SA-STOFF')+' · '+esc(q.descriptor)+'</span>'+
  (solved?'<span class="source-done">✓ Bearbeitet</span>':'<span class="pill">✎ Noch offen</span>')+'</div>'+
  '<h2>'+esc(q.title)+' · '+esc(q.part)+'</h2>'+
- '<p class="source-number">'+esc(q.number)+' · '+esc(q.sourceLabel||'Amtliche SRDP-Aufgabe')+' '+((q.origin==='official'||!q.origin)?'<a class="source-original-link" href="'+esc(q.collection?q.source+'#search='+encodeURIComponent((String(q.number).match(/^[A-Z]_\d+/)||[])[0]||''):q.source)+'" target="_blank" rel="noopener noreferrer">Offizielle Quelle ↗</a>':'')+'</p></header>'+ '<div class="source-reading" role="region" tabindex="0" aria-label="Vollständige offizielle Aufgabe mit Original-Lösungswegen">'+
+ '<p class="source-number">'+esc(q.number)+' · '+esc(q.sourceLabel||'Amtliche SRDP-Aufgabe')+' '+((q.origin==='official'||!q.origin)?'<a class="source-original-link" href="'+esc(q.originalSource||(q.collection?q.source+'#search='+encodeURIComponent((String(q.number).match(/^[A-Z]_\d+/)||[])[0]||''):q.source))+'" target="_blank" rel="noopener noreferrer">Original auf Aufgabenpool.at ↗</a>':'')+'</p></header>'+ '<div class="source-reading" role="region" tabindex="0" aria-label="Vollständige offizielle Aufgabe mit Original-Lösungswegen">'+
  officialStatement(q)+
  (ui.poolHint?'<section class="source-solution" id="sourceSolution"><h3>Ergebnis überprüfen</h3>'+
  ((q.collection||q.kind==='worksheet'||q.kind==='practice')?'<p><b>Rechenstrategie:</b> '+esc(q.guide)+'</p><p><b>Lösung / Erklärung:</b> '+esc(q.solution)+'</p>'+
  '<p class="source-credit">'+(q.kind==='worksheet'?'Originalfoto aus deiner Lernzettel-ZIP.':q.kind==='practice'?'Selbst erstellte Übung, nicht amtlich.':'Originalabbildung und vollständige Lösung: BMB-PDF.')+'</p>':
  '<p>Scroll im offiziellen Aufgabenblatt weiter nach unten. Dort stehen die <strong>möglichen Lösungswege und die Lösungserwartung</strong>. Vergleiche sie direkt mit deinem Rechenweg auf Papier.</p>')+
  '</section>':'')+'</div>'+
- '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Rechne zuerst selbst. Amtliche Lösungen stehen im Original-PDF; Unterrichts- und Eigenübungen zeigen ihre Erklärung nach dem Prüfen.</div>'+
+ '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Rechne zuerst selbst. Die amtliche Lösungserwartung findest du im eingebetteten Original-PDF.</div>'+
  '<div class="source-actions"><button class="btn primary" data-action="source:pool-check">Ergebnis überprüfen</button>'+
  '<button class="btn secondary" data-action="source:pool-complete">'+(solved?'✓ Als bearbeitet markiert':'✓ Fertig bearbeitet')+'</button>'+
  '<button class="btn secondary" data-action="source:next">Nächstes Beispiel →</button></div>'+
- '<p class="source-credit">Aufgabenherkunft steht oben: BMB, Unterricht oder Studyverse. Keine erfundene automatische Bewertung.</p></div></section>';
+ '<p class="source-credit">Originalaufgaben des Bundesministeriums für Bildung mit Quellenlink. Keine erfundene automatische Bewertung.</p></div></section>';
 }
 function browser(mode,state){
  if(ui.mode!==mode){ui.mode=mode;ui.filter='';ui.topic='all';reset()}
@@ -205,8 +205,8 @@ function browser(mode,state){
  return '<div class="eyebrow">'+(groups?'ECHTE SCHULBUCH-AUFGABEN':'SA-STOFF 26.11. · ANALYSIS UND HTL2')+'</div>'+
  '<h1>'+(groups?'Buchbeispiele':'4. Deskriptor')+'</h1><p>'+(groups?
  'Buchaufgaben mit gemeinsamer Originalangabe und einzeln überprüfbaren Schritten.':
- 'Unterrichts-Lernzettel, passende SRDP-Originale und klar markierte Eigenübungen. Teil A: 4.1–4.6, 4.8; HTL2: 4.2, 4.4, 4.5. Nicht im Stoff: 4.7 und B_T2_4.3. Extras: partielle Ableitungen und partielle Integration.')+'</p>'+
- '<div class="source-count"><strong>'+done+'/'+total+'</strong> Schritte bearbeitet · '+(groups?GROUPS.length+' zusammengehörende Buchbeispiele':'Unterricht · Amtliche SRDP · Studyverse-Eigenübungen (max. 15 je Kapitel)')+' · <strong>'+sourceRewardProgress(state).paid+'/'+SOURCE_REWARD_LIMIT+'</strong> XP-Beispiele (max. '+SOURCE_REWARD_XP+' XP pro abgeschlossenem Beispiel; danach freiwillig weiterüben)</div>'+
+ 'Nur amtliche Originalaufgaben mit vollständigen PDFs. Teil A: 4.1–4.6 und 4.8 sowie relevante HTL-Cluster. 4.7 und B_T2_4.3 sind nicht im Stoff. Keine erfundenen Ersatzaufgaben.')+'</p>'+
+ '<div class="source-count"><strong>'+done+'/'+total+'</strong> Schritte bearbeitet · '+(groups?GROUPS.length+' zusammengehörende Buchbeispiele':'Aufgabenpool.at · Original-PDFs (max. 15 pro Kapitel)')+' · <strong>'+sourceRewardProgress(state).paid+'/'+SOURCE_REWARD_LIMIT+'</strong> XP-Beispiele (max. '+SOURCE_REWARD_XP+' XP pro abgeschlossenem Beispiel; danach freiwillig weiterüben)</div>'+
  '<div class="source-filters"><label>Suche <input id="sourceSearch" placeholder="z. B. '+(groups?'1.80':'B_405')+'" value="'+esc(ui.filter)+'"></label><label>Thema <select id="sourceTopic"><option value="all">Alle Bereiche</option>'+categories.map(c=>'<option value="'+esc(c)+'" '+(ui.topic===c?'selected':'')+'>'+(groups?esc(c):esc(c+' · '+competencies[c]))+'</option>').join('')+'</select></label></div>'+
  '<div class="source-workspace" data-mode="'+mode+'"><aside class="source-list" aria-label="Aufgabenliste">'+rows.map(x=>{
   const doneSteps=groups?x.steps.filter(q=>state.solved[solvedKey(q,'book')]).length:0;
@@ -261,7 +261,7 @@ function startExam(api){
  ui.complete=null;
 }
 function intro(state){
- return '<div class="eyebrow">ENDGAME / ORIGINAL-SCHULARBEIT</div><h1>Schularbeitssimulation.</h1><div class="panel center"><div class="boss-number">∑</div><h2>20 passende Aufgaben · 10 Buch + 10 Deskriptor-Training</h2><p>Jeder Durchgang zieht 10 echte Buchbeispiele und 10 passende Aufgaben aus Unterricht, Original-SRDP und gekennzeichneten Übungsaufgaben. Du rechnest auf Papier und gibst dein Ergebnis ein. Bei numerischen Ergebnissen prüft Studyverse automatisch; begründende oder grafische Aufgaben vergleichst du mit der Quelle.</p><div class="stats"><div class="stat"><b>10</b><small>BUCHBEISPIELE</small></div><div class="stat"><b>10</b><small>DESKRIPTOR-AUFGABEN</small></div><div class="stat"><b>'+Math.max(0,Number(state.bestBoss)||0)+'%</b><small>BESTWERT</small></div><div class="stat"><b>100%</b><small>PROFESSOR FILIPP</small></div></div><button class="btn primary" data-action="source:exam-start">Prüfung starten ✎</button></div>';
+ return '<div class="eyebrow">ENDGAME / ORIGINAL-SCHULARBEIT</div><h1>Schularbeitssimulation.</h1><div class="panel center"><div class="boss-number">∑</div><h2>20 passende Aufgaben · 10 Buch + 10 Deskriptor-Training</h2><p>Jeder Durchgang zieht 10 echte Buchbeispiele und 10 ausschließlich amtliche Originalaufgaben des Aufgabenpools. Du rechnest auf Papier und gibst dein Ergebnis ein. Bei numerischen Ergebnissen prüft Studyverse automatisch; begründende oder grafische Aufgaben vergleichst du mit der Quelle.</p><div class="stats"><div class="stat"><b>10</b><small>BUCHBEISPIELE</small></div><div class="stat"><b>10</b><small>DESKRIPTOR-AUFGABEN</small></div><div class="stat"><b>'+Math.max(0,Number(state.bestBoss)||0)+'%</b><small>BESTWERT</small></div><div class="stat"><b>100%</b><small>PROFESSOR FILIPP</small></div></div><button class="btn primary" data-action="source:exam-start">Prüfung starten ✎</button></div>';
 }
 function run(){
  if(!ui.run)return '<div class="panel">Starte eine neue Prüfung.</div>';
