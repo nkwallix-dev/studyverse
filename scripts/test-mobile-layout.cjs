@@ -1836,10 +1836,17 @@ async function main(){
      assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,'Page must be fixed again after next exercise');
      assert.equal(await cosmeticPage.locator('#nav [data-nav="graphs"]').count(),0,'Graphenlabor removed from MathsVerse');
      await cosmeticPage.locator('[data-action="source:open:group-1-80"]').evaluate(el=>el.click());
-     const scanned=cosmeticPage.locator('.book-original-sheet img');
-     assert.equal(await scanned.count(),1,'Book 1.80 must show its exact original diagram from screenshot 11');
-     await cosmeticPage.locator('.book-original-toggle').evaluate(el=>el.open=true);
-     await cosmeticPage.waitForFunction(()=>[...document.querySelectorAll('.book-original-sheet img')].every(el=>el.complete&&el.naturalWidth>0));
+     // 1.80 uses two pieces of common source text/diagram plus the active sub-question.
+     // The SVG image element references original pixels, not an obsolete full-page <img>.
+     const scanned=await cosmeticPage.locator('.book-original-crop svg').evaluateAll(nodes=>nodes.map(el=>({
+      crop:el.getAttribute('viewBox'),
+      image:el.querySelector('image')?.getAttribute('href')
+     })));
+     assert.equal(scanned.length,3,'Book 1.80 must retain its shared text, original diagram and active sub-question');
+     assert(scanned.every(x=>x.image==='original-figures/book-page-11.webp'),
+      'Book 1.80 must use the exact scanned source image from screenshot 11');
+     assert(scanned.every(x=>x.crop!=='0 0 478 735'),
+      'Book 1.80 must not display a full original screenshot');
      assert.equal(await cosmeticPage.locator('.book-step-pick').count(),2,'Book 1.80 must have exactly two independently selectable subtasks');
      await cosmeticPage.locator('[data-action="source:step:book-1-80b"]').click();
      assert((await cosmeticPage.locator('.book-active-step h3').innerText()).includes('Schritt 2'),'Clicking second step must show the second part');
