@@ -82,3 +82,10 @@ h2{font-size:clamp(19px,1.8vw,24px)}
  .hero-art{width:70%}
  .mode-card{min-height:0}
 }
+
+/* Center both return and profile controls in the verse header. */
+.topbar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+.topbar #crumb{grid-column:1;grid-row:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar .top-actions{grid-column:2;grid-row:1;justify-self:center;white-space:nowrap}
+@media(max-width:720px){.topbar .mobile-menu{grid-column:1;grid-row:1;justify-self:start}.topbar #crumb{display:none}.topbar .top-actions .back{display:inline-flex;align-items:center}}
+@media(max-width:520px){.topbar .top-actions .back{font-size:0;min-width:32px;min-height:36px;justify-content:center}.topbar .top-actions .back::before{content:"↩";font-size:20px}}
