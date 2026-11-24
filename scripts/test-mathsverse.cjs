@@ -184,4 +184,72 @@ assert(!/circle cx="256" cy="256" r="250" fill=/.test(owlSvg),'Owl image may not
 
 console.log('PASS: Source-screenshot cross-checks, numeric golden values, and original 10+10 MathsVerse training.');
 
+
+/* XP economy: do not force completion of 215 book parts to earn XP.
+   10 DISTINCT printed groups/official tasks at most, idempotent, legacy-safe. */
+const xpContext={window:{},document:{getElementById:()=>null}};
+vm.runInNewContext(bookJs,xpContext);
+vm.runInNewContext(read('public/maths/sa-01/book-groups.js'),xpContext);
+vm.runInNewContext(poolJs,xpContext);
+vm.runInNewContext(read('public/maths/sa-01/source-trainer.js'),xpContext);
+const xpSource=xpContext.window.MATHS_SOURCE_TRAINER;
+function testState(earned={}){
+ const state={solved:{},earned:{...earned},xp:0,coins:0},payouts=[];
+ const api={state,view:'book',save(){},navigate(){},
+  reward(id,xp,coins){
+   if(state.earned[id])return false;
+   state.earned[id]=true;state.xp+=xp;state.coins+=coins;payouts.push({id,xp,coins});return true;
+  }
+ };
+ return {state,payouts,api};
+}
+const xpTest=testState();
+const tenGroups=xpSource.GROUPS.slice(0,11);
+assert(tenGroups[0].steps.length>1,'First printed book example must test grouped rewards');
+xpSource.handle('source:open:'+tenGroups[0].id,xpTest.api);
+xpSource.handle('source:self-right',xpTest.api);
+assert.equal(xpTest.payouts.length,0,'A single 1.1 subpart must not count as four independent book exercises');
+for(const step of tenGroups[0].steps.slice(1)){
+ xpSource.handle('source:step:'+step.id,xpTest.api);
+ xpSource.handle('source:self-right',xpTest.api);
+}
+assert.equal(xpTest.payouts.length,1,'All 1.1 subparts together award only one book group');
+for(const group of tenGroups.slice(1)){
+ xpSource.handle('source:open:'+group.id,xpTest.api);
+ for(const step of group.steps){
+  xpSource.handle('source:step:'+step.id,xpTest.api);
+  xpSource.handle('source:self-right',xpTest.api);
+ }
+}
+assert.equal(xpTest.payouts.length,10,'Only the first ten distinct complete examples grant payouts');
+assert.equal(xpTest.state.xp,500,'Ten full examples grant 10 x 50 XP');
+assert.equal(xpTest.state.coins,250,'Ten full examples grant 10 x 25 TT');
+assert.equal(xpSource.sourceRewardProgress(xpTest.state).paid,10);
+xpSource.handle('source:open:'+tenGroups[0].id,xpTest.api);
+xpSource.handle('source:self-right',xpTest.api);
+assert.equal(xpTest.payouts.length,10,'Repeat answers must not generate more XP or TT');
+const oldXp=testState({'source-first:nbook-1-1a':true});
+assert.equal(xpSource.sourceRewardProgress(oldXp.state).paid,1,'Legacy per-substep rewards count toward the cap');
+xpSource.handle('source:open:'+tenGroups[0].id,oldXp.api);
+for(const step of tenGroups[0].steps){
+ xpSource.handle('source:step:'+step.id,oldXp.api);
+ xpSource.handle('source:self-right',oldXp.api);
+}
+assert.equal(oldXp.payouts.length,0,'Existing paid book example must not be rewarded twice');
+for(const group of tenGroups.slice(1)){
+ xpSource.handle('source:open:'+group.id,oldXp.api);
+ for(const step of group.steps){
+  xpSource.handle('source:step:'+step.id,oldXp.api);
+  xpSource.handle('source:self-right',oldXp.api);
+ }
+}
+assert.equal(oldXp.payouts.length,9,'Legacy payout should leave only nine new reward slots');
+const poolXp=testState();
+poolXp.api.view='pool';
+for(const task of xpSource.POOL.slice(0,11)){
+ xpSource.handle('source:open:'+task.id,poolXp.api);
+ xpSource.handle('source:pool-complete',poolXp.api);
+}
+assert.equal(poolXp.payouts.length,10,'SRDP original tasks share the ten-example cap');
+
 console.log('PASS: 84 grouped original textbook tasks, 29 verified original SRDP PDFs, and 10+10 exam, with safe progress.');

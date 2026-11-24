@@ -14,6 +14,29 @@ const select=(arr)=>arr[Math.floor(Math.random()*arr.length)];
 function shuffle(items){let a=[...items];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 const key=q=>q.id.replace(/[^a-z0-9-]/gi,'_');
 const solvedKey=(q,mode)=>mode==='book'?'n'+key(q):'q'+key(q);
+
+/* MathsVerse original examples: XP/TT for at most ten distinct PRINTED tasks.
+   Book 1.1a-d = one unit "book:1.1"; each official SRDP task = one unit.
+   Recognize old per-step "source-first" payouts without subtracting old XP. */
+const SOURCE_REWARD_LIMIT=10, SOURCE_REWARD_XP=50, SOURCE_REWARD_TT=25;
+function sourceRewardUnit(q,mode){
+ const printed=(String(q.number||'').match(/^\d+\.\d+/)||[])[0]||String(q.number||'');
+ return mode==='book'?'book:'+printed:'pool:'+q.id;
+}
+function paidSourceExamples(state){
+ const earned=state?.earned||{},paid=new Set();
+ for(const q of BOOK)
+  if(earned['source-first:'+solvedKey(q,'book')])paid.add(sourceRewardUnit(q,'book'));
+ for(const q of POOL)
+  if(earned['source-first:'+solvedKey(q,'pool')])paid.add(sourceRewardUnit(q,'pool'));
+ for(const id of Object.keys(earned))
+  if(earned[id]&&id.startsWith('source-example:'))paid.add(id.slice('source-example:'.length));
+ return paid;
+}
+function sourceRewardProgress(state){
+ return {paid:Math.min(SOURCE_REWARD_LIMIT,paidSourceExamples(state).size),limit:SOURCE_REWARD_LIMIT};
+}
+
 function plot(graph){
  if(graph?.kind==='book-velocity'){
   const ticks=[0,1,2,3,4,5,6,7,8].map(n=>'<text x="'+(50+68*n)+'" y="225" font-size="12" text-anchor="middle" fill="#e6f6df">'+n+'</text>').join('');
@@ -163,7 +186,7 @@ function browser(mode,state){
  '<h1>'+(groups?'Buchbeispiele':'4. Deskriptor')+'</h1><p>'+(groups?
  'Buchaufgaben mit gemeinsamer Originalangabe und einzeln überprüfbaren Schritten.':
  'Ausschließlich originale PDFs von aufgabenpool.at. Die Deskriptoren 4.1 und 4.6 sind im recherchierten amtlichen Pool nicht mit eigenständigen Aufgaben belegt.')+'</p>'+
- '<div class="source-count"><strong>'+done+'/'+total+'</strong> Schritte bearbeitet · '+(groups?GROUPS.length+' zusammengehörende Buchbeispiele':'Datenquelle: Bundesministerium für Bildung · CC BY 4.0')+'</div>'+
+ '<div class="source-count"><strong>'+done+'/'+total+'</strong> Schritte bearbeitet · '+(groups?GROUPS.length+' zusammengehörende Buchbeispiele':'Datenquelle: Bundesministerium für Bildung · CC BY 4.0')+' · <strong>'+sourceRewardProgress(state).paid+'/'+SOURCE_REWARD_LIMIT+'</strong> XP-Beispiele (max. '+SOURCE_REWARD_XP+' XP pro abgeschlossenem Beispiel; danach freiwillig weiterüben)</div>'+
  '<div class="source-filters"><label>Suche <input id="sourceSearch" placeholder="z. B. '+(groups?'1.80':'B_405')+'" value="'+esc(ui.filter)+'"></label><label>Thema <select id="sourceTopic"><option value="all">Alle Bereiche</option>'+categories.map(c=>'<option value="'+esc(c)+'" '+(ui.topic===c?'selected':'')+'>'+(groups?esc(c):esc(c+' · '+competencies[c]))+'</option>').join('')+'</select></label></div>'+
  '<div class="source-workspace" data-mode="'+mode+'"><aside class="source-list" aria-label="Aufgabenliste">'+rows.map(x=>{
   const doneSteps=groups?x.steps.filter(q=>state.solved[solvedKey(q,'book')]).length:0;
@@ -193,7 +216,14 @@ function next(mode,state){
 function mark(q,mode,correct,api){if(!correct)return;
  const id=solvedKey(q,mode);
  api.state.solved[id]=true;
- api.reward('source-first:'+id,22,20);
+ // All sub-parts of one printed book number must be solved before it counts.
+ const bookGroup=mode==='book'?GROUPS.find(g=>g.number===sourceRewardUnit(q,'book').slice(5)):null;
+ const complete=mode==='pool'||!!bookGroup?.steps.every(step=>api.state.solved[solvedKey(step,'book')]);
+ if(complete){
+  const unit=sourceRewardUnit(q,mode),paid=paidSourceExamples(api.state);
+  if(!paid.has(unit)&&paid.size<SOURCE_REWARD_LIMIT)
+   api.reward('source-example:'+unit,SOURCE_REWARD_XP,SOURCE_REWARD_TT);
+ }
  api.save();
 }
 function answerNumeric(q,s){
@@ -279,5 +309,5 @@ function refreshFilters(){
  const q=document.getElementById('sourceSearch'),t=document.getElementById('sourceTopic');
  ui.filter=q?.value||'';ui.topic=t?.value||'all';reset();
 }
-window.MATHS_SOURCE_TRAINER={BOOK,GROUPS,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot,captureList,restoreList,focusSolution};
+window.MATHS_SOURCE_TRAINER={BOOK,GROUPS,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot,captureList,restoreList,focusSolution,sourceRewardProgress};
 })();
