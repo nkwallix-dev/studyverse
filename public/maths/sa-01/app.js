@@ -9,10 +9,11 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 const int=v=>Number.isFinite(Number(v))?Math.max(0,Number(v)):0;
 const object=x=>x&&typeof x==='object'&&!Array.isArray(x)?x:{};
 function load(){try{return object(JSON.parse(localStorage.getItem(KEY)||'null'))}catch{return {}}}
-const state=Object.assign({xp:0,coins:0,solved:{},courseDone:{},learned:{},earned:{},bestBoss:0,bossRuns:0,maxCombo:0,combo:0},load());
-for(const k of ['solved','courseDone','learned','earned'])state[k]=object(state[k]);
+const state=Object.assign({xp:0,coins:0,solved:{},courseDone:{},learned:{},earned:{},bookCompleted:{},descriptorCompleted:{},bestBoss:0,bossRuns:0,maxCombo:0,combo:0},load());
+for(const k of ['solved','courseDone','learned','earned','bookCompleted','descriptorCompleted'])state[k]=object(state[k]);
 state.xp=int(state.xp);state.coins=int(state.coins);state.bestBoss=int(state.bestBoss);
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));window.studyverseCloudTouch?.()}catch(err){console.warn('MathsVerse save:',err)}}
+if(SOURCE.migrateProgress(state))save();
 let view='home',selected='',focusTopic='all',activeQuestion=null,answered=false,selectedAnswer=-1,feedback='',boss=null;
 const names={home:'Übersicht',academy:'Lernakademie',lesson:'Lernkapitel',book:'Buchbeispiele',pool:'4. Deskriptor',sources:'Quellen',boss:'Schularbeitssimulation',bossrun:'Schularbeit',bossresult:'Boss-Ergebnis'};
 const count=o=>Object.values(object(o)).filter(Boolean).length;
