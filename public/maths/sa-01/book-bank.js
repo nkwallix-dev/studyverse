@@ -68,47 +68,47 @@ B('1.30',V,'Aus 144 cm Draht entsteht das Kantenmodell eines Quaders mit quadrat
  'Drahtlänge 8a+4h=144 ⇒ h=36−2a. V=a²(36−2a). V′=72a−6a²=0 liefert a=12, h=12.',12);
 B('1.31',K,'Ein Bauer hält bereits 50 Ziegen mit je 800 l Milch im Jahr. Für jede zusätzlich angeschaffte Ziege sinkt die Jahresmilchmenge pro Tier um 10 l. Wie viele Ziegen soll er zusätzlich anschaffen?','15 zusätzliche Ziegen, also 65 insgesamt. Maximal 65·650=42 250 l Milch.',
  'Sei x die Anzahl zusätzlich angeschaffter Ziegen. Dann M(x)=(50+x)(800−10x)=40 000+300x−10x². Ableitung M′=300−20x=0 ⇒ x=15; M″=−20<0.',15);
-B('1.55a',I,'Berechne ∫(4x³−3x+1) dx.','F(x)=x⁴−3x²/2+x+C.',
+B('1.55a',I,'Ermittle das unbestimmte Integral: ∫(4x³−3x+1) dx.','F(x)=x⁴−3x²/2+x+C.',
  'Potenzregel rückwärts auf alle Summanden anwenden. Jede Stammfunktion hat +C.');
-B('1.55b',I,'Berechne ∫(a·t+b) dt (a,b sind Konstanten).','F(t)=a·t²/2+b·t+C.',
+B('1.55b',I,'Ermittle das unbestimmte Integral: ∫(a·t+b) dt (a,b sind Konstanten).','F(t)=a·t²/2+b·t+C.',
  'Konstante Faktoren stehen lassen; t bekommt beim Integrieren Exponent 2.');
-B('1.55c',I,'Berechne ∫(2sin(x)+3eˣ+2/x) dx.','F(x)=−2cos(x)+3eˣ+2ln|x|+C.',
+B('1.55c',I,'Ermittle das unbestimmte Integral: ∫(2sin(x)+3eˣ+2/x) dx.','F(x)=−2cos(x)+3eˣ+2ln|x|+C.',
  'Sinus wird zu −Cosinus; eˣ bleibt eˣ und ∫(2/x)dx=2ln|x| (x≠0).');
 B('1.57a',F,'Berechne das bestimmte Integral ∫₀^π sin(t) dt.','[−cos(t)]₀^π=−(−1)−(−1)=2.',
  'Stammfunktion −cos t. Obere Grenze minus untere Grenze einsetzen.',2);
-B('1.57b',F,'Berechne ∫₀^(2π) cos(x) dx.','[sin(x)]₀^(2π)=0.',
+B('1.57b',F,'Berechne das bestimmte Integral: ∫₀^(2π) cos(x) dx.','[sin(x)]₀^(2π)=0.',
  'Nach einer ganzen Periode heben sich positive und negative orientierte Flächen auf.',0);
-B('1.57c',F,'Berechne ∫₀⁴ √t dt.','[2t^(3/2)/3]₀⁴ = (2/3)·8=16/3≈5,3333.',
+B('1.57c',F,'Berechne das bestimmte Integral: ∫₀⁴ √t dt.','[2t^(3/2)/3]₀⁴ = (2/3)·8=16/3≈5,3333.',
  'Wurzel als t^(1/2) schreiben, integrieren und die tatsächlichen Originalgrenzen 0 und 4 einsetzen.',16/3);
-B('1.58a',I,'Berechne ∫5e^(2x) dx.','F(x)=(5/2)e^(2x)+C.',
+B('1.58a',I,'Ermittle das unbestimmte Integral: ∫5e^(2x) dx.','F(x)=(5/2)e^(2x)+C.',
  'Bei e^(kx) durch die innere Ableitung k teilen, hier 2.');
-B('1.58b',I,'Berechne ∫sin(0,5t+π/2) dt.','F(t)=−2cos(0,5t+π/2)+C.',
+B('1.58b',I,'Ermittle das unbestimmte Integral: ∫sin(0,5t+π/2) dt.','F(t)=−2cos(0,5t+π/2)+C.',
  'Cosinus wird zu Sinus beim Ableiten; wegen innerer Steigung 0,5 beim Integrieren durch 0,5 teilen.');
-B('1.58c',I,'Berechne ∫1/(1−x) dx.','F(x)=−ln|1−x|+C.',
+B('1.58c',I,'Ermittle das unbestimmte Integral: ∫1/(1−x) dx.','F(x)=−ln|1−x|+C.',
  'Substitution u=1−x, du=−dx. Minuszeichen nicht vergessen.');
-B('1.59a',I,'Berechne ∫2/(x+4) dx.','F(x)=2ln|x+4|+C.',
+B('1.59a',I,'Ermittle das unbestimmte Integral: ∫2/(x+4) dx.','F(x)=2ln|x+4|+C.',
  'Die Logarithmus-Stammfunktion ∫1/u du=ln|u| nutzen.');
-B('1.59b',I,'Berechne ∫2e^(2−x) dx.','F(x)=−2e^(2−x)+C.',
+B('1.59b',I,'Ermittle das unbestimmte Integral: ∫2e^(2−x) dx.','F(x)=−2e^(2−x)+C.',
  'Innere Ableitung von 2−x ist −1, daher Vorzeichenwechsel.');
-B('1.59c',I,'Berechne ∫cos(5t+π) dt.','F(t)=(1/5)sin(5t+π)+C.',
+B('1.59c',I,'Ermittle das unbestimmte Integral: ∫cos(5t+π) dt.','F(t)=(1/5)sin(5t+π)+C.',
  'Sinus ist Stammfunktion von Cosinus; durch den Faktor 5 der inneren Funktion teilen.');
-B('1.60a',F,'Berechne ∫₀³ 4/(x−6) dx.','4[ln|x−6|]₀³ = 4ln(3/6)=−4ln2≈−2,7726.',
+B('1.60a',F,'Berechne das bestimmte Integral: ∫₀³ 4/(x−6) dx.','4[ln|x−6|]₀³ = 4ln(3/6)=−4ln2≈−2,7726.',
  'Logarithmus integrieren; die negative Fläche ist als orientiertes Integral negativ.',-4*Math.log(2));
-B('1.60b',F,'Berechne ∫₀² sin((π/2)t−π) dt.','[−2/π·cos((π/2)t−π)]₀²=−4/π≈−1,2732.',
+B('1.60b',F,'Berechne das bestimmte Integral: ∫₀² sin((π/2)t−π) dt.','[−2/π·cos((π/2)t−π)]₀²=−4/π≈−1,2732.',
  'Sinus integrieren und durch π/2 teilen, dann t=2 und t=0 einsetzen.',-4/Math.PI);
-B('1.60c',F,'Berechne ∫_(π/2)^(3π/2) cos(x−π) dx.','[sin(x−π)]_(π/2)^(3π/2)=1−(−1)=2.',
+B('1.60c',F,'Berechne das bestimmte Integral: ∫_(π/2)^(3π/2) cos(x−π) dx.','[sin(x−π)]_(π/2)^(3π/2)=1−(−1)=2.',
  'Cosinus integrieren; bei 3π/2 ist sin(π/2)=1, bei π/2 ist sin(−π/2)=−1.',2);
-B('1.61b',I,'Berechne ∫x/(x²+1) dx.','F(x)=(1/2)ln(x²+1)+C.',
+B('1.61b',I,'Ermittle das unbestimmte Integral: ∫x/(x²+1) dx.','F(x)=(1/2)ln(x²+1)+C.',
  'Substitution u=x²+1; du=2x dx. Der Faktor 1/2 gleicht die innere Ableitung aus.');
-B('1.62a',I,'Berechne ∫t·cos(t) dt.','F(t)=t·sin(t)+cos(t)+C.',
+B('1.62a',I,'Ermittle das unbestimmte Integral mithilfe der partiellen Integration: ∫t·cos(t) dt.','F(t)=t·sin(t)+cos(t)+C.',
  'Partielle Integration mit u=t, dv=cos(t)dt: uv−∫vdu.');
-B('1.62b',I,'Berechne ∫x·e^(−x) dx.','F(x)=−(x+1)e^(−x)+C.',
+B('1.62b',I,'Ermittle das unbestimmte Integral mithilfe der partiellen Integration: ∫x·e^(−x) dx.','F(x)=−(x+1)e^(−x)+C.',
  'Partielle Integration: u=x, dv=e^(−x)dx; v=−e^(−x).');
-B('1.62c',I,'Berechne ∫x²·ln(x) dx (x>0).','F(x)=x³ln(x)/3−x³/9+C.',
+B('1.62c',I,'Ermittle das unbestimmte Integral mithilfe der partiellen Integration: ∫x²·ln(x) dx (x>0).','F(x)=x³ln(x)/3−x³/9+C.',
  'Partielle Integration: u=ln x, dv=x²dx, dadurch du=1/x dx und v=x³/3.');
-B('1.63a',I,'Berechne ∫x/(x+1) dx.','F(x)=x−ln|x+1|+C.',
+B('1.63a',I,'Ermittle das unbestimmte Integral mithilfe der Polynomdivision: ∫x/(x+1) dx.','F(x)=x−ln|x+1|+C.',
  'Bruch umformen: x/(x+1)=1−1/(x+1), dann getrennt integrieren.');
-B('1.63b',I,'Berechne ∫x²/(x+1) dx.','F(x)=x²/2−x+ln|x+1|+C.',
+B('1.63b',I,'Ermittle das unbestimmte Integral mithilfe der Polynomdivision: ∫x²/(x+1) dx.','F(x)=x²/2−x+ln|x+1|+C.',
  'Polynomdivision: x²/(x+1)=x−1+1/(x+1).');
 B('1.66a',F,'Berechne den tatsächlichen Flächeninhalt zwischen f(x)=x²+6x und der x-Achse für a=−3, b=2.','A=98/3≈32,667 Flächeneinheiten.',
  'Nullstellen x=−6 und x=0; im Intervall nur 0. F=x³/3+3x². Fläche = |F(0)−F(−3)|+|F(2)−F(0)| =18+44/3 =98/3.',98/3,
@@ -144,13 +144,13 @@ B('1.93a',K,'Die Steigung von y=x²+a·x+2 an x₀=−1 ist k=3. Bestimme a.','a
  'f′=2x+a. Bei x=−1 ist f′=−2+a=3 ⇒ a=5.',5);
 B('1.93b',K,'Die Steigung von y=4x³−a·x²+x an x₀=2 ist k=−1. Bestimme a.','a=25/2=12,5.',
  'f′(x)=12x²−2ax+1. Bei x=2 ergibt 49−4a=−1 ⇒ a=12,5.',12.5);
-B('1.98a',F,'Berechne ∫₁⁴(x²+4x−1)dx.','Bestimmtes Integral =48.',
+B('1.98a',F,'Berechne das bestimmte Integral: ∫₁⁴(x²+4x−1)dx.','Bestimmtes Integral =48.',
  'Stammfunktion F(x)=x³/3+2x²−x. Es gilt F(4)=148/3 und F(1)=4/3; Differenz =144/3=48.',48);
-B('1.98b',F,'Berechne ∫₀¹ e^(2x) dx.','(e²−1)/2≈3,1945.',
+B('1.98b',F,'Berechne das bestimmte Integral: ∫₀¹ e^(2x) dx.','(e²−1)/2≈3,1945.',
  'Eine Stammfunktion ist ½e^(2x). Bei 1 und 0 einsetzen.',(Math.exp(2)-1)/2);
-B('1.98c',F,'Berechne ∫₂⁵ ³√(x²) dx.','(3/5)(5^(5/3)−2^(5/3))≈6,867.',
+B('1.98c',F,'Berechne das bestimmte Integral: ∫₂⁵ ³√(x²) dx.','(3/5)(5^(5/3)−2^(5/3))≈6,867.',
  'Schreibe ³√(x²)=x^(2/3) und verwende die Potenzregel für Stammfunktionen: 3x^(5/3)/5.',(3/5)*(Math.pow(5,5/3)-Math.pow(2,5/3)));
-B('1.98d',F,'Berechne ∫₀^(π/2) 3sin(x)dx.','Ergebnis =3.',
+B('1.98d',F,'Berechne das bestimmte Integral: ∫₀^(π/2) 3sin(x)dx.','Ergebnis =3.',
  'Stammfunktion −3cos x. Obere minus untere Grenze: −3cos(π/2)+3cos 0=3.',3);
 B('1.100a',V,'Eine Drohne wird durch a(t)=0,0036t²−0,18t+2,25 auf [0;25] beschleunigt. Anfangsgeschwindigkeit v(0)=3 m/s. Bestimme v(t).','v(t)=0,0012t³−0,09t²+2,25t+3.',
  'Beschleunigung integrieren und C=v(0)=3 setzen.');
@@ -226,10 +226,10 @@ B('1.9c',A,'Gegeben v=−ωcos(ωt−φ). Bestimme ∂v/∂t und ∂v/∂ω.',
 B('1.9d',A,'Gegeben η=(T₂−T₁)/T₁. Bestimme ∂η/∂T₁ und ∂η/∂T₂.',
  'η_T₁=−T₂/T₁²; η_T₂=1/T₁.',
  'Schreibe zuerst η=T₂/T₁−1. Bei jeder partiellen Ableitung bleibt die andere Temperatur konstant.');
-B('1.56a',I,'Berechne ∫(−5x²+3/x³−³√x)dx.',
+B('1.56a',I,'Ermittle das unbestimmte Integral: ∫(−5x²+3/x³−³√x)dx.',
  'F(x)=−5x³/3−3/(2x²)−(3/4)x^(4/3)+C.',
  '3/x³ als 3x⁻³ schreiben. Die dritte Wurzel als x^(1/3) auffassen; das Integral ist (3/4)x^(4/3).');
-B('1.61a',I,'Berechne ∫3x·e^(2x)dx mittels partieller Integration.',
+B('1.61a',I,'Ermittle das unbestimmte Integral: ∫3x·e^(2x)dx mittels partieller Integration.',
  'F(x)=(3/2)x·e^(2x)−(3/4)e^(2x)+C.',
  'u=3x und dv=e^(2x)dx; damit du=3dx und v=e^(2x)/2. Verwende ∫u dv=uv−∫vdu.');
 B('1.68a',F,'Die grafisch markierte Fläche wird von der x-Achse und der Geraden durch (0|3) und (6|0) begrenzt. Bestimme den Flächeninhalt.',
@@ -454,13 +454,13 @@ B('2.38d',P,'Gegeben z=y·e^(sin x), S(π|−3|z₀). Bestimme zₓₓ, zᵧᵧ 
 
 
 /* The teacher explicitly requires 1.55–1.57 by hand: include all subparts. */
-B('1.56b',I,'Berechne ∫(³√(x²)+5/x−3/x³)dx.',
+B('1.56b',I,'Ermittle das unbestimmte Integral: ∫(³√(x²)+5/x−3/x³)dx.',
  'F(x)=(3/5)x^(5/3)+5ln|x|+3/(2x²)+C.',
  'Schreibe ³√(x²)=x^(2/3) und −3/x³=−3x⁻³. Dann die rückwärts angewandte Potenzregel und Logarithmus-Stammfunktion nutzen.');
-B('1.56c',I,'Berechne ∫(6x−5·⁴√x+³√(2x))dx.',
+B('1.56c',I,'Ermittle das unbestimmte Integral: ∫(6x−5·⁴√x+³√(2x))dx.',
  'F(x)=3x²−4x^(5/4)+(3/8)(2x)^(4/3)+C.',
  '⁴√x=x^(1/4); für ³√(2x) ist eine Substitution u=2x mit du=2dx hilfreich. Am Ende +C.');
-B('1.61c',I,'Berechne ∫(3−2x)/(x²−3x+4)² dx.',
+B('1.61c',I,'Ermittle das unbestimmte Integral: ∫(3−2x)/(x²−3x+4)² dx.',
  'F(x)=1/(x²−3x+4)+C.',
  'Nenner-Grundfunktion u=x²−3x+4, u′=2x−3. Zähler 3−2x=−u′. Also ∫−u′/u² dx=1/u.');
 
