@@ -83,3 +83,9 @@ em{font-style:normal;color:var(--mint)}
 
 /* Compact header when breadcrumbs, back link, profile, and mobile menu share limited width. */
 @media(max-width:420px){.topbar .breadcrumbs{display:none}.topbar{gap:7px;padding-inline:12px}.top-info{gap:5px;min-width:0}}
+
+/* Center the verse return and profile links. */
+.topbar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+.topbar>.breadcrumbs{grid-column:1;grid-row:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.topbar>.top-info{grid-column:2;grid-row:1;justify-self:center}
+@media(max-width:780px){.topbar>.mobile-menu{grid-column:1;grid-row:1;justify-self:start}.topbar>.breadcrumbs{display:none}}
