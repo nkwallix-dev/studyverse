@@ -93,7 +93,7 @@
   add('B_623 a','4.8','Thermosflasche – Füllvolumen mit GeoGebra',
     'Eine liegende Flasche wird um die x-Achse gedreht. Für 0≤x≤18 gilt f(x)=3,5 cm; von 18 bis 26 gilt g(x)=−3/128·(x−18)²+3,5. Berechne das Volumen bis x=18 und die Füllhöhe z, wenn das Volumen 900 cm³ beträgt.',
     'Für Rotation um die x-Achse: V=π∫ r(x)²dx. V₁=π∫₀¹⁸(3,5)²dx. Löse 900=V₁+π∫₁₈ᶻg(x)²dx (18≤z≤26).',
-    'V₁=220,5π≈692,72 cm³. Aus 900=V₁+π∫₁₈ᶻ[−3/128·(x−18)²+3,5]²dx folgt z≈24,02 cm.',
+    'V₁=220,5π≈692,72 cm³. Aus 900=V₁+π∫₁₈ᶻ[−3/128·(x−18)²+3,5]²dx folgt z≈24,52 cm.',
     {image:'b-623',officialNumber:'B_623 a'});
   add('B_612 a','4.8','Spargel – orientierte Teilflächen',
     'Die Fläche unter einem positiven Funktionsgraphen von x=0 bis x=b wird bei x=a so geteilt, dass A₁:A₂=2:3 gilt. Ergänze die Integralgleichung für die linke Teilfläche und interpretiere die Größen.',
