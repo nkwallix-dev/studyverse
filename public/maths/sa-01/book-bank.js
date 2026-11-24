@@ -382,7 +382,7 @@ B('1.82c',F,'Berechne den orientierten Flächeninhalt zwischen f(x)=x³/8−3x²
  'Bestimmtes Integral ∫₁⁷f(x)dx =18 Flächeneinheiten.',
  'Stammfunktion x⁴/32−x³/2+9x²/4+x bilden und Grenzen 7 und 1 einsetzen.',18);
 B('1.82d',V,'Rotiert der Funktionsgraph im Intervall [1;7] um die x-Achse, so hat der entstehende Rotationskörper die Form einer Spielfigur, wie sie aus einem Kunststoff mit der Dichte ρ=1,05 g/cm³ hergestellt ist. Bestimme die Masse der Spielfigur.',
- 'V=π·75951/1120≈213,03 cm³; Masse m=1,05·V≈223,68 g.',
+ 'V=π·75951/1120≈213,04 cm³; Masse m=1,05·V≈223,69 g.',
  'Rotationsvolumen um die x-Achse: V=π·Integral von f(x)² mit Untergrenze 1 und Obergrenze 7. Polynom quadrieren, integrieren und Grenzen einsetzen. Anschließend m=ρ·V mit ρ=1,05 g/cm³ berechnen.',1.05*75951*Math.PI/1120);
 
 
