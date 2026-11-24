@@ -14,12 +14,14 @@ on:
       - 'public/shared/verse-cosmetics.*'
       - 'public/shared/cloud-progress.js'
       - 'scripts/test-mathsverse.cjs'
+      - 'scripts/test-maths-rewards.cjs'
       - '.github/workflows/verify-mathsverse.yml'
   pull_request:
     paths:
       - 'public/maths/sa-01/**'
       - 'src/app/**'
       - 'scripts/test-mathsverse.cjs'
+      - 'scripts/test-maths-rewards.cjs'
       - '.github/workflows/verify-mathsverse.yml'
 permissions:
   contents: read
@@ -36,4 +38,5 @@ jobs:
       - run: node --check public/maths/sa-01/app.js
       - run: node --check public/maths/sa-01/data.js
       - run: node scripts/test-mathsverse.cjs
+      - run: node scripts/test-maths-rewards.cjs
       - run: npm run build
