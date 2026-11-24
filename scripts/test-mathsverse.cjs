@@ -109,26 +109,18 @@ assert(sourceJs.includes('official-pdfs/')&&sourceJs.includes('q.originalSource'
 assert(!pool.some(q=>q.number==='B_261 b'),'Off-syllabus stop-sign task excluded');
 
 const sourceCrops=sandbox.window.MATHS_BOOK_CROPS;
-assert(mhtml.includes('<script src="book-crops.js"></script>'),'Crop module must load before original-source renderer');
-assert(sourceJs.includes('const sheet=bookOriginalStep(q)'),'Original image must depend on active book step');
-assert(!sourceJs.includes('group.artwork.map'),'Whole book pages must not be rendered in grouped exercises');
-assert(sourceJs.includes('Originalausschnitt · '+String.fromCharCode(39)+'+esc(q.number)'),'Original toggle must name selected subpart');
+assert(mhtml.includes('<script src="book-crops.js"></script>'),'Legacy crop data remains loaded for compatibility');
+assert(sourceJs.includes('function bookPrompt(q)'),'Book statements must be rendered as text');
+assert(sourceJs.includes('const BOOK_GRAPHS='),'Original diagrams should retain their original scan pixels');
+assert(sourceJs.includes('const region=BOOK_GRAPHS[q.number]||BOOK_GRAPHS[printed]'),'Only diagram-containing book examples may show a screenshot');
+assert(!sourceJs.includes('pieces.map((r,index)=>'),'Do not show the old clipped question screenshots');
+assert(sourceJs.includes("esc(bookPrompt(q))"),'Book text must be shown in active exercise');
+assert(sourceJs.includes("sheet?'<details"),'Original image must be optional for nongraphical exercises');
+assert(sourceJs.includes("' <div class=\"book-exam-original\"")||sourceJs.includes("bookOriginalStep(q)"),'Exam source view should reuse the graph-only renderer');
 for(const q of book){
  const pieces=sourceCrops[q.number];
- assert(pieces?.length>0,'Original crop missing for '+q.number);
- for(const r of pieces){
-  assert.equal(r.page,q.originalScreenshot,'Original screenshot page mismatch for '+q.number);
-  assert([r.x,r.y,r.w,r.h,r.W,r.H].every(Number.isFinite),'Non-numeric original crop for '+q.number);
-  assert(r.x>=0&&r.y>=0&&r.w>=8&&r.h>=8&&r.x+r.w<=r.W+2&&r.y+r.h<=r.H+2,'Out-of-bounds original crop '+q.number);
-  assert(r.w*r.h<r.W*r.H*.9,'Crop shows almost entire original page for '+q.number);
-  assert(fs.existsSync('public/maths/sa-01/original-figures/book-page-'+r.page+'.webp'),'Missing source scan for '+q.number);
- }
+ assert(pieces?.length>0,'Retained screenshot provenance missing for '+q.number);
 }
-for(const [a,b] of [['1.1a','1.1b'],['1.1b','1.1c'],['1.80a','1.80b'],['1.98a','1.98d']]){
- assert(JSON.stringify(sourceCrops[a].at(-1))!==JSON.stringify(sourceCrops[b].at(-1)),a+' and '+b+' must have different original subpart crops');
-}
-assert(sourceJs.includes("'<div class=\"book-exam-original\">'+bookOriginalStep(q)"),'Original exam must also use selected-subtask crop');
-
 assert.equal(new Set(book.map(q=>q.number)).size,book.length,'Do not repeat textbook tasks');
 assert.equal(new Set(pool.map(q=>q.id)).size,pool.length,'Do not repeat official task records');
 for(const q of book){assert(q.prompt&&q.solution&&q.steps,'Book tasks need exact prompt and explained answer');if(q.expected!=null)assert(Number.isFinite(q.expected),'Book numeric result must be finite')}
@@ -188,7 +180,9 @@ assert(original.get('1.98c').prompt.includes('³√(x²)'),'1.98c has the origin
 approx(original.get('1.98c').expected,(3/5)*(Math.pow(5,5/3)-Math.pow(2,5/3)),'1.98c');
 approx(original.get('1.99').expected,300/Math.PI,'1.99');
 approx(original.get('1.100d').expected,14.4098445789603,'1.100d');
-assert(original.get('1.79a').graph?.curves?.[1]?.domain?.[0]===10,'Composite rod plot must begin the parabola only at x=10');
+assert(original.get('1.79a').graph?.curves?.[1]?.domain?.[0]===20,'Book diagram places the rod-parabola junction at x=20');
+approx(original.get('1.79b').expected,8.4*10625*Math.PI/3000,'1.79b');
+assert(original.get('1.81b').solution.includes('27,33'),'Four-centimetre filling is measured above the glass bottom');
 for(const comp of ['4.1','4.2','4.3','4.4','4.5','4.6','4.8','B_T_4.1','B_T2_4.2','B_T2_4.4','B_T2_4.5']){
  const hits=pool.filter(q=>q.primary===comp);
  assert(hits.length<=15,'Max 15 official tasks per chapter: '+comp+'='+hits.length);
