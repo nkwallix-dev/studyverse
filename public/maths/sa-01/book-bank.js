@@ -26,7 +26,7 @@ B('1.1c',A,'Ermittle erste und zweite Ableitung von f(x) = 2/x − 4/x² + x/2.'
  'Schreibe Brüche als x⁻¹ und x⁻²; wende die Potenzregel zweimal an.');
 B('1.1d',A,'Ermittle die erste und zweite Ableitung von y = sin(x) + cos(x).','y′ = cos(x) − sin(x); y″ = −sin(x) − cos(x).',
  'Sinus wird zu Cosinus; Cosinus wird zu minus Sinus.');
-B('1.2',A,'Kreuze die richtige Ableitung der Funktion f(x)=√(5x) an.','f′(x) = √5 / (2√x), für x>0.',
+B('1.2',A,'Kreuze die richtige Ableitung der Funktion f(x)=√(5x) an.\nA: f′(x)=5/(2·√x)\nB: f′(x)=5/√(2x)\nC: f′(x)=√5/√(2x)\nD: f′(x)=(1/2)·√5/√x\nE: f′(x)=(5/2)·√x','D ist richtig: f′(x) = √5 / (2√x), für x>0.',
  'Schreibe √(5x)=√5·x¹ᐟ². Der Faktor √5 bleibt erhalten, die Potenzregel gibt ½x⁻¹ᐟ².');
 B('1.3',A,'Ein Schüler leitet f(x)=x²·sin(x) als 2x·cos(x) ab. Erkläre die falsche Regel und korrigiere.','f′(x)=2x·sin(x)+x²·cos(x).',
  'Für ein Produkt aus zwei veränderlichen Funktionen gilt (uv)′=u′v+uv′. Beides nur einzeln abzuleiten und zu multiplizieren ist falsch.');
@@ -249,11 +249,11 @@ B('1.69b',F,'Die blau markierte Fläche liegt im Rechteck von x=0 bis x=b oberha
 
 
 /* Graph interpretation, optimization and context exercises transcribed from the ZIP. */
-B('1.11a',K,'Zeichne den Graphen von f′ zum originalen Linienzug durch (0|0),(2|3),(3|3),(5|0),(7|0),(9|2).',
+B('1.11a',K,'Zeichne den Graphen der Ableitungsfunktion der dargestellten Funktion f (Teil a).',
  'f′ ist stückweise konstant: 1,5 auf (0;2), 0 auf (2;3), −1,5 auf (3;5), 0 auf (5;7), 1 auf (7;9). An den Knicken existiert keine eindeutige Ableitung.',
  'Die Ableitung entspricht den Steigungen der fünf Geradenabschnitte. An echten Knickstellen ist sie nicht definiert.',
  null,{curves:[{label:'f',points:[[0,0],[2,3],[3,3],[5,0],[7,0],[9,2]]}],x:[-0.5,9.5],y:[-0.5,4]});
-B('1.11b',K,'Der Graph von f ist eine Parabel mit Nullstellen 1 und 3 sowie Scheitel (2|−1). Skizziere den Graphen ihrer Ableitung.',
+B('1.11b',K,'Zeichne den Graphen der Ableitungsfunktion der dargestellten Funktion f (Teil b).',
  'f(x)=(x−2)²−1 ⇒ f′(x)=2x−4, eine Gerade mit Nullstelle bei x=2.',
  'Die Ableitung einer quadratischen Funktion ist eine Gerade. Links des Scheitels negativ, rechts positiv.',
  null,{curves:[{label:'f',poly:[1,-4,3]}],x:[-.2,4.3],y:[-2,5]});
@@ -314,8 +314,8 @@ B('1.101a',V,'Der Graph von f(x)=√(x−3) wird im Bereich x∈[3;7] um die x-A
 B('1.101b',V,'Der Graph von f(x)=√(x−3) wird im Bereich [3;7] um die y-Achse rotiert. Berechne das Volumen der erzeugten Rotationsfigur.',
  'Vᵧ=2π∫₃⁷ x√(x−3)dx=(288/5)π≈180,956.',
  'Zylinderschalenmethode: Umfang 2πx mal Höhe f(x) integrieren. Substitution u=x−3 benutzen.',288*Math.PI/5);
-B('1.102',F,'Ordne zu: Welcher mathematische Begriff entspricht „einem orientierten Flächeninhalt“?',
- 'Das bestimmte Integral. Es kann im Gegensatz zum geometrischen Flächeninhalt negativ sein.',
+B('1.102',F,'Ergänze die Textlücken in folgendem Satz durch Ankreuzen der jeweils richtigen Satzteile, so dass eine korrekte Aussage entsteht.\nDas [1] entspricht [2].\n[1] A: Differenzieren einer Stammfunktion; B: bestimmtes Integral; C: unbestimmtes Integral.\n[2] A: dem Betrag des Flächeninhalts; B: dem Aufsuchen des Integrals; C: einem orientierten Flächeninhalt.',
+ '[1] B und [2] C: Das bestimmte Integral entspricht einem orientierten Flächeninhalt. Es kann im Gegensatz zum geometrischen Flächeninhalt negativ sein.',
  'Auf der x-Achse liegende positive und negative Teilflächen werden beim bestimmten Integral mit Vorzeichen addiert.');
 
 
