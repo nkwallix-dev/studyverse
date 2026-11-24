@@ -1,6 +1,6 @@
 export interface AchievementDef {
   id: string; icon: string; title: string; description: string;
-  metric: 'quiz'|'draw'|'reaction'|'flash'|'learn'|'combo'|'boss'|'purchase'|'sorter'|'pipeline'|'forecast';
+  metric: 'academy'|'book'|'descriptor'|'quiz'|'draw'|'reaction'|'flash'|'learn'|'combo'|'boss'|'purchase'|'sorter'|'pipeline'|'forecast';
   target: number; reward: number;
 }
 export interface TrainerDef {
@@ -12,17 +12,17 @@ export interface TrainerDef {
 export const TRAINERS: TrainerDef[] = [
   {
     id:'maths-sa-01',subjectId:'mat',title:'MathsVerse · 1. Schularbeit',
-    subtitle:'AM · Differential- & Integralrechnung · 11 Lektionen, 54 Aufgaben, Graphenlabor & Boss',
+    subtitle:'AM · Differential- & Integralrechnung · 11 Lernlektionen, Buchbeispiele, 4. Deskriptor & Boss',
     path:'maths/sa-01/index.html',saveKey:'mathsverse_sa01_v1',examDate:'2026-11-26',
     achievements:[
-      {id:'start',icon:'∫',title:'Mathe gestartet',description:'Erstes Kapitel abgeschlossen',metric:'learn',target:1,reward:100},
-      {id:'half',icon:'π',title:'Ableitungs-Analyst',description:'Fünf Lernkapitel verstanden',metric:'learn',target:5,reward:200},
-      {id:'complete',icon:'∑',title:'Alle Kapitel gemeistert',description:'Alle elf Lernkapitel verstanden',metric:'learn',target:11,reward:400},
-      {id:'firstquiz',icon:'✎',title:'Aufgaben-Macher',description:'Erste Quizaufgabe richtig gelöst',metric:'quiz',target:1,reward:100},
-      {id:'quiz15',icon:'∂',title:'Handrechner',description:'15 Quizaufgaben gelöst',metric:'quiz',target:15,reward:250},
-      {id:'quiz40',icon:'ƒ',title:'Mathe-Maschine',description:'Alle 40 Quizaufgaben gelöst',metric:'quiz',target:40,reward:400},
-      {id:'numeric1',icon:'▦',title:'Ohne GeoGebra',description:'Erste händische Rechenaufgabe gelöst',metric:'draw',target:1,reward:150},
-      {id:'numeric10',icon:'▧',title:'Rechenmeister',description:'Zehn händische Rechenaufgaben gelöst',metric:'draw',target:10,reward:300},
+      {id:'start',icon:'∫',title:'Mathe gestartet',description:'Erste Lernlektion abgeschlossen',metric:'academy',target:1,reward:100},
+      {id:'half',icon:'π',title:'Ableitungs-Analyst',description:'Fünf Lernlektionen abgeschlossen',metric:'academy',target:5,reward:200},
+      {id:'complete',icon:'∑',title:'Alle Kapitel gemeistert',description:'Alle elf Lernlektionen abgeschlossen',metric:'academy',target:11,reward:400},
+      {id:'firstquiz',icon:'✎',title:'Buchstarter',description:'Erstes vollständiges Buchbeispiel richtig gelöst',metric:'book',target:1,reward:100},
+      {id:'quiz15',icon:'∂',title:'Handrechner',description:'Vier vollständige Buchbeispiele richtig gelöst',metric:'book',target:4,reward:200},
+      {id:'quiz40',icon:'ƒ',title:'Mathe-Maschine',description:'Zehn vollständige Buchbeispiele richtig gelöst',metric:'book',target:10,reward:400},
+      {id:'numeric1',icon:'▦',title:'Deskriptor-Debüt',description:'Erste offizielle Deskriptor-Aufgabe richtig gelöst',metric:'descriptor',target:1,reward:200},
+      {id:'numeric10',icon:'▧',title:'Anwendungsprofi',description:'Fünf offizielle Deskriptor-Aufgaben richtig gelöst',metric:'descriptor',target:5,reward:300},
       {id:'boss80',icon:'∫',title:'SA bereit',description:'80 % im Mathe-Bosskampf',metric:'boss',target:80,reward:500},
       {id:'boss100',icon:'♛',title:'Professor Filipp',description:'100 % im Mathe-Bosskampf',metric:'boss',target:100,reward:900}
     ]
@@ -87,9 +87,20 @@ export const TRAINERS: TrainerDef[] = [
 
 function object(v:unknown):Record<string,unknown>{return v&&typeof v==='object'&&!Array.isArray(v)?v as Record<string,unknown>:{};}
 const number=(v:unknown)=>typeof v==='number'&&Number.isFinite(v)?Math.max(0,v):0;
+/** Shared MathsVerse metric counters for achievements and shop.
+ * Only completed printed book groups and confirmed official tasks qualify. */
+export function mathsProgress(save:unknown,metric:'academy'|'book'|'descriptor'|'boss'):number{
+ const s=object(save);
+ if(metric==='boss')return number(s['bestBoss']);
+ const field=metric==='academy'?'courseDone':metric==='book'?'bookCompleted':'descriptorCompleted';
+ return Object.values(object(s[field])).filter(Boolean).length;
+}
 export function achievementValue(a:AchievementDef,save:unknown):number{
  const s=object(save),solved=object(s['solved']);
  switch(a.metric){
+  case 'academy':return mathsProgress(s,'academy');
+  case 'book':return mathsProgress(s,'book');
+  case 'descriptor':return mathsProgress(s,'descriptor');
   case 'quiz':return Object.keys(solved).filter(k=>k.startsWith('q')&&!!solved[k]).length;
   case 'draw':return Object.keys(solved).filter(k=>(k.startsWith('d')||k.startsWith('n'))&&!!solved[k]).length;
   case 'reaction':return Object.keys(solved).filter(k=>k.startsWith('r')).length;
