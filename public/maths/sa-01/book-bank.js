@@ -60,13 +60,13 @@ B('1.19b',K,'Ein Ball hat h(t)=−5t²+10t+7. Wann erreicht er nach dem Abwurf e
  'Setze h(t)=7: −5t²+10t=0, also t(−5t+10)=0. Die Lösung t=0 ist der Abwurf, t=2 der gesuchte spätere Zeitpunkt.',2);
 B('1.21',K,'Ein kubisches Polynom hat E(2|4) als Extrempunkt und W(−1|0,5) als Wendepunkt. Bestimme die Funktionsgleichung.','Bedingungen: f(2)=4, f′(2)=0, f(−1)=0,5 und f″(−1)=0. Daraus folgt f(x)=−7x³/108−7x²/36+14x/9+59/27.',
  'Vier Bedingungen für die vier Koeffizienten aufstellen und ein lineares Gleichungssystem lösen.');
-B('1.28',K,'Zerlege 40 in zwei natürliche Summanden, sodass die Summe ihrer Quadrate minimal ist.','20 und 20; Minimalwert 20²+20²=800.',
+B('1.28',K,'Zerlege die Zahl 40 so in zwei natürliche Summanden, dass die Summe ihrer Quadrate minimal ist.','20 und 20; Minimalwert 20²+20²=800.',
  'Sei x der erste Teil und 40−x der zweite. S(x)=x²+(40−x)². S′=4x−80=0 ⇒ x=20.',20);
-B('1.29',V,'Eine zylindrische Dose soll Volumen 75 cm³ besitzen. Bei welcher Abmessung wird die Materialoberfläche minimal? Boden und Deckel haben zusammen 25 % mehr Materialbedarf.','Mit r als Radius: h=75/(πr²). Materialmodell A(r)=2,5πr²+2πrh. Minimum aus A′(r)=0 bestimmen.',
+B('1.29',V,'Eine zylindrische Dose soll ein Volumen von 75 cm³ haben. Berechne, bei welchen Abmessungen die Materialkosten für die Herstellung am geringsten sind, wenn das Material für Boden und Deckel pro cm² um 25 % mehr kostet als für den Mantel.','Mit r als Radius: h=75/(πr²). Materialmodell A(r)=2,5πr²+2πrh. Minimum aus A′(r)=0 bestimmen.',
  'Zylinder: V=πr²h. Materialfläche entsprechend Aufgabenstellung mit Aufschlag für Boden und Deckel aufstellen. Die Nebenbedingung eliminiert h.');
-B('1.30',V,'Aus 144 cm Draht entsteht das Kantenmodell eines Quaders mit quadratischer Grundfläche. Berechne die Abmessungen für maximales Volumen.','Grundkante 12 cm, Höhe 12 cm; Volumen 1728 cm³.',
+B('1.30',V,'Aus einem 144 cm langen Draht soll das Kantenmodell eines Quaders mit quadratischer Grundfläche gebildet werden. Berechne jene Abmessungen, bei denen das Volumen des Quaders maximal ist.','Grundkante 12 cm, Höhe 12 cm; Volumen 1728 cm³.',
  'Drahtlänge 8a+4h=144 ⇒ h=36−2a. V=a²(36−2a). V′=72a−6a²=0 liefert a=12, h=12.',12);
-B('1.31',K,'Ein Bauer hält bereits 50 Ziegen mit je 800 l Milch im Jahr. Für jede zusätzlich angeschaffte Ziege sinkt die Jahresmilchmenge pro Tier um 10 l. Wie viele Ziegen soll er zusätzlich anschaffen?','15 zusätzliche Ziegen, also 65 insgesamt. Maximal 65·650=42 250 l Milch.',
+B('1.31',K,'Die von einer Ziege jährlich produzierte Milchmenge hängt unter anderem von der Futtermenge ab. Ein Bauer hält auf einem Grundstück 50 Milchziegen, die jeweils 800 L Milch pro Jahr geben. Das Halten jeder weiteren Ziege auf diesem Grundstück führt zu einer Verringerung der Milchmenge um 10 L pro Jahr und Ziege. Wie viele Ziegen sollte der Bauer zusätzlich anschaffen, um möglichst viel Milch zu erhalten?','15 zusätzliche Ziegen, also 65 insgesamt. Maximal 65·650=42 250 l Milch.',
  'Sei x die Anzahl zusätzlich angeschaffter Ziegen. Dann M(x)=(50+x)(800−10x)=40 000+300x−10x². Ableitung M′=300−20x=0 ⇒ x=15; M″=−20<0.',15);
 B('1.55a',I,'Ermittle das unbestimmte Integral: ∫(4x³−3x+1) dx.','F(x)=x⁴−3x²/2+x+C.',
  'Potenzregel rückwärts auf alle Summanden anwenden. Jede Stammfunktion hat +C.');
@@ -299,10 +299,10 @@ B('1.24',K,'Der höchste Punkt eines kubischen Seilverlaufs ist H(2|50), der tie
 B('1.25',K,'Ein beidseitig eingespannter Träger von 3 m Länge biegt sich in der Mitte um maximal 2 cm durch. Die Endwerte sind 0 und die Tangenten an beiden Enden waagrecht. Stelle ein Polynom 4. Grades auf.',
  'Mit x in mm und y als Durchbiegung in mm gilt y(x)=20·[x(3000−x)/(1500²)]².',
  'Doppelte Nullstellen bei x=0 und x=3000 erzwingen y=a x²(x−3000)². Mit y(1500)=20 mm wird a eindeutig bestimmt.');
-B('1.32a',K,'In einen Halbkreis mit Radius R wird ein gleichschenkliges Dreieck maximaler Fläche eingeschrieben. Die Spitze liegt im Kreismittelpunkt, die Grundlinie parallel zum Durchmesser. Welcher Prozentanteil der Halbkreisfläche ist maximal?',
+B('1.32a',K,'Einem Halbkreis mit dem Radius R soll ein gleichschenkliges Dreieck mit möglichst großem Flächeninhalt so eingeschrieben werden, dass die Spitze im Mittelpunkt des Kreises liegt und die Grundlinie parallel zum Durchmesser ist. Ermittle, wie viel Prozent der Halbkreisfläche die Dreiecksfläche einnimmt.',
  'Anteil 1/π≈31,83 %.',
  'Bei Dreieckshöhe h liegt die halbe Grundlinie bei √(R²−h²). A(h)=h·√(R²−h²) hat sein Maximum bei h=R/√2, also A=R²/2. Halbkreisfläche πR²/2 ⇒ Verhältnis 1/π.',100/Math.PI);
-B('1.32b',K,'Einem gleichschenkligen Dreieck mit Basis B und Höhe H wird ein Rechteck mit maximaler Fläche eingeschrieben. Bestimme seine Abmessungen.',
+B('1.32b',K,'Einem gleichschenkligen Dreieck mit der Basis B und der Höhe H soll ein Rechteck so eingeschrieben werden, dass dessen Fläche maximal wird. Ermittle die Abmessungen des Rechtecks. Hinweis: Verwende den Strahlensatz.',
  'Breite B/2, Höhe H/2, Rechtecksfläche BH/4.',
  'Mit Strahlensatz beträgt die verfügbare Breite in Höhe h: B(1−h/H). Maximieren von A(h)=hB(1−h/H).');
 B('1.74',V,'Nach Öffnen einer Kanalschleuse gilt v(t)=6,2t·e^(−1,4t) m³/s für t≥0. Bestimme den Zeitpunkt maximaler Durchflussgeschwindigkeit.',
@@ -320,7 +320,7 @@ B('1.102',F,'Ordne zu: Welcher mathematische Begriff entspricht „einem orienti
 
 
 /* Further independently checked source subparts, original pages 6–15. */
-B('1.33',V,'Ein Rundlaufweg um ein rechteckiges Fußballfeld besteht aus zwei Halbkreisbögen an den Torseiten und zwei Geraden. Die innere Bahnlänge beträgt 500 m. Bei welchen Abmessungen ist die rechteckige Spielfläche maximal?',
+B('1.33',V,'Rund um den Sportplatz des FC Wald soll eine Laufbahn mit einer Innenbahnlänge von 500 m angelegt werden. Die Laufbahn soll direkt an den Seitenlinien des Fußballfeldes anliegen und an den beiden Torlinien jeweils die Form eines Halbkreises haben. Ermittle, bei welchen Abmessungen das Fußballfeld den größtmöglichen Flächeninhalt hat.',
  'Geradenlänge 125 m, Feldbreite 250/π≈79,58 m; maximierte Fläche 31 250/π≈9 947,18 m².',
  'Sei r der Radius der Halbkreise und L die Länge der geraden Bahnteile. 2L+2πr=500 ⇒ L=250−πr. A=2rL=500r−2πr². Aus A′=500−4πr=0 folgt r=125/π und L=125.');
 B('1.63c',I,'Berechne das unbestimmte Integral ∫x³/(x²−x−6) dx.',
@@ -378,7 +378,7 @@ B('1.76b',V,'Der Barbereich aus 1.76 hat eine Fläche von 96/π m². Der Pool is
 B('1.82a',K,'Eine Polynomfunktion 3. Grades hat ein Maximum im Punkt H(2|5). An der Stelle x=4 befindet sich ein Wendepunkt. Die Steigung der Wendetangente beträgt k=−3/2. Bestimme die Funktionsgleichung und die Gleichung der Wendetangente.',
  'f(x)=x³/8−3x²/2+9x/2+1. Wendepunkt W(4|3) und Wendetangente y=−(3/2)x+9.',
  'f(2)=5, f′(2)=0, f″(4)=0, f′(4)=−3/2. Löse das lineare Gleichungssystem für a,b,c,d. Setze x=4 für W und die Tangente ein.');
-B('1.82c',F,'Berechne den orientierten Flächeninhalt zwischen f(x)=x³/8−3x²/2+9x/2+1 und der x-Achse auf [1;7].',
+B('1.82c',F,'Ermittle jene Fläche, die der Graph der Funktion im Intervall [1;7] mit der waagrechten Achse einschließt.',
  'Bestimmtes Integral ∫₁⁷f(x)dx =18 Flächeneinheiten.',
  'Stammfunktion x⁴/32−x³/2+9x²/4+x bilden und Grenzen 7 und 1 einsetzen.',18);
 B('1.82d',V,'Rotiert der Funktionsgraph im Intervall [1;7] um die x-Achse, so hat der entstehende Rotationskörper die Form einer Spielfigur, wie sie aus einem Kunststoff mit der Dichte ρ=1,05 g/cm³ hergestellt ist. Bestimme die Masse der Spielfigur.',
@@ -564,7 +564,7 @@ B('1.80a',V,'Die Form des Halbschnitts eines Kreisels (siehe Abbildung) kann dur
 B('1.80b',V,'Die Form des Kreisels entsteht durch Rotation der beiden Kurven g und f um die y-Achse. Der Kreisel soll aus einer Messing-Legierung mit einer Dichte von 8,7 g/cm³ hergestellt werden. Berechne die Masse des Kreisels.',
  'Rotationsvolumen ≈88,178 cm³; Masse ≈767,15 g.',
  'Nach x umstellen: x_g(y)=4−4y/3 für y∈[0;3], x_f(y)=4−2y² für y∈[−√2;0]. V=π∫₀³x_g(y)²dy+π∫₋√₂⁰x_f(y)²dy.',8.7*16*Math.PI*(8*Math.sqrt(2)+15)/15);
-B('1.81a',V,'Die Glasinnenseite ist durch y=0,2(x²+1)²+0,8 beschrieben. Forme die Gleichung nach x² um.',
+B('1.81a',V,'Die Form der Innenseite eines Glases entsteht durch die Rotation einer Kurve um die senkrechte Achse des Koordinatensystems. Gegeben ist y=0,2·(x²+1)²+0,8, x, y in cm. Forme die Kurvengleichung nach x² um.',
  'x²=√[(y−0,8)/0,2]−1.',
  'Erst 0,8 abziehen und durch 0,2 teilen, dann die positive Quadratwurzel ziehen und 1 abziehen.');
 B('1.81b',V,'Berechne, wie viele Milliliter Flüssigkeit das Glas beinhaltet, wenn die Füllhöhe im Glas 4 cm beträgt.',
@@ -573,7 +573,7 @@ B('1.81b',V,'Berechne, wie viele Milliliter Flüssigkeit das Glas beinhaltet, we
 B('1.81c',V,'Überprüfe nachweislich, ob es möglich ist, das Glas mit 40 ml Flüssigkeit zu füllen, wenn das Glas insgesamt 5,8 cm hoch ist.',
  'Nein. Die Modellkapazität bis y=5,8 cm beträgt etwa 36,86 ml und damit weniger als 40 ml.',
  'V_max=π∫₁^5,8[√(5y−4)−1]dy. Vergleiche das Ergebnis in cm³=ml mit 40 ml.');
-B('1.82b',K,'Zeichne f(x)=x³/8−3x²/2+9x/2+1 im Intervall [1;7], markiere Maximum H(2|5) und Wendepunkt W(4|3).',
+B('1.82b',K,'Stelle die Funktion im Intervall [1;7] grafisch dar.',
  'f(2)=5 mit f′(2)=0 und f″(2)<0. Bei x=4 ist f″(4)=0 und f′(4)=−3/2.',
  'Berechne eine kleine Wertetabelle und markiere die beiden besonderen Punkte. Die Kurve ist kubisch.',
  null,{curves:[{label:'f',poly:[1/8,-3/2,9/2,1]}],x:[1,7],y:[0,6]});
@@ -600,7 +600,7 @@ B('1.100d',V,'Die Drohne startet mit v(0)=3 m/s und a(t)=0,0036t²−0,18t+2,25.
  'Aus a erhält man v(t)=0,0012t³−0,09t²+2,25t+3. Der Weg ist s(t)=0,0003t⁴−0,03t³+1,125t²+3t. Löse s(t)=200 numerisch auf [0;25].',14.40984457896);
 
 
-B('1.30b',V,'Beweise an einem selbst gewählten Beispiel, dass ein Quader mit quadratischer Grundfläche, dessen Kanten zusammen 144 cm messen, ein kleineres Volumen als der optimale Würfel hat.',
+B('1.30b',V,'Zeige an einem selbst gewählten Beispiel, dass jeder andere Quader, dessen Kantenlänge insgesamt 144 cm beträgt, ein kleineres Volumen hat.',
  'Beispiel: Grundkante a=10 cm, Höhe h=16 cm. Drahtlänge 8·10+4·16=144 cm; Volumen 10²·16=1600 cm³ <1728 cm³ beim Würfel.',
  'Die Nebenbedingung lautet h=36−2a. Nimm einen zulässigen anderen Wert a≠12 und vergleiche V=a²h mit 1728.');
 B('1.94',K,'Diskutiere f(x)=4x³+3x²−2x+1 und zeichne Extrema, Wendepunkt sowie Wendetangente ein.',
