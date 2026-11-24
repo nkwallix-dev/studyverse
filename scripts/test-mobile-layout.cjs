@@ -1671,8 +1671,8 @@ async function main(){
    }
    assert(appearance.backdropOpacity>=.5&&appearance.background.includes('radial-gradient'),
     world+' must show the equipped Dots & Lines atmosphere');
-   assert(appearance.cards>=3&&appearance.effectCount===9,
-    world+' must render the equipped banner and 9 effect particles');
+   assert(appearance.cards>=3&&appearance.effectCount===0,
+    world+' must render the equipped banner but keep particles absent until a correct answer');
    assert(appearance.title.includes('Professor Spermann'),world+' must display equipped title');
    assert(!issues.length,world+' cosmetics caused JS errors: '+issues.join('; '));
    if(world==='Sharpverse')assert(await cosmeticPage.locator('.studyverse-back').isVisible(),
@@ -1784,6 +1784,23 @@ async function main(){
      }
      assert((await cosmeticPage.locator('#main').innerText()).includes('FRAGE 2 / 20'),'Exam must progress to a second sourced problem');
      await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="book"]').click());
+     // Verify exact original textbook crops in the real browser, not just the bank data.
+     await cosmeticPage.locator('[data-action="source:open:group-1-1"]').click();
+     const originalA=await cosmeticPage.locator('.book-original-crop svg').evaluateAll(nodes=>
+      nodes.map(node=>({box:node.getAttribute('viewBox'),href:node.querySelector('image')?.getAttribute('href')})));
+     assert.equal(originalA.length,2,'1.1a must show shared directions and one formula crop, not a full page');
+     assert(originalA.every(x=>x.href?.endsWith('book-page-1.webp')),'The crop must use original source pixels');
+     assert.equal(originalA[1].box,'54 25 139 39','Schritt 1 must select just printed 1.1a');
+     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-1-1a-cropped-390.png'),fullPage:true});
+     await cosmeticPage.locator('[data-action="source:step:book-1-1b"]').click();
+     const originalB=await cosmeticPage.locator('.book-original-crop svg').evaluateAll(nodes=>
+      nodes.map(node=>node.getAttribute('viewBox')));
+     assert.equal(originalB.length,2,'1.1b must retain shared instructions');
+     assert.equal(originalB[1],'196 25 148 39','Schritt 2 must show only printed 1.1b');
+     assert.notEqual(originalA[1].box,originalB[1],'Switching steps must change the visible original crop');
+     assert((await cosmeticPage.locator('.book-active-step').innerText()).includes('1.1b'),
+      'Selected source crop and active mathematical task must stay in sync');
+     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-1-1b-cropped-390.png'),fullPage:true});
      await cosmeticPage.locator('[data-action="source:open:group-1-19"]').click();
      await cosmeticPage.locator('.handwrite-note').waitFor({timeout:5000});
      assert((await cosmeticPage.locator('.handwrite-note').innerText()).includes('Stift und Papier'),'Real textbook tasks must prompt for paper');
