@@ -1784,23 +1784,19 @@ async function main(){
      }
      assert((await cosmeticPage.locator('#main').innerText()).includes('FRAGE 2 / 20'),'Exam must progress to a second sourced problem');
      await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="book"]').click());
-     // Verify exact original textbook crops in the real browser, not just the bank data.
+     // Book math is readable text, not cropped images; only printed graphs keep scans.
      await cosmeticPage.locator('[data-action="source:open:group-1-1"]').click();
-     const originalA=await cosmeticPage.locator('.book-original-crop svg').evaluateAll(nodes=>
-      nodes.map(node=>({box:node.getAttribute('viewBox'),href:node.querySelector('image')?.getAttribute('href')})));
-     assert.equal(originalA.length,2,'1.1a must show shared directions and one formula crop, not a full page');
-     assert(originalA.every(x=>x.href?.endsWith('book-page-1.webp')),'The crop must use original source pixels');
-     assert.equal(originalA[1].box,'54 25 139 39','Schritt 1 must select just printed 1.1a');
-     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-1-1a-cropped-390.png'),fullPage:true});
+     assert.equal(await cosmeticPage.locator('.book-original-crop svg').count(),0,
+       '1.1a must not contain clipped textbook formula screenshots');
+     assert((await cosmeticPage.locator('.book-active-step').innerText()).includes('x⁵ + 3x² + 4'),
+       'Selected 1.1a formula must be readable text');
+     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-1-1a-text-390.png'),fullPage:true});
      await cosmeticPage.locator('[data-action="source:step:book-1-1b"]').click();
-     const originalB=await cosmeticPage.locator('.book-original-crop svg').evaluateAll(nodes=>
-      nodes.map(node=>node.getAttribute('viewBox')));
-     assert.equal(originalB.length,2,'1.1b must retain shared instructions');
-     assert.equal(originalB[1],'196 25 148 39','Schritt 2 must show only printed 1.1b');
-     assert.notEqual(originalA[1].box,originalB[1],'Switching steps must change the visible original crop');
-     assert((await cosmeticPage.locator('.book-active-step').innerText()).includes('1.1b'),
-      'Selected source crop and active mathematical task must stay in sync');
-     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-1-1b-cropped-390.png'),fullPage:true});
+     assert.equal(await cosmeticPage.locator('.book-original-crop svg').count(),0,
+       '1.1b must not contain clipped formula screenshots');
+     assert((await cosmeticPage.locator('.book-active-step').innerText()).includes('√(t³)'),
+       'Selected 1.1b must have its own readable mathematical formula');
+     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-1-1b-text-390.png'),fullPage:true});
      await cosmeticPage.locator('[data-action="source:open:group-1-19"]').click();
      await cosmeticPage.locator('.handwrite-note').waitFor({timeout:5000});
      assert((await cosmeticPage.locator('.handwrite-note').innerText()).includes('Stift und Papier'),'Real textbook tasks must prompt for paper');
@@ -1836,17 +1832,14 @@ async function main(){
      assert(await cosmeticPage.evaluate(()=>document.documentElement.scrollHeight-document.documentElement.clientHeight)<=3,'Page must be fixed again after next exercise');
      assert.equal(await cosmeticPage.locator('#nav [data-nav="graphs"]').count(),0,'Graphenlabor removed from MathsVerse');
      await cosmeticPage.locator('[data-action="source:open:group-1-80"]').evaluate(el=>el.click());
-     // 1.80 uses two pieces of common source text/diagram plus the active sub-question.
-     // The SVG image element references original pixels, not an obsolete full-page <img>.
+     // 1.80 shows the original graphic but no photographed statement or solution.
      const scanned=await cosmeticPage.locator('.book-original-crop svg').evaluateAll(nodes=>nodes.map(el=>({
-      crop:el.getAttribute('viewBox'),
-      image:el.querySelector('image')?.getAttribute('href')
+       crop:el.getAttribute('viewBox'),
+       image:el.querySelector('image')?.getAttribute('href')
      })));
-     assert.equal(scanned.length,3,'Book 1.80 must retain its shared text, original diagram and active sub-question');
-     assert(scanned.every(x=>x.image==='original-figures/book-page-11.webp'),
-      'Book 1.80 must use the exact scanned source image from screenshot 11');
-     assert(scanned.every(x=>x.crop!=='0 0 478 735'),
-      'Book 1.80 must not display a full original screenshot');
+     assert.equal(scanned.length,1,'Book 1.80 must show just its original diagram');
+     assert.equal(scanned[0].image,'original-figures/book-page-11.webp','Use original diagram pixels');
+     assert.equal(scanned[0].crop,'292 238 181 118','Show only the diagram of book 1.80');
      assert.equal(await cosmeticPage.locator('.book-step-pick').count(),2,'Book 1.80 must have exactly two independently selectable subtasks');
      await cosmeticPage.locator('[data-action="source:step:book-1-80b"]').click();
      assert((await cosmeticPage.locator('.book-active-step h3').innerText()).includes('Schritt 2'),'Clicking second step must show the second part');

@@ -26,7 +26,7 @@ B('1.1c',A,'Ermittle erste und zweite Ableitung von f(x) = 2/x − 4/x² + x/2.'
  'Schreibe Brüche als x⁻¹ und x⁻²; wende die Potenzregel zweimal an.');
 B('1.1d',A,'Ermittle die erste und zweite Ableitung von y = sin(x) + cos(x).','y′ = cos(x) − sin(x); y″ = −sin(x) − cos(x).',
  'Sinus wird zu Cosinus; Cosinus wird zu minus Sinus.');
-B('1.2',A,'Kreuze die richtige Ableitung der Funktion f(x)=√(5x) an.','f′(x) = √5 / (2√x), für x>0.',
+B('1.2',A,'Kreuze die richtige Ableitung der Funktion f(x)=√(5x) an.\nA: f′(x)=5/(2·√x)\nB: f′(x)=5/√(2x)\nC: f′(x)=√5/√(2x)\nD: f′(x)=(1/2)·√5/√x\nE: f′(x)=(5/2)·√x','D ist richtig: f′(x) = √5 / (2√x), für x>0.',
  'Schreibe √(5x)=√5·x¹ᐟ². Der Faktor √5 bleibt erhalten, die Potenzregel gibt ½x⁻¹ᐟ².');
 B('1.3',A,'Ein Schüler leitet f(x)=x²·sin(x) als 2x·cos(x) ab. Erkläre die falsche Regel und korrigiere.','f′(x)=2x·sin(x)+x²·cos(x).',
  'Für ein Produkt aus zwei veränderlichen Funktionen gilt (uv)′=u′v+uv′. Beides nur einzeln abzuleiten und zu multiplizieren ist falsch.');
@@ -60,55 +60,55 @@ B('1.19b',K,'Ein Ball hat h(t)=−5t²+10t+7. Wann erreicht er nach dem Abwurf e
  'Setze h(t)=7: −5t²+10t=0, also t(−5t+10)=0. Die Lösung t=0 ist der Abwurf, t=2 der gesuchte spätere Zeitpunkt.',2);
 B('1.21',K,'Ein kubisches Polynom hat E(2|4) als Extrempunkt und W(−1|0,5) als Wendepunkt. Bestimme die Funktionsgleichung.','Bedingungen: f(2)=4, f′(2)=0, f(−1)=0,5 und f″(−1)=0. Daraus folgt f(x)=−7x³/108−7x²/36+14x/9+59/27.',
  'Vier Bedingungen für die vier Koeffizienten aufstellen und ein lineares Gleichungssystem lösen.');
-B('1.28',K,'Zerlege 40 in zwei natürliche Summanden, sodass die Summe ihrer Quadrate minimal ist.','20 und 20; Minimalwert 20²+20²=800.',
+B('1.28',K,'Zerlege die Zahl 40 so in zwei natürliche Summanden, dass die Summe ihrer Quadrate minimal ist.','20 und 20; Minimalwert 20²+20²=800.',
  'Sei x der erste Teil und 40−x der zweite. S(x)=x²+(40−x)². S′=4x−80=0 ⇒ x=20.',20);
-B('1.29',V,'Eine zylindrische Dose soll Volumen 75 cm³ besitzen. Bei welcher Abmessung wird die Materialoberfläche minimal? Boden und Deckel haben zusammen 25 % mehr Materialbedarf.','Mit r als Radius: h=75/(πr²). Materialmodell A(r)=2,5πr²+2πrh. Minimum aus A′(r)=0 bestimmen.',
+B('1.29',V,'Eine zylindrische Dose soll ein Volumen von 75 cm³ haben. Berechne, bei welchen Abmessungen die Materialkosten für die Herstellung am geringsten sind, wenn das Material für Boden und Deckel pro cm² um 25 % mehr kostet als für den Mantel.','Mit r als Radius: h=75/(πr²). Materialmodell A(r)=2,5πr²+2πrh. Minimum aus A′(r)=0 bestimmen.',
  'Zylinder: V=πr²h. Materialfläche entsprechend Aufgabenstellung mit Aufschlag für Boden und Deckel aufstellen. Die Nebenbedingung eliminiert h.');
-B('1.30',V,'Aus 144 cm Draht entsteht das Kantenmodell eines Quaders mit quadratischer Grundfläche. Berechne die Abmessungen für maximales Volumen.','Grundkante 12 cm, Höhe 12 cm; Volumen 1728 cm³.',
+B('1.30',V,'Aus einem 144 cm langen Draht soll das Kantenmodell eines Quaders mit quadratischer Grundfläche gebildet werden. Berechne jene Abmessungen, bei denen das Volumen des Quaders maximal ist.','Grundkante 12 cm, Höhe 12 cm; Volumen 1728 cm³.',
  'Drahtlänge 8a+4h=144 ⇒ h=36−2a. V=a²(36−2a). V′=72a−6a²=0 liefert a=12, h=12.',12);
-B('1.31',K,'Ein Bauer hält bereits 50 Ziegen mit je 800 l Milch im Jahr. Für jede zusätzlich angeschaffte Ziege sinkt die Jahresmilchmenge pro Tier um 10 l. Wie viele Ziegen soll er zusätzlich anschaffen?','15 zusätzliche Ziegen, also 65 insgesamt. Maximal 65·650=42 250 l Milch.',
+B('1.31',K,'Die von einer Ziege jährlich produzierte Milchmenge hängt unter anderem von der Futtermenge ab. Ein Bauer hält auf einem Grundstück 50 Milchziegen, die jeweils 800 L Milch pro Jahr geben. Das Halten jeder weiteren Ziege auf diesem Grundstück führt zu einer Verringerung der Milchmenge um 10 L pro Jahr und Ziege. Wie viele Ziegen sollte der Bauer zusätzlich anschaffen, um möglichst viel Milch zu erhalten?','15 zusätzliche Ziegen, also 65 insgesamt. Maximal 65·650=42 250 l Milch.',
  'Sei x die Anzahl zusätzlich angeschaffter Ziegen. Dann M(x)=(50+x)(800−10x)=40 000+300x−10x². Ableitung M′=300−20x=0 ⇒ x=15; M″=−20<0.',15);
-B('1.55a',I,'Berechne ∫(4x³−3x+1) dx.','F(x)=x⁴−3x²/2+x+C.',
+B('1.55a',I,'Ermittle das unbestimmte Integral: ∫(4x³−3x+1) dx.','F(x)=x⁴−3x²/2+x+C.',
  'Potenzregel rückwärts auf alle Summanden anwenden. Jede Stammfunktion hat +C.');
-B('1.55b',I,'Berechne ∫(a·t+b) dt (a,b sind Konstanten).','F(t)=a·t²/2+b·t+C.',
+B('1.55b',I,'Ermittle das unbestimmte Integral: ∫(a·t+b) dt (a,b sind Konstanten).','F(t)=a·t²/2+b·t+C.',
  'Konstante Faktoren stehen lassen; t bekommt beim Integrieren Exponent 2.');
-B('1.55c',I,'Berechne ∫(2sin(x)+3eˣ+2/x) dx.','F(x)=−2cos(x)+3eˣ+2ln|x|+C.',
+B('1.55c',I,'Ermittle das unbestimmte Integral: ∫(2sin(x)+3eˣ+2/x) dx.','F(x)=−2cos(x)+3eˣ+2ln|x|+C.',
  'Sinus wird zu −Cosinus; eˣ bleibt eˣ und ∫(2/x)dx=2ln|x| (x≠0).');
 B('1.57a',F,'Berechne das bestimmte Integral ∫₀^π sin(t) dt.','[−cos(t)]₀^π=−(−1)−(−1)=2.',
  'Stammfunktion −cos t. Obere Grenze minus untere Grenze einsetzen.',2);
-B('1.57b',F,'Berechne ∫₀^(2π) cos(x) dx.','[sin(x)]₀^(2π)=0.',
+B('1.57b',F,'Berechne das bestimmte Integral: ∫₀^(2π) cos(x) dx.','[sin(x)]₀^(2π)=0.',
  'Nach einer ganzen Periode heben sich positive und negative orientierte Flächen auf.',0);
-B('1.57c',F,'Berechne ∫₀⁴ √t dt.','[2t^(3/2)/3]₀⁴ = (2/3)·8=16/3≈5,3333.',
+B('1.57c',F,'Berechne das bestimmte Integral: ∫₀⁴ √t dt.','[2t^(3/2)/3]₀⁴ = (2/3)·8=16/3≈5,3333.',
  'Wurzel als t^(1/2) schreiben, integrieren und die tatsächlichen Originalgrenzen 0 und 4 einsetzen.',16/3);
-B('1.58a',I,'Berechne ∫5e^(2x) dx.','F(x)=(5/2)e^(2x)+C.',
+B('1.58a',I,'Ermittle das unbestimmte Integral: ∫5e^(2x) dx.','F(x)=(5/2)e^(2x)+C.',
  'Bei e^(kx) durch die innere Ableitung k teilen, hier 2.');
-B('1.58b',I,'Berechne ∫sin(0,5t+π/2) dt.','F(t)=−2cos(0,5t+π/2)+C.',
+B('1.58b',I,'Ermittle das unbestimmte Integral: ∫sin(0,5t+π/2) dt.','F(t)=−2cos(0,5t+π/2)+C.',
  'Cosinus wird zu Sinus beim Ableiten; wegen innerer Steigung 0,5 beim Integrieren durch 0,5 teilen.');
-B('1.58c',I,'Berechne ∫1/(1−x) dx.','F(x)=−ln|1−x|+C.',
+B('1.58c',I,'Ermittle das unbestimmte Integral: ∫1/(1−x) dx.','F(x)=−ln|1−x|+C.',
  'Substitution u=1−x, du=−dx. Minuszeichen nicht vergessen.');
-B('1.59a',I,'Berechne ∫2/(x+4) dx.','F(x)=2ln|x+4|+C.',
+B('1.59a',I,'Ermittle das unbestimmte Integral: ∫2/(x+4) dx.','F(x)=2ln|x+4|+C.',
  'Die Logarithmus-Stammfunktion ∫1/u du=ln|u| nutzen.');
-B('1.59b',I,'Berechne ∫2e^(2−x) dx.','F(x)=−2e^(2−x)+C.',
+B('1.59b',I,'Ermittle das unbestimmte Integral: ∫2e^(2−x) dx.','F(x)=−2e^(2−x)+C.',
  'Innere Ableitung von 2−x ist −1, daher Vorzeichenwechsel.');
-B('1.59c',I,'Berechne ∫cos(5t+π) dt.','F(t)=(1/5)sin(5t+π)+C.',
+B('1.59c',I,'Ermittle das unbestimmte Integral: ∫cos(5t+π) dt.','F(t)=(1/5)sin(5t+π)+C.',
  'Sinus ist Stammfunktion von Cosinus; durch den Faktor 5 der inneren Funktion teilen.');
-B('1.60a',F,'Berechne ∫₀³ 4/(x−6) dx.','4[ln|x−6|]₀³ = 4ln(3/6)=−4ln2≈−2,7726.',
+B('1.60a',F,'Berechne das bestimmte Integral: ∫₀³ 4/(x−6) dx.','4[ln|x−6|]₀³ = 4ln(3/6)=−4ln2≈−2,7726.',
  'Logarithmus integrieren; die negative Fläche ist als orientiertes Integral negativ.',-4*Math.log(2));
-B('1.60b',F,'Berechne ∫₀² sin((π/2)t−π) dt.','[−2/π·cos((π/2)t−π)]₀²=−4/π≈−1,2732.',
+B('1.60b',F,'Berechne das bestimmte Integral: ∫₀² sin((π/2)t−π) dt.','[−2/π·cos((π/2)t−π)]₀²=−4/π≈−1,2732.',
  'Sinus integrieren und durch π/2 teilen, dann t=2 und t=0 einsetzen.',-4/Math.PI);
-B('1.60c',F,'Berechne ∫_(π/2)^(3π/2) cos(x−π) dx.','[sin(x−π)]_(π/2)^(3π/2)=1−(−1)=2.',
+B('1.60c',F,'Berechne das bestimmte Integral: ∫_(π/2)^(3π/2) cos(x−π) dx.','[sin(x−π)]_(π/2)^(3π/2)=1−(−1)=2.',
  'Cosinus integrieren; bei 3π/2 ist sin(π/2)=1, bei π/2 ist sin(−π/2)=−1.',2);
-B('1.61b',I,'Berechne ∫x/(x²+1) dx.','F(x)=(1/2)ln(x²+1)+C.',
+B('1.61b',I,'Ermittle das unbestimmte Integral: ∫x/(x²+1) dx.','F(x)=(1/2)ln(x²+1)+C.',
  'Substitution u=x²+1; du=2x dx. Der Faktor 1/2 gleicht die innere Ableitung aus.');
-B('1.62a',I,'Berechne ∫t·cos(t) dt.','F(t)=t·sin(t)+cos(t)+C.',
+B('1.62a',I,'Ermittle das unbestimmte Integral mithilfe der partiellen Integration: ∫t·cos(t) dt.','F(t)=t·sin(t)+cos(t)+C.',
  'Partielle Integration mit u=t, dv=cos(t)dt: uv−∫vdu.');
-B('1.62b',I,'Berechne ∫x·e^(−x) dx.','F(x)=−(x+1)e^(−x)+C.',
+B('1.62b',I,'Ermittle das unbestimmte Integral mithilfe der partiellen Integration: ∫x·e^(−x) dx.','F(x)=−(x+1)e^(−x)+C.',
  'Partielle Integration: u=x, dv=e^(−x)dx; v=−e^(−x).');
-B('1.62c',I,'Berechne ∫x²·ln(x) dx (x>0).','F(x)=x³ln(x)/3−x³/9+C.',
+B('1.62c',I,'Ermittle das unbestimmte Integral mithilfe der partiellen Integration: ∫x²·ln(x) dx (x>0).','F(x)=x³ln(x)/3−x³/9+C.',
  'Partielle Integration: u=ln x, dv=x²dx, dadurch du=1/x dx und v=x³/3.');
-B('1.63a',I,'Berechne ∫x/(x+1) dx.','F(x)=x−ln|x+1|+C.',
+B('1.63a',I,'Ermittle das unbestimmte Integral mithilfe der Polynomdivision: ∫x/(x+1) dx.','F(x)=x−ln|x+1|+C.',
  'Bruch umformen: x/(x+1)=1−1/(x+1), dann getrennt integrieren.');
-B('1.63b',I,'Berechne ∫x²/(x+1) dx.','F(x)=x²/2−x+ln|x+1|+C.',
+B('1.63b',I,'Ermittle das unbestimmte Integral mithilfe der Polynomdivision: ∫x²/(x+1) dx.','F(x)=x²/2−x+ln|x+1|+C.',
  'Polynomdivision: x²/(x+1)=x−1+1/(x+1).');
 B('1.66a',F,'Berechne den tatsächlichen Flächeninhalt zwischen f(x)=x²+6x und der x-Achse für a=−3, b=2.','A=98/3≈32,667 Flächeneinheiten.',
  'Nullstellen x=−6 und x=0; im Intervall nur 0. F=x³/3+3x². Fläche = |F(0)−F(−3)|+|F(2)−F(0)| =18+44/3 =98/3.',98/3,
@@ -144,13 +144,13 @@ B('1.93a',K,'Die Steigung von y=x²+a·x+2 an x₀=−1 ist k=3. Bestimme a.','a
  'f′=2x+a. Bei x=−1 ist f′=−2+a=3 ⇒ a=5.',5);
 B('1.93b',K,'Die Steigung von y=4x³−a·x²+x an x₀=2 ist k=−1. Bestimme a.','a=25/2=12,5.',
  'f′(x)=12x²−2ax+1. Bei x=2 ergibt 49−4a=−1 ⇒ a=12,5.',12.5);
-B('1.98a',F,'Berechne ∫₁⁴(x²+4x−1)dx.','Bestimmtes Integral =48.',
+B('1.98a',F,'Berechne das bestimmte Integral: ∫₁⁴(x²+4x−1)dx.','Bestimmtes Integral =48.',
  'Stammfunktion F(x)=x³/3+2x²−x. Es gilt F(4)=148/3 und F(1)=4/3; Differenz =144/3=48.',48);
-B('1.98b',F,'Berechne ∫₀¹ e^(2x) dx.','(e²−1)/2≈3,1945.',
+B('1.98b',F,'Berechne das bestimmte Integral: ∫₀¹ e^(2x) dx.','(e²−1)/2≈3,1945.',
  'Eine Stammfunktion ist ½e^(2x). Bei 1 und 0 einsetzen.',(Math.exp(2)-1)/2);
-B('1.98c',F,'Berechne ∫₂⁵ ³√(x²) dx.','(3/5)(5^(5/3)−2^(5/3))≈6,867.',
+B('1.98c',F,'Berechne das bestimmte Integral: ∫₂⁵ ³√(x²) dx.','(3/5)(5^(5/3)−2^(5/3))≈6,867.',
  'Schreibe ³√(x²)=x^(2/3) und verwende die Potenzregel für Stammfunktionen: 3x^(5/3)/5.',(3/5)*(Math.pow(5,5/3)-Math.pow(2,5/3)));
-B('1.98d',F,'Berechne ∫₀^(π/2) 3sin(x)dx.','Ergebnis =3.',
+B('1.98d',F,'Berechne das bestimmte Integral: ∫₀^(π/2) 3sin(x)dx.','Ergebnis =3.',
  'Stammfunktion −3cos x. Obere minus untere Grenze: −3cos(π/2)+3cos 0=3.',3);
 B('1.100a',V,'Eine Drohne wird durch a(t)=0,0036t²−0,18t+2,25 auf [0;25] beschleunigt. Anfangsgeschwindigkeit v(0)=3 m/s. Bestimme v(t).','v(t)=0,0012t³−0,09t²+2,25t+3.',
  'Beschleunigung integrieren und C=v(0)=3 setzen.');
@@ -226,10 +226,10 @@ B('1.9c',A,'Gegeben v=−ωcos(ωt−φ). Bestimme ∂v/∂t und ∂v/∂ω.',
 B('1.9d',A,'Gegeben η=(T₂−T₁)/T₁. Bestimme ∂η/∂T₁ und ∂η/∂T₂.',
  'η_T₁=−T₂/T₁²; η_T₂=1/T₁.',
  'Schreibe zuerst η=T₂/T₁−1. Bei jeder partiellen Ableitung bleibt die andere Temperatur konstant.');
-B('1.56a',I,'Berechne ∫(−5x²+3/x³−³√x)dx.',
+B('1.56a',I,'Ermittle das unbestimmte Integral: ∫(−5x²+3/x³−³√x)dx.',
  'F(x)=−5x³/3−3/(2x²)−(3/4)x^(4/3)+C.',
  '3/x³ als 3x⁻³ schreiben. Die dritte Wurzel als x^(1/3) auffassen; das Integral ist (3/4)x^(4/3).');
-B('1.61a',I,'Berechne ∫3x·e^(2x)dx mittels partieller Integration.',
+B('1.61a',I,'Ermittle das unbestimmte Integral: ∫3x·e^(2x)dx mittels partieller Integration.',
  'F(x)=(3/2)x·e^(2x)−(3/4)e^(2x)+C.',
  'u=3x und dv=e^(2x)dx; damit du=3dx und v=e^(2x)/2. Verwende ∫u dv=uv−∫vdu.');
 B('1.68a',F,'Die grafisch markierte Fläche wird von der x-Achse und der Geraden durch (0|3) und (6|0) begrenzt. Bestimme den Flächeninhalt.',
@@ -249,11 +249,11 @@ B('1.69b',F,'Die blau markierte Fläche liegt im Rechteck von x=0 bis x=b oberha
 
 
 /* Graph interpretation, optimization and context exercises transcribed from the ZIP. */
-B('1.11a',K,'Zeichne den Graphen von f′ zum originalen Linienzug durch (0|0),(2|3),(3|3),(5|0),(7|0),(9|2).',
+B('1.11a',K,'Zeichne den Graphen der Ableitungsfunktion der dargestellten Funktion f (Teil a).',
  'f′ ist stückweise konstant: 1,5 auf (0;2), 0 auf (2;3), −1,5 auf (3;5), 0 auf (5;7), 1 auf (7;9). An den Knicken existiert keine eindeutige Ableitung.',
  'Die Ableitung entspricht den Steigungen der fünf Geradenabschnitte. An echten Knickstellen ist sie nicht definiert.',
  null,{curves:[{label:'f',points:[[0,0],[2,3],[3,3],[5,0],[7,0],[9,2]]}],x:[-0.5,9.5],y:[-0.5,4]});
-B('1.11b',K,'Der Graph von f ist eine Parabel mit Nullstellen 1 und 3 sowie Scheitel (2|−1). Skizziere den Graphen ihrer Ableitung.',
+B('1.11b',K,'Zeichne den Graphen der Ableitungsfunktion der dargestellten Funktion f (Teil b).',
  'f(x)=(x−2)²−1 ⇒ f′(x)=2x−4, eine Gerade mit Nullstelle bei x=2.',
  'Die Ableitung einer quadratischen Funktion ist eine Gerade. Links des Scheitels negativ, rechts positiv.',
  null,{curves:[{label:'f',poly:[1,-4,3]}],x:[-.2,4.3],y:[-2,5]});
@@ -299,10 +299,10 @@ B('1.24',K,'Der höchste Punkt eines kubischen Seilverlaufs ist H(2|50), der tie
 B('1.25',K,'Ein beidseitig eingespannter Träger von 3 m Länge biegt sich in der Mitte um maximal 2 cm durch. Die Endwerte sind 0 und die Tangenten an beiden Enden waagrecht. Stelle ein Polynom 4. Grades auf.',
  'Mit x in mm und y als Durchbiegung in mm gilt y(x)=20·[x(3000−x)/(1500²)]².',
  'Doppelte Nullstellen bei x=0 und x=3000 erzwingen y=a x²(x−3000)². Mit y(1500)=20 mm wird a eindeutig bestimmt.');
-B('1.32a',K,'In einen Halbkreis mit Radius R wird ein gleichschenkliges Dreieck maximaler Fläche eingeschrieben. Die Spitze liegt im Kreismittelpunkt, die Grundlinie parallel zum Durchmesser. Welcher Prozentanteil der Halbkreisfläche ist maximal?',
+B('1.32a',K,'Einem Halbkreis mit dem Radius R soll ein gleichschenkliges Dreieck mit möglichst großem Flächeninhalt so eingeschrieben werden, dass die Spitze im Mittelpunkt des Kreises liegt und die Grundlinie parallel zum Durchmesser ist. Ermittle, wie viel Prozent der Halbkreisfläche die Dreiecksfläche einnimmt.',
  'Anteil 1/π≈31,83 %.',
  'Bei Dreieckshöhe h liegt die halbe Grundlinie bei √(R²−h²). A(h)=h·√(R²−h²) hat sein Maximum bei h=R/√2, also A=R²/2. Halbkreisfläche πR²/2 ⇒ Verhältnis 1/π.',100/Math.PI);
-B('1.32b',K,'Einem gleichschenkligen Dreieck mit Basis B und Höhe H wird ein Rechteck mit maximaler Fläche eingeschrieben. Bestimme seine Abmessungen.',
+B('1.32b',K,'Einem gleichschenkligen Dreieck mit der Basis B und der Höhe H soll ein Rechteck so eingeschrieben werden, dass dessen Fläche maximal wird. Ermittle die Abmessungen des Rechtecks. Hinweis: Verwende den Strahlensatz.',
  'Breite B/2, Höhe H/2, Rechtecksfläche BH/4.',
  'Mit Strahlensatz beträgt die verfügbare Breite in Höhe h: B(1−h/H). Maximieren von A(h)=hB(1−h/H).');
 B('1.74',V,'Nach Öffnen einer Kanalschleuse gilt v(t)=6,2t·e^(−1,4t) m³/s für t≥0. Bestimme den Zeitpunkt maximaler Durchflussgeschwindigkeit.',
@@ -314,13 +314,13 @@ B('1.101a',V,'Der Graph von f(x)=√(x−3) wird im Bereich x∈[3;7] um die x-A
 B('1.101b',V,'Der Graph von f(x)=√(x−3) wird im Bereich [3;7] um die y-Achse rotiert. Berechne das Volumen der erzeugten Rotationsfigur.',
  'Vᵧ=2π∫₃⁷ x√(x−3)dx=(288/5)π≈180,956.',
  'Zylinderschalenmethode: Umfang 2πx mal Höhe f(x) integrieren. Substitution u=x−3 benutzen.',288*Math.PI/5);
-B('1.102',F,'Ordne zu: Welcher mathematische Begriff entspricht „einem orientierten Flächeninhalt“?',
- 'Das bestimmte Integral. Es kann im Gegensatz zum geometrischen Flächeninhalt negativ sein.',
+B('1.102',F,'Ergänze die Textlücken in folgendem Satz durch Ankreuzen der jeweils richtigen Satzteile, so dass eine korrekte Aussage entsteht.\nDas [1] entspricht [2].\n[1] A: Differenzieren einer Stammfunktion; B: bestimmtes Integral; C: unbestimmtes Integral.\n[2] A: dem Betrag des Flächeninhalts; B: dem Aufsuchen des Integrals; C: einem orientierten Flächeninhalt.',
+ '[1] B und [2] C: Das bestimmte Integral entspricht einem orientierten Flächeninhalt. Es kann im Gegensatz zum geometrischen Flächeninhalt negativ sein.',
  'Auf der x-Achse liegende positive und negative Teilflächen werden beim bestimmten Integral mit Vorzeichen addiert.');
 
 
 /* Further independently checked source subparts, original pages 6–15. */
-B('1.33',V,'Ein Rundlaufweg um ein rechteckiges Fußballfeld besteht aus zwei Halbkreisbögen an den Torseiten und zwei Geraden. Die innere Bahnlänge beträgt 500 m. Bei welchen Abmessungen ist die rechteckige Spielfläche maximal?',
+B('1.33',V,'Rund um den Sportplatz des FC Wald soll eine Laufbahn mit einer Innenbahnlänge von 500 m angelegt werden. Die Laufbahn soll direkt an den Seitenlinien des Fußballfeldes anliegen und an den beiden Torlinien jeweils die Form eines Halbkreises haben. Ermittle, bei welchen Abmessungen das Fußballfeld den größtmöglichen Flächeninhalt hat.',
  'Geradenlänge 125 m, Feldbreite 250/π≈79,58 m; maximierte Fläche 31 250/π≈9 947,18 m².',
  'Sei r der Radius der Halbkreise und L die Länge der geraden Bahnteile. 2L+2πr=500 ⇒ L=250−πr. A=2rL=500r−2πr². Aus A′=500−4πr=0 folgt r=125/π und L=125.');
 B('1.63c',I,'Berechne das unbestimmte Integral ∫x³/(x²−x−6) dx.',
@@ -375,15 +375,15 @@ B('1.76a',V,'Ein kreisförmiger Pool hat Durchmesser 20 m. Ein geschwungener Bar
 B('1.76b',V,'Der Barbereich aus 1.76 hat eine Fläche von 96/π m². Der Pool ist 120 cm tief. Wie viele Hektoliter Wasser passen in den Pool ohne Barbereich?',
  'Wasserfläche =100π−96/π m². Volumen=1,2·(100π−96/π) m³, in hL: ≈3 403,22 hL.',
  'Poolvolumen aus Oberfläche·Tiefe (1,2 m). Für Barbereich kein Wasser mitzählen. 1 m³=10 hL.');
-B('1.82a',K,'Ein Polynom 3. Grades hat Maximum H(2|5), Wendestelle x=4 und Wendetangenten-Steigung k=−3/2. Bestimme Funktion und Wendetangente.',
+B('1.82a',K,'Eine Polynomfunktion 3. Grades hat ein Maximum im Punkt H(2|5). An der Stelle x=4 befindet sich ein Wendepunkt. Die Steigung der Wendetangente beträgt k=−3/2. Bestimme die Funktionsgleichung und die Gleichung der Wendetangente.',
  'f(x)=x³/8−3x²/2+9x/2+1. Wendepunkt W(4|3) und Wendetangente y=−(3/2)x+9.',
  'f(2)=5, f′(2)=0, f″(4)=0, f′(4)=−3/2. Löse das lineare Gleichungssystem für a,b,c,d. Setze x=4 für W und die Tangente ein.');
-B('1.82c',F,'Berechne den orientierten Flächeninhalt zwischen f(x)=x³/8−3x²/2+9x/2+1 und der x-Achse auf [1;7].',
+B('1.82c',F,'Ermittle jene Fläche, die der Graph der Funktion im Intervall [1;7] mit der waagrechten Achse einschließt.',
  'Bestimmtes Integral ∫₁⁷f(x)dx =18 Flächeneinheiten.',
  'Stammfunktion x⁴/32−x³/2+9x²/4+x bilden und Grenzen 7 und 1 einsetzen.',18);
-B('1.82d',V,'Rotiert f(x)=x³/8−3x²/2+9x/2+1 auf [1;7] um die x-Achse, wie groß ist das Rotationsvolumen?',
- 'V=π·75951/1120≈213,03 cm³.',
- 'Rotation um die x-Achse: V=π∫₁⁷[f(x)]²dx. Polynom quadrieren, integrieren und Grenzen einsetzen.',75951*Math.PI/1120);
+B('1.82d',V,'Rotiert der Funktionsgraph im Intervall [1;7] um die x-Achse, so hat der entstehende Rotationskörper die Form einer Spielfigur, wie sie aus einem Kunststoff mit der Dichte ρ=1,05 g/cm³ hergestellt ist. Bestimme die Masse der Spielfigur.',
+ 'V=π·75951/1120≈213,04 cm³; Masse m=1,05·V≈223,69 g.',
+ 'Rotationsvolumen um die x-Achse: V=π·Integral von f(x)² mit Untergrenze 1 und Obergrenze 7. Polynom quadrieren, integrieren und Grenzen einsetzen. Anschließend m=ρ·V mit ρ=1,05 g/cm³ berechnen.',1.05*75951*Math.PI/1120);
 
 
 /* Actual exercises 2.25–2.38 from the last two uploaded screenshots. */
@@ -454,13 +454,13 @@ B('2.38d',P,'Gegeben z=y·e^(sin x), S(π|−3|z₀). Bestimme zₓₓ, zᵧᵧ 
 
 
 /* The teacher explicitly requires 1.55–1.57 by hand: include all subparts. */
-B('1.56b',I,'Berechne ∫(³√(x²)+5/x−3/x³)dx.',
+B('1.56b',I,'Ermittle das unbestimmte Integral: ∫(³√(x²)+5/x−3/x³)dx.',
  'F(x)=(3/5)x^(5/3)+5ln|x|+3/(2x²)+C.',
  'Schreibe ³√(x²)=x^(2/3) und −3/x³=−3x⁻³. Dann die rückwärts angewandte Potenzregel und Logarithmus-Stammfunktion nutzen.');
-B('1.56c',I,'Berechne ∫(6x−5·⁴√x+³√(2x))dx.',
+B('1.56c',I,'Ermittle das unbestimmte Integral: ∫(6x−5·⁴√x+³√(2x))dx.',
  'F(x)=3x²−4x^(5/4)+(3/8)(2x)^(4/3)+C.',
  '⁴√x=x^(1/4); für ³√(2x) ist eine Substitution u=2x mit du=2dx hilfreich. Am Ende +C.');
-B('1.61c',I,'Berechne ∫(3−2x)/(x²−3x+4)² dx.',
+B('1.61c',I,'Ermittle das unbestimmte Integral: ∫(3−2x)/(x²−3x+4)² dx.',
  'F(x)=1/(x²−3x+4)+C.',
  'Nenner-Grundfunktion u=x²−3x+4, u′=2x−3. Zähler 3−2x=−u′. Also ∫−u′/u² dx=1/u.');
 
@@ -551,29 +551,29 @@ B('1.92c',A,'Leite h(x)=ln(³√(2x−1)) ab.',
 
 
 /* Volume chapter screenshot 11: curves and solutions reconstructed from the printed parameters. */
-B('1.79a',V,'Das Endstück einer Vorhangstange entsteht durch Drehung eines Linienzuges um die x-Achse. Die Gerade g geht von (0|0) nach P(10|5); die Parabel p geht durch P, hat dort dieselbe Steigung und trifft die x-Achse bei x=50 (Maße in mm). Bestimme g und p.',
- 'g(x)=x/2 für 0≤x≤10; p(x)=−(x−50)(x−2)/64 für 10≤x≤50.',
- 'Gerade durch Ursprung und P: g(x)=0,5x. Für p=ax²+bx+c die drei Bedingungen p(10)=5, p′(10)=0,5 und p(50)=0 lösen.',
- null,{curves:[{label:'g',points:[[0,0],[10,5]]},{label:'p',poly:[-1/64,13/16,-25/16],domain:[10,50]}],x:[0,52],y:[0,12]});
-B('1.79b',V,'Das Endstück wird aus g=x/2 auf [0;10] und p=−(x−50)(x−2)/64 auf [10;50] um die x-Achse rotiert (mm). Bei Dichte ρ=8,4 g/cm³ berechne die Masse.',
- 'V=π(∫₀¹⁰g²dx+∫₁₀⁵⁰p²dx)=6250π/3 mm³≈6,545 cm³; Masse≈54,98 g.',
- 'Rotationsvolumen in mm³ berechnen, dann durch 1000 in cm³ umrechnen. Masse =ρ·V.',8.4*6250*Math.PI/3000);
-B('1.80a',V,'Der Halbquerschnitt eines Kreisels ist durch eine Gerade g von (0|3) nach (4|0) und die Kurve f(x)=−√[0,5·(4−x)] beschrieben. Bestimme g.',
+B('1.79a',V,'Das Endstück einer Vorhangstange entsteht durch Drehung der dargestellten Kurve um die x-Achse. Die Kurve setzt sich aus einer Geraden g und einer Parabel p zusammen, wobei der Übergang in P knickfrei (d. h. mit gleicher Steigung) erfolgt. Bestimme die Funktionsgleichungen von g und p. Die eingezeichneten Koordinaten sind in mm angegeben.',
+ 'g(x)=x/2 für 0≤x≤20; p(x)=−x²/36+(29/18)x−100/9 für 20≤x≤50.',
+ 'Aus dem Diagramm: g geht durch (0|0) und P(20|10), also g(x)=0,5x. Beim Übergang in P müssen Funktionswert und Steigung übereinstimmen: p(20)=10 und p′(20)=0,5. Die Parabel endet auf der x-Achse: p(50)=0. Setze p(x)=ax²+bx+c an und löse die drei Gleichungen nach a, b und c.',
+ null,{curves:[{label:'g',points:[[0,0],[20,10]]},{label:'p',poly:[-1/36,29/18,-100/9],domain:[20,50]}],x:[0,52],y:[0,14]});
+B('1.79b',V,'Berechne die Masse des Endstücks der Vorhangstange, wenn die Dichte des Materials ρ=8,4 g/cm³ beträgt. Verwende die beiden in Schritt 1 bestimmten Teilfunktionen g auf [0;20] und p auf [20;50] sowie die Rotation um die x-Achse.',
+ 'V=π·(10625/3) mm³≈11126,84 mm³=11,12684 cm³. Die Masse beträgt m=8,4·V≈93,46 g.',
+ 'Bei Rotation um die x-Achse: V=π·[Integral von g(x)² mit Untergrenze 0 und Obergrenze 20 + Integral von p(x)² mit Untergrenze 20 und Obergrenze 50]. Es ergibt sich V=(10625π/3) mm³. Teile durch 1000 für cm³, danach m=ρ·V mit ρ=8,4 g/cm³.',8.4*10625*Math.PI/3000);
+B('1.80a',V,'Die Form des Halbschnitts eines Kreisels (siehe Abbildung) kann durch die Gerade g und den Graphen der Funktion f beschrieben werden. f(x) = −√(0,5·(4−x)), x und y in cm. Stelle die Funktionsgleichung von g auf. Entnimm die dafür benötigten Werte aus der Grafik.',
  'g(x)=3−(3/4)x.',
  'Geradengleichung y=mx+b. Aus den Punkten m=(0−3)/(4−0)=−3/4 und b=3.');
-B('1.80b',V,'Ein Kreisel entsteht durch Rotation von g(x)=3−3x/4 (0≤x≤4) und f(x)=−√[0,5·(4−x)] um die y-Achse. Dichte ρ=8,7 g/cm³. Berechne die Masse.',
+B('1.80b',V,'Die Form des Kreisels entsteht durch Rotation der beiden Kurven g und f um die y-Achse. Der Kreisel soll aus einer Messing-Legierung mit einer Dichte von 8,7 g/cm³ hergestellt werden. Berechne die Masse des Kreisels.',
  'Rotationsvolumen ≈88,178 cm³; Masse ≈767,15 g.',
  'Nach x umstellen: x_g(y)=4−4y/3 für y∈[0;3], x_f(y)=4−2y² für y∈[−√2;0]. V=π∫₀³x_g(y)²dy+π∫₋√₂⁰x_f(y)²dy.',8.7*16*Math.PI*(8*Math.sqrt(2)+15)/15);
-B('1.81a',V,'Die Glasinnenseite ist durch y=0,2(x²+1)²+0,8 beschrieben. Forme die Gleichung nach x² um.',
+B('1.81a',V,'Die Form der Innenseite eines Glases entsteht durch die Rotation einer Kurve um die senkrechte Achse des Koordinatensystems. Gegeben ist y=0,2·(x²+1)²+0,8, x, y in cm. Forme die Kurvengleichung nach x² um.',
  'x²=√[(y−0,8)/0,2]−1.',
  'Erst 0,8 abziehen und durch 0,2 teilen, dann die positive Quadratwurzel ziehen und 1 abziehen.');
-B('1.81b',V,'Die Glasinnenseite ist y=0,2(x²+1)²+0,8 (cm). Berechne, wie viele Milliliter das Glas bei einer Füllhöhe von 4 cm enthält.',
- 'Mit der Koordinatenhöhe y=4 beträgt V=π∫₁⁴[√(5y−4)−1]dy=27π/5≈16,965 ml. Falls 4 cm über dem Glasboden bei y=1 gemeint sind, reicht die Füllung bis y=5 und V≈27,325 ml.',
- 'Löse nach x² auf: x²=√(5y−4)−1. V=π∫x²dy. Achte darauf, ob die Aufgabenabbildung 4 cm als absolute Koordinate oder als Höhe über dem Glasboden zeigt; die Integrationsgrenzen unterscheiden sich.');
-B('1.81c',V,'Ist es möglich, das Glas mit Innenprofil y=0,2(x²+1)²+0,8 und Höhe 5,8 cm mit 40 ml zu befüllen?',
+B('1.81b',V,'Berechne, wie viele Milliliter Flüssigkeit das Glas beinhaltet, wenn die Füllhöhe im Glas 4 cm beträgt.',
+ 'Der Glasboden liegt bei y=1 cm. 4 cm Füllhöhe bedeutet deshalb die Grenzen y=1 und y=5. Volumen V=π·Integral von (√(5y−4)−1) mit Untergrenze 1 und Obergrenze 5 ≈27,33 cm³=27,33 ml.',
+ 'Die Innenwand hat die Gleichung y=0,2(x²+1)²+0,8. Stelle nach x² um: x²=√(5y−4)−1. Bei Rotation um die y-Achse ist der Querschnitt π·x². Der Boden liegt bei y=1; eine Flüssigkeitshöhe von 4 cm reicht daher bis y=5. Integriere π·x² über y von 1 bis 5 und nutze 1 cm³ = 1 ml.');
+B('1.81c',V,'Überprüfe nachweislich, ob es möglich ist, das Glas mit 40 ml Flüssigkeit zu füllen, wenn das Glas insgesamt 5,8 cm hoch ist.',
  'Nein. Die Modellkapazität bis y=5,8 cm beträgt etwa 36,86 ml und damit weniger als 40 ml.',
  'V_max=π∫₁^5,8[√(5y−4)−1]dy. Vergleiche das Ergebnis in cm³=ml mit 40 ml.');
-B('1.82b',K,'Zeichne f(x)=x³/8−3x²/2+9x/2+1 im Intervall [1;7], markiere Maximum H(2|5) und Wendepunkt W(4|3).',
+B('1.82b',K,'Stelle die Funktion im Intervall [1;7] grafisch dar.',
  'f(2)=5 mit f′(2)=0 und f″(2)<0. Bei x=4 ist f″(4)=0 und f′(4)=−3/2.',
  'Berechne eine kleine Wertetabelle und markiere die beiden besonderen Punkte. Die Kurve ist kubisch.',
  null,{curves:[{label:'f',poly:[1/8,-3/2,9/2,1]}],x:[1,7],y:[0,6]});
@@ -600,7 +600,7 @@ B('1.100d',V,'Die Drohne startet mit v(0)=3 m/s und a(t)=0,0036t²−0,18t+2,25.
  'Aus a erhält man v(t)=0,0012t³−0,09t²+2,25t+3. Der Weg ist s(t)=0,0003t⁴−0,03t³+1,125t²+3t. Löse s(t)=200 numerisch auf [0;25].',14.40984457896);
 
 
-B('1.30b',V,'Beweise an einem selbst gewählten Beispiel, dass ein Quader mit quadratischer Grundfläche, dessen Kanten zusammen 144 cm messen, ein kleineres Volumen als der optimale Würfel hat.',
+B('1.30b',V,'Zeige an einem selbst gewählten Beispiel, dass jeder andere Quader, dessen Kantenlänge insgesamt 144 cm beträgt, ein kleineres Volumen hat.',
  'Beispiel: Grundkante a=10 cm, Höhe h=16 cm. Drahtlänge 8·10+4·16=144 cm; Volumen 10²·16=1600 cm³ <1728 cm³ beim Würfel.',
  'Die Nebenbedingung lautet h=36−2a. Nimm einen zulässigen anderen Wert a≠12 und vergleiche V=a²h mit 1728.');
 B('1.94',K,'Diskutiere f(x)=4x³+3x²−2x+1 und zeichne Extrema, Wendepunkt sowie Wendetangente ein.',
