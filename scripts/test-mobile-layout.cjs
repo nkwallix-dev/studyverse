@@ -1857,12 +1857,12 @@ async function main(){
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-original-390.png'),fullPage:true});
      await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="pool"]').click());
      await cosmeticPage.locator('.source-detail').waitFor({timeout:5000});
-     assert((await cosmeticPage.locator('.source-list .source-task').count())>=60,'SA1 cluster must display relevant mixed-origin training tasks');
-     await cosmeticPage.locator('[data-action="source:open:pool-b-405-d"]').evaluate(el=>el.click());
+     assert((await cosmeticPage.locator('.source-list .source-task').count())>=30,'Official SA1 cluster must include many original PDF tasks');
+     await cosmeticPage.locator('.source-list .source-task').first().evaluate(el=>el.click());
      await cosmeticPage.locator('.source-pdf-sheet iframe').waitFor({timeout:5000});
      const sourceUrl=await cosmeticPage.locator('.source-pdf-sheet iframe').getAttribute('src');
-     assert(sourceUrl.startsWith('https://www.aufgabenpool.at/amn/'),
-       'Verified BMB items must use the official Aufgabenpool source');
+     assert(sourceUrl.startsWith('official-pdfs/'),
+       'Only locally included original official PDF files are rendered');
      await cosmeticPage.locator('[data-action="source:pool-check"]').click();
      assert((await cosmeticPage.locator('.source-reading .source-solution').innerText()).includes('möglichen Lösungswege'),
        'Checking descriptor solutions must point to the official answer pages inside the PDF');
@@ -1896,7 +1896,7 @@ async function main(){
   const mathPage=await mathDesktop.newPage();
   await mathPage.goto(base+'maths/sa-01/',{waitUntil:'load'});
   await mathPage.locator('#nav [data-nav="pool"]').click();
-  await mathPage.locator('[data-action="source:open:pool-b-405-d"]').evaluate(el=>el.click());
+  await mathPage.locator('.source-list .source-task').first().evaluate(el=>el.click());
   await mathPage.locator('.source-pdf-sheet iframe').waitFor();
   const pdfGeometry=await mathPage.locator('.source-detail').evaluate(detail=>{
     const iframe=detail.querySelector('.source-pdf-sheet iframe');

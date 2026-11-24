@@ -1,0 +1,138 @@
+{
+  "source": "https://aufgabenpool.at/amn/index.php?id=AM",
+  "selection": "distinct original PDFs, stable seeded sample, exact AM descriptor",
+  "descriptor_counts": {
+    "4.1": {
+      "available_subtasks": 6,
+      "available_distinct_pdfs": 6,
+      "selected": 6,
+      "descriptor_id": "29",
+      "sample": [
+        "A_128 b",
+        "B_079 b",
+        "B_640 c",
+        "B_300 d"
+      ]
+    },
+    "4.2": {
+      "available_subtasks": 86,
+      "available_distinct_pdfs": 81,
+      "selected": 15,
+      "descriptor_id": "30",
+      "sample": [
+        "A_316 c",
+        "A_141 c",
+        "A_121 b",
+        "B_340 b"
+      ]
+    },
+    "4.3": {
+      "available_subtasks": 15,
+      "available_distinct_pdfs": 15,
+      "selected": 10,
+      "descriptor_id": "31",
+      "sample": [
+        "A_108 d",
+        "A_096 d",
+        "B_438 c",
+        "A_367 b"
+      ]
+    },
+    "4.4": {
+      "available_subtasks": 121,
+      "available_distinct_pdfs": 106,
+      "selected": 15,
+      "descriptor_id": "32",
+      "sample": [
+        "A_330 b",
+        "A_158 b",
+        "A_259 a",
+        "A_224 b"
+      ]
+    },
+    "4.5": {
+      "available_subtasks": 89,
+      "available_distinct_pdfs": 77,
+      "selected": 15,
+      "descriptor_id": "33",
+      "sample": [
+        "A_143 a",
+        "A_194 d",
+        "B_186 a",
+        "A_389 a"
+      ]
+    },
+    "4.6": {
+      "available_subtasks": 3,
+      "available_distinct_pdfs": 3,
+      "selected": 3,
+      "descriptor_id": "34",
+      "sample": [
+        "A_142 a",
+        "A_188 c",
+        "A_128 a"
+      ]
+    },
+    "4.8": {
+      "available_subtasks": 70,
+      "available_distinct_pdfs": 66,
+      "selected": 15,
+      "descriptor_id": "36",
+      "sample": [
+        "B_352 c",
+        "B_441 a",
+        "A_309 a",
+        "A_212 b"
+      ]
+    },
+    "B_T_4.1": {
+      "available_subtasks": 12,
+      "available_distinct_pdfs": 12,
+      "selected": 10,
+      "descriptor_id": "54",
+      "sample": [
+        "B_658 b",
+        "B_376 a",
+        "B_432 c",
+        "B_050 a"
+      ]
+    },
+    "B_T2_4.2": {
+      "available_subtasks": 6,
+      "available_distinct_pdfs": 6,
+      "selected": 6,
+      "descriptor_id": "186",
+      "sample": [
+        "B_342 c",
+        "B_339 b",
+        "B_214 a",
+        "B_021 b"
+      ]
+    },
+    "B_T2_4.4": {
+      "available_subtasks": 50,
+      "available_distinct_pdfs": 46,
+      "selected": 10,
+      "descriptor_id": "69",
+      "sample": [
+        "B_684 b",
+        "B_649 b",
+        "B_224 c",
+        "B_433 a"
+      ]
+    },
+    "B_T2_4.5": {
+      "available_subtasks": 82,
+      "available_distinct_pdfs": 73,
+      "selected": 10,
+      "descriptor_id": "70",
+      "sample": [
+        "B_310 d",
+        "B_213 b",
+        "B_446 a",
+        "B_067 d"
+      ]
+    }
+  },
+  "total": 115
+}

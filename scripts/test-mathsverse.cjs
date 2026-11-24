@@ -69,53 +69,44 @@ const sourceJs=read('public/maths/sa-01/source-trainer.js');
 vm.runInNewContext(bookJs,sandbox);vm.runInNewContext(read('public/maths/sa-01/book-groups.js'),sandbox);vm.runInNewContext(read('public/maths/sa-01/book-crops.js'),sandbox);vm.runInNewContext(poolJs,sandbox);vm.runInNewContext(read('public/maths/sa-01/sa1-scope-bank.js'),sandbox);
 const book=sandbox.window.MATHS_BOOK_BANK,pool=sandbox.window.MATHS_POOL_BANK,sourceGroups=sandbox.window.MATHS_BOOK_GROUPS;
 assert(book.length>=80,'Textbook ZIP must produce >80 specific sourced tasks');
-assert(pool.length>=60&&pool.length<=150,'SA1 cluster should have a substantial, curated task set');
+assert(pool.length>=30&&pool.length<=165,'Official descriptor bank should be nonempty and bounded');
 assert.equal(sourceGroups.length,84,'Book task navigation should group the 215 existing sub-parts into 84 real exercises');
 
 
-/* Only real BMB exercises with preserved task IDs/sources may extend 4.8. */
-const newIntegralCases=[
- ['A_299 a','Bäume – Fläche eines Buchenblatts'],
- ['A_309 a','Zirbenholzbetten – Fläche und Masse'],
- ['A_317 a','Stand-up-Paddling – Fläche zwischen Kurven'],
- ['A_318 a','Kleingartensiedlung – Grundstück halbieren'],
- ['1_1309','Integral und Flächeninhalt – Vorzeichen richtig deuten']
-];
-const integralCases=pool.filter(q=>q.descriptor.split(',').map(s=>s.trim()).includes('4.8'));
-assert(integralCases.length>=10&&integralCases.length<=15,'Descriptor 4.8 must include a balanced maximum of 15 integral tasks');
-for(const [number,title] of newIntegralCases){
- const q=pool.find(x=>x.number===number);
- assert(q,'Missing official task '+number);
- assert.equal(q.title,title);
- assert(q.prompt?.length>=80&&q.solution?.length>=75&&q.guide?.length>=75,'Incomplete original-source exercise '+number);
- assert(q.source.startsWith('https://www.aufgabenpool.at/amn/'),'No non-ministry sources in 4.8');
- assert(q.descriptor==='4.8','Integral example outside 4.8');
+/* Studyverse publishes *only* verified originals from the official AM portal.
+ * Chapter inventory derives from the portal's real autocomplete hit counts.
+ * Each PDF is downloaded and checked for a genuine PDF signature before use.
+ */
+const reportFile='public/maths/sa-01/official-pdfs/import-report.json';
+assert(fs.existsSync(reportFile),'Official descriptor import report missing');
+const report=JSON.parse(read(reportFile));
+const chapters=Object.keys(report.descriptor_counts);
+assert(chapters.includes('4.8')&&chapters.includes('4.4')&&chapters.includes('4.2'));
+assert(!chapters.includes('4.7')&&!chapters.includes('B_T2_4.3'));
+assert.equal(pool.length,report.total,'Pool must consist of exactly imported official tasks');
+assert.equal(new Set(pool.map(q=>q.id)).size,pool.length,'Official tasks must have stable unique IDs');
+for(const q of pool){
+ assert.equal(q.kind,'pdf','No worksheet or generated problem in official pool');
+ assert.equal(q.origin,'official','No self-authored task in official pool');
+ assert(q.source.startsWith('official-pdfs/'),'Original PDF must be included in Studyverse');
+ assert(/^https:\/\/aufgabenpool\.at\/amn\//.test(q.originalSource),'Unverified foreign host');
+ assert(q.number&&q.title&&q.primary&&q.sourceLabel,'Original task metadata missing');
+ const sourceFile='public/maths/sa-01/'+q.source;
+ assert(fs.existsSync(sourceFile),'Missing real PDF file '+sourceFile);
+ const raw=fs.readFileSync(sourceFile);
+ assert(raw.subarray(0,4).toString()==='%PDF','Downloaded document is not a real PDF: '+sourceFile);
+ assert(raw.length>=800,'Suspiciously empty official PDF '+q.number);
 }
-for(const key of ['A_299 a','A_309 a','A_317 a','A_318 a']){
- const q=pool.find(x=>x.number===key);
- assert.equal(q.collection,true,'Older task should use the source collection view');
- assert.equal(q.source,'https://www.aufgabenpool.at/amn/allFiles/A.pdf');
+for(const code of chapters){
+ const data=report.descriptor_counts[code];
+ const selection=pool.filter(q=>q.primary===code);
+ assert.equal(selection.length,data.selected,'Official count mismatch for '+code);
+ assert(selection.length<=15,'Over 15 per chapter: '+code);
+ if(data.available_subtasks>=10)assert(selection.length>=10,'Ten original tasks required when available: '+code);
 }
-const newStandalone=pool.find(q=>q.number==='1_1309');
-assert(!newStandalone.collection&&newStandalone.source.endsWith('.pdf'));
-assert(sourceJs.includes('if(q.collection)')&&sourceJs.includes('source-compendium-statement'),
- 'Large original collection must show the exact chosen question before opening the PDF');
-assert(sourceJs.includes('q.collection?')&&sourceJs.includes('esc(q.solution)'),
- 'Embedded collection tasks need an accessible answer comparison');
-assert(read('public/maths/sa-01/source-trainer.css').includes('.source-compendium-pdf iframe'),
- 'Original compendium must be available on demand');
-
-assert.equal(pool.filter(q=>q.kind==='worksheet').length,9,'Exactly nine analysis-related teacher sheets');
-assert(!pool.some(q=>q.number==='B_261 b'||q.number==='B_602'),'Unrelated sign geometry and proportionality excluded');
-assert(pool.some(q=>q.number==='B_684 b'),'Roboterarm worksheet missing');
-assert(pool.some(q=>q.number==='B_623 a'),'Thermosflasche worksheet missing');
-for(const sheet of pool.filter(q=>q.kind==='worksheet')){
- assert(fs.existsSync('public/maths/sa-01/'+sheet.source),'Classroom scan not imported: '+sheet.source);
-}
-assert(pool.filter(q=>q.origin==='studyverse').every(q=>q.sourceLabel.includes('keine amtliche Maturaaufgabe')),
- 'Self-authored tasks must not masquerade as official SRDP questions');
-assert(sourceJs.includes('source-worksheet-photo')&&sourceJs.includes('STUDYVERSE-ÜBUNG'),
- 'Classroom and self-authored tasks need clear labels and safe image toggle');
+assert(sourceJs.includes('official-pdfs/')&&sourceJs.includes('q.originalSource'),
+ 'Original PDF must be embedded locally with a link to the real official source');
+assert(!pool.some(q=>q.number==='B_261 b'),'Off-syllabus stop-sign task excluded');
 
 const sourceCrops=sandbox.window.MATHS_BOOK_CROPS;
 assert(mhtml.includes('<script src="book-crops.js"></script>'),'Crop module must load before original-source renderer');
@@ -139,7 +130,7 @@ for(const [a,b] of [['1.1a','1.1b'],['1.1b','1.1c'],['1.80a','1.80b'],['1.98a','
 assert(sourceJs.includes("'<div class=\"book-exam-original\">'+bookOriginalStep(q)"),'Original exam must also use selected-subtask crop');
 
 assert.equal(new Set(book.map(q=>q.number)).size,book.length,'Do not repeat textbook tasks');
-assert.equal(new Set(pool.map(q=>q.number)).size,pool.length,'Do not repeat official task IDs');
+assert.equal(new Set(pool.map(q=>q.id)).size,pool.length,'Do not repeat official task records');
 for(const q of book){assert(q.prompt&&q.solution&&q.steps,'Book tasks need exact prompt and explained answer');if(q.expected!=null)assert(Number.isFinite(q.expected),'Book numeric result must be finite')}
 for(const q of pool){assert(q.source&&q.number,'Every cluster task must identify its source');assert(!/^(?:4[.]7|B_T2_4[.]3)$/.test(q.descriptor),'Excluded chapter must not appear');if(q.expected!=null)assert(Number.isFinite(q.expected))}
 assert(sourceJs.includes('shuffle(GROUPS).slice(0,10)'),'Boss must select 10 distinct original textbook exercise groups');
@@ -152,7 +143,7 @@ assert(mjs.includes('SOURCE.browser(\'book\',state)')&&mjs.includes('SOURCE.brow
 assert(sourceJs.includes('Stift und Papier')&&sourceJs.includes('Lösung anzeigen'),'Paper instructions and reveal button required');
 assert(!poolJs.includes('maths2mind.com'),'No third-party task mirror allowed in official source bank');
 assert(!mhtml.includes('official-inline.js'),'Do not load mixed-origin inline task artifacts');
-assert(pool.filter(q=>q.origin==='official').every(q=>/^https:\/\/(?:www\.)?aufgabenpool\.at\/amn\//.test(q.source)),'Official tasks must link only to the ministry');
+assert(pool.every(q=>q.origin==='official' && q.source.startsWith('official-pdfs/')),'All visible cluster tasks must be source-backed official PDFs');
 assert(sourceJs.includes('source:pool-check')&&sourceJs.includes('Lösungserwartung'),'Official solutions must be checked in the real PDF instead of fake numerical grading');
 for(const group of sourceGroups){
  assert(group.steps.length>=1&&group.steps.every(q=>q.number.startsWith(group.number)),'Every original subtask must belong to exactly one exercise');
@@ -198,9 +189,9 @@ approx(original.get('1.98c').expected,(3/5)*(Math.pow(5,5/3)-Math.pow(2,5/3)),'1
 approx(original.get('1.99').expected,300/Math.PI,'1.99');
 approx(original.get('1.100d').expected,14.4098445789603,'1.100d');
 assert(original.get('1.79a').graph?.curves?.[1]?.domain?.[0]===10,'Composite rod plot must begin the parabola only at x=10');
-for(const comp of ['4.1','4.2','4.3','4.4','4.5','4.6','4.8','B_T_4.1','B_T2_4.2','B_T2_4.4','B_T2_4.5','partial','parts']){
+for(const comp of ['4.1','4.2','4.3','4.4','4.5','4.6','4.8','B_T_4.1','B_T2_4.2','B_T2_4.4','B_T2_4.5']){
  const hits=pool.filter(q=>q.primary===comp);
- assert(hits.length>=2&&hits.length<=15,'Every listed descriptor must have 2–15 fitting tasks: '+comp+'='+hits.length);
+ assert(hits.length<=15,'Max 15 official tasks per chapter: '+comp+'='+hits.length);
 }
 assert(sourceJs.includes("'4.1':'Grenzwerte & Stetigkeit'")&&sourceJs.includes("'4.6':'Stammfunktionen'"),'All 7 descriptor topics must have transparent navigation, even without verified official question IDs');
 
@@ -220,7 +211,7 @@ assert(!fixedCss.includes('source-solution-open'),'No solution mode may unlock o
 assert(sourceJs.includes('source-reading')&&sourceJs.includes('source-answer-dock'),'The trainer must render document area and answer dock as siblings');
 assert(!sourceJs.includes('inner.style.zoom'),'Remove automatic content shrinking that made PDFs unreadable');
 assert(sourceJs.includes('officialStatement(q)')&&sourceJs.includes('aufgabenpool.at'),'SRDP tasks must display the original official PDF');
-assert(sourceJs.includes('view=FitH')&&sourceJs.includes('zoom=page-width'),'Official PDF must open readable at page width');
+assert(sourceJs.includes('view=FitH')&&sourceJs.includes('zoom=page-width'),'Original PDF must open readable at page width');
 assert(assetMap.includes("'🦊':'maths_avatar_pi'")&&assetMap.includes("'🦉':'maths_owl'"),'Legacy equipped animal emojis must resolve to new art');
 assert(legacyBridge.includes("'🦊': 'maths_avatar_pi'")&&legacyBridge.includes("'🦉': 'maths_owl'"),'Standalone worlds must show same avatar art');
 assert(app.includes("item.id==='maths_avatar_pi'||item.id==='maths_owl'"),'MathsVerse equipped items must store ID, not emoji');
