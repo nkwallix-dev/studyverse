@@ -1,6 +1,5 @@
-/* MathsVerse original-source trainer.
- * Uses ONLY sourced textbook exercises and identified official SRDP tasks.
- * No synthetic questions enter the two source catalogs or the 10+10 exam.
+/* MathsVerse SA1 trainer. Buchbeispiele unverändert; Clusteraufgaben nach Stoffplan kuratiert.
+ * Herkunft klar unterscheiden: amtliche SRDP, Unterrichtsblätter, Studyverse-Eigenübungen.
  * Existing save key, rewards and cosmetics remain unchanged.
  */
 (function(){
@@ -100,6 +99,8 @@ function plot(graph){
 }
 const cards=(mode)=>mode==='book'?BOOK:POOL;
 function officialStatement(q){
+ if(q.kind==='worksheet')return '<section class="source-compendium-statement"><span class="source-original-tag">UNTERRICHTS-LERNZETTEL · '+esc(q.officialNumber||q.number)+'</span><h3>'+esc(q.title)+'</h3><p>'+esc(q.prompt)+'</p><details class="source-worksheet-photo"><summary>Originalfoto zeigen (enthält handschriftliche Lösungen)</summary><img loading="lazy" src="'+esc(q.source)+'" alt="Original-Lernzettel '+esc(q.number)+'"></details></section>';
+ if(q.kind==='practice')return '<section class="source-compendium-statement"><span class="source-original-tag">STUDYVERSE-ÜBUNG · KEINE AMTLICHE MATURA-AUFGABE</span><h3>'+esc(q.title)+'</h3><p>'+esc(q.prompt)+'</p><p class="source-credit">'+esc(q.activity||'Auf Papier rechnen')+'</p></section>';
  if(!/^https:\/\/(?:www\.)?aufgabenpool\.at\/amn\//i.test(q.source))
   return '<p class="source-empty">Diese Aufgabe hat keine verifizierte Original-PDF-Quelle und kann hier nicht als offizielle SRDP-Aufgabe angezeigt werden.</p>';
  if(q.collection){
@@ -168,32 +169,31 @@ function details(q,mode){
  if(mode!=='pool')return bookDetails(activeGroup());
  const solved=!!window.__mathSourceState?.solved?.[solvedKey(q,'pool')];
  return '<section class="source-detail" data-source-id="'+esc(q.id)+'">'+
- '<header class="source-detail-header"><div class="source-meta"><span class="eyebrow">SRDP · '+esc(q.descriptor)+'</span>'+
+ '<header class="source-detail-header"><div class="source-meta"><span class="eyebrow">'+esc(q.origin==='official'||!q.origin?'SRDP':'SA-STOFF')+' · '+esc(q.descriptor)+'</span>'+
  (solved?'<span class="source-done">✓ Bearbeitet</span>':'<span class="pill">✎ Noch offen</span>')+'</div>'+
  '<h2>'+esc(q.title)+' · '+esc(q.part)+'</h2>'+
- '<p class="source-number">'+esc(q.number)+' <a class="source-original-link" href="'+esc(q.collection?q.source+'#search='+encodeURIComponent((String(q.number).match(/^[A-Z]_\d+/)||[])[0]||''):q.source)+'" target="_blank" rel="noopener noreferrer">Offizielle Quelle ↗</a></p></header>'+
- '<div class="source-reading" role="region" tabindex="0" aria-label="Vollständige offizielle Aufgabe mit Original-Lösungswegen">'+
+ '<p class="source-number">'+esc(q.number)+' · '+esc(q.sourceLabel||'Amtliche SRDP-Aufgabe')+' '+((q.origin==='official'||!q.origin)?'<a class="source-original-link" href="'+esc(q.collection?q.source+'#search='+encodeURIComponent((String(q.number).match(/^[A-Z]_\d+/)||[])[0]||''):q.source)+'" target="_blank" rel="noopener noreferrer">Offizielle Quelle ↗</a>':'')+'</p></header>'+ '<div class="source-reading" role="region" tabindex="0" aria-label="Vollständige offizielle Aufgabe mit Original-Lösungswegen">'+
  officialStatement(q)+
  (ui.poolHint?'<section class="source-solution" id="sourceSolution"><h3>Ergebnis überprüfen</h3>'+
- (q.collection?'<p><b>Rechenstrategie:</b> '+esc(q.guide)+'</p><p><b>Vergleich mit der amtlichen Lösungserwartung:</b> '+esc(q.solution)+'</p>'+
- '<p class="source-credit">Für alle Originalabbildungen, Rechenschritte und die vollständige amtliche Lösung das oben verlinkte BMB-PDF verwenden.</p>':
+ ((q.collection||q.kind==='worksheet'||q.kind==='practice')?'<p><b>Rechenstrategie:</b> '+esc(q.guide)+'</p><p><b>Lösung / Erklärung:</b> '+esc(q.solution)+'</p>'+
+ '<p class="source-credit">'+(q.kind==='worksheet'?'Originalfoto aus deiner Lernzettel-ZIP.':q.kind==='practice'?'Selbst erstellte Übung, nicht amtlich.':'Originalabbildung und vollständige Lösung: BMB-PDF.')+'</p>':
  '<p>Scroll im offiziellen Aufgabenblatt weiter nach unten. Dort stehen die <strong>möglichen Lösungswege und die Lösungserwartung</strong>. Vergleiche sie direkt mit deinem Rechenweg auf Papier.</p>')+
  '</section>':'')+'</div>'+
- '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Bearbeite die vollständige Originalaufgabe. Lösungen stehen am Ende des PDF.</div>'+
+ '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Rechne zuerst selbst. Amtliche Lösungen stehen im Original-PDF; Unterrichts- und Eigenübungen zeigen ihre Erklärung nach dem Prüfen.</div>'+
  '<div class="source-actions"><button class="btn primary" data-action="source:pool-check">Ergebnis überprüfen</button>'+
  '<button class="btn secondary" data-action="source:pool-complete">'+(solved?'✓ Als bearbeitet markiert':'✓ Fertig bearbeitet')+'</button>'+
  '<button class="btn secondary" data-action="source:next">Nächstes Beispiel →</button></div>'+
- '<p class="source-credit">Datenquelle: Bundesministerium für Bildung · CC BY 4.0. Keine erfundene automatische Bewertung.</p></div></section>';
+ '<p class="source-credit">Aufgabenherkunft steht oben: BMB, Unterricht oder Studyverse. Keine erfundene automatische Bewertung.</p></div></section>';
 }
 function browser(mode,state){
  if(ui.mode!==mode){ui.mode=mode;ui.filter='';ui.topic='all';reset()}
  window.__mathSourceState=state;
  const groups=mode==='book',bank=groups?GROUPS:POOL;
  const value=groups?ui.bookId:ui.poolId;
- const competencies={'4.1':'Grenzwerte & Stetigkeit','4.2':'Änderungsraten','4.3':'Ableitungsregeln','4.4':'Tangenten & Extrema','4.5':'Funktion & Ableitung','4.6':'Stammfunktionen','4.8':'Integrale & Flächen'};
+ const competencies=window.MATHS_EXAM_SCOPE?.chapters||{'4.1':'Grenzwerte & Stetigkeit','4.2':'Änderungsraten','4.3':'Ableitungsregeln','4.4':'Tangenten & Extrema','4.5':'Funktion & Ableitung','4.6':'Stammfunktionen','4.8':'Integrale & Flächen'};
  const categories=groups?[...new Set(bank.map(x=>x.category))]:Object.keys(competencies);
  const rows=bank.filter(x=>(ui.topic==='all'||(groups?x.category===ui.topic:
-   x.descriptor.split(',').map(d=>d.trim()).includes(ui.topic)))&&
+   x.primary===ui.topic))&&
   (!ui.filter||(x.number+' '+(x.title||'')+' '+x.prompt).toLowerCase().includes(ui.filter.toLowerCase())));
  const active=rows.find(x=>x.id===value)||rows[0];
  if(active&&active.id!==value){
@@ -202,17 +202,17 @@ function browser(mode,state){
  }
  const done=groups?BOOK.filter(q=>state.solved[solvedKey(q,'book')]).length:POOL.filter(q=>state.solved[solvedKey(q,'pool')]).length;
  const total=groups?BOOK.length:POOL.length;
- return '<div class="eyebrow">'+(groups?'ECHTE SCHULBUCH-AUFGABEN':'ORIGINAL-SRDP · 4. DESKRIPTOR')+'</div>'+
+ return '<div class="eyebrow">'+(groups?'ECHTE SCHULBUCH-AUFGABEN':'SA-STOFF 26.11. · ANALYSIS UND HTL2')+'</div>'+
  '<h1>'+(groups?'Buchbeispiele':'4. Deskriptor')+'</h1><p>'+(groups?
  'Buchaufgaben mit gemeinsamer Originalangabe und einzeln überprüfbaren Schritten.':
- 'Ausschließlich originale PDFs von aufgabenpool.at. Die Deskriptoren 4.1 und 4.6 sind im recherchierten amtlichen Pool nicht mit eigenständigen Aufgaben belegt.')+'</p>'+
- '<div class="source-count"><strong>'+done+'/'+total+'</strong> Schritte bearbeitet · '+(groups?GROUPS.length+' zusammengehörende Buchbeispiele':'Datenquelle: Bundesministerium für Bildung · CC BY 4.0')+' · <strong>'+sourceRewardProgress(state).paid+'/'+SOURCE_REWARD_LIMIT+'</strong> XP-Beispiele (max. '+SOURCE_REWARD_XP+' XP pro abgeschlossenem Beispiel; danach freiwillig weiterüben)</div>'+
+ 'Unterrichts-Lernzettel, passende SRDP-Originale und klar markierte Eigenübungen. Teil A: 4.1–4.6, 4.8; HTL2: 4.2, 4.4, 4.5. Nicht im Stoff: 4.7 und B_T2_4.3. Extras: partielle Ableitungen und partielle Integration.')+'</p>'+
+ '<div class="source-count"><strong>'+done+'/'+total+'</strong> Schritte bearbeitet · '+(groups?GROUPS.length+' zusammengehörende Buchbeispiele':'Unterricht · Amtliche SRDP · Studyverse-Eigenübungen (max. 15 je Kapitel)')+' · <strong>'+sourceRewardProgress(state).paid+'/'+SOURCE_REWARD_LIMIT+'</strong> XP-Beispiele (max. '+SOURCE_REWARD_XP+' XP pro abgeschlossenem Beispiel; danach freiwillig weiterüben)</div>'+
  '<div class="source-filters"><label>Suche <input id="sourceSearch" placeholder="z. B. '+(groups?'1.80':'B_405')+'" value="'+esc(ui.filter)+'"></label><label>Thema <select id="sourceTopic"><option value="all">Alle Bereiche</option>'+categories.map(c=>'<option value="'+esc(c)+'" '+(ui.topic===c?'selected':'')+'>'+(groups?esc(c):esc(c+' · '+competencies[c]))+'</option>').join('')+'</select></label></div>'+
  '<div class="source-workspace" data-mode="'+mode+'"><aside class="source-list" aria-label="Aufgabenliste">'+rows.map(x=>{
   const doneSteps=groups?x.steps.filter(q=>state.solved[solvedKey(q,'book')]).length:0;
   return '<button class="source-task '+(x.id===active?.id?'active':'')+'" data-action="source:open:'+esc(x.id)+'"><span class="source-task-number">'+esc(x.number)+(groups&&doneSteps===x.steps.length?' ✓':!groups&&state.solved[solvedKey(x,'pool')]?' ✓':'')+'</span><small class="source-task-title">'+esc(x.category)+(groups?' · '+doneSteps+'/'+x.steps.length+' Schritte':'')+'</small></button>'
  }).join('')+'</aside>'+(groups?bookDetails(active):active?details(active,'pool'):
- '<section class="source-detail"><header class="source-detail-header"><h2>Deskriptor '+esc(ui.topic)+'</h2></header><div class="source-reading"><p>Für diesen Deskriptor konnte ich keine eigenständig zugeordnete Originalaufgabe direkt von aufgabenpool.at verifizieren. Ich zeige dir keine erfundene Aufgabe und keine Fremdseite als angeblich offiziellen Aufgabenpool.</p><p>Die verbindliche Kompetenzbeschreibung findest du im <a target="_blank" rel="noopener noreferrer" href="https://www.aufgabenpool.at/amn/gk/srdp_am_kompetenzen_2018-2019-09-05.pdf">offiziellen Kompetenzkatalog des Bildungsministeriums</a>. Passende Rechenübungen sind unter Buchbeispiele zu finden.</p></div></section>')+'</div>';
+ '<section class="source-detail"><header class="source-detail-header"><h2>Deskriptor '+esc(ui.topic)+'</h2></header><div class="source-reading"><p>Keine Übung in dieser Auswahl gefunden.</p><p>Die verbindliche Kompetenzbeschreibung findest du im <a target="_blank" rel="noopener noreferrer" href="https://www.aufgabenpool.at/amn/gk/srdp_am_kompetenzen_2018-2019-09-05.pdf">offiziellen Kompetenzkatalog des Bildungsministeriums</a>. Passende Rechenübungen sind unter Buchbeispiele zu finden.</p></div></section>')+'</div>';
 }
 
 function reset(){ui.shown=false;ui.poolHint=false;ui.submitted=false;ui.correct=null;ui.answer=''}
@@ -261,7 +261,7 @@ function startExam(api){
  ui.complete=null;
 }
 function intro(state){
- return '<div class="eyebrow">ENDGAME / ORIGINAL-SCHULARBEIT</div><h1>Schularbeitssimulation.</h1><div class="panel center"><div class="boss-number">∑</div><h2>20 originale Aufgaben · 10 Buch + 10 Deskriptor 4</h2><p>Jeder Durchgang zieht zufällig 10 echte Buchbeispiele und 10 veröffentlichte SRDP-Aufgaben. Du rechnest auf Papier und gibst dein Ergebnis ein. Bei numerischen Ergebnissen prüft Studyverse automatisch; begründende oder grafische Aufgaben vergleichst du mit der Quelle.</p><div class="stats"><div class="stat"><b>10</b><small>BUCHBEISPIELE</small></div><div class="stat"><b>10</b><small>SRDP-TASKS</small></div><div class="stat"><b>'+Math.max(0,Number(state.bestBoss)||0)+'%</b><small>BESTWERT</small></div><div class="stat"><b>100%</b><small>PROFESSOR FILIPP</small></div></div><button class="btn primary" data-action="source:exam-start">Prüfung starten ✎</button></div>';
+ return '<div class="eyebrow">ENDGAME / ORIGINAL-SCHULARBEIT</div><h1>Schularbeitssimulation.</h1><div class="panel center"><div class="boss-number">∑</div><h2>20 passende Aufgaben · 10 Buch + 10 Deskriptor</h2><p>Jeder Durchgang zieht 10 echte Buchbeispiele und 10 passende Aufgaben aus Unterricht, Original-SRDP und gekennzeichneten Übungsaufgaben. Du rechnest auf Papier und gibst dein Ergebnis ein. Bei numerischen Ergebnissen prüft Studyverse automatisch; begründende oder grafische Aufgaben vergleichst du mit der Quelle.</p><div class="stats"><div class="stat"><b>10</b><small>BUCHBEISPIELE</small></div><div class="stat"><b>10</b><small>DESKRIPTOR-AUFGABEN</small></div><div class="stat"><b>'+Math.max(0,Number(state.bestBoss)||0)+'%</b><small>BESTWERT</small></div><div class="stat"><b>100%</b><small>PROFESSOR FILIPP</small></div></div><button class="btn primary" data-action="source:exam-start">Prüfung starten ✎</button></div>';
 }
 function run(){
  if(!ui.run)return '<div class="panel">Starte eine neue Prüfung.</div>';
@@ -269,16 +269,16 @@ function run(){
  const frame=isPool?officialStatement(q):
   '<div class="book-exam-original">'+bookOriginalStep(q)+'</div>';
  const last=r.results[r.results.length-1];
- return '<div class="eyebrow">SCHULARBEITSSIMULATION · FRAGE '+(r.index+1)+' / 20 · '+(isPool?'OFFIZIELLER AUFGABENPOOL':'BUCHBEISPIEL')+'</div>'+
+ return '<div class="eyebrow">SCHULARBEITSSIMULATION · FRAGE '+(r.index+1)+' / 20 · '+(isPool?'DESKRIPTOR-TRAINING':'BUCHBEISPIEL')+'</div>'+
  '<h1>Am Papier rechnen.</h1><div class="progress-track"><i style="width:'+((r.index/20)*100)+'%"></i></div>'+
  '<section class="question-card source-exam-card"><span class="pill">'+esc(q.groupNumber||q.number)+'</span><h2>'+esc(q.title||q.category)+'</h2>'+
  (isPool?'': '<p class="source-question">'+esc(q.prompt)+'</p>')+frame+
- '<div class="handwrite-note">✏️ Bearbeite die Originalaufgabe zuerst auf Papier. '+(isPool?'Die amtlichen Lösungswege befinden sich unten im PDF.':'Danach das Ergebnis eingeben.')+'</div>'+
+ '<div class="handwrite-note">✏️ Bearbeite die Originalaufgabe zuerst auf Papier. '+(isPool?'Amtliche Aufgaben: Lösung im PDF; Eigenübungen: Lösung nach Prüfen.':'Danach das Ergebnis eingeben.')+'</div>'+
  (q.expected!=null&&!isPool?'<input class="source-exam-input" id="sourceExamAnswer" inputmode="decimal" value="'+esc(r.draft)+'" placeholder="Berechnetes Ergebnis, z. B. 4,5">':
  '<textarea class="source-exam-input" id="sourceExamAnswer" rows="3" placeholder="Deine Rechnung oder Begründung …">'+esc(r.draft)+'</textarea>')+
- (!r.graded?'<button class="btn primary" data-action="source:exam-submit">'+(isPool?'Ergebnis mit Original-PDF vergleichen':'Prüfen / Lösung vergleichen')+'</button>':
+ (!r.graded?'<button class="btn primary" data-action="source:exam-submit">'+(isPool?'Ergebnis / Lösung vergleichen':'Prüfen / Lösung vergleichen')+'</button>':
  '<div class="source-solution"><h3>Ergebnis vergleichen</h3>'+
- (isPool?'<p>Scroll im amtlichen PDF weiter nach unten. Dort stehen die möglichen Lösungswege und die Lösungserwartung – keine automatisch erfundene Lösung.</p>':
+ (isPool?'<p>'+(q.kind==='practice'||q.kind==='worksheet'?esc(q.guide)+' · '+esc(q.solution):'Die vollständige amtliche Lösung steht im verlinkten PDF.')+'</p>':
  '<p>'+esc(q.steps)+'</p><div class="formula">'+esc(q.solution)+'</div>')+
  (last?.auto===null?'<div class="source-actions"><button class="btn primary" data-action="source:exam-self-right">✓ Meine Lösung stimmt</button><button class="btn secondary" data-action="source:exam-self-wrong">✕ Noch nicht richtig</button></div>':
  '<div class="answer-feedback '+(last?.correct?'good':'bad')+'">'+(last?.correct?'✓ Richtig':'✕ Ergebnis stimmt noch nicht')+'</div><button class="btn primary" data-action="source:exam-next">Nächste Aufgabe →</button>')+'</div>')+
@@ -287,7 +287,7 @@ function run(){
 function result(){
  const r=ui.complete;if(!r)return intro({bestBoss:0});
  const automated=r.results.filter(x=>x.auto!==null).length,manual=r.results.length-automated;
- return '<div class="eyebrow">PRÜFUNG ABGESCHLOSSEN</div><div class="panel center"><div class="boss-number">'+r.percent+'%</div><h1>'+r.score+' von 20 Aufgaben richtig</h1><p>10 Original-Buchaufgaben und 10 offizielle Deskriptor-Aufgaben. Davon '+automated+' automatisch überprüft und '+manual+' nach aufgedeckter Lösung selbst beurteilt. Dieser Unterschied bleibt transparent.</p><p>'+(r.percent===100?'Perfekt! Professor Filipp ist freigeschaltet.':'Wiederhole schwierige Originalbeispiele und versuche die Simulation erneut.')+'</p><div class="source-actions"><button class="btn primary" data-action="source:exam-start">Neue Mischung starten</button><button class="btn secondary" data-action="nav:book">Buchbeispiele üben</button></div></div>';
+ return '<div class="eyebrow">PRÜFUNG ABGESCHLOSSEN</div><div class="panel center"><div class="boss-number">'+r.percent+'%</div><h1>'+r.score+' von 20 Aufgaben richtig</h1><p>10 Original-Buchaufgaben und 10 stoffgerechte Deskriptor-Aufgaben. Davon '+automated+' automatisch überprüft und '+manual+' nach aufgedeckter Lösung selbst beurteilt. Dieser Unterschied bleibt transparent.</p><p>'+(r.percent===100?'Perfekt! Professor Filipp ist freigeschaltet.':'Wiederhole schwierige Originalbeispiele und versuche die Simulation erneut.')+'</p><div class="source-actions"><button class="btn primary" data-action="source:exam-start">Neue Mischung starten</button><button class="btn secondary" data-action="nav:book">Buchbeispiele üben</button></div></div>';
 }
 function handle(action,api){
  const mode=api.view==='pool'?'pool':'book';
