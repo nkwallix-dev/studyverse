@@ -1,6 +1,6 @@
 /* MathsVerse SA1 trainer. Buchbeispiele unverändert; Clusteraufgaben nach Stoffplan kuratiert.
  * Herkunft klar unterscheiden: amtliche SRDP, Unterrichtsblätter, Studyverse-Eigenübungen.
- * Existing save key, rewards and cosmetics remain unchanged.
+ * Preserve the save key and earned rewards; track completed book groups and official descriptor tasks.
  */
 (function(){
 'use strict';
@@ -34,6 +34,21 @@ function paidSourceExamples(state){
 }
 function sourceRewardProgress(state){
  return {paid:Math.min(SOURCE_REWARD_LIMIT,paidSourceExamples(state).size),limit:SOURCE_REWARD_LIMIT};
+}
+/* One-time migration of old correct substeps/official tasks. Do not reward retroactively:
+   old XP and TT were already paid, and existing owned cosmetics are untouched. */
+function migrateProgress(state){
+ if(state.mathsProgressVersion===1)return false;
+ const solved=state.solved||{};
+ state.bookCompleted=state.bookCompleted||{};
+ state.descriptorCompleted=state.descriptorCompleted||{};
+ for(const group of GROUPS)
+  if(group.steps.length&&group.steps.every(step=>solved[solvedKey(step,'book')]))
+   state.bookCompleted[group.id]=true;
+ for(const q of POOL)
+  if(solved[solvedKey(q,'pool')])state.descriptorCompleted[q.id]=true;
+ state.mathsProgressVersion=1;
+ return true;
 }
 
 function plot(graph){
@@ -180,14 +195,14 @@ function bookDetails(group){
  '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Rechne Schritt '+(stepIndex+1)+' eigenständig. Ergebnis erst danach überprüfen.</div>'+
  '<div class="answer-field"><input id="sourceAnswer" aria-label="Ergebnis für Schritt '+(stepIndex+1)+'" inputmode="'+(expected?'decimal':'text')+'" placeholder="'+(expected?'Deine Zahl':'Dein Ergebnis oder Lösungsweg')+'" value="'+esc(ui.answer)+'">'+'<button class="btn primary" data-action="source:submit">Überprüfen</button></div>'+result+
  '<div class="source-actions"><button class="btn secondary" data-action="source:reveal">'+(ui.shown?'Lösung schließen':'Lösung anzeigen')+'</button>'+
- (ui.shown?'<button class="btn primary" data-action="source:self-right">✓ Richtig gelöst</button><button class="btn secondary" data-action="source:self-wrong">Noch üben</button>':'')+
+ (ui.shown&&!expected&&ui.submitted?'<button class="btn primary" data-action="source:self-right">✓ Meine Lösung stimmt</button><button class="btn secondary" data-action="source:self-wrong">Noch üben</button>':'')+
  '<button class="btn secondary" data-action="source:next">'+(stepIndex+1<group.steps.length?'Nächster Schritt →':'Nächstes Buchbeispiel →')+'</button></div></div></section>';
 }
 
 function details(q,mode){
  if(!q)return '<div class="source-empty">Keine Originalaufgabe gefunden.</div>';
  if(mode!=='pool')return bookDetails(activeGroup());
- const solved=!!window.__mathSourceState?.solved?.[solvedKey(q,'pool')];
+ const solved=!!window.__mathSourceState?.descriptorCompleted?.[q.id];
  return '<section class="source-detail" data-source-id="'+esc(q.id)+'">'+
  '<header class="source-detail-header"><div class="source-meta"><span class="eyebrow">'+esc(q.origin==='official'||!q.origin?'SRDP':'SA-STOFF')+' · '+esc(q.descriptor)+'</span>'+
  (solved?'<span class="source-done">✓ Bearbeitet</span>':'<span class="pill">✎ Noch offen</span>')+'</div>'+
@@ -201,7 +216,7 @@ function details(q,mode){
  '</section>':'')+'</div>'+
  '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Rechne zuerst selbst. Die amtliche Lösungserwartung findest du im eingebetteten Original-PDF.</div>'+
  '<div class="source-actions"><button class="btn primary" data-action="source:pool-check">Ergebnis überprüfen</button>'+
- '<button class="btn secondary" data-action="source:pool-complete">'+(solved?'✓ Als bearbeitet markiert':'✓ Fertig bearbeitet')+'</button>'+
+ (ui.poolHint?'<button class="btn secondary" data-action="source:pool-complete">✓ Meine Lösung stimmt</button><button class="btn secondary" data-action="source:pool-wrong">✕ Noch üben</button>':'')+
  '<button class="btn secondary" data-action="source:next">Nächstes Beispiel →</button></div>'+
  '<p class="source-credit">Originalaufgaben des Bundesministeriums für Bildung mit Quellenlink. Keine erfundene automatische Bewertung.</p></div></section>';
 }
@@ -220,17 +235,17 @@ function browser(mode,state){
   if(groups){ui.bookId=active.id;ui.bookStepId=active.steps[0].id}else ui.poolId=active.id;
   reset();
  }
- const done=groups?BOOK.filter(q=>state.solved[solvedKey(q,'book')]).length:POOL.filter(q=>state.solved[solvedKey(q,'pool')]).length;
- const total=groups?BOOK.length:POOL.length;
+ const done=groups?GROUPS.filter(g=>state.bookCompleted?.[g.id]).length:POOL.filter(q=>state.descriptorCompleted?.[q.id]).length;
+ const total=groups?GROUPS.length:POOL.length;
  return '<div class="eyebrow">'+(groups?'ECHTE SCHULBUCH-AUFGABEN':'SA-STOFF 26.11. · ANALYSIS UND HTL2')+'</div>'+
  '<h1>'+(groups?'Buchbeispiele':'4. Deskriptor')+'</h1><p>'+(groups?
  'Buchaufgaben mit gemeinsamer Originalangabe und einzeln überprüfbaren Schritten.':
  'Nur amtliche Originalaufgaben mit vollständigen PDFs. Teil A: 4.1–4.6 und 4.8 sowie relevante HTL-Cluster. 4.7 und B_T2_4.3 sind nicht im Stoff. Keine erfundenen Ersatzaufgaben.')+'</p>'+
- '<div class="source-count"><strong>'+done+'/'+total+'</strong> Schritte bearbeitet · '+(groups?GROUPS.length+' zusammengehörende Buchbeispiele':'Aufgabenpool.at · Original-PDFs (max. 15 pro Kapitel)')+' · <strong>'+sourceRewardProgress(state).paid+'/'+SOURCE_REWARD_LIMIT+'</strong> XP-Beispiele (max. '+SOURCE_REWARD_XP+' XP pro abgeschlossenem Beispiel; danach freiwillig weiterüben)</div>'+
+ '<div class="source-count"><strong>'+done+'/'+total+'</strong> '+(groups?'Buchbeispiele vollständig abgeschlossen (alle Schritte inklusive letztem Ergebnis)':'Deskriptor-Aufgaben nach Lösungsvergleich richtig gelöst')+' · <strong>'+sourceRewardProgress(state).paid+'/'+SOURCE_REWARD_LIMIT+'</strong> XP-Beispiele (max. '+SOURCE_REWARD_XP+' XP pro abgeschlossenem Beispiel; danach freiwillig weiterüben)</div>'+
  '<div class="source-filters"><label>Suche <input id="sourceSearch" placeholder="z. B. '+(groups?'1.80':'B_405')+'" value="'+esc(ui.filter)+'"></label><label>Thema <select id="sourceTopic"><option value="all">Alle Bereiche</option>'+categories.map(c=>'<option value="'+esc(c)+'" '+(ui.topic===c?'selected':'')+'>'+(groups?esc(c):esc(c+' · '+competencies[c]))+'</option>').join('')+'</select></label></div>'+
  '<div class="source-workspace" data-mode="'+mode+'"><aside class="source-list" aria-label="Aufgabenliste">'+rows.map(x=>{
   const doneSteps=groups?x.steps.filter(q=>state.solved[solvedKey(q,'book')]).length:0;
-  return '<button class="source-task '+(x.id===active?.id?'active':'')+'" data-action="source:open:'+esc(x.id)+'"><span class="source-task-number">'+esc(x.number)+(groups&&doneSteps===x.steps.length?' ✓':!groups&&state.solved[solvedKey(x,'pool')]?' ✓':'')+'</span><small class="source-task-title">'+esc(x.category)+(groups?' · '+doneSteps+'/'+x.steps.length+' Schritte':'')+'</small></button>'
+  return '<button class="source-task '+(x.id===active?.id?'active':'')+'" data-action="source:open:'+esc(x.id)+'"><span class="source-task-number">'+esc(x.number)+(groups&&state.bookCompleted?.[x.id]?' ✓':!groups&&state.descriptorCompleted?.[x.id]?' ✓':'')+'</span><small class="source-task-title">'+esc(x.category)+(groups?' · '+doneSteps+'/'+x.steps.length+' Schritte':'')+'</small></button>'
  }).join('')+'</aside>'+(groups?bookDetails(active):active?details(active,'pool'):
  '<section class="source-detail"><header class="source-detail-header"><h2>Deskriptor '+esc(ui.topic)+'</h2></header><div class="source-reading"><p>Keine Übung in dieser Auswahl gefunden.</p><p>Die verbindliche Kompetenzbeschreibung findest du im <a target="_blank" rel="noopener noreferrer" href="https://www.aufgabenpool.at/amn/gk/srdp_am_kompetenzen_2018-2019-09-05.pdf">offiziellen Kompetenzkatalog des Bildungsministeriums</a>. Passende Rechenübungen sind unter Buchbeispiele zu finden.</p></div></section>')+'</div>';
 }
@@ -256,9 +271,16 @@ function next(mode,state){
 function mark(q,mode,correct,api){if(!correct)return;
  const id=solvedKey(q,mode);
  api.state.solved[id]=true;
- // All sub-parts of one printed book number must be solved before it counts.
+ api.state.bookCompleted=api.state.bookCompleted||{};
+ api.state.descriptorCompleted=api.state.descriptorCompleted||{};
+ // A printed book exercise completes only on a correct FINAL step, after
+ // every earlier step has already been solved. Steps alone never unlock cosmetics.
  const bookGroup=mode==='book'?GROUPS.find(g=>g.number===sourceRewardUnit(q,'book').slice(5)):null;
- const complete=mode==='pool'||!!bookGroup?.steps.every(step=>api.state.solved[solvedKey(step,'book')]);
+ if(mode==='book'&&bookGroup?.steps.at(-1)?.id===q.id&&
+    bookGroup.steps.every(step=>api.state.solved[solvedKey(step,'book')]))
+  api.state.bookCompleted[bookGroup.id]=true;
+ if(mode==='pool')api.state.descriptorCompleted[q.id]=true;
+ const complete=mode==='pool'||!!(bookGroup&&api.state.bookCompleted[bookGroup.id]);
  if(complete){
   const unit=sourceRewardUnit(q,mode),paid=paidSourceExamples(api.state);
   if(!paid.has(unit)&&paid.size<SOURCE_REWARD_LIMIT)
@@ -314,11 +336,12 @@ function handle(action,api){
  if(action.startsWith('source:open:')){let x=action.slice(12),q=(mode==='book'?GROUPS:POOL).find(q=>q.id===x);if(q){if(mode==='book'){ui.bookId=x;ui.bookStepId=q.steps[0].id}else ui.poolId=x;reset()}return}
  if(action.startsWith('source:step:')&&mode==='book'){const id=action.slice(12);if(activeGroup().steps.some(q=>q.id===id)){ui.bookStepId=id;reset()}return}
  if(action==='source:pool-check'&&mode==='pool'){ui.poolHint=!ui.poolHint;return}
- if(action==='source:pool-complete'&&mode==='pool'){const q=current('pool');if(q)mark(q,'pool',true,api);return}
+ if(action==='source:pool-complete'&&mode==='pool'&&ui.poolHint){const q=current('pool');if(q)mark(q,'pool',true,api);ui.correct=true;return}
+ if(action==='source:pool-wrong'&&mode==='pool'){ui.poolHint=false;ui.correct=false;return}
  if(action==='source:next'){next(mode,api.state);return}
  if(action==='source:reveal'){ui.answer=document.getElementById('sourceAnswer')?.value??ui.answer;ui.shown=!ui.shown;return}
  if(action==='source:submit'){let q=current(mode);if(!q)return;const v=document.getElementById('sourceAnswer')?.value||'';ui.answer=v;ui.submitted=true;ui.correct=answerNumeric(q,v);if(ui.correct===true)mark(q,mode,true,api);if(ui.correct===false)ui.shown=true;if(ui.correct===null)ui.shown=true;return}
- if(action==='source:self-right'){let q=current(mode);if(q)mark(q,mode,true,api);ui.correct=true;ui.submitted=true;return}
+ if(action==='source:self-right'&&mode==='book'&&ui.shown&&ui.submitted){let q=current(mode);if(q&&q.expected==null){mark(q,mode,true,api);ui.correct=true;}return}
  if(action==='source:self-wrong'){ui.correct=false;ui.submitted=true;return}
  if(action==='source:exam-start'){startExam(api);api.navigate('bossrun');return}
  if(action==='source:exam-submit'&&ui.run&&!ui.run.graded){
@@ -349,5 +372,5 @@ function refreshFilters(){
  const q=document.getElementById('sourceSearch'),t=document.getElementById('sourceTopic');
  ui.filter=q?.value||'';ui.topic=t?.value||'all';reset();
 }
-window.MATHS_SOURCE_TRAINER={BOOK,GROUPS,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot,captureList,restoreList,focusSolution,sourceRewardProgress};
+window.MATHS_SOURCE_TRAINER={BOOK,GROUPS,POOL,browser,details,intro,run,result,startExam,handle,refreshFilters,reset,plot,captureList,restoreList,focusSolution,sourceRewardProgress,migrateProgress};
 })();
