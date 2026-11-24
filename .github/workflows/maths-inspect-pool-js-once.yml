@@ -1,0 +1,33 @@
+name: Inspect official descriptor query JavaScript (one shot)
+on:
+  push:
+    branches: [fix/mathsverse-official-aufgabenpool-20261124]
+    paths: [.github/workflows/maths-inspect-pool-js-once.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q requests beautifulsoup4
+      - name: Print official descriptor search endpoint and body parameters
+        run: |
+          python - <<'PY'
+          import requests,re,bs4
+          base='https://aufgabenpool.at/amn/'
+          r=requests.get(base+'js/index.js',timeout=25)
+          print('SCRIPT',r.status_code,'bytes',len(r.content))
+          lines=r.text.splitlines()
+          seen=set()
+          for i,line in enumerate(lines):
+            if re.search(r'desk|loadMore|ajax|\.php|\.post\(|fetch\(|dataTable|search',line,re.I) and i not in seen:
+              lo=max(0,i-3);hi=min(len(lines),i+10)
+              print('\nCONTEXT lines',i+1,'through',hi)
+              for n in range(lo,hi):seen.add(n); print(f'{n+1:04d}',lines[n][:260])
+          r=requests.get(base+'index.php?id=AM',timeout=25);html=r.text
+          for term in ['desk','aTyp','loadMore_Button','search','suche','newSearch']:
+            loc=html.find(term);print('\nHTML MARKER',term,loc,html[max(0,loc-230):loc+380])
+          PY
