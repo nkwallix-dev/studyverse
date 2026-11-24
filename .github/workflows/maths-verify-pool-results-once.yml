@@ -1,0 +1,29 @@
+name: Verify official 4.8 PDF search response (one shot)
+on:
+  push:
+    branches: [fix/mathsverse-official-aufgabenpool-20261124]
+    paths: [.github/workflows/maths-verify-pool-results-once.yml]
+permissions: {contents: read}
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -q 'curl_cffi>=0.9' beautifulsoup4
+      - run: |
+          python - <<'PY'
+          from curl_cffi import requests
+          from bs4 import BeautifulSoup
+          s=requests.Session(impersonate='chrome');base='https://aufgabenpool.at/amn/'
+          a=s.get(base+'index.php?id=AM',timeout=20)
+          print('INIT',a.status_code,len(a.content))
+          data={'getData':'1','start':'0','limit':'20','desk_send':'36','lp_send':'-1','aname_send':'-1','coll_send':'-1','gate':'AM','sstufe':'0','isExam':'0','hasBf':'0','spalte':'sortByDate','asc':'0','screenWidth':'1280'}
+          b=s.post(base+'php/results.php',data=data,timeout=30,headers={'Referer':base+'index.php?id=AM'})
+          print('SEARCH',b.status_code,len(b.content),b.text[:4300])
+          soup=BeautifulSoup(b.text,'html.parser')
+          print('LINKS',[(x.get('href'),x.text.strip()[:45]) for x in soup.select('a[href]')[:35]])
+          print('DATA',[(x.get('data-value'),x.get('id')) for x in soup.select('[data-value]')[:20]])
+          print('ROWS',[(x.get_text(' ',strip=True)[:200],x.get('id'),x.get('class')) for x in soup.select('tr')[:6]])
+          PY
