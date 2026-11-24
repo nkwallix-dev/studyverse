@@ -66,11 +66,33 @@ assert(read('public/shared/verse-cosmetics.css').includes('linear-gradient(130de
 const bookJs=read('public/maths/sa-01/book-bank.js');
 const poolJs=read('public/maths/sa-01/pool-bank.js');
 const sourceJs=read('public/maths/sa-01/source-trainer.js');
-vm.runInNewContext(bookJs,sandbox);vm.runInNewContext(read('public/maths/sa-01/book-groups.js'),sandbox);vm.runInNewContext(poolJs,sandbox);
+vm.runInNewContext(bookJs,sandbox);vm.runInNewContext(read('public/maths/sa-01/book-groups.js'),sandbox);vm.runInNewContext(read('public/maths/sa-01/book-crops.js'),sandbox);vm.runInNewContext(poolJs,sandbox);
 const book=sandbox.window.MATHS_BOOK_BANK,pool=sandbox.window.MATHS_POOL_BANK,sourceGroups=sandbox.window.MATHS_BOOK_GROUPS;
 assert(book.length>=80,'Textbook ZIP must produce >80 specific sourced tasks');
 assert.equal(pool.length,29,'Only the 29 directly sourced official Aufgabenpool PDF tasks should remain');
 assert.equal(sourceGroups.length,84,'Book task navigation should group the 215 existing sub-parts into 84 real exercises');
+
+const sourceCrops=sandbox.window.MATHS_BOOK_CROPS;
+assert(mhtml.includes('<script src="book-crops.js"></script>'),'Crop module must load before original-source renderer');
+assert(sourceJs.includes('const sheet=bookOriginalStep(q)'),'Original image must depend on active book step');
+assert(!sourceJs.includes('group.artwork.map'),'Whole book pages must not be rendered in grouped exercises');
+assert(sourceJs.includes('Originalausschnitt · '+String.fromCharCode(39)+'+esc(q.number)'),'Original toggle must name selected subpart');
+for(const q of book){
+ const pieces=sourceCrops[q.number];
+ assert(pieces?.length>0,'Original crop missing for '+q.number);
+ for(const r of pieces){
+  assert.equal(r.page,q.originalScreenshot,'Original screenshot page mismatch for '+q.number);
+  assert([r.x,r.y,r.w,r.h,r.W,r.H].every(Number.isFinite),'Non-numeric original crop for '+q.number);
+  assert(r.x>=0&&r.y>=0&&r.w>=8&&r.h>=8&&r.x+r.w<=r.W+2&&r.y+r.h<=r.H+2,'Out-of-bounds original crop '+q.number);
+  assert(r.w*r.h<r.W*r.H*.9,'Crop shows almost entire original page for '+q.number);
+  assert(fs.existsSync('public/maths/sa-01/original-figures/book-page-'+r.page+'.webp'),'Missing source scan for '+q.number);
+ }
+}
+for(const [a,b] of [['1.1a','1.1b'],['1.1b','1.1c'],['1.80a','1.80b'],['1.98a','1.98d']]){
+ assert(JSON.stringify(sourceCrops[a].at(-1))!==JSON.stringify(sourceCrops[b].at(-1)),a+' and '+b+' must have different original subpart crops');
+}
+assert(sourceJs.includes("'<div class=\"book-exam-original\">'+bookOriginalStep(q)"),'Original exam must also use selected-subtask crop');
+
 assert.equal(new Set(book.map(q=>q.number)).size,book.length,'Do not repeat textbook tasks');
 assert.equal(new Set(pool.map(q=>q.number)).size,pool.length,'Do not repeat official task IDs');
 for(const q of book){assert(q.prompt&&q.solution&&q.steps,'Book tasks need exact prompt and explained answer');if(q.expected!=null)assert(Number.isFinite(q.expected),'Book numeric result must be finite')}

@@ -86,21 +86,35 @@ function officialStatement(q){
 }
 function activeGroup(){return GROUPS.find(g=>g.id===ui.bookId)||GROUPS[0]}
 function activeStep(){const group=activeGroup();return group?.steps.find(q=>q.id===ui.bookStepId)||group?.steps[0]}
+/* Use ORIGINAL scan pixels and the active printed subpart's viewBox.
+   Shared directions/diagrams remain visible, neighboring exercises never do. */
+function bookOriginalStep(q){
+ const pieces=window.MATHS_BOOK_CROPS?.[q.number]||[];
+ if(!pieces.length)return '<p class="source-empty">Kein Originalausschnitt für '+esc(q.number)+' verfügbar. Die Aufgabenstellung steht darunter.</p>';
+ return pieces.map((r,index)=>{
+  const naturalWidth=Math.min(900,Math.max(340,Math.round(r.w*1.55)));
+  const original='original-figures/book-page-'+r.page+'.webp';
+  return '<figure class="book-original-sheet book-original-crop" style="--crop-width:'+naturalWidth+'px">'+
+   '<svg viewBox="'+r.x+' '+r.y+' '+r.w+' '+r.h+'" width="'+r.w+'" height="'+r.h+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Originalausschnitt aus Buchbeispiel '+esc(q.number)+'">'+
+   '<image href="'+original+'" x="0" y="0" width="'+r.W+'" height="'+r.H+'" preserveAspectRatio="none"></image></svg>'+
+   '<figcaption>Originalbuch · '+esc(q.number)+' · Ausschnitt '+(index+1)+'</figcaption></figure>';
+ }).join('');
+}
 function bookDetails(group){
  if(!group)return '<p>Keine Buchaufgabe ausgewählt.</p>';
  const q=activeStep(),stepIndex=Math.max(0,group.steps.findIndex(x=>x.id===q.id));
  const solved=window.__mathSourceState?.solved||{};
  const nDone=group.steps.filter(x=>solved[solvedKey(x,'book')]).length;
- const sheet=group.artwork.map((name,i)=>'<figure class="book-original-sheet"><img loading="eager" src="original-figures/'+esc(name)+'" alt="Originale Buchangabe und Abbildung zu Aufgabe '+esc(group.number)+' (Grafik '+(i+1)+')"><figcaption>Original-Screenshot · '+esc(group.number)+' · Abbildung '+(i+1)+'</figcaption></figure>').join('');
+ const sheet=bookOriginalStep(q);
  const stepMenu=group.steps.map((x,i)=>'<button class="book-step-pick '+(x.id===q.id?'active':'')+'" data-action="source:step:'+esc(x.id)+'" aria-current="'+(x.id===q.id?'step':'false')+'">Schritt '+(i+1)+(solved[solvedKey(x,'book')]?' ✓':'')+'</button>').join('');
  const solution=ui.shown?'<section class="source-solution" id="sourceSolution"><h3>Lösung · Schritt '+(stepIndex+1)+'</h3><p>'+esc(q.steps)+'</p><div class="formula">'+esc(q.solution)+'</div></section>':'';
  const expected=Number.isFinite(q.expected);
  const result=ui.submitted?'<p class="answer-feedback '+(ui.correct?'good':ui.correct===false?'bad':'')+'">'+(ui.correct===true?'✓ Ergebnis richtig':ui.correct===false?'Noch nicht korrekt. Vergleiche den Lösungsweg.':'Vergleiche deine Begründung mit der Erklärung.')+'</p>':'';
  return '<section class="source-detail" data-source-id="'+esc(group.id)+'"><header class="source-detail-header"><div class="source-meta"><span class="eyebrow">BUCHBEISPIEL · '+esc(group.category)+'</span><span class="source-done">'+nDone+'/'+group.steps.length+' Schritte</span></div><h2>Aufgabe '+esc(group.number)+'</h2><p class="source-number">Original · '+esc(group.source)+'</p></header>'+
- '<div class="source-reading" role="region" tabindex="0" aria-label="Buchangabe, Originalgrafiken und Lösungswege">'+
- '<details class="book-original-toggle" open><summary>Originalangabe & Abbildungen · '+esc(group.number)+'</summary><div class="book-original-body">'+sheet+
- '<p class="source-credit">Lies die vollständige Aufgabenstellung in der Originalabbildung. Die einzelnen Rechenschritte findest du darunter.</p></div></details>'+
+ '<div class="source-reading" role="region" tabindex="0" aria-label="Ausgewählter Buchausschnitt und Lösungsweg">'+
  '<nav class="book-step-tabs" aria-label="Teilaufgaben wählen">'+stepMenu+'</nav>'+
+ '<details class="book-original-toggle" open><summary>Originalausschnitt · '+esc(q.number)+'</summary><div class="book-original-body">'+sheet+
+ '<p class="source-credit">Nur der aktuell gewählte Teil '+esc(q.number)+' und die dazugehörige gemeinsame Angabe oder Grafik.</p></div></details>'+
  '<section class="book-active-step"><h3>Schritt '+(stepIndex+1)+' von '+group.steps.length+(group.steps.length===1?'':' · '+esc(q.number))+'</h3><div class="source-question">'+esc(q.prompt)+'</div>'+
  (!sheet&&q.graph?plot(q.graph):'')+'</section>'+solution+'</div>'+
  '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Rechne Schritt '+(stepIndex+1)+' eigenständig. Ergebnis erst danach überprüfen.</div>'+
@@ -191,7 +205,7 @@ function answerNumeric(q,s){
 }
 function startExam(api){
  if(BOOK.length<10||POOL.length<10)throw Error('Not enough authentic source problems for a 10+10 exam');
- const b=shuffle(GROUPS).slice(0,10).map(g=>({...g.steps[Math.floor(Math.random()*g.steps.length)],origin:'book',groupNumber:g.number,originalArtwork:g.artwork}));
+ const b=shuffle(GROUPS).slice(0,10).map(g=>({...g.steps[Math.floor(Math.random()*g.steps.length)],origin:'book',groupNumber:g.number}));
  const p=shuffle(POOL).slice(0,10).map(q=>({...q,origin:'pool'}));
  ui.run={tasks:shuffle(b.concat(p)),index:0,score:0,results:[],draft:'',revealed:false,graded:false};
  ui.complete=null;
@@ -203,7 +217,7 @@ function run(){
  if(!ui.run)return '<div class="panel">Starte eine neue Prüfung.</div>';
  const r=ui.run,q=r.tasks[r.index],isPool=q.origin==='pool';
  const frame=isPool?officialStatement(q):
-  '<div class="book-exam-original">'+(q.originalArtwork||[]).map((name,i)=>'<img loading="lazy" alt="Originalbuchbeispiel '+esc(q.groupNumber)+' Abbildung '+(i+1)+'" src="original-figures/'+esc(name)+'">').join('')+'</div>';
+  '<div class="book-exam-original">'+bookOriginalStep(q)+'</div>';
  const last=r.results[r.results.length-1];
  return '<div class="eyebrow">SCHULARBEITSSIMULATION · FRAGE '+(r.index+1)+' / 20 · '+(isPool?'OFFIZIELLER AUFGABENPOOL':'BUCHBEISPIEL')+'</div>'+
  '<h1>Am Papier rechnen.</h1><div class="progress-track"><i style="width:'+((r.index/20)*100)+'%"></i></div>'+

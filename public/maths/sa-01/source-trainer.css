@@ -125,3 +125,16 @@ body.source-screen .source-answer-dock{position:relative;bottom:auto;z-index:1}
 .book-active-step .source-question{margin:0;white-space:pre-wrap;line-height:1.55}
 .source-answer-dock .source-actions .btn{min-height:34px}
 @media(max-width:540px){.book-original-body{padding:0 8px 8px}.book-original-sheet{padding:4px}.book-step-pick{font-size:11px;padding:6px 8px}.book-step-tabs{gap:4px}}
+
+/* The original 15 scan images remain unchanged; SVG viewBox exposes only the
+   selected sub-question and necessary common context. Works in Exam too. */
+.book-original-body .book-original-crop,.book-exam-original .book-original-crop{
+ width:min(100%,var(--crop-width,900px));max-width:100%;box-sizing:border-box;
+ margin:0;padding:7px;border:1px solid #a5b8aa;border-radius:9px;
+ background:white;justify-self:center
+}
+.book-original-crop svg{display:block;width:100%;height:auto;max-height:none;overflow:hidden;background:white}
+.book-original-crop figcaption{color:#48674f;text-align:center;font-size:10px;margin:4px 0 0}
+.book-original-body{align-content:start}
+.book-exam-original{display:grid;justify-items:center;gap:10px;margin:12px 0}
+@media(max-width:540px){.book-original-body .book-original-crop,.book-exam-original .book-original-crop{padding:4px}}
