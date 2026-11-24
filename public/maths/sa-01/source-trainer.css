@@ -154,3 +154,10 @@ body.source-screen .source-answer-dock{position:relative;bottom:auto;z-index:1}
 .source-compendium-pdf iframe{width:100%;height:min(73vh,780px);min-height:360px;border:0;background:white;border-radius:8px}
 .source-compendium-pdf .source-credit{margin:10px 0}
 @media(max-width:560px){.source-compendium-statement{padding:12px}.source-compendium-pdf iframe{min-height:400px;height:64vh}}
+
+/* Classroom scans: hide handwritten hints until the student opens the photo. */
+.source-worksheet-photo{margin-top:10px;border:1px solid var(--border);border-radius:11px;background:var(--card2);overflow:hidden}
+.source-worksheet-photo summary{padding:11px 13px;cursor:pointer;font-weight:800;font-size:12px;color:var(--ink)}
+.source-worksheet-photo img{display:block;width:auto;max-width:100%;height:auto;max-height: min(57vh, 730px);margin:8px auto;object-fit:contain;border-radius:8px}
+.source-compendium-statement p{white-space:normal;line-height:1.55}
+.source-detail .source-original-tag{letter-spacing:.035em}

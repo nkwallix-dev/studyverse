@@ -66,10 +66,10 @@ assert(read('public/shared/verse-cosmetics.css').includes('linear-gradient(130de
 const bookJs=read('public/maths/sa-01/book-bank.js');
 const poolJs=read('public/maths/sa-01/pool-bank.js');
 const sourceJs=read('public/maths/sa-01/source-trainer.js');
-vm.runInNewContext(bookJs,sandbox);vm.runInNewContext(read('public/maths/sa-01/book-groups.js'),sandbox);vm.runInNewContext(read('public/maths/sa-01/book-crops.js'),sandbox);vm.runInNewContext(poolJs,sandbox);
+vm.runInNewContext(bookJs,sandbox);vm.runInNewContext(read('public/maths/sa-01/book-groups.js'),sandbox);vm.runInNewContext(read('public/maths/sa-01/book-crops.js'),sandbox);vm.runInNewContext(poolJs,sandbox);vm.runInNewContext(read('public/maths/sa-01/sa1-scope-bank.js'),sandbox);
 const book=sandbox.window.MATHS_BOOK_BANK,pool=sandbox.window.MATHS_POOL_BANK,sourceGroups=sandbox.window.MATHS_BOOK_GROUPS;
 assert(book.length>=80,'Textbook ZIP must produce >80 specific sourced tasks');
-assert.equal(pool.length,34,'29 previously sourced official tasks plus 5 verified new descriptor-4.8 tasks');
+assert(pool.length>=60&&pool.length<=150,'SA1 cluster should have a substantial, curated task set');
 assert.equal(sourceGroups.length,84,'Book task navigation should group the 215 existing sub-parts into 84 real exercises');
 
 
@@ -82,7 +82,7 @@ const newIntegralCases=[
  ['1_1309','Integral und Flächeninhalt – Vorzeichen richtig deuten']
 ];
 const integralCases=pool.filter(q=>q.descriptor.split(',').map(s=>s.trim()).includes('4.8'));
-assert.equal(integralCases.length,8,'Descriptor 4.8 must offer eight real tasks, not just three');
+assert(integralCases.length>=10&&integralCases.length<=15,'Descriptor 4.8 must include a balanced maximum of 15 integral tasks');
 for(const [number,title] of newIntegralCases){
  const q=pool.find(x=>x.number===number);
  assert(q,'Missing official task '+number);
@@ -104,6 +104,18 @@ assert(sourceJs.includes('q.collection?')&&sourceJs.includes('esc(q.solution)'),
  'Embedded collection tasks need an accessible answer comparison');
 assert(read('public/maths/sa-01/source-trainer.css').includes('.source-compendium-pdf iframe'),
  'Original compendium must be available on demand');
+
+assert.equal(pool.filter(q=>q.kind==='worksheet').length,9,'Exactly nine analysis-related teacher sheets');
+assert(!pool.some(q=>q.number==='B_261 b'||q.number==='B_602'),'Unrelated sign geometry and proportionality excluded');
+assert(pool.some(q=>q.number==='B_684 b'),'Roboterarm worksheet missing');
+assert(pool.some(q=>q.number==='B_623 a'),'Thermosflasche worksheet missing');
+for(const sheet of pool.filter(q=>q.kind==='worksheet')){
+ assert(fs.existsSync('public/maths/sa-01/'+sheet.source),'Classroom scan not imported: '+sheet.source);
+}
+assert(pool.filter(q=>q.origin==='studyverse').every(q=>q.sourceLabel.includes('keine amtliche Maturaaufgabe')),
+ 'Self-authored tasks must not masquerade as official SRDP questions');
+assert(sourceJs.includes('source-worksheet-photo')&&sourceJs.includes('STUDYVERSE-ÜBUNG'),
+ 'Classroom and self-authored tasks need clear labels and safe image toggle');
 
 const sourceCrops=sandbox.window.MATHS_BOOK_CROPS;
 assert(mhtml.includes('<script src="book-crops.js"></script>'),'Crop module must load before original-source renderer');
@@ -129,18 +141,18 @@ assert(sourceJs.includes("'<div class=\"book-exam-original\">'+bookOriginalStep(
 assert.equal(new Set(book.map(q=>q.number)).size,book.length,'Do not repeat textbook tasks');
 assert.equal(new Set(pool.map(q=>q.number)).size,pool.length,'Do not repeat official task IDs');
 for(const q of book){assert(q.prompt&&q.solution&&q.steps,'Book tasks need exact prompt and explained answer');if(q.expected!=null)assert(Number.isFinite(q.expected),'Book numeric result must be finite')}
-for(const q of pool){assert(q.source.startsWith('https://')&&q.number,'Every pool task must link to its original source');assert(!/^4[.]7(?:\\D|$)/.test(q.descriptor),'Excluded descriptor 4.7 must not appear');if(q.expected!=null)assert(Number.isFinite(q.expected))}
+for(const q of pool){assert(q.source&&q.number,'Every cluster task must identify its source');assert(!/^(?:4[.]7|B_T2_4[.]3)$/.test(q.descriptor),'Excluded chapter must not appear');if(q.expected!=null)assert(Number.isFinite(q.expected))}
 assert(sourceJs.includes('shuffle(GROUPS).slice(0,10)'),'Boss must select 10 distinct original textbook exercise groups');
 assert(sourceJs.includes('shuffle(POOL).slice(0,10)'),'Official half of boss is random 10');
 assert(sourceJs.includes('api.reward')||sourceJs.includes('api.state.bestBoss'),'Exam result must be recorded');
 assert(mhtml.includes('data-nav="book"')&&mhtml.includes('data-nav="pool"'),'There must be two separate catalog tabs');
 assert(!mhtml.includes('data-nav="practice"'),'Synthetic practice must not be in the navigation');
-for(const name of ['book-bank.js','book-groups.js','pool-bank.js','source-trainer.js','source-trainer.css'])assert(mhtml.includes(name),'Missing source trainer asset '+name);
+for(const name of ['book-bank.js','book-groups.js','pool-bank.js','sa1-scope-bank.js','source-trainer.js','source-trainer.css'])assert(mhtml.includes(name),'Missing source trainer asset '+name);
 assert(mjs.includes('SOURCE.browser(\'book\',state)')&&mjs.includes('SOURCE.browser(\'pool\',state)'),'Original catalogs must render via app');
 assert(sourceJs.includes('Stift und Papier')&&sourceJs.includes('Lösung anzeigen'),'Paper instructions and reveal button required');
 assert(!poolJs.includes('maths2mind.com'),'No third-party task mirror allowed in official source bank');
 assert(!mhtml.includes('official-inline.js'),'Do not load mixed-origin inline task artifacts');
-assert(pool.every(q=>/^https:\/\/(?:www\.)?aufgabenpool\.at\/amn\//.test(q.source)),'Every descriptor task must load the original official PDF');
+assert(pool.filter(q=>q.origin==='official').every(q=>/^https:\/\/(?:www\.)?aufgabenpool\.at\/amn\//.test(q.source)),'Official tasks must link only to the ministry');
 assert(sourceJs.includes('source:pool-check')&&sourceJs.includes('Lösungserwartung'),'Official solutions must be checked in the real PDF instead of fake numerical grading');
 for(const group of sourceGroups){
  assert(group.steps.length>=1&&group.steps.every(q=>q.number.startsWith(group.number)),'Every original subtask must belong to exactly one exercise');
@@ -186,9 +198,9 @@ approx(original.get('1.98c').expected,(3/5)*(Math.pow(5,5/3)-Math.pow(2,5/3)),'1
 approx(original.get('1.99').expected,300/Math.PI,'1.99');
 approx(original.get('1.100d').expected,14.4098445789603,'1.100d');
 assert(original.get('1.79a').graph?.curves?.[1]?.domain?.[0]===10,'Composite rod plot must begin the parabola only at x=10');
-for(const comp of ['4.2','4.3','4.4','4.5','4.8']){
- const hits=pool.filter(q=>q.descriptor.split(',').map(x=>x.trim()).includes(comp));
- assert(hits.length>=1,'Must keep official task evidence for descriptor '+comp);
+for(const comp of ['4.1','4.2','4.3','4.4','4.5','4.6','4.8','B_T_4.1','B_T2_4.2','B_T2_4.4','B_T2_4.5','partial','parts']){
+ const hits=pool.filter(q=>q.primary===comp);
+ assert(hits.length>=2&&hits.length<=15,'Every listed descriptor must have 2–15 fitting tasks: '+comp+'='+hits.length);
 }
 assert(sourceJs.includes("'4.1':'Grenzwerte & Stetigkeit'")&&sourceJs.includes("'4.6':'Stammfunktionen'"),'All 7 descriptor topics must have transparent navigation, even without verified official question IDs');
 
@@ -223,7 +235,7 @@ console.log('PASS: Source-screenshot cross-checks, numeric golden values, and or
 const xpContext={window:{},document:{getElementById:()=>null}};
 vm.runInNewContext(bookJs,xpContext);
 vm.runInNewContext(read('public/maths/sa-01/book-groups.js'),xpContext);
-vm.runInNewContext(poolJs,xpContext);
+vm.runInNewContext(poolJs,xpContext);vm.runInNewContext(read('public/maths/sa-01/sa1-scope-bank.js'),xpContext);
 vm.runInNewContext(read('public/maths/sa-01/source-trainer.js'),xpContext);
 const xpSource=xpContext.window.MATHS_SOURCE_TRAINER;
 function testState(earned={}){
@@ -285,4 +297,4 @@ for(const task of xpSource.POOL.slice(0,11)){
 }
 assert.equal(poolXp.payouts.length,10,'SRDP original tasks share the ten-example cap');
 
-console.log('PASS: 84 grouped original textbook tasks, 34 official SRDP tasks (8 targeting 4.8), and 10+10 exam.');
+console.log('PASS: 84 unchanged book groups, curated HTL2/classroom/curriculum tasks, no excluded chapters, and 10+10 exam.');

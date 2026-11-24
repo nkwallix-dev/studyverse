@@ -1771,7 +1771,7 @@ async function main(){
      await cosmeticPage.evaluate(()=>document.querySelector('.verse-endgame [data-nav="boss"]').click());
      await cosmeticPage.locator('[data-action="source:exam-start"]').waitFor({timeout:5000});
      assert.equal((await cosmeticPage.locator('#main h1').innerText()).trim(),'Schularbeitssimulation.','Boss must show source-first exam intro');
-     assert((await cosmeticPage.locator('#main').innerText()).includes('10 Buch + 10 Deskriptor 4'),'Exam must draw from both genuine source banks');
+     assert((await cosmeticPage.locator('#main').innerText()).includes('10 Buch + 10 Deskriptor-Training'),'Exam must draw from both genuine source banks');
      await cosmeticPage.locator('[data-action="source:exam-start"]').click();
      await cosmeticPage.locator('.source-exam-input').waitFor();
      const examField=cosmeticPage.locator('.source-exam-input');
@@ -1856,13 +1856,13 @@ async function main(){
      assert.equal(await cosmeticPage.locator('.book-step-pick').count(),4,'Drone example 1.100 must contain all four ordered subtasks');
      await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-book-original-390.png'),fullPage:true});
      await cosmeticPage.evaluate(()=>document.querySelector('#nav [data-nav="pool"]').click());
-     await cosmeticPage.locator('.source-external').first().waitFor({timeout:5000});
-     assert.equal(await cosmeticPage.locator('.source-list .source-task').count(),29,'SRDP bank displays only original native PDF tasks');
-     await cosmeticPage.locator('[data-action="source:open:pool-b-377-c"]').evaluate(el=>el.click());
+     await cosmeticPage.locator('.source-detail').waitFor({timeout:5000});
+     assert((await cosmeticPage.locator('.source-list .source-task').count())>=60,'SA1 cluster must display relevant mixed-origin training tasks');
+     await cosmeticPage.locator('[data-action="source:open:pool-b-405-d"]').evaluate(el=>el.click());
      await cosmeticPage.locator('.source-pdf-sheet iframe').waitFor({timeout:5000});
      const sourceUrl=await cosmeticPage.locator('.source-pdf-sheet iframe').getAttribute('src');
      assert(sourceUrl.startsWith('https://www.aufgabenpool.at/amn/'),
-       'Only the official Aufgabenpool domain may serve the source tasks');
+       'Verified BMB items must use the official Aufgabenpool source');
      await cosmeticPage.locator('[data-action="source:pool-check"]').click();
      assert((await cosmeticPage.locator('.source-reading .source-solution').innerText()).includes('möglichen Lösungswege'),
        'Checking descriptor solutions must point to the official answer pages inside the PDF');
@@ -1887,7 +1887,7 @@ async function main(){
        }));
      assert(labels.every(x=>x.numberBottom<=x.titleTop+1&&x.titleBottom<=x.buttonBottom+2),
        'Task number and title must never overlap inside their button: '+JSON.stringify(labels));
-     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-50-official-390.png'),fullPage:true});
+     await cosmeticPage.screenshot({path:path.join(screenshots,'mathsverse-sa1-cluster-390.png'),fullPage:true});
    }
    await equipped.close();
   }
@@ -1896,7 +1896,7 @@ async function main(){
   const mathPage=await mathDesktop.newPage();
   await mathPage.goto(base+'maths/sa-01/',{waitUntil:'load'});
   await mathPage.locator('#nav [data-nav="pool"]').click();
-  await mathPage.locator('[data-action="source:open:pool-b-377-c"]').evaluate(el=>el.click());
+  await mathPage.locator('[data-action="source:open:pool-b-405-d"]').evaluate(el=>el.click());
   await mathPage.locator('.source-pdf-sheet iframe').waitFor();
   const pdfGeometry=await mathPage.locator('.source-detail').evaluate(detail=>{
     const iframe=detail.querySelector('.source-pdf-sheet iframe');
