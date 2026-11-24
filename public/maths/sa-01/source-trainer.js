@@ -102,6 +102,22 @@ const cards=(mode)=>mode==='book'?BOOK:POOL;
 function officialStatement(q){
  if(!/^https:\/\/(?:www\.)?aufgabenpool\.at\/amn\//i.test(q.source))
   return '<p class="source-empty">Diese Aufgabe hat keine verifizierte Original-PDF-Quelle und kann hier nicht als offizielle SRDP-Aufgabe angezeigt werden.</p>';
+ if(q.collection){
+  // Some older official exercises are available only in the ministry's entire
+  // Type-A PDF collection. Show a verified summary of that precise task before
+  // the huge PDF, which the student can expand only when needed.
+  const term=(String(q.number).match(/^[A-Z]_\d+/)||[])[0]||'';
+  const deep=esc(encodeURI(q.source)+'#search='+encodeURIComponent(term)+'&view=FitH&zoom=page-width');
+  return '<div class="source-external source-pdf-sheet source-compendium">'+
+   '<section class="source-compendium-statement" role="region" aria-label="Ausgewählte amtliche Anwendungsaufgabe">'+
+   '<span class="source-original-tag">BMB · Originalaufgabe '+esc(q.number)+'</span>'+
+   '<h3>'+esc(q.title)+'</h3>'+
+   '<p>'+esc(q.prompt)+'</p>'+
+   '<p class="source-credit">Prüfungsangabe sinngemäß gekürzt; Wortlaut, Diagramme und vollständige Lösungserwartung findest du im Original-PDF.</p></section>'+
+   '<details class="source-compendium-pdf"><summary>Original-PDF mit Diagramm und amtlicher Lösungserwartung öffnen</summary>'+
+   '<p class="source-credit">Dies ist die offizielle BMB-Gesamtsammlung. Im PDF nach '+esc(term)+' suchen, falls dein Browser nicht direkt dorthin springt.</p>'+
+   '<iframe loading="lazy" title="Amtliche BMB-Gesamtsammlung für '+esc(q.number)+'" src="'+deep+'" referrerpolicy="no-referrer"></iframe></details></div>';
+ }
  const src=esc(encodeURI(q.source))+'#view=FitH&zoom=page-width&toolbar=0&navpanes=0';
  return '<div class="source-external source-pdf-sheet"><b>Amtliches Aufgabenblatt · aufgabenpool.at</b>'+
  '<iframe loading="eager" title="Offizielle SRDP-Aufgabe '+esc(q.number)+'" src="'+src+'" referrerpolicy="no-referrer" aria-label="Vollständiges Original-PDF des Bundesministeriums für Bildung"></iframe>'+
@@ -155,10 +171,14 @@ function details(q,mode){
  '<header class="source-detail-header"><div class="source-meta"><span class="eyebrow">SRDP · '+esc(q.descriptor)+'</span>'+
  (solved?'<span class="source-done">✓ Bearbeitet</span>':'<span class="pill">✎ Noch offen</span>')+'</div>'+
  '<h2>'+esc(q.title)+' · '+esc(q.part)+'</h2>'+
- '<p class="source-number">'+esc(q.number)+' <a class="source-original-link" href="'+esc(q.source)+'" target="_blank" rel="noopener noreferrer">Offizielle Quelle ↗</a></p></header>'+
+ '<p class="source-number">'+esc(q.number)+' <a class="source-original-link" href="'+esc(q.collection?q.source+'#search='+encodeURIComponent((String(q.number).match(/^[A-Z]_\d+/)||[])[0]||''):q.source)+'" target="_blank" rel="noopener noreferrer">Offizielle Quelle ↗</a></p></header>'+
  '<div class="source-reading" role="region" tabindex="0" aria-label="Vollständige offizielle Aufgabe mit Original-Lösungswegen">'+
  officialStatement(q)+
- (ui.poolHint?'<section class="source-solution" id="sourceSolution"><h3>Ergebnis überprüfen</h3><p>Scroll im offiziellen Aufgabenblatt weiter nach unten. Dort stehen die <strong>möglichen Lösungswege und die Lösungserwartung</strong>. Vergleiche sie direkt mit deinem Rechenweg auf Papier.</p></section>':'')+'</div>'+
+ (ui.poolHint?'<section class="source-solution" id="sourceSolution"><h3>Ergebnis überprüfen</h3>'+
+ (q.collection?'<p><b>Rechenstrategie:</b> '+esc(q.guide)+'</p><p><b>Vergleich mit der amtlichen Lösungserwartung:</b> '+esc(q.solution)+'</p>'+
+ '<p class="source-credit">Für alle Originalabbildungen, Rechenschritte und die vollständige amtliche Lösung das oben verlinkte BMB-PDF verwenden.</p>':
+ '<p>Scroll im offiziellen Aufgabenblatt weiter nach unten. Dort stehen die <strong>möglichen Lösungswege und die Lösungserwartung</strong>. Vergleiche sie direkt mit deinem Rechenweg auf Papier.</p>')+
+ '</section>':'')+'</div>'+
  '<div class="source-answer-dock"><div class="handwrite-note">✏️ <b>Stift und Papier:</b> Bearbeite die vollständige Originalaufgabe. Lösungen stehen am Ende des PDF.</div>'+
  '<div class="source-actions"><button class="btn primary" data-action="source:pool-check">Ergebnis überprüfen</button>'+
  '<button class="btn secondary" data-action="source:pool-complete">'+(solved?'✓ Als bearbeitet markiert':'✓ Fertig bearbeitet')+'</button>'+

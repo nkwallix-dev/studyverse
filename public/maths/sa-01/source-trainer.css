@@ -138,3 +138,19 @@ body.source-screen .source-answer-dock{position:relative;bottom:auto;z-index:1}
 .book-original-body{align-content:start}
 .book-exam-original{display:grid;justify-items:center;gap:10px;margin:12px 0}
 @media(max-width:540px){.book-original-body .book-original-crop,.book-exam-original .book-original-crop{padding:4px}}
+
+/* Older ministerial tasks are in the official all-A collection. Avoid forcing
+   students to scroll a massive PDF before they can read the exercise. */
+.source-compendium{display:grid;gap:12px}
+.source-compendium-statement{
+ padding:17px 20px;background:color-mix(in srgb,var(--card2) 84%,#1e5132);
+ border:1px solid var(--border);border-radius:13px;color:var(--ink)
+}
+.source-compendium-statement h3{margin:8px 0 10px;color:var(--ink);font-size:21px}
+.source-compendium-statement>p:first-of-type{white-space:pre-line;line-height:1.65;margin:6px 0 15px}
+.source-original-tag{display:inline-flex;padding:5px 9px;border-radius:7px;background:#b7e29b24;color:var(--accent);font-size:12px;font-weight:800}
+.source-compendium-pdf{border:1px solid var(--border);border-radius:10px;padding:10px 13px;background:var(--card2)}
+.source-compendium-pdf summary{font-weight:800;cursor:pointer;color:var(--accent);padding:7px 0}
+.source-compendium-pdf iframe{width:100%;height:min(73vh,780px);min-height:360px;border:0;background:white;border-radius:8px}
+.source-compendium-pdf .source-credit{margin:10px 0}
+@media(max-width:560px){.source-compendium-statement{padding:12px}.source-compendium-pdf iframe{min-height:400px;height:64vh}}

@@ -69,8 +69,41 @@ const sourceJs=read('public/maths/sa-01/source-trainer.js');
 vm.runInNewContext(bookJs,sandbox);vm.runInNewContext(read('public/maths/sa-01/book-groups.js'),sandbox);vm.runInNewContext(read('public/maths/sa-01/book-crops.js'),sandbox);vm.runInNewContext(poolJs,sandbox);
 const book=sandbox.window.MATHS_BOOK_BANK,pool=sandbox.window.MATHS_POOL_BANK,sourceGroups=sandbox.window.MATHS_BOOK_GROUPS;
 assert(book.length>=80,'Textbook ZIP must produce >80 specific sourced tasks');
-assert.equal(pool.length,29,'Only the 29 directly sourced official Aufgabenpool PDF tasks should remain');
+assert.equal(pool.length,34,'29 previously sourced official tasks plus 5 verified new descriptor-4.8 tasks');
 assert.equal(sourceGroups.length,84,'Book task navigation should group the 215 existing sub-parts into 84 real exercises');
+
+
+/* Only real BMB exercises with preserved task IDs/sources may extend 4.8. */
+const newIntegralCases=[
+ ['A_299 a','Bäume – Fläche eines Buchenblatts'],
+ ['A_309 a','Zirbenholzbetten – Fläche und Masse'],
+ ['A_317 a','Stand-up-Paddling – Fläche zwischen Kurven'],
+ ['A_318 a','Kleingartensiedlung – Grundstück halbieren'],
+ ['1_1309','Integral und Flächeninhalt – Vorzeichen richtig deuten']
+];
+const integralCases=pool.filter(q=>q.descriptor.split(',').map(s=>s.trim()).includes('4.8'));
+assert.equal(integralCases.length,8,'Descriptor 4.8 must offer eight real tasks, not just three');
+for(const [number,title] of newIntegralCases){
+ const q=pool.find(x=>x.number===number);
+ assert(q,'Missing official task '+number);
+ assert.equal(q.title,title);
+ assert(q.prompt?.length>=80&&q.solution?.length>=75&&q.guide?.length>=75,'Incomplete original-source exercise '+number);
+ assert(q.source.startsWith('https://www.aufgabenpool.at/amn/'),'No non-ministry sources in 4.8');
+ assert(q.descriptor==='4.8','Integral example outside 4.8');
+}
+for(const key of ['A_299 a','A_309 a','A_317 a','A_318 a']){
+ const q=pool.find(x=>x.number===key);
+ assert.equal(q.collection,true,'Older task should use the source collection view');
+ assert.equal(q.source,'https://www.aufgabenpool.at/amn/allFiles/A.pdf');
+}
+const newStandalone=pool.find(q=>q.number==='1_1309');
+assert(!newStandalone.collection&&newStandalone.source.endsWith('.pdf'));
+assert(sourceJs.includes('if(q.collection)')&&sourceJs.includes('source-compendium-statement'),
+ 'Large original collection must show the exact chosen question before opening the PDF');
+assert(sourceJs.includes('q.collection?')&&sourceJs.includes('esc(q.solution)'),
+ 'Embedded collection tasks need an accessible answer comparison');
+assert(read('public/maths/sa-01/source-trainer.css').includes('.source-compendium-pdf iframe'),
+ 'Original compendium must be available on demand');
 
 const sourceCrops=sandbox.window.MATHS_BOOK_CROPS;
 assert(mhtml.includes('<script src="book-crops.js"></script>'),'Crop module must load before original-source renderer');
@@ -252,4 +285,4 @@ for(const task of xpSource.POOL.slice(0,11)){
 }
 assert.equal(poolXp.payouts.length,10,'SRDP original tasks share the ten-example cap');
 
-console.log('PASS: 84 grouped original textbook tasks, 29 verified original SRDP PDFs, and 10+10 exam, with safe progress.');
+console.log('PASS: 84 grouped original textbook tasks, 34 official SRDP tasks (8 targeting 4.8), and 10+10 exam.');
