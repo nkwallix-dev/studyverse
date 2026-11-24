@@ -1,5 +1,5 @@
 /** Each trainer contributes a drop; the global catalog contains only general STUDYVERSE cosmetics. */
-export type ShopMetric = 'academy' | 'quiz' | 'draw' | 'reaction' | 'boss' | 'sorter' | 'pipeline' | 'forecast';
+export type ShopMetric = 'academy' | 'book' | 'descriptor' | 'quiz' | 'draw' | 'reaction' | 'boss' | 'sorter' | 'pipeline' | 'forecast';
 export interface ShopRequirement { metric: ShopMetric; value: number }
 export interface ShopDrop {id:string;icon:string;title:string;subtitle:string;description:string;status:'live'|'upcoming'}
 export interface ShopItem {
@@ -104,18 +104,18 @@ export const SHOP_ITEMS:ShopItem[]=([
 
  // MATHSVERSE · GREEN MATHEMATICS. Keep the original Pi-Fuchs ID for old purchasers.
  {id:'maths_avatar_pi',kind:'avatar',icon:'🦊',name:'Pi-Fuchs',desc:'Ein schlauer Mathe-Fuchs mit grünen Akzenten und dem Symbol π auf seinem Schal.',group:'avatar',drop:'maths-sa-01',requirement:{metric:'academy',value:2}},
- {id:'maths_owl',kind:'avatar',icon:'🦉',name:'Euler-Eule',desc:'Eule mit grüner Kreidetafel und Euler-Blick – Mathe statt Roboterschrott.',group:'avatar',drop:'maths-sa-01',requirement:{metric:'draw',value:8}},
+ {id:'maths_owl',kind:'avatar',icon:'🦉',name:'Euler-Eule',desc:'Eule mit grüner Kreidetafel und Euler-Blick – Mathe statt Roboterschrott.',group:'avatar',drop:'maths-sa-01',requirement:{metric:'book',value:2}},
  {id:'maths_chalk',kind:'theme',icon:'∫',name:'Emerald Chalk',desc:'Kreidetafelgrün, frisches Salbei, feine Formellinien. Kein Galaxy.',group:'theme',bg:'linear-gradient(130deg,#102f26,#28754c 65%,#a9d575)',drop:'maths-sa-01',requirement:{metric:'academy',value:8}},
  {id:'maths_graph',kind:'atm',icon:'⌁',name:'Funktionspapier',desc:'Ein maßstäblich wirkendes grünes Koordinatenraster mit präzisen Kurven statt Sternen.',group:'atm',equip:'maths_graph',drop:'maths-sa-01',requirement:{metric:'academy',value:3}},
- {id:'maths_formula',kind:'atm',icon:'∑',name:'Kreideformeln',desc:'Wirkliche Integrale, Ableitungen und Funktionsgleichungen als dezente Kulisse.',group:'atm',equip:'maths_formula',drop:'maths-sa-01',requirement:{metric:'academy',value:6}},
- {id:'maths_axes',kind:'frame',icon:'⊞',name:'Koordinaten-Rahmen',desc:'Vier echte Koordinaten-Ecken mit X- und Y-Achsen, keine Tangenten-Behauptung.',group:'frame',equip:'maths_axes',drop:'maths-sa-01',requirement:{metric:'quiz',value:12}},
- {id:'maths_fibonacci',kind:'frame',icon:'φ',name:'Fibonacci-Spirale',desc:'Feine goldgrüne Fibonacci-Eckbögen am Profil und an Karten.',group:'frame',equip:'maths_fibonacci',drop:'maths-sa-01',requirement:{metric:'draw',value:12}},
+ {id:'maths_formula',kind:'atm',icon:'∑',name:'Kreideformeln',desc:'Wirkliche Integrale, Ableitungen und Funktionsgleichungen als dezente Kulisse.',group:'atm',equip:'maths_formula',drop:'maths-sa-01',requirement:{metric:'descriptor',value:3}},
+ {id:'maths_axes',kind:'frame',icon:'⊞',name:'Koordinaten-Rahmen',desc:'Vier echte Koordinaten-Ecken mit X- und Y-Achsen, keine Tangenten-Behauptung.',group:'frame',equip:'maths_axes',drop:'maths-sa-01',requirement:{metric:'book',value:3}},
+ {id:'maths_fibonacci',kind:'frame',icon:'φ',name:'Fibonacci-Spirale',desc:'Feine goldgrüne Fibonacci-Eckbögen am Profil und an Karten.',group:'frame',equip:'maths_fibonacci',drop:'maths-sa-01',requirement:{metric:'book',value:6}},
  {id:'maths_notebook',kind:'font',icon:'ƒ',name:'Mathe-Notizbuch',desc:'Eine klare, lehrbuchartige mathematische Schrift – gut lesbar und grün akzentuiert.',group:'font',equip:'maths_notebook',drop:'maths-sa-01',requirement:{metric:'academy',value:5}},
- {id:'maths_curve_banner',kind:'banner',icon:'∿',name:'Kurvenwerkstatt',desc:'Eine grüne Tafel mit echten Ableitungskurven und Koordinatenachsen.',group:'banner',equip:'maths_curve',drop:'maths-sa-01',requirement:{metric:'quiz',value:20}},
- {id:'maths_integral_banner',kind:'banner',icon:'∫',name:'Integral-Landschaft',desc:'Schraffierte Fläche unter einem Funktionsgraphen – ganz ohne Sternennebel.',group:'banner',equip:'maths_integral',drop:'maths-sa-01',requirement:{metric:'draw',value:5}},
+ {id:'maths_curve_banner',kind:'banner',icon:'∿',name:'Kurvenwerkstatt',desc:'Eine grüne Tafel mit echten Ableitungskurven und Koordinatenachsen.',group:'banner',equip:'maths_curve',drop:'maths-sa-01',requirement:{metric:'descriptor',value:5}},
+ {id:'maths_integral_banner',kind:'banner',icon:'∫',name:'Integral-Landschaft',desc:'Schraffierte Fläche unter einem Funktionsgraphen – ganz ohne Sternennebel.',group:'banner',equip:'maths_integral',drop:'maths-sa-01',requirement:{metric:'book',value:4}},
  {id:'maths_chalk_fx',kind:'extra',icon:'∂',name:'Kreidestaub',desc:'Kreidestaub und Mathezeichen erscheinen kurz bei richtigen Antworten.',group:'fx',equip:'maths_chalk_fx',drop:'maths-sa-01',requirement:{metric:'academy',value:4}},
- {id:'maths_delta_fx',kind:'extra',icon:'Δ',name:'Delta-Pulse',desc:'Leuchtende Δ- und ∫-Impulse bei richtigen Antworten.',group:'fx',equip:'maths_delta_fx',drop:'maths-sa-01',requirement:{metric:'quiz',value:30}},
- {id:'maths_title_integral',kind:'title',icon:'∑',name:'Integral-Genie',desc:'Für alle, die bei Stammfunktionen und Integralen den Durchblick haben.',group:'title',drop:'maths-sa-01',requirement:{metric:'academy',value:4}},
+ {id:'maths_delta_fx',kind:'extra',icon:'Δ',name:'Delta-Pulse',desc:'Leuchtende Δ- und ∫-Impulse bei richtigen Antworten.',group:'fx',equip:'maths_delta_fx',drop:'maths-sa-01',requirement:{metric:'descriptor',value:8}},
+ {id:'maths_title_integral',kind:'title',icon:'∑',name:'Integral-Genie',desc:'Für alle, die bei Stammfunktionen und Integralen den Durchblick haben.',group:'title',drop:'maths-sa-01',requirement:{metric:'book',value:8}},
  {id:'maths_boss_title',kind:'title',icon:'♛',name:'Professor Filipp',desc:'Exklusiver Titel für einen perfekten MathsVerse-Schularbeits-Bosskampf mit 100 %.',group:'title',drop:'maths-sa-01',requirement:{metric:'boss',value:100}},
 
 // SHARPVERSE DROP · first practical assessment
