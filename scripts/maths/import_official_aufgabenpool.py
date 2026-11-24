@@ -233,15 +233,15 @@ def main():
         raise RuntimeError("Excluded descriptor detected")
 
     bank = (
-        "/* Import of verified original PDF tasks from the Austrian BMB Aufgabenpool.\\n"
-        " * Rebuild with scripts/maths/import_official_aufgabenpool.py (no fabricated tasks).\\n"
-        " * No Aufgabentyp filter; exact descriptors in the AM task database.\\n"
-        " */\\n(function(){'use strict';\\n"
-        "const chapters="+json.dumps({k:v[0] for k,v in TARGETS.items()},ensure_ascii=False)+";\\n"
-        "const tasks="+json.dumps(output,ensure_ascii=False,separators=(",",":"))+";\\n"
-        "window.MATHS_EXAM_SCOPE=Object.freeze({chapters,excluded:['4.7','B_T2_4.3'],date:'2026-11-26'});\\n"
-        "window.MATHS_POOL_BANK=Object.freeze(tasks.map(Object.freeze));\\n"
-        "})();\\n"
+        "/* Import of verified original PDF tasks from the Austrian BMB Aufgabenpool.\n"
+        " * Rebuild with scripts/maths/import_official_aufgabenpool.py (no fabricated tasks).\n"
+        " * No Aufgabentyp filter; exact descriptors in the AM task database.\n"
+        " */\n(function(){'use strict';\n"
+        "const chapters="+json.dumps({k:v[0] for k,v in TARGETS.items()},ensure_ascii=False)+";\n"
+        "const tasks="+json.dumps(output,ensure_ascii=False,separators=(",",":"))+";\n"
+        "window.MATHS_EXAM_SCOPE=Object.freeze({chapters,excluded:['4.7','B_T2_4.3'],date:'2026-11-26'});\n"
+        "window.MATHS_POOL_BANK=Object.freeze(tasks.map(Object.freeze));\n"
+        "})();\n"
     )
     (ROOT/"sa1-scope-bank.js").write_text(bank,encoding="utf-8")
     (ROOT/"official-pdfs"/"import-report.json").write_text(
