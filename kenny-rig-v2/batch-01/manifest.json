@@ -1,0 +1,245 @@
+{
+  "version": 2,
+  "batch": "01-head-face",
+  "sourceRepo": "nkwallix-dev/studyverse",
+  "sourcePath": "public/kenny/rig/v1/source/kenny-approved-master.png",
+  "sourceSHA256": "11440b14fa46df978bab203e1feebdd3f93f1cbb240931b8658061e7016529a0",
+  "canvas": {
+    "width": 1205,
+    "height": 1305,
+    "coordinateSystem": "pixels, top-left origin"
+  },
+  "joint": {
+    "id": "jaw-hinge",
+    "pivotGlobal": [
+      771,
+      376
+    ],
+    "closedJawRotationDegrees": 27
+  },
+  "files": [
+    {
+      "file": "head_upper.png",
+      "id": "head_upper",
+      "x": 560,
+      "y": 113,
+      "width": 599,
+      "height": 445,
+      "pivot": {
+        "global": [
+          690,
+          433
+        ],
+        "local": [
+          130,
+          320
+        ]
+      },
+      "pngSHA256": "c6eb1aea9bd2b5b12271359380469d600f36dc662a9cd8f63086618018f856dc",
+      "source": "original pixels + hidden blue skin/eyelid completion"
+    },
+    {
+      "file": "eye_near_open.png",
+      "id": "eye_near_open",
+      "x": 715,
+      "y": 199,
+      "width": 196,
+      "height": 166,
+      "pivot": {
+        "global": [
+          801,
+          274
+        ],
+        "local": [
+          86,
+          75
+        ]
+      },
+      "pngSHA256": "a4555a3dbd843760bb986a90b8e15070a042328069db6226f63639d429605733",
+      "source": "approved-master pixel cutout"
+    },
+    {
+      "file": "eye_near_closed.png",
+      "id": "eye_near_closed",
+      "x": 715,
+      "y": 199,
+      "width": 196,
+      "height": 166,
+      "pivot": {
+        "global": [
+          801,
+          274
+        ],
+        "local": [
+          86,
+          75
+        ]
+      },
+      "pngSHA256": "59139faa35cbe18942abfed1a5b2adb43b5a981b6bb3541e711bc80d39cb42d0",
+      "source": "original pixels + hidden blue skin/eyelid completion"
+    },
+    {
+      "file": "eye_far_open.png",
+      "id": "eye_far_open",
+      "x": 1007,
+      "y": 181,
+      "width": 62,
+      "height": 86,
+      "pivot": {
+        "global": [
+          1035,
+          224
+        ],
+        "local": [
+          28,
+          43
+        ]
+      },
+      "pngSHA256": "a058011f77c6aabd37134e540f84957b0ca1c35fdaebdca700fda296e713eb6d",
+      "source": "approved-master pixel cutout"
+    },
+    {
+      "file": "eye_far_closed.png",
+      "id": "eye_far_closed",
+      "x": 1007,
+      "y": 181,
+      "width": 62,
+      "height": 86,
+      "pivot": {
+        "global": [
+          1035,
+          224
+        ],
+        "local": [
+          28,
+          43
+        ]
+      },
+      "pngSHA256": "d13700aa455be8cd43a6ebb391dbd67fb7ad165a98de471777dae6c29c0be0d0",
+      "source": "original pixels + hidden blue skin/eyelid completion"
+    },
+    {
+      "file": "jaw_lower_open.png",
+      "id": "jaw_lower_open",
+      "x": 674,
+      "y": 351,
+      "width": 359,
+      "height": 231,
+      "pivot": {
+        "global": [
+          771,
+          376
+        ],
+        "local": [
+          97,
+          25
+        ]
+      },
+      "pngSHA256": "87ef49e3d132166b6de36df2b82d01876860ad4f4653fc5a385223912a0475fa",
+      "source": "approved-master pixel cutout"
+    },
+    {
+      "file": "jaw_lower_closed.png",
+      "id": "jaw_lower_closed",
+      "x": 691,
+      "y": 360,
+      "width": 474,
+      "height": 129,
+      "pivot": {
+        "global": [
+          771,
+          376
+        ],
+        "local": [
+          80,
+          16
+        ]
+      },
+      "pngSHA256": "815a2c820b2ddef745c44d6f34130fafea8ecfeb611f0f77d46027d9b959ff9c",
+      "source": "closed-jaw transformed original + occluded-area correction"
+    },
+    {
+      "file": "mouth_cavity.png",
+      "id": "mouth_cavity",
+      "x": 811,
+      "y": 376,
+      "width": 195,
+      "height": 162,
+      "pivot": {
+        "global": [
+          771,
+          376
+        ],
+        "local": [
+          -40,
+          0
+        ]
+      },
+      "pngSHA256": "0d1939483d3b2d4522540eec2399afbc0bb817f2c1139068345f5602d4bf3528",
+      "source": "approved-master pixel cutout"
+    },
+    {
+      "file": "upper_teeth.png",
+      "id": "upper_teeth",
+      "x": 945,
+      "y": 378,
+      "width": 170,
+      "height": 65,
+      "pivot": {
+        "global": [
+          1020,
+          393
+        ],
+        "local": [
+          75,
+          15
+        ]
+      },
+      "pngSHA256": "68956ee8130f56f6ada761ec9c2fa1a0d4f19d80521302612991c379f17e06f4",
+      "source": "approved-master pixel cutout"
+    },
+    {
+      "file": "lower_teeth.png",
+      "id": "lower_teeth",
+      "x": 923,
+      "y": 487,
+      "width": 103,
+      "height": 61,
+      "pivot": {
+        "global": [
+          965,
+          501
+        ],
+        "local": [
+          42,
+          14
+        ]
+      },
+      "pngSHA256": "1b358ffa5841dd74031eb1afab86c21bcb9abb5246b9fef28bf19f0a1ea9db81",
+      "source": "approved-master pixel cutout"
+    }
+  ],
+  "poses": {
+    "open": [
+      "head_upper",
+      "mouth_cavity",
+      "jaw_lower_open",
+      "upper_teeth",
+      "lower_teeth",
+      "eye_far_open",
+      "eye_near_open"
+    ],
+    "closed": [
+      "head_upper",
+      "jaw_lower_closed",
+      "eye_far_open",
+      "eye_near_closed"
+    ]
+  },
+  "notes": [
+    "Each PNG keeps a transparent alpha channel and a cropped file offset into the original 1205x1305 canvas.",
+    "Jaw closure rotates the actual cyan lower-jaw artwork around the documented hinge; teeth and cavity are visible only in the open pose.",
+    "Behind-eye skin and closed lids are completed artwork, not pixels present in the source.",
+    "No gameplay or runtime references to these proof-of-concept files."
+  ]
+}
