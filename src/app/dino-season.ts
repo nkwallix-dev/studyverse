@@ -6,16 +6,16 @@ export const KENNY_SEASON={
   end:Date.parse('2027-01-14T00:00:00+01:00')
 } as const;
 export const KENNY_THRESHOLDS=[0,3,8,15,25] as const;
-export type DinoTier='small'|'medium'|'large'|'event'|'zebra'|'token100'|'token500'|'token1000';
+export type DinoTier='small'|'medium'|'large'|'event'|'zebra'|'reindeer'|'token100'|'token500'|'token1000';
 export const KENNY_ODDS:ReadonlyArray<Readonly<Record<DinoTier,number>>>=[
   // Zebra is inaccessible at Levels 1–3, then has a fixed 0.5% roll
   // at both Levels 4 and 5. Other prizes and token odds stay unchanged.
   // The small-items tier absorbs the 0.1–0.3pp redistribution.
-  {small:34,medium:24,large:5,event:1,zebra:0,token100:30,token500:5,token1000:1},
-  {small:32,medium:24,large:6,event:3,zebra:0,token100:29,token500:5,token1000:1},
-  {small:29,medium:25,large:7,event:5,zebra:0,token100:28,token500:5,token1000:1},
-  {small:25.5,medium:25,large:8,event:7,zebra:0.5,token100:27,token500:5,token1000:2},
-  {small:22.5,medium:26,large:9,event:9,zebra:0.5,token100:26,token500:5,token1000:2}
+  {small:32.5,reindeer:1.5,medium:24,large:5,event:1,zebra:0,token100:30,token500:5,token1000:1},
+  {small:30.5,reindeer:1.5,medium:24,large:6,event:3,zebra:0,token100:29,token500:5,token1000:1},
+  {small:27.5,reindeer:1.5,medium:25,large:7,event:5,zebra:0,token100:28,token500:5,token1000:1},
+  {small:20.5,reindeer:5,medium:25,large:8,event:7,zebra:0.5,token100:27,token500:5,token1000:2},
+  {small:17.5,reindeer:5,medium:26,large:9,event:9,zebra:0.5,token100:26,token500:5,token1000:2}
 ];
 export const KENNY_ZEBRA_SKIN:ShopItem={
   id:'kenny_skin_zebra',kind:'dinoSkin',icon:'🤍',name:'Kenny Weiß',cost:0,
@@ -28,7 +28,8 @@ export const KENNY_EVENT_ITEMS:ShopItem[]=[
   {id:'kenny_skin_pink',kind:'dinoSkin',icon:'🩷',name:'Kenny Pink',cost:0,desc:'Rosa Look für Kenny – mit eigenem pinken Kenny-Avatar.',group:'dinoSkin',equip:'pink',drop:KENNY_SEASON.id},
   {id:'kenny_skin_green',kind:'dinoSkin',icon:'💚',name:'Kenny Grün',cost:0,desc:'Grüner Look für Kenny – mit eigenem grünen Kenny-Avatar.',group:'dinoSkin',equip:'green',drop:KENNY_SEASON.id},
   {id:'kenny_skin_red',kind:'dinoSkin',icon:'❤️',name:'Kenny Rot',cost:0,desc:'Roter Look für Kenny und ein eigener roter Kenny-Avatar.',group:'dinoSkin',equip:'red',drop:KENNY_SEASON.id},
-  KENNY_ZEBRA_SKIN
+  KENNY_ZEBRA_SKIN,
+  {id:'kenny_skin_reindeer',kind:'dinoSkin',icon:'🦌',name:'Kenny Rentier',cost:0,desc:'1,5 % auf Level 1–3, 5 % ab Level 4.',group:'dinoSkin',equip:'reindeer',drop:KENNY_SEASON.id}
 ];
 export const KENNY_BLUE_AVATAR:ShopItem={
   id:'kenny_avatar',kind:'avatar',icon:'🦖',name:'Kenny Blau',cost:0,
@@ -48,21 +49,21 @@ export const KENNY_SKIN_AVATARS:ShopItem[]=[
 export function kennyAvatarForSkin(id:string|undefined):ShopItem|undefined{
   return KENNY_SKIN_AVATARS.find(item=>id==='kenny_skin_'+item.id.slice('kenny_avatar_'.length));
 }
-export type KennySkin='blue'|'pink'|'green'|'red'|'zebra';
+export type KennySkin='blue'|'pink'|'green'|'red'|'zebra'|'reindeer';
 /** Profile portraits are separate from Kenny's idle/feed sprite sheets. */
 export function kennyPortrait(skin:string|null):string{
-  return 'cosmetics/avatars/kenny_'+(['blue','pink','green','red','zebra'].includes(skin||'')?skin:'blue')+'_avatar.png';
+  return 'cosmetics/avatars/kenny_'+(['blue','pink','green','red','zebra','reindeer'].includes(skin||'')?skin:'blue')+'_avatar.png';
 }
 export function kennyAvatarSkin(value:string):KennySkin|null{
   if(value==='🦖'||value==='kenny_avatar')return 'blue';
   const skin=value.startsWith('kenny_avatar_')?value.slice('kenny_avatar_'.length):'';
-  return skin==='pink'||skin==='green'||skin==='red'||skin==='zebra'?skin:null;
+  return skin==='pink'||skin==='green'||skin==='red'||skin==='zebra'||skin==='reindeer'?skin:null;
 }
 export const KENNY_FINALE_ITEM:ShopItem={
   id:'kenny_fossil_frame',kind:'frame',icon:'🦴',name:'Urzeit-Fossilrahmen',cost:0,
   desc:'Exklusiv für Kenny auf Level 5 bis zum Saisonende.',group:'frame',equip:'kenny_fossil',drop:KENNY_SEASON.id
 };
-export const KENNY_ITEMS=[...KENNY_EVENT_ITEMS,KENNY_BLUE_SKIN,KENNY_BLUE_AVATAR,...KENNY_SKIN_AVATARS,KENNY_FINALE_ITEM];
+export const KENNY_ITEMS=[{id:'kenny_winter_banner',kind:'banner',icon:'🎄',name:'Kennys Winterwunder',cost:0,desc:'Mit Rentier-Kenny erhalten.',group:'banner',equip:'kenny_winter',drop:KENNY_SEASON.id} as ShopItem,...KENNY_EVENT_ITEMS,KENNY_BLUE_SKIN,KENNY_BLUE_AVATAR,...KENNY_SKIN_AVATARS,KENNY_FINALE_ITEM];
 
 export interface DinoSeasonState {
   feeds:number;overfeeds:number;overTokenWins:number;skin:KennySkin;
@@ -74,7 +75,7 @@ export function normalizeDinoState(value:unknown):DinoSeasonState{
   if(!value||typeof value!=='object'||Array.isArray(value))return freshDinoState();
   const data=value as Record<string,unknown>;
   const feeds=count(data['feeds']);
-  const skin=['blue','pink','green','red','zebra'].includes(String(data['skin']))?data['skin'] as DinoSeasonState['skin']:'blue';
+  const skin=['blue','pink','green','red','zebra','reindeer'].includes(String(data['skin']))?data['skin'] as DinoSeasonState['skin']:'blue';
   // Every feed beyond the 25th is eligible, including feeds saved by older clients.
   return {feeds,overfeeds:Math.max(0,feeds-25),
     overTokenWins:count(data['overTokenWins']),skin,settled:data['settled']===true,
@@ -107,7 +108,7 @@ export function kennyCountdown(now:number):string{
   const days=Math.floor(minutes/1440),hours=Math.floor((minutes%1440)/60);
   return days?`${days} Tage · ${hours} Std.`:`${hours} Std. · ${minutes%60} Min.`;
 }
-export function eligibleDinoItems(items:ShopItem[],owned:Set<string>):Record<'small'|'medium'|'large'|'event'|'zebra',ShopItem[]>{
+export function eligibleDinoItems(items:ShopItem[],owned:Set<string>):Record<'small'|'medium'|'large'|'event'|'zebra'|'reindeer',ShopItem[]>{
   const regular=items.filter(item=>(item.drop==='nawi-test-01'||item.drop==='dsai-test-01')
     &&!(item.group==='title'&&item.requirement?.metric==='boss'&&item.requirement.value===100));
   // Perfect-boss professor titles are deliberately never in Kenny's pool.
@@ -115,13 +116,13 @@ export function eligibleDinoItems(items:ShopItem[],owned:Set<string>):Record<'sm
   return {small:learn.filter(item=>item.cost<=300),
     medium:learn.filter(item=>item.cost>300&&item.cost<=800),
     large:learn.filter(item=>item.cost>800),
-    event:KENNY_EVENT_ITEMS.filter(item=>item.id!==KENNY_ZEBRA_SKIN.id&&!owned.has(item.id)),
-    zebra:owned.has(KENNY_ZEBRA_SKIN.id)?[]:[KENNY_ZEBRA_SKIN]};
+    event:KENNY_EVENT_ITEMS.filter(item=>item.id!==KENNY_ZEBRA_SKIN.id&&item.id!=='kenny_skin_reindeer'&&!owned.has(item.id)),
+    zebra:owned.has(KENNY_ZEBRA_SKIN.id)?[]:[KENNY_ZEBRA_SKIN],reindeer:KENNY_EVENT_ITEMS.filter(i=>i.id==='kenny_skin_reindeer'&&!owned.has(i.id))};
 }
 export function actualDinoOdds(level:number,pools:ReturnType<typeof eligibleDinoItems>):Record<DinoTier,number>{
   const base=KENNY_ODDS[Math.max(0,Math.min(4,level-1))];
   const odds={...base};
-  const itemTiers=['small','medium','large','event','zebra'] as const;
+  const itemTiers=['small','medium','large','event','zebra','reindeer'] as const;
   for(const tier of itemTiers){
     if(!pools[tier].length){odds.token100+=odds[tier];odds[tier]=0;}
   }

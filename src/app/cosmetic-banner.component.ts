@@ -12,6 +12,8 @@ const BANNER_PREVIEWS = new Set([
   'pink_paradise',
   'parallel_pulse',
   'kenny_volcano',
+  'christmas_fireplace',
+  'kenny_winter',
   'maths_curve',
   'maths_integral',
 ]);
@@ -50,6 +52,6 @@ export class CosmeticBannerComponent {
 
   get source(): string {
     const key = this.banner && BANNER_PREVIEWS.has(this.banner) ? this.banner : 'default';
-    return 'cosmetics/banners/' + key + (key.startsWith('maths_') ? '.svg' : '.webp');
+    return 'cosmetics/banners/' + key + (key.startsWith('maths_') ? '.svg' : ['christmas_fireplace','kenny_winter'].includes(key) ? '.jpg' : '.webp');
   }
 }

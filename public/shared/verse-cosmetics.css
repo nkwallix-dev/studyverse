@@ -308,3 +308,7 @@ body.studyverse-cosmetics>.verse-fx.is-burst i{
  100%{transform:translate3d(9px,-80px,0) scale(.74) rotate(12deg);opacity:0}
 }
 @media(prefers-reduced-motion:reduce){body.studyverse-cosmetics>.verse-fx.is-burst i{animation:none!important;opacity:.55!important}}
+
+body[data-theme="christmas_candy"]{--bg:#280b15;--side:#661322;--card:#48202a;--card2:#35131b;--panel:#48202a;--border:#b95762;--accent:#ff8793;--accent2:#fff5ee;--ink:#fff8f2;--text:#fff8f2;--muted:#f2c9c9}
+body[data-banner="christmas_fireplace"] .hero{background:linear-gradient(90deg,#280a14cc,transparent),url('../cosmetics/banners/christmas_fireplace.jpg') center/cover!important}
+body[data-banner="kenny_winter"] .hero{background:linear-gradient(90deg,#10162acc,transparent),url('../cosmetics/banners/kenny_winter.jpg') center/cover!important}

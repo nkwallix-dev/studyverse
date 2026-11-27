@@ -4,7 +4,7 @@
 (function(root){
   "use strict";
   const PROFILE_KEY="studyverse_profile_v1";
-  const SKINS=new Set(["blue","pink","green","red","zebra"]);
+  const SKINS=new Set(["blue","pink","green","red","zebra","reindeer"]);
 
   function fromProfile(profile){
     const selected=profile?.dinoSeasons?.["kenny-2026"]?.skin;
@@ -24,7 +24,7 @@
       const path='../kenny/skins/kenny-'+skin+'-portrait.png';
       if(image.getAttribute('src')!==path)image.setAttribute('src',path);
     });
-    const colors={blue:"#14283b",pink:"#38243d",green:"#183929",red:"#452b30",zebra:"#25252e"};
+    const colors={blue:"#14283b",pink:"#38243d",green:"#183929",red:"#452b30",zebra:"#25252e",reindeer:"#4b2b20"};
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content",colors[skin]);
     return skin;
   }

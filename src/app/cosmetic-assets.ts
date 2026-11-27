@@ -1,5 +1,7 @@
 /** Display-only mapping from the supplied asset_manifest.json. Stored item IDs never change. */
 export const COSMETIC_IMAGES: Readonly<Record<string,string>> = {
+  "christmas_candy": "cosmetics/themes/christmas_candy.jpg",
+  "kenny_skin_reindeer": "kenny/skins/kenny-reindeer-portrait.png",
   "cosmic": "cosmetics/themes/cosmic_theme.png",
   "arcade": "cosmetics/themes/arcade_theme.png",
   "lava": "cosmetics/themes/lava_theme.png",

@@ -30,6 +30,8 @@ export const SHOP_DROPS:ShopDrop[]=[
   {id:'maths-sa-01',icon:'∫',title:'MathsVerse · 1. SA',subtitle:'AM · Ableitungen & Integrale',description:'MathsVerse-Cosmetics mit Mathematik statt Galaxy: grüne Designs und händische Aufgaben.',status:'live'}
 ];
 export const SHOP_ITEMS:ShopItem[]=([
+{id:'christmas_candy',kind:'theme',icon:'🍬',name:'Zuckerstange',desc:'Weihnachtsgeschenk 2026.',group:'theme',drop:'christmas-2026',bg:'linear-gradient(135deg,#a71930,#fff4ed)'},
+{id:'christmas_fireplace',kind:'banner',icon:'🎄',name:'Weihnachtskamin',desc:'Weihnachtsgeschenk 2026.',group:'banner',equip:'christmas_fireplace',drop:'christmas-2026'},
 {id:'neon',kind:'theme',icon:'🟢',name:'Toxic Neon',desc:'Elektrischer Farbverlauf von sattem Violett bis leuchtendem Giftgrün.',group:'theme',bg:'linear-gradient(120deg,#43126b 0%,#59219a 38%,#1b7450 66%,#9cff43 100%)',drop:'nawi-test-01',requirement:{metric:'academy',value:3}},
 {id:'pizza',kind:'theme',icon:'🍕',name:'Lehrer-Pizza',desc:'Goldgelbe Cheeseboard-Hölle. Wer bestellt den Stoff?',group:'theme',bg:'linear-gradient(125deg,#773420,#ffc778)',drop:'nawi-test-01',requirement:{metric:'academy',value:4}},
 {id:'cosmic',kind:'theme',icon:'🌌',name:'Galaxy',desc:'Legendäres galaktisches Theme. Ein teures Prestige-Upgrade für dein gesamtes STUDYVERSE.',group:'theme',bg:'radial-gradient(circle at 70% 40%,#f872e8,#190852 45%,#03031c)',drop:'global',level:20},

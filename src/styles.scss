@@ -2952,3 +2952,8 @@ html,body{margin:0;min-height:100%;background:#080d1c}body{font-family:Inter,"Se
 .shop-live-stage.miniature.effect[data-fx="maths_chalk_fx"] .shop-live-fx span,
 .shop-live-stage.miniature.effect[data-fx="maths_delta_fx"] .shop-live-fx span{font-size:14px}
 @media(prefers-reduced-motion:reduce){.shop-live-stage[data-fx="maths_chalk_fx"] .shop-live-fx span,.shop-live-stage[data-fx="maths_delta_fx"] .shop-live-fx span,.shop-live-stage .shop-live-fx span::before{animation:none!important}}
+
+.kenny-sprite[data-skin="reindeer"],.kenny-mini-sprite[data-skin="reindeer"]{background-image:url('assets/kenny/skins/kenny-reindeer-idle-strip.png')}
+.kenny-stage.kenny-feeding .kenny-sprite[data-skin="reindeer"]{background-image:url('assets/kenny/skins/kenny-reindeer-feed-strip.png')}
+.universe[data-banner="christmas_fireplace"] .hero{background:linear-gradient(90deg,#280a14cc,transparent),url('/studyverse/cosmetics/banners/christmas_fireplace.jpg') center/cover!important}
+.universe[data-banner="kenny_winter"] .hero{background:linear-gradient(90deg,#10162acc,transparent),url('/studyverse/cosmetics/banners/kenny_winter.jpg') center/cover!important}

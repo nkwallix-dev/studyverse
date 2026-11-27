@@ -733,6 +733,7 @@ export class App implements OnInit,OnDestroy {
      write(LOCAL_ARCHIVE,JSON.stringify({savedAt:new Date().toISOString(),profile:existing.profile,trainers:existing.trainers}));
    this.clearDeviceProgress();
    this.profile=initial();
+   this.grantChristmasGifts();
    if(this.cloud.session?.username)this.profile.nickname=this.cloud.session.username;
    this.nicknameEdit=this.profile.nickname;
    write(KEY,JSON.stringify(this.profile));
@@ -1102,7 +1103,7 @@ export class App implements OnInit,OnDestroy {
  get kennyCashback():number{return cashbackDue(this.kennyState);}
  get kennyAllSkinsOwned():boolean{return this.kennySkins.every(skin=>skin.owned);}
  get kennyRegularExclusivesComplete():boolean{
-   return KENNY_EVENT_ITEMS.filter(item=>item.id!=='kenny_skin_zebra').every(item=>this.owns(item));
+   return KENNY_EVENT_ITEMS.filter(item=>item.id!=='kenny_skin_zebra'&&item.id!=='kenny_skin_reindeer').every(item=>this.owns(item));
  }
  get kennyZebraChance():number{
    return KENNY_ODDS[Math.max(0,Math.min(4,this.kennyLevel-1))].zebra;
@@ -1114,6 +1115,7 @@ export class App implements OnInit,OnDestroy {
    const pools = this.kennyPools;
    const categories = [
      { key: 'event', name: 'Saisonexklusiv' },
+      { key: 'reindeer', name: 'Rentier-Kenny' },
      { key: 'large', name: 'Prestige-Items' },
      { key: 'medium', name: 'Mittlere Items' },
      { key: 'small', name: 'Kleine Items' },
@@ -1161,7 +1163,7 @@ export class App implements OnInit,OnDestroy {
    this.inventorySearch = prize.name;
  }
  setKennySkin(skin:string){
-   if(!['blue','pink','green','red','zebra'].includes(skin)||
+   if(!['blue','pink','green','red','zebra','reindeer'].includes(skin)||
      skin!=='blue'&&!this.profile.inventory.includes('kenny_skin_'+skin))return;
    const state=this.kennyState;
    state.skin=skin as DinoSeasonState['skin'];
@@ -1181,6 +1183,7 @@ export class App implements OnInit,OnDestroy {
    const priorLevel=dinoLevel(before.feeds);
    const prize=drawDinoReward(priorLevel,this.kennyPools,()=>this.randomDino());
    const avatar = kennyAvatarForSkin(prize.item?.id);
+    const winterBanner=prize.item?.id==='kenny_skin_reindeer'?'kenny_winter_banner':null;
    const next={...before,feeds:before.feeds+1};
    const reachedLevelFive=priorLevel<5&&dinoLevel(next.feeds)===5;
    if(priorLevel===5){next.overfeeds++;next.overTokenWins+=prize.tokens;}
@@ -1193,7 +1196,7 @@ export class App implements OnInit,OnDestroy {
    if(prize.item){
      const firstColor=!!avatar&&!previous.inventory.includes(KENNY_BLUE_SKIN.id);
      this.profile.inventory=[...new Set([...this.profile.inventory,
-       ...(firstColor?[KENNY_BLUE_SKIN.id]:[]),prize.item.id,...(avatar?[avatar.id]:[])])];
+       ...(firstColor?[KENNY_BLUE_SKIN.id]:[]),prize.item.id,...(avatar?[avatar.id]:[]),...(winterBanner?[winterBanner]:[])])];
      this.profile.kennyWonItems={...(this.profile.kennyWonItems||{}),[prize.item.id]:true,
        ...(avatar?{[avatar.id]:true}:{})};
    }
@@ -1322,7 +1325,12 @@ export class App implements OnInit,OnDestroy {
  }
  /** Persistent per-user reward notifications. Previously earned items appear in the
   * catalog without generating a wall of retroactive popups on first upgrade. */
+ private grantChristmasGifts(){
+   if(!this.cloud.session || Date.now()<Date.parse('2026-11-24T00:00:00+01:00') || Date.now()>=Date.parse('2027-02-01T00:00:00+01:00'))return;
+   this.profile.inventory=[...new Set([...this.profile.inventory,'snow','christmas_candy','christmas_fireplace'])];
+ }
  private checkRewardUnlocks(){
+   this.grantChristmasGifts();
   // Keep one ordered, persistent reveal queue. Do not pop only the first
   // reward and show the rest on later page visits.
   const unlocked=this.items.filter(i=>i.drop!=='global'&&this.isUnlocked(i)&&!this.owns(i))
